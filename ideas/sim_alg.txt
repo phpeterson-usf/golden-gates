@@ -1,0 +1,55 @@
+Simulate
+--------
+Find inputs, mark active
+Loop 
+  For all active components
+    Find output coordinates
+    Find wire where first point == output coordinate 
+    Put active component data width and value on wire
+    Find component where wire last point is an input
+        Add 1 to component's connection count
+        Component value = wire value
+    end
+  end
+  Mark active components inactive
+  Mark connected components active
+  For all active components
+    check that connection count == input count
+  end
+// forever
+
+Initialize
+----------
+For all components
+  if type != input 
+    value = undefined
+  if output == wire
+    data width = undefined
+  active = undefined
+
+  Questions
+  ---------
+  This doesn't work across inputs/outputs of multiple circuits
+  How does it work for tunnels?
+  This doesn't detect cycles. OK?
+
+
+Circuit builder approach
+------------------------
+For all wires
+  Find points[0] component, store key
+    If not found, look for points[0] on segments of other wires
+  Find points[n] component, store key
+    If not found, look for points[n] on segments of other wires
+For all inputs
+  Mark active
+For all active components
+  Find wires with key == this
+  this.active = false
+  For components connected to each wire
+    component[other side].value = this.value
+    component[other side].active = true
+
+Questions
+---------
+This doesn't quite support wires connected to wires
