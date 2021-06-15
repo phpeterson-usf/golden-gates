@@ -28,6 +28,7 @@ export default defineComponent({
           "children": [
             {"key": "1-0", "label": "And"},
             {"key": "1-1", "label": "Or"},
+            {"key": "1-2", "label": "Not"},
           ]
         },
         {

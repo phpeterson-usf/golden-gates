@@ -50,6 +50,14 @@ export default defineComponent({
         "numInputs": 2,
         "invertedInputs": [],
         },
+        {
+        "key": "2",
+        "kind": "NotGate",
+        "x": 30,
+        "y": 30,
+        "numInputs": 1,
+        "invertedInputs": [],
+        },
       ],
     }
   }
