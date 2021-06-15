@@ -28,13 +28,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-// import InlineSvg from 'vue-inline-svg'
 
 export default defineComponent({
   name: 'GGLogicGate',
-//   components: {
-//       InlineSvg,
-//   },
   props: {
     item: Object,
   }
