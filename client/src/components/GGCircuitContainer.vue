@@ -58,6 +58,14 @@ export default defineComponent({
         "numInputs": 1,
         "invertedInputs": [],
         },
+        {
+        "key": "3",
+        "kind": "xor-gate",
+        "x": 0,
+        "y": 300,
+        "numInputs": 1,
+        "invertedInputs": [],
+        },
       ],
     }
   }

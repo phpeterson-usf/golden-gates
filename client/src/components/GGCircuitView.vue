@@ -8,16 +8,18 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import GGAndGate from './GGAndGate.vue'
-import GGNotGate from './GGNotGate.vue'
-import GGOrGate from './GGOrGate.vue'
+import AndGate from './gates/AndGate.vue'
+import NotGate from './gates/NotGate.vue'
+import OrGate  from './gates/OrGate.vue'
+import XOrGate from './gates/XOrGate.vue'
 
 export default defineComponent({
   name: 'GGCircuitView',
   components: {
-    'and-gate': GGAndGate,
-    'not-gate': GGNotGate,
-    'or-gate': GGOrGate,
+    'and-gate': AndGate,
+    'not-gate': NotGate,
+    'or-gate' : OrGate,
+    'xor-gate': XOrGate,
   },
   props: {
     items: Array,
