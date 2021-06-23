@@ -15,7 +15,7 @@
             const x: string = this.item?.x + 2;
             const y: string = this.item?.y + 10;
             const path = "v 0,60 l 30,-30 l -32,-30";
-            return "M" + x + " " + y + " " + path;
+            return `M${x} ${y} ${path}`;
         },
         cx: function(): number {
             return this.item?.x + 44;

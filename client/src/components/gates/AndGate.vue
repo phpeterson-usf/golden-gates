@@ -14,7 +14,7 @@
             const path = "h -60,0 v 0,-80 h 60,0 a 50,40 0 0 1 0,80";
             const x: string = this.item?.x + 62;
             const y: string = this.item?.y + 82;
-            return "M" + x + " " + y + " " + path;
+            return `M${x} ${y} ${path}`;
         }
     }
   })
