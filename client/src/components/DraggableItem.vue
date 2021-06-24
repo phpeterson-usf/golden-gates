@@ -19,6 +19,7 @@ import NotGate from './gates/NotGate.vue'
 import OrGate  from './gates/OrGate.vue'
 import XOrGate from './gates/XOrGate.vue'
 import InputIO from './io/Input.vue'
+import OutputIO from './io/Output.vue'
 
  export default defineComponent({
     name: 'DraggableItem',
@@ -26,11 +27,12 @@ import InputIO from './io/Input.vue'
         item: Object
     },
     components: {
-        'and-gate': AndGate,
-        'not-gate': NotGate,
-        'or-gate' : OrGate,
-        'xor-gate': XOrGate,
-        'input-io': InputIO,
+        'and-gate' : AndGate,
+        'not-gate' : NotGate,
+        'or-gate'  : OrGate,
+        'xor-gate' : XOrGate,
+        'input-io' : InputIO,
+        'output-io': OutputIO,
     },
     data() {
         return {

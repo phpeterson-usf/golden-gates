@@ -71,8 +71,15 @@ export default defineComponent({
           "kind": "input-io",
           "x": 150,
           "y": 100,
-          "name": "Abc",
-        }
+          "name": "D",
+        },
+        {
+          "key": "5",
+          "kind": "output-io",
+          "x": 150,
+          "y": 150,
+          "name": "Q",
+        },
       ],
     }
   }
