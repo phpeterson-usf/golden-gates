@@ -66,6 +66,13 @@ export default defineComponent({
         "numInputs": 1,
         "invertedInputs": [],
         },
+        {
+          "key": "4",
+          "kind": "input-io",
+          "x": 150,
+          "y": 100,
+          "name": "Abc",
+        }
       ],
     }
   }

@@ -18,6 +18,7 @@ import AndGate from './gates/AndGate.vue'
 import NotGate from './gates/NotGate.vue'
 import OrGate  from './gates/OrGate.vue'
 import XOrGate from './gates/XOrGate.vue'
+import InputIO from './io/Input.vue'
 
  export default defineComponent({
     name: 'DraggableItem',
@@ -29,6 +30,7 @@ import XOrGate from './gates/XOrGate.vue'
         'not-gate': NotGate,
         'or-gate' : OrGate,
         'xor-gate': XOrGate,
+        'input-io': InputIO,
     },
     data() {
         return {
@@ -55,11 +57,18 @@ import XOrGate from './gates/XOrGate.vue'
  })
 </script>
 
-<style scoped>
+<style>
 .circuit-item {
   stroke: black;
   stroke-width: 3px;  
   fill: white; 
+}
+.circuit-text {
+  font-family: sans-serif;
+  font-size: 20px;
+  font-weight: lighter;
+  font-style: normal;
+  stroke-width: 1px;
 }
 .hover-cursor {
     cursor: move;
