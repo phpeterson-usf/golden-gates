@@ -11,9 +11,9 @@
     },
     computed: {
         d: function(): string {
-            const path = "h -60,0 v 0,-80 h 60,0 a 50,40 0 0 1 0,80";
-            const x: string = this.item?.x + 62;
-            const y: string = this.item?.y + 82;
+            const path = "h -40,0 v 0,-60 h 40,0 a 60,40 0 0 1 0,60";
+            const x: string = this.item?.x + 42;
+            const y: string = this.item?.y + 62;
             return `M${x} ${y} ${path}`;
         }
     }

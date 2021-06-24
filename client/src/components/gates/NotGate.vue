@@ -14,14 +14,14 @@
         d: function(): string {
             const x: string = this.item?.x + 2;
             const y: string = this.item?.y + 10;
-            const path = "v 0,60 l 30,-30 l -32,-30";
+            const path = "v 0,40 l 20,-20 l -20,-20";
             return `M${x} ${y} ${path}`;
         },
         cx: function(): number {
-            return this.item?.x + 44;
+            return this.item?.x + 34;
         },
         cy: function(): number {
-            return this.item?.y + 40;
+            return this.item?.y + 30;
         }
     }
   })
