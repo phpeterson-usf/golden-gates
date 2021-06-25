@@ -25,4 +25,7 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
 }
+.p-component {
+  border-width: 0px;
+}
 </style>
