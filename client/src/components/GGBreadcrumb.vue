@@ -19,10 +19,9 @@ export default defineComponent({
   },
   data() {
         return {
-            home: {icon: 'pi pi-home'},
+            home: {label: 'CS315-03'},
             items: [
-                {label: 'Project05'},
-                {label: 'Decoder'},
+                {label: 'Project05 - phpeterson'},
             ]
         }
     }

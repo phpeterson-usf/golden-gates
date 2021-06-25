@@ -12,16 +12,16 @@
     },
     computed: {
         d: function(): string {
-            const x: string = this.item?.x + 2;
-            const y: string = this.item?.y + 10;
-            const path = "v 0,40 l 20,-20 l -20,-20";
+            const x = this.item!.xPix + 2;
+            const y = this.item!.yPix + 10;
+            const path = "v 0,50 l 30,-25 l -30,-25";
             return `M${x} ${y} ${path}`;
         },
         cx: function(): number {
-            return this.item?.x + 34;
+            return this.item!.xPix + 42;
         },
         cy: function(): number {
-            return this.item?.y + 30;
+            return this.item!.yPix + 34;
         }
     }
   })

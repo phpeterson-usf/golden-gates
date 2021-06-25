@@ -2,29 +2,33 @@
   <g 
     ref="box"
     class="circuit-item"
-    :class="{ 'hover-cursor': hover }"
+    :class="{ 'item-hover': hover }"
     @mousedown="drag"
     @mouseup="drop"
     @mouseleave="hover = false"
     @mouseover="hover = true"
   >
-    <component :is="item.kind" :item="item"/>
+    <component 
+      :is="item.kind"
+      :item="item"
+    />
   </g>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import AndGate from './gates/AndGate.vue'
-import NotGate from './gates/NotGate.vue'
-import OrGate  from './gates/OrGate.vue'
-import XOrGate from './gates/XOrGate.vue'
-import InputIO from './io/Input.vue'
+import AndGate  from './gates/AndGate.vue'
+import NotGate  from './gates/NotGate.vue'
+import OrGate   from './gates/OrGate.vue'
+import XOrGate  from './gates/XOrGate.vue'
+import InputIO  from './io/Input.vue'
 import OutputIO from './io/Output.vue'
+import Wire     from './other/Wire.vue'
 
  export default defineComponent({
     name: 'DraggableItem',
     props: {
-        item: Object
+        item: Object,
     },
     components: {
         'and-gate' : AndGate,
@@ -33,46 +37,54 @@ import OutputIO from './io/Output.vue'
         'xor-gate' : XOrGate,
         'input-io' : InputIO,
         'output-io': OutputIO,
+        'wire'     : Wire,
     },
     data() {
         return {
-            dragOffsetX: 0,
-            dragOffsetY: 0,
+            dragOffsetX: undefined,
+            dragOffsetY: undefined,
             hover: false,
         }
     },
+    inject: ['gridSize'],
     methods: {
         drag(evt: MouseEvent) {
-            this.dragOffsetX = evt.offsetX - this.item?.x
-            this.dragOffsetY = evt.offsetY - this.item?.y
+            this.dragOffsetX = Math.ceil((evt.offsetX - this.item!.xPix)/20) * 20
+            this.dragOffsetY = Math.ceil((evt.offsetY - this.item!.yPix)/20) * 20
             this.$refs.box.addEventListener('mousemove', this.move)
         },
         drop() {
-            this.dragOffsetX = this.dragOffsetY = 0
+            this.dragOffsetX = this.dragOffsetY = undefined
             this.$refs.box.removeEventListener('mousemove', this.move)
         },
+        snap(x: number) :number {
+          return Math.round(x / this.gridSize) * this.gridSize
+        },
         move(evt: MouseEvent) {
-            this.item.x = evt.offsetX - this.dragOffsetX
-            this.item.y = evt.offsetY - this.dragOffsetY
+            this.item!.xPix = this.snap(evt.offsetX - this.dragOffsetX!)
+            this.item!.yPix = this.snap(evt.offsetY - this.dragOffsetY!)
         },
     },
  })
 </script>
 
 <style>
-.circuit-item {
-  stroke: black;
-  stroke-width: 3px;  
-  fill: white; 
-}
-.circuit-text {
-  font-family: sans-serif;
-  font-size: 20px;
-  font-weight: lighter;
-  font-style: normal;
-  stroke-width: 1px;
-}
-.hover-cursor {
-    cursor: move;
-}
+  .circuit-item {
+    fill: white; 
+    stroke: black;
+    stroke-linecap: round;
+    stroke-width: 3px;  
+  }
+
+  .circuit-text {
+    font-family: sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: lighter;
+    stroke-width: 1px;
+  }
+
+  .item-hover {
+      cursor: move;
+  }
 </style>

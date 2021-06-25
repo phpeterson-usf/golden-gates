@@ -23,26 +23,26 @@ export default defineComponent({
     },
     data() {
         return {
-            radius: 10,
+            radius: 15,
         }
     },
     computed: {
         cx: function(): number {
-            return this.item?.x + this.radius + 5
+            return this.item!.xPix
         },
         cy: function(): number {
-            return this.item?.y + this.radius + 5
+            return this.item!.yPix
         },
         tx: function(): number {
             if (this.$refs.outputName === undefined) {
-                return this.item?.x - this.radius
+                return this.item!.xPix - this.radius
             } else {
                 const len = this.$refs.outputName.getComputedTextLength()
-                return this.item?.x + len + this.radius + 4
+                return this.item!.xPix + len + this.radius + 2
             }
         },
         ty: function(): number {
-            return this.item?.y + this.radius + 12
+            return this.item!.yPix + this.radius - 10
         },
     }
 })
