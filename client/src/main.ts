@@ -2,6 +2,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 const app = createApp(App)
+app.provide('gridSize', 15)
 
 // Primevue setup
 import PrimeVue from 'primevue/config'
