@@ -4,6 +4,11 @@
         :cy="cy"
         :r="radius"
     />
+    <circle
+        :cx="cx"
+        :cy="cy"
+        :r="radius - 6"
+    />
     <text
         class="circuit-text"
         ref="outputName"
@@ -38,7 +43,7 @@ export default defineComponent({
                 return this.item!.xPix - this.radius
             } else {
                 const len = this.$refs.outputName.getComputedTextLength()
-                return this.item!.xPix + len + this.radius + 2
+                return this.item!.xPix + len + 5
             }
         },
         ty: function(): number {

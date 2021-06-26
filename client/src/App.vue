@@ -1,18 +1,18 @@
 <template>
-  <GGBreadcrumb/>
-  <GGCircuitContainer/>
+  <AppBar/>
+  <SplitterContainer/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import GGBreadcrumb from './components/GGBreadcrumb.vue'
-import GGCircuitContainer from './components/GGCircuitContainer.vue'
+import AppBar from './components/AppBar.vue'
+import SplitterContainer from './components/SplitterContainer.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    GGBreadcrumb,
-    GGCircuitContainer
+    AppBar,
+    SplitterContainer,
   },
 })
 </script>

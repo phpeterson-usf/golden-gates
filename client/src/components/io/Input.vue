@@ -45,7 +45,7 @@ export default defineComponent({
                 return this.item!.xPix - this.square
             } else {
                 const len = this.$refs.inputName.getComputedTextLength()
-                return this.item!.xPix - len - 4
+                return this.item!.xPix - len - 5
             }
         },
         ty: function(): number {
