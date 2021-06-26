@@ -11,7 +11,7 @@
         :r="radius"
     />
     <text 
-        ref="inputName"
+        ref="svgText"
         class="circuit-text"
         :x="tx"
         :y="ty"
@@ -41,10 +41,11 @@ export default defineComponent({
             return this.item!.yPix + this.radius + 6
         },
         tx: function(): number {
-            if (this.$refs.inputName === undefined) {
+            if (this.getTextElement() === undefined) {
+                // This is why text draws wrong until drag. How to fix?
                 return this.item!.xPix - this.square
             } else {
-                const len = this.$refs.inputName.getComputedTextLength()
+                const len = this.getTextElement().getComputedTextLength()
                 return this.item!.xPix - len - 5
             }
         },
@@ -58,5 +59,11 @@ export default defineComponent({
             radius: 10,
         }
     },
+    methods: {
+        getTextElement(): SVGTextContentElement {
+            // Typesafe way to call getComputedTextLength
+            return this.$refs.svgText as InstanceType<typeof SVGTextContentElement>
+        }
+    }
 })
 </script>

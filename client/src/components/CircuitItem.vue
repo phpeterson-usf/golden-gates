@@ -1,6 +1,6 @@
 <template>
   <g 
-    ref="box"
+    ref="svgGroup"
     class="circuit-item"
     :class="{ 'item-hover': hover }"
     @mousedown="drag"
@@ -41,23 +41,28 @@ import Wire     from './other/Wire.vue'
     },
     data() {
         return {
-            dragOffsetX: undefined,
-            dragOffsetY: undefined,
+            dragOffsetX: 0,
+            dragOffsetY: 0,
             hover: false,
         }
     },
     inject: ['gridSize'],
     methods: {
+        draggedElement(): HTMLElement {
+            // Typesafe say to get svgGroup element for event listeners
+            return this.$refs.svgGroup as InstanceType<typeof HTMLElement>
+        },
         drag(evt: MouseEvent) {
-            this.dragOffsetX = Math.ceil((evt.offsetX - this.item!.xPix)/20) * 20
-            this.dragOffsetY = Math.ceil((evt.offsetY - this.item!.yPix)/20) * 20
-            this.$refs.box.addEventListener('mousemove', this.move)
+            this.dragOffsetX = Math.ceil(evt.offsetX - this.item!.xPix)
+            this.dragOffsetY = Math.ceil(evt.offsetY - this.item!.yPix)
+            this.draggedElement().addEventListener('mousemove', this.move)
         },
         drop() {
-            this.dragOffsetX = this.dragOffsetY = undefined
-            this.$refs.box.removeEventListener('mousemove', this.move)
+            this.dragOffsetX = this.dragOffsetY = 0
+            this.draggedElement().removeEventListener('mousemove', this.move)
         },
         snap(x: number) :number {
+          // https://logaretm.com/blog/2020-12-23-type-safe-provide-inject/
           return Math.round(x / this.gridSize) * this.gridSize
         },
         move(evt: MouseEvent) {
