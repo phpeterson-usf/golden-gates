@@ -3,8 +3,10 @@
         <Toolbar>
             <template #right>
                 <Button
-                    @click="simulate"
+                    @click="toggleSimulation"
                     icon="pi pi-power-off"
+                    class="p-button-outlined p-button-success"
+                    :class="{ 'p-button-danger': simulating }"
                 />
             </template>
         </Toolbar>
@@ -21,9 +23,19 @@ export default defineComponent({
     Button,
     Toolbar,
   },
+  data() {
+      return {
+          simulating: false,
+      }
+  },
   methods: {
-      simulate(): void {
-          console.log("simulate")
+      toggleSimulation() {
+          if (this.simulating) {
+            this.$emit("stopSimulation")
+          } else {
+              this.$emit("startSimulation")
+          }
+          this.simulating = !this.simulating
       },
   },
 })

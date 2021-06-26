@@ -1,7 +1,10 @@
 <template>
     <div class="p-grid" style="height: 60px">
         <BreadcrumbBar/>
-        <SimulationBar/>
+        <SimulationBar
+          @startSimulation="handleStartSimulation"
+          @stopSimulation="handleStopSimulation"
+        />
     </div>
 </template>
 
@@ -15,6 +18,14 @@ export default defineComponent({
   components: {
     BreadcrumbBar,
     SimulationBar,
+  },
+  methods: {
+    handleStartSimulation() {
+      this.$emit("startSimulation")
+    },
+    handleStopSimulation() {
+      this.$emit("stopSimulation")
+    },
   },
 })
 
