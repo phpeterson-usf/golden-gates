@@ -2,7 +2,7 @@
   <g 
     ref="svgGroup"
     class="circuit-item"
-    :class="{ 'item-hover': hover }"
+    :class="{ 'item-hover': hover, 'item-simulating': simulating }"
     @mousedown="drag"
     @mouseup="drop"
     @mouseleave="hover = false"
@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { CCircuitItemWithCoords } from '../sim/base'
 import AndGate  from './gates/AndGate.vue'
 import NotGate  from './gates/NotGate.vue'
 import OrGate   from './gates/OrGate.vue'
@@ -28,7 +29,7 @@ import Wire     from './other/Wire.vue'
  export default defineComponent({
     name: 'CircuitItem',
     props: {
-        item: Object,
+        item: CCircuitItemWithCoords,
     },
     components: {
         'and-gate' : AndGate,
@@ -44,6 +45,7 @@ import Wire     from './other/Wire.vue'
             dragOffsetX: 0,
             dragOffsetY: 0,
             hover: false,
+            simulating: false,
         }
     },
     inject: ['gridSize'],
@@ -53,8 +55,8 @@ import Wire     from './other/Wire.vue'
             return this.$refs.svgGroup as InstanceType<typeof HTMLElement>
         },
         drag(evt: MouseEvent) {
-            this.dragOffsetX = Math.ceil(evt.offsetX - this.item!.xPix)
-            this.dragOffsetY = Math.ceil(evt.offsetY - this.item!.yPix)
+            this.dragOffsetX = Math.ceil(evt.offsetX - this.item!.xPix())
+            this.dragOffsetY = Math.ceil(evt.offsetY - this.item!.yPix())
             this.draggedElement().addEventListener('mousemove', this.move)
         },
         drop() {
@@ -63,11 +65,11 @@ import Wire     from './other/Wire.vue'
         },
         snap(x: number) :number {
           // https://logaretm.com/blog/2020-12-23-type-safe-provide-inject/
-          return Math.round(x / this.gridSize) * this.gridSize
+          return Math.round(x / this.gridSize)
         },
         move(evt: MouseEvent) {
-            this.item!.xPix = this.snap(evt.offsetX - this.dragOffsetX!)
-            this.item!.yPix = this.snap(evt.offsetY - this.dragOffsetY!)
+            this.item!.xGrid = this.snap(evt.offsetX - this.dragOffsetX!)
+            this.item!.yGrid = this.snap(evt.offsetY - this.dragOffsetY!)
         },
     },
  })
@@ -96,5 +98,9 @@ import Wire     from './other/Wire.vue'
 
   .item-hover {
       cursor: move;
+  }
+
+  .item-simulating {
+    stroke: yellow;
   }
 </style>

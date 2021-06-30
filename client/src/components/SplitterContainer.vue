@@ -19,6 +19,7 @@ import Splitter      from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
 import ToolTree      from './ToolTree.vue'
 import Circuit       from './Circuit.vue'
+import { CCircuit }  from '../sim/base'
 
 export default defineComponent({
   name: 'SplitterContainer',
@@ -29,7 +30,7 @@ export default defineComponent({
     Circuit,
   },
   props: {
-    circuit: Object,
+    circuit: CCircuit,
   },
 })
 </script>

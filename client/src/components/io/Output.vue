@@ -21,10 +21,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { COutput } from '../../sim/io'
 export default defineComponent({
     name: "OutputIO",
     props: {
-        item: Object,
+        item: COutput,
     },
     data() {
         return {
@@ -33,22 +34,22 @@ export default defineComponent({
     },
     computed: {
         cx: function(): number {
-            return this.item!.xPix
+            return this.item!.xPix()
         },
         cy: function(): number {
-            return this.item!.yPix
+            return this.item!.yPix()
         },
         tx: function(): number {
             if (this.getTextElement() === undefined) {
                 // This is why text draws wrong until drag. How to fix?
-                return this.item!.xPix - this.radius
+                return this.item!.xPix() - this.radius
             } else {
                 const len = this.getTextElement().getComputedTextLength()
-                return this.item!.xPix + len + 5
+                return this.item!.xPix() + len + 5
             }
         },
         ty: function(): number {
-            return this.item!.yPix + this.radius - 10
+            return this.item!.yPix() + this.radius - 10
         },
     },
     methods: {

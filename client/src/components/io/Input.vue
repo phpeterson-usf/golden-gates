@@ -22,35 +22,37 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { CInput } from '../../sim/io'
 export default defineComponent({
     name: "InputIO",
     props: {
-        item: Object,
+        item: CInput,
     },
+    inject: ['gridSize'],
     computed: {
         x: function(): number {
-            return this.item!.xPix
+            return this.item!.xPix()
         },
         y: function(): number {
-            return this.item!.yPix + 1
+            return this.item!.yPix() + 1
         },
         cx: function(): number {
-            return this.item!.xPix + this.radius + 5
+            return this.item!.xPix() + this.radius + 5
         },
         cy: function(): number {
-            return this.item!.yPix + this.radius + 6
+            return this.item!.yPix() + this.radius + 6
         },
         tx: function(): number {
             if (this.getTextElement() === undefined) {
                 // This is why text draws wrong until drag. How to fix?
-                return this.item!.xPix - this.square
+                return this.item!.xPix() - this.square
             } else {
                 const len = this.getTextElement().getComputedTextLength()
-                return this.item!.xPix - len - 5
+                return this.item!.xPix() - len - 5
             }
         },
         ty: function(): number {
-            return this.item!.yPix + this.square - 8
+            return this.item!.yPix() + this.square - 8
         },
     },
     data() {
