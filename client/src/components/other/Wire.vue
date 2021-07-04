@@ -12,16 +12,18 @@
 
 <script lang="ts">
   import { defineComponent } from 'vue'
-  import { CWire } from '../../sim/wires'
+  import { CWire }           from '../../sim/wires'
+  import { gridSize }        from '../../constants'
 
   export default defineComponent({
     name: "Wire",
+    data() {
+      return {
+        gridSize: gridSize,
+      }
+    },
     props: {
         item: CWire,
     },
-    inject: ['gridSize'],
-    setup(props) {
-      console.log(props.item)
-    }
   })
 </script>

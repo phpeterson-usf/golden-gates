@@ -1,4 +1,11 @@
-const gridSize = 15
+import { gridSize } from "../constants"
+
+export class CSimState {
+    simulating: Boolean
+    constructor(simulating: Boolean) {
+        this.simulating = simulating
+    }
+}
 
 export class CCircuitItem {
     kind: string
@@ -36,3 +43,4 @@ export class CCircuit {
         this.items = []
     }
 }
+

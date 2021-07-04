@@ -2,7 +2,10 @@
   <g 
     ref="svgGroup"
     class="circuit-item"
-    :class="{ 'item-hover': hover, 'item-simulating': simulating }"
+    :class="{ 
+      'item-hover': hover, 
+      'item-simulating': simState.simulating
+    }"
     @mousedown="drag"
     @mouseup="drop"
     @mouseleave="hover = false"
@@ -16,8 +19,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { CCircuitItemWithCoords } from '../sim/base'
+import { defineComponent, inject } from 'vue'
+import { CCircuitItem, CCircuitItemWithCoords, CSimState } from '../sim/base'
+import { gridSize } from '../constants'
 import AndGate  from './gates/AndGate.vue'
 import NotGate  from './gates/NotGate.vue'
 import OrGate   from './gates/OrGate.vue'
@@ -29,7 +33,7 @@ import Wire     from './other/Wire.vue'
  export default defineComponent({
     name: 'CircuitItem',
     props: {
-        item: CCircuitItemWithCoords,
+        item: CCircuitItem,
     },
     components: {
         'and-gate' : AndGate,
@@ -45,19 +49,20 @@ import Wire     from './other/Wire.vue'
             dragOffsetX: 0,
             dragOffsetY: 0,
             hover: false,
-            simulating: false,
         }
     },
-    inject: ['gridSize'],
     methods: {
         draggedElement(): HTMLElement {
             // Typesafe say to get svgGroup element for event listeners
             return this.$refs.svgGroup as InstanceType<typeof HTMLElement>
         },
         drag(evt: MouseEvent) {
-            this.dragOffsetX = Math.ceil(evt.offsetX - this.item!.xPix())
-            this.dragOffsetY = Math.ceil(evt.offsetY - this.item!.yPix())
-            this.draggedElement().addEventListener('mousemove', this.move)
+            if (this.item!.kind != 'wire') {
+              let itemWithCoords = this.item as CCircuitItemWithCoords
+              this.dragOffsetX = evt.offsetX - itemWithCoords.xPix()
+              this.dragOffsetY = evt.offsetY - itemWithCoords.yPix()
+              this.draggedElement().addEventListener('mousemove', this.move)
+            }
         },
         drop() {
             this.dragOffsetX = this.dragOffsetY = 0
@@ -65,12 +70,21 @@ import Wire     from './other/Wire.vue'
         },
         snap(x: number) :number {
           // https://logaretm.com/blog/2020-12-23-type-safe-provide-inject/
-          return Math.round(x / this.gridSize)
+          return Math.round(x / gridSize)
         },
         move(evt: MouseEvent) {
-            this.item!.xGrid = this.snap(evt.offsetX - this.dragOffsetX!)
-            this.item!.yGrid = this.snap(evt.offsetY - this.dragOffsetY!)
+          if (this.item!.kind != 'wire') {
+            let itemWithCoords = this.item as CCircuitItemWithCoords
+            itemWithCoords.xGrid = this.snap(evt.offsetX - this.dragOffsetX!)
+            itemWithCoords.yGrid = this.snap(evt.offsetY - this.dragOffsetY!)
+          }
         },
+    },
+    setup() {
+      let simState = inject("simState") as CSimState
+      return {
+        simState,
+      }
     },
  })
 </script>

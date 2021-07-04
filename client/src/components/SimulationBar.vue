@@ -6,37 +6,35 @@
                     @click="toggleSimulation"
                     icon="pi pi-power-off"
                     class="p-button-outlined p-button-success"
-                    :class="{ 'p-button-danger': simulating }"
+                    :class="{ 'p-button-danger': simState.simulating }"
                 />
             </template>
         </Toolbar>
     </div>
 </template>
 
-<script lang="ts">import { defineComponent } from 'vue'
+<script lang="ts">import { defineComponent, inject } from 'vue'
 import 'primeflex/primeflex.css'
-import Toolbar from 'primevue/toolbar'
-import Button from 'primevue/button'
+import Toolbar       from 'primevue/toolbar'
+import Button        from 'primevue/button'
+import { CSimState } from '../sim/base'
+
 export default defineComponent({
   name: 'SimulationBar',
   components: {
     Button,
     Toolbar,
   },
-  data() {
-      return {
-          simulating: false,
-      }
-  },
   methods: {
       toggleSimulation() {
-          if (this.simulating) {
-            this.$emit("stopSimulation")
-          } else {
-              this.$emit("startSimulation")
-          }
-          this.simulating = !this.simulating
+          this.$emit("toggleSimulation")
       },
+  },
+  setup() {
+    let simState = inject("simState") as CSimState
+    return {
+      simState,
+    }
   },
 })
 </script>

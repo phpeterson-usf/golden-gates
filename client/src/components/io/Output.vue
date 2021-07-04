@@ -21,7 +21,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { COutput } from '../../sim/io'
+import { COutput }         from '../../sim/io'
+
 export default defineComponent({
     name: "OutputIO",
     props: {

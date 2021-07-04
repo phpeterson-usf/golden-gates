@@ -22,13 +22,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { CInput } from '../../sim/io'
+import { CInput }          from '../../sim/io'
+
 export default defineComponent({
     name: "InputIO",
     props: {
         item: CInput,
     },
-    inject: ['gridSize'],
     computed: {
         x: function(): number {
             return this.item!.xPix()

@@ -16,33 +16,19 @@
 
 <script lang="ts">
   import { defineComponent } from 'vue'
-  import CircuitItem from './CircuitItem.vue'
+  import CircuitItem         from './CircuitItem.vue'
+  import { gridSize }        from '../constants'
 
   export default defineComponent({
     name: 'Circuit',
     components: {
       CircuitItem,
     },
-    inject: ['gridSize'],
-    // methods: {
-    //   makePixelCoord(i: number): number {
-    //     return i * this.gridSize
-    //   },
-    //   addPixelCoords(o: Object): Object {
-    //     if (o.kind === 'wire') {
-    //       for (const seg of o.segments) {
-    //         seg.x1Pix = this.makePixelCoord(seg.x1Grid)
-    //         seg.y1Pix = this.makePixelCoord(seg.y1Grid)
-    //         seg.x2Pix = this.makePixelCoord(seg.x2Grid)
-    //         seg.y2Pix = this.makePixelCoord(seg.y2Grid)
-    //       }
-    //     } else {
-    //       o.xPix = this.makePixelCoord(o.xGrid)
-    //       o.yPix = this.makePixelCoord(o.yGrid)
-    //     }
-    //     return o
-    //   },
-    // },
+    data() {
+      return {
+        gridSize: gridSize,
+      }
+    },
     props: {
       items: Array,
     },

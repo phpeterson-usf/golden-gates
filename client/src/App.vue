@@ -1,15 +1,15 @@
 <template>
   <AppBar 
-    @startSimulation="handleStartSimulation"
-    @stopSimulation="handleStopSimulation"
+    @toggleSimulation="handleToggleSimulation"
   />
   <SplitterContainer :circuit="circuit"/>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, provide, reactive } from 'vue'
 import AppBar from './components/AppBar.vue'
 import SplitterContainer from './components/SplitterContainer.vue'
+import { CSimState } from './sim/base'
 import { CAndGate } from './sim/gates'
 import { CInput, COutput } from './sim/io'
 import { CWire, CWireSegment } from './sim/wires'
@@ -22,11 +22,13 @@ export default defineComponent({
     SplitterContainer,
   },
   methods: {
-    handleStartSimulation() {
-      console.log("app start")
-    },
-    handleStopSimulation() {
-      console.log("app stop")
+    handleToggleSimulation() {
+      if (this.simState.simulating === true) {
+        console.log("stop simulation")
+      } else {
+        console.log("start simulation ")
+      }
+      this.simState.simulating = !this.simState.simulating
     },
     makeCircuit() {
       // I'm sure this isn't how we'll create it from JSON but
@@ -57,119 +59,16 @@ export default defineComponent({
   },
   data() {
     return {
-      "circuit": this.makeCircuit()
+      "circuit": this.makeCircuit(),
+    }
+  },
+  setup() {
+    let simState = reactive(new CSimState(false))
+    provide("simState", simState)
+    return {
+      simState,
     }
   }
-  // data() {
-  //   return {
-  //     "circuit": {
-  //       "name": "test",
-  //       "items": [
-  //         {
-  //           "key": "0",
-  //           "kind": "and-gate",
-  //           "xGrid": 13,
-  //           "yGrid": 4,
-  //           "numInputs": 2,
-  //           "invertedInputs": [],
-  //         },
-  //         {
-  //           "key": "1",
-  //           "kind": "or-gate",
-  //           "xGrid": 0,
-  //           "yGrid": 10,
-  //           "numInputs": 2,
-  //           "invertedInputs": [],
-  //         },
-  //         {
-  //           "key": "2",
-  //           "kind": "not-gate",
-  //           "xGrid": 0,
-  //           "yGrid": 16,
-  //           "numInputs": 1,
-  //           "invertedInputs": [],
-  //         },
-  //         {
-  //           "key": "3",
-  //           "kind": "xor-gate",
-  //           "xGrid": 0,
-  //           "yGrid": 22,
-  //           "numInputs": 1,
-  //           "invertedInputs": [],
-  //         },
-  //         {
-  //           "key": "4",
-  //           "kind": "input-io",
-  //           "xGrid": 6,
-  //           "yGrid": 3,
-  //           "name": "A",
-  //         },
-  //         {
-  //           "key": "5",
-  //           "kind": "output-io",
-  //           "xGrid": 22,
-  //           "yGrid": 6,
-  //           "name": "R",
-  //         },
-  //         {
-  //           "key": "6",
-  //           "kind": "wire",
-  //           "segments": [
-  //             {
-  //               "x1Grid": 8,
-  //               "y1Grid": 4,
-  //               "x2Grid": 11,
-  //               "y2Grid": 4,
-  //             },
-  //             {
-  //               "x1Grid": 11,
-  //               "y1Grid": 4,
-  //               "x2Grid": 11,
-  //               "y2Grid": 5,
-  //             },
-  //             {
-  //               "x1Grid": 11,
-  //               "y1Grid": 5,
-  //               "x2Grid": 13,
-  //               "y2Grid": 5,
-  //             },
-  //           ]
-  //         },
-  //         {
-  //           "key": "7",
-  //           "kind": "wire",
-  //           "segments": [
-  //             {
-  //               "x1Grid": 8,
-  //               "y1Grid": 7,
-  //               "x2Grid": 13,
-  //               "y2Grid": 7,
-  //             },
-  //           ]
-  //         },
-  //         {
-  //           "key": "8",
-  //           "kind": "input-io",
-  //           "xGrid": 6,
-  //           "yGrid": 6,
-  //           "name": "B", 
-  //         },
-  //         {
-  //           "key": "9",
-  //           "kind": "wire",
-  //           "segments": [
-  //             {
-  //               "x1Grid": 17,
-  //               "y1Grid": 6,
-  //               "x2Grid": 21,
-  //               "y2Grid": 6,
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     }
-  //   }
-  // }
 })
 </script>
 
