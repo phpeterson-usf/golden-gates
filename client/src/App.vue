@@ -13,6 +13,7 @@ import { CSimState } from './sim/base'
 import { CAndGate } from './sim/gates'
 import { CInput, COutput } from './sim/io'
 import { CWire, CWireSegment } from './sim/wires'
+import { CSimulator } from './sim/simulator'
 
 import { CCircuit} from './sim/base'
 export default defineComponent({
@@ -24,13 +25,13 @@ export default defineComponent({
   methods: {
     handleToggleSimulation() {
       if (this.simState.simulating === true) {
-        console.log("stop simulation")
+        this.simulator.stop()
       } else {
-        console.log("start simulation ")
+        this.simulator.start(this.circuit)
       }
       this.simState.simulating = !this.simState.simulating
     },
-    makeCircuit() {
+    makeCircuit(): CCircuit {
       // I'm sure this isn't how we'll create it from JSON but
       // I want to start testing simulation ideas
       const a = new CAndGate("0", 13, 4, 2)
@@ -59,10 +60,12 @@ export default defineComponent({
   },
   data() {
     return {
+      "simulator": new CSimulator(),
       "circuit": this.makeCircuit(),
     }
   },
   setup() {
+    // simState provides a reactive reference to this global CSimState object
     let simState = reactive(new CSimState(false))
     provide("simState", simState)
     return {
