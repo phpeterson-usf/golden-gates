@@ -1,0 +1,20 @@
+from ggl import circuit
+from ggl import io
+from ggl import logic
+
+c = circuit.Circuit()
+g = logic.And(bits=1, label='r')
+
+a = io.Input(bits=1, label='a')
+a.value = 0b1
+c.connect(a, "0", g, "0")
+
+b = io.Input(bits=1, label='b')
+b.value = 0b1
+c.connect(b, "0", g, "1")
+
+r = io.Output(bits=1, label='r')
+c.connect(g, "0", r, "0")
+
+c.run()
+print(r.value)
