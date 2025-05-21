@@ -1,4 +1,4 @@
-from .circuit import BitsNode
+from .node import BitsNode
 import logging
 
 logger = logging.getLogger('logic')
@@ -12,9 +12,9 @@ class Gate(BitsNode):
         self.label = label
 
     def logic(self, v1, v2):
-        logging.debug(f'Gate logic() must be implemented for {self.kind}')
+        logging.error(f'Gate logic() must be implemented for {self.kind}')
 
-    def step(self, value=0):
+    def propagate(self, value=0):
         """
         Gate.step() loops over the Edges which are connected to
         the inpoints of this gate, getting the value. It calls
@@ -22,9 +22,7 @@ class Gate(BitsNode):
         """
         rv = 0
         # Get a list of edges from the inpoints for this Gate
-        edges = []
-        for e in self.inpoints.values():
-            edges.append(e)
+        edges = self.inputs.get_edges()
         # Get the first value, then loop from the second...end
         prev = edges[0].value
         for e in edges[1:]:
@@ -32,7 +30,7 @@ class Gate(BitsNode):
             rv = self.logic(prev, e.value)
             prev = e.value
         logger.debug(f'{self.kind} logic: {rv}')
-        return super().step(rv)            
+        return super().propagate(rv)            
 
 
 class And(Gate):

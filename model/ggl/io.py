@@ -1,4 +1,4 @@
-from .circuit import BitsNode
+from .node import BitsNode
 import logging
 
 logger = logging.getLogger('io')
@@ -7,8 +7,8 @@ class IONode(BitsNode):
     """
     IONode is an abstract class which encapsulates the value of an I/O node
     """
-    def __init__(self, kind, n_inputs, n_outputs, bits=1, label=''):
-        super().__init__(kind, n_inputs, n_outputs, bits, label)
+    def __init__(self, kind, n_inputs, n_outputs, label='', bits=1):
+        super().__init__(kind, n_inputs, n_outputs, label, bits)
         self.value = 0
 
 class Input(IONode):
@@ -17,11 +17,11 @@ class Input(IONode):
     """
 
     kind = 'Input'
-    def __init__(self, bits=1, label=''):
-        super().__init__(Input.kind, 0, 1, bits, label)
+    def __init__(self, label='', bits=1):
+        super().__init__(Input.kind, 0, 1, label, bits)
 
-    def step(self, value=0):
-        return super().step(self.value)
+    def propagate(self, value=0):
+        return super().propagate(self.value)
         
 class Output(IONode):
     """
@@ -29,11 +29,11 @@ class Output(IONode):
     """
 
     kind = 'Output'
-    def __init__(self, bits=1, label=''):
-        super().__init__(Output.kind, bits, 1, 0, label)
+    def __init__(self, label='', bits=1):
+        super().__init__(Output.kind, 1, 0, label, bits)
 
-    def step(self, value=0):
-        self.value = self.inpoints['0'].value
+    def propagate(self, value=0):
+        self.value = self.get_input_edge('0').value
         logger.debug(f'Output {self.label} gets value {self.value}')
 
 
@@ -43,5 +43,5 @@ class Constant(IONode):
     """
 
     kind = 'Constant'
-    def __init__(self, bits=1, label=''):
-        super().__init__(Constant.kind, bits, 0, 1, label)
+    def __init__(self, label='', bits=1):
+        super().__init__(Constant.kind, 0, 1, label, bits)
