@@ -1,7 +1,7 @@
 import logging
 from .edge import Edge
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('circuit')
 
 class Circuit:

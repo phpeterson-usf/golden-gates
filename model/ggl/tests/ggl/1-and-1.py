@@ -1,3 +1,7 @@
+# Seems gross but works
+import sys
+sys.path.append('../')
+
 from ggl import circuit
 from ggl import io
 from ggl import logic

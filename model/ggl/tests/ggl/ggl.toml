@@ -1,0 +1,8 @@
+# This is the autograder (https://github.com/phpeterson-usf/autograder/) 
+# test case file for the GGL circuit language
+
+[[tests]]
+name = "1-and-1"
+input = ["python3", "$project_tests/1-and-1.py"]
+expected = "1"
+rubric = 1
