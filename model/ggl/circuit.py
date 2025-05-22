@@ -9,8 +9,11 @@ class Circuit:
     Circuits are a collection of Nodes which may be run()
     to produce a value in Output Nodes
     """
-    def __init__(self):
-        self.inputs = []  # Input nodes
+    def __init__(self, label=''):
+        self.label = label
+        # These are Nodes, NOT in/outpoints, pending a design for subcircuits
+        self.inputs = []
+        self.outputs = []
 
     def preflight(self):
         """
