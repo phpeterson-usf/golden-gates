@@ -16,7 +16,7 @@ class Gate(BitsNode):
 
     def propagate(self, value=0):
         """
-        Gate.step() loops over the Edges which are connected to
+        Gate.propagate() loops over the Edges which are connected to
         the inpoints of this gate, getting the value. It calls
         the logic() method which is implemented for Gate subclasses
         """
