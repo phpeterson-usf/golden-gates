@@ -86,10 +86,10 @@ import { GRID_SIZE, DOT_SIZE, COLORS } from '../utils/constants'
 import Wire from './Wire.vue'
 
 export default {
+  name: 'CircuitCanvas',
   components: {
     Wire
   },
-  name: 'CircuitCanvas',
   data() {
     return {
       canvasWidth: 800,
@@ -411,7 +411,6 @@ export default {
                 wire.endConnection.pos.y = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + snappedDeltaY
               }
             }
-          }
         }
         
         this.dragging = null
