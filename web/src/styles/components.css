@@ -1,0 +1,64 @@
+/* Shared styles for circuit components */
+
+/* Component body styles */
+.component-body {
+  cursor: move;
+  transition: fill 0.2s ease;
+}
+
+.component-body:hover {
+  fill: var(--hover-fill, #f0f0f0);
+}
+
+/* Connection point styles */
+.connection-point {
+  cursor: crosshair;
+  transition: fill 0.2s ease;
+}
+
+.connection-point:hover {
+  fill: var(--connection-hover-fill, #0066cc);
+}
+
+.connection-point.input {
+  /* Specific styles for input connection points */
+}
+
+.connection-point.output {
+  /* Specific styles for output connection points */
+}
+
+/* Component label styles */
+.component-label {
+  font-family: monospace;
+  font-size: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Component value display */
+.component-value {
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Wire styles (for future use) */
+.wire {
+  fill: none;
+  stroke: black;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.wire.selected {
+  stroke: #1976d2;
+  stroke-width: 3;
+}
+
+/* Grid pattern styles */
+.grid-dot {
+  fill: #cccccc;
+}
