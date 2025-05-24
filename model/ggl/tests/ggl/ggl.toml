@@ -6,3 +6,9 @@ name = "1-and-1"
 input = ["python3", "$project_tests/1-and-1.py"]
 expected = "1"
 rubric = 1
+
+[[tests]]
+name = "1-or-0"
+input = ["python3", "$project_tests/1-or-0.py"]
+expected = "1"
+rubric = 1

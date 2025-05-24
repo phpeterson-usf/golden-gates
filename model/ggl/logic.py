@@ -42,3 +42,13 @@ class And(Gate):
     def logic(self, v1, v2):
         return v1 & v2
 
+
+class Or(Gate):
+    """Or Gates perform bitwise OR"""
+    kind = 'Or'
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1):
+        super().__init__(Or.kind, num_inputs, num_outputs, label, bits)
+
+    def logic(self, v1, v2):
+        return v1 | v2
+
