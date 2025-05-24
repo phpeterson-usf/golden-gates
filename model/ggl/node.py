@@ -2,14 +2,8 @@ import logging
 
 logger = logging.getLogger('node')
 
-class InputConnector:
-    """Represents a specific input point on a node"""
-    def __init__(self, node, name):
-        self.node = node
-        self.name = name
-
-class OutputConnector:
-    """Represents a specific output point on a node"""
+class Connector:
+    """Represents a specific input or output point on a node"""
     def __init__(self, node, name):
         self.node = node
         self.name = name
@@ -40,7 +34,7 @@ class NodeInputs:
         """Allow array-style access like node.inputs[0]"""
         names = list(self.points.keys())
         if 0 <= index < len(names):
-            return InputConnector(self.node, names[index])
+            return Connector(self.node, names[index])
         raise IndexError(f"Input index {index} out of range")
 
 class NodeOutputs:
@@ -60,7 +54,7 @@ class NodeOutputs:
         """Allow array-style access like node.outputs[0]"""
         names = list(self.points.keys())
         if 0 <= index < len(names):
-            return OutputConnector(self.node, names[index])
+            return Connector(self.node, names[index])
         raise IndexError(f"Output index {index} out of range")
 
 class Node:
@@ -87,12 +81,12 @@ class Node:
         self.outputs.append_edge(name, edge)
     
     def input(self, name):
-        """Returns an InputConnector for the named input"""
-        return InputConnector(self, name)
+        """Returns a Connector for the named input"""
+        return Connector(self, name)
     
     def output(self, name):
-        """Returns an OutputConnector for the named output"""
-        return OutputConnector(self, name)
+        """Returns a Connector for the named output"""
+        return Connector(self, name)
 
     def propagate(self, value=0):
         """

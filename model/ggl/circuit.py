@@ -1,6 +1,6 @@
 import logging
 from .edge import Edge
-from .node import Node, InputConnector, OutputConnector
+from .node import Node, Connector
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('circuit')
@@ -49,7 +49,7 @@ class Circuit:
         - For multiple outputs/inputs, must use node.output("name") or node.input("name")
         """
         # Determine source
-        if isinstance(src, OutputConnector):
+        if isinstance(src, Connector):
             srcnode, srcname = src.node, src.name
         elif isinstance(src, Node):
             # Direct node - must have single output
@@ -58,10 +58,10 @@ class Circuit:
                 raise ValueError(f"Node {src} has {len(output_names)} outputs, must use .output('name')")
             srcnode, srcname = src, output_names[0]
         else:
-            raise TypeError("Source must be a Node or OutputConnector")
+            raise TypeError("Source must be a Node or Connector")
         
         # Determine destination
-        if isinstance(dest, InputConnector):
+        if isinstance(dest, Connector):
             destnode, destname = dest.node, dest.name
         elif isinstance(dest, Node):
             # Direct node - must have single input
@@ -70,7 +70,7 @@ class Circuit:
                 raise ValueError(f"Node {dest} has {len(input_names)} inputs, must use .input('name')")
             destnode, destname = dest, input_names[0]
         else:
-            raise TypeError("Destination must be a Node or InputConnector")
+            raise TypeError("Destination must be a Node or Connector")
         
         # Create the edge
         edge = Edge(srcnode, srcname, destnode, destname)
