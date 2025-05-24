@@ -2,6 +2,18 @@ import logging
 
 logger = logging.getLogger('node')
 
+class InputConnector:
+    """Represents a specific input point on a node"""
+    def __init__(self, node, name):
+        self.node = node
+        self.name = name
+
+class OutputConnector:
+    """Represents a specific output point on a node"""
+    def __init__(self, node, name):
+        self.node = node
+        self.name = name
+
 class NodeInputs:
     """
     The inputs to a Node are a dict of name-to-edge.
@@ -9,8 +21,9 @@ class NodeInputs:
     exactly one Edge.
     NB: This is NOT an Input Node! (those are in io.py)
     """
-    def __init__(self, names):
+    def __init__(self, names, node):
         self.points = {name: None for name in names}
+        self.node = node
     def get_edge(self, name):
         return self.points.get(name)
     def get_edges(self):
@@ -22,6 +35,13 @@ class NodeInputs:
             raise SimulatorError("Another Edge is already connected to this inpoint")
         """
         self.points[name] = edge
+    
+    def __getitem__(self, index):
+        """Allow array-style access like node.inputs[0]"""
+        names = list(self.points.keys())
+        if 0 <= index < len(names):
+            return InputConnector(self.node, names[index])
+        raise IndexError(f"Input index {index} out of range")
 
 class NodeOutputs:
     """
@@ -30,10 +50,18 @@ class NodeOutputs:
     feed many Edges
     NB: This is NOT an Output Node (those are in io.py)
     """
-    def __init__(self, names):
+    def __init__(self, names, node):
         self.points = {name: [] for name in names}
+        self.node = node
     def append_edge(self, name, obj):
         self.points[name].append(obj)
+    
+    def __getitem__(self, index):
+        """Allow array-style access like node.outputs[0]"""
+        names = list(self.points.keys())
+        if 0 <= index < len(names):
+            return OutputConnector(self.node, names[index])
+        raise IndexError(f"Output index {index} out of range")
 
 class Node:
     """
@@ -43,8 +71,8 @@ class Node:
     def __init__(self, kind, innames=[], outnames=[], label=''):
         self.kind = kind    # Hard-coded, e.g. 'And Gate'
         self.label = label  # User-provided, e.g. 'is b-type'
-        self.inputs = NodeInputs(innames)
-        self.outputs = NodeOutputs(outnames)
+        self.inputs = NodeInputs(innames, self)
+        self.outputs = NodeOutputs(outnames, self)
 
     def __str__(self):
         return f'{self.kind} {self.label}'
@@ -57,6 +85,14 @@ class Node:
 
     def append_output_edge(self, name, edge):
         self.outputs.append_edge(name, edge)
+    
+    def input(self, name):
+        """Returns an InputConnector for the named input"""
+        return InputConnector(self, name)
+    
+    def output(self, name):
+        """Returns an OutputConnector for the named output"""
+        return OutputConnector(self, name)
 
     def propagate(self, value=0):
         """

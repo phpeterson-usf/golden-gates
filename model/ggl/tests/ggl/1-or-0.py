@@ -11,14 +11,14 @@ g = logic.Or(bits=1, label='r')
 
 a = io.Input(bits=1, label='a')
 a.value = 0b1
-c.connect(a, "0", g, "0")
+c.connect(a, g.input("0"))
 
 b = io.Input(bits=1, label='b')
 b.value = 0b0
-c.connect(b, "0", g, "1")
+c.connect(b, g.input("1"))
 
 r = io.Output(bits=1, label='r')
-c.connect(g, "0", r, "0")
+c.connect(g, r)
 
 c.run()
 print(r.value)
