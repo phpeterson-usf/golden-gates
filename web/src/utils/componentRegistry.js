@@ -10,8 +10,20 @@ export const componentRegistry = {
     category: 'gates',
     defaultProps: {},
     dimensions: {
-      width: 60,
-      height: 120
+      width: 90,
+      height: 90
+    },
+    // Visual bounds relative to the component's x,y position
+    bounds: {
+      x: 0,
+      y: -15,
+      width: 90,
+      height: 90
+    },
+    // Visual center relative to the component's x,y position
+    center: {
+      x: 45,
+      y: 30
     },
     connections: {
       inputs: [
@@ -19,7 +31,7 @@ export const componentRegistry = {
         { name: '1', x: 0, y: 60 }
       ],
       outputs: [
-        { name: '0', x: 60, y: 30 }
+        { name: '0', x: 90, y: 30 }
       ]
     }
   },
@@ -36,6 +48,18 @@ export const componentRegistry = {
     dimensions: {
       width: GRID_SIZE,
       height: GRID_SIZE
+    },
+    // Visual bounds relative to the component's x,y position
+    bounds: {
+      x: 0,
+      y: -15,
+      width: GRID_SIZE,
+      height: GRID_SIZE
+    },
+    // Visual center relative to the component's x,y position
+    center: {
+      x: GRID_SIZE / 2,
+      y: 0
     },
     connections: {
       outputs: [
@@ -60,6 +84,18 @@ export const componentRegistry = {
     dimensions: {
       width: GRID_SIZE,
       height: GRID_SIZE
+    },
+    // Visual bounds relative to the component's x,y position
+    bounds: {
+      x: 0,
+      y: -15,
+      width: GRID_SIZE,
+      height: GRID_SIZE
+    },
+    // Visual center relative to the component's x,y position
+    center: {
+      x: GRID_SIZE / 2,
+      y: 0
     },
     connections: {
       inputs: [

@@ -8,9 +8,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.4",
+    "primeicons": "^6.0.1",
     "primevue": "^3.40.0",
-    "primeicons": "^6.0.1"
+    "pyodide": "^0.27.6",
+    "vite-plugin-static-copy": "^3.0.0",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",

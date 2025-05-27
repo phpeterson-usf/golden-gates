@@ -16,8 +16,8 @@
         />
       </template>
       <template #end>
-        <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation" />
-        <Button icon="pi pi-stop" label="Stop" class="p-button-danger p-button-sm" @click="stopSimulation" />
+        <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation" :disabled="isRunning" />
+        <Button icon="pi pi-stop" label="Stop" class="p-button-danger p-button-sm" @click="stopSimulation" :disabled="!isRunning" />
       </template>
     </Toolbar>
     
@@ -29,14 +29,20 @@
 
 <script>
 import CircuitCanvas from './components/CircuitCanvas.vue'
+import { usePyodide } from './composables/usePyodide'
 
 export default {
   name: 'App',
   components: {
     CircuitCanvas
   },
+  setup() {
+    const { initialize, runPython, isLoading, isReady, error } = usePyodide()
+    return { initializePyodide: initialize, runPython, isPyodideLoading: isLoading, isPyodideReady: isReady, pyodideError: error }
+  },
   data() {
     return {
+      isRunning: false,
       menuItems: [
         {
           label: 'Logic',
@@ -77,11 +83,85 @@ export default {
         this.$refs.canvas.addComponentAtCenter(type)
       }
     },
-    runSimulation() {
-      console.log('Run simulation')
+    async runSimulation() {
+      this.isRunning = true
+      
+      try {
+        // Initialize Pyodide if not already initialized
+        if (!this.isPyodideReady) {
+          console.log('Initializing Pyodide...')
+          await this.initializePyodide()
+        }
+        
+        // Get circuit data from canvas
+        const circuitData = this.$refs.canvas?.getCircuitData()
+        
+        if (!circuitData) {
+          console.error('Unable to get circuit data')
+          return
+        }
+        
+        if (circuitData.code.length === 0) {
+          console.log('No components in circuit')
+          return
+        }
+        
+        // Generate GGL program
+        const gglProgram = `# GGL Circuit Program
+from ggl import io, logic, circuit
+
+# Create circuit
+c = circuit.Circuit()
+
+# Create components
+${circuitData.code.join('\n')}
+
+# TODO: Add wire connections here
+
+# TODO: Create circuit and run simulation
+c.Run()
+`
+        
+        console.log('Generated GGL program:')
+        console.log(gglProgram)
+        
+        // For now, just capture output
+        const pythonCode = `
+import sys
+from io import StringIO
+
+# Capture stdout
+old_stdout = sys.stdout
+sys.stdout = StringIO()
+
+try:
+    print("Ready to execute GGL program...")
+    # TODO: exec() the GGL program here
+    
+    output = sys.stdout.getvalue()
+finally:
+    sys.stdout = old_stdout
+
+output
+`
+        
+        const result = await this.runPython(pythonCode)
+        console.log('Simulation output:', result)
+        
+        // TODO: Update circuit visualization with simulation results
+        
+      } catch (err) {
+        console.error('Simulation error:', err)
+        // TODO: Show error to user
+      } finally {
+        this.isRunning = false
+      }
     },
+    
     stopSimulation() {
-      console.log('Stop simulation')
+      console.log('Stopping simulation...')
+      this.isRunning = false
+      // TODO: Implement actual stop logic if needed
     }
   }
 }

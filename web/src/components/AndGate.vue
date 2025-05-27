@@ -1,8 +1,10 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
-    <!-- AND gate shape (offset to keep all dots on grid) -->
+    <!-- AND gate shape - MIL-STD-806B style -->
+    <!-- Rectangle left half + semicircle right half -->
+    <!-- Rectangle extends to x=60, semicircle radius is 30, so tip is at x=90 -->
     <path
-      d="M 10 -30 L 40 -30 L 40 0 A 30 30 0 0 1 40 60 L 40 90 L 10 90 L 10 -30 Z"
+      d="M 0 -15 L 60 -15 A 30 30 0 0 1 60 75 L 0 75 L 0 -15 Z"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"
@@ -32,9 +34,9 @@
       data-type="input"
     />
     
-    <!-- Output connection point (on grid: x=60, y=30) -->
+    <!-- Output connection point (on grid: x=90, y=30) -->
     <circle 
-      cx="60" 
+      cx="90" 
       cy="30" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
@@ -45,8 +47,8 @@
     />
     
     <!-- Label -->
-    <text x="25" y="35" text-anchor="middle" class="component-label">
-      AND
+    <text x="45" y="35" text-anchor="middle" class="component-label">
+      &amp;
     </text>
   </g>
 </template>
@@ -71,6 +73,20 @@ export default {
       strokeWidth,
       COLORS,
       CONNECTION_DOT_RADIUS
+    }
+  },
+  methods: {
+    generate() {
+      // Extract the number from the component ID (e.g., "and-gate_1" -> 1)
+      const match = this.id.match(/and-gate_(\d+)/)
+      const index = match ? match[1] : '0'
+      const varName = `and${index}`
+      
+      // Generate GGL code for this AND gate
+      return {
+        varName,
+        code: `${varName} = logic.And()`
+      }
     }
   }
 }
