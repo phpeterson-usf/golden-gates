@@ -64,6 +64,10 @@ export default {
       type: Number,
       default: 0
     },
+    bits: {
+      type: Number,
+      default: 1
+    },
     gridSize: {
       type: Number,
       default: 30
@@ -97,9 +101,14 @@ export default {
       }
       
       // Generate GGL code for this input
+      const lines = [
+        `${varName} = io.Input(bits=${this.bits}, label="${this.label}")`,
+        `${varName}.value = ${this.value}`
+      ]
+      
       return {
         varName,
-        code: `${varName} = io.Input(bits=1, label="${this.label}")`
+        code: lines.join('\n')
       }
     }
   }

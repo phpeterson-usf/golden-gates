@@ -43,6 +43,7 @@ export const componentRegistry = {
     category: 'io',
     defaultProps: {
       value: 0,
+      bits: 1,
       gridSize: GRID_SIZE
     },
     dimensions: {

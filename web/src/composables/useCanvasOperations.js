@@ -21,8 +21,14 @@ export function useCanvasOperations() {
     
     const container = containerRef
     if (container) {
-      canvasWidth.value = container.clientWidth
-      canvasHeight.value = container.clientHeight
+      const newWidth = container.clientWidth
+      const newHeight = container.clientHeight
+      
+      // Only update if dimensions actually changed
+      if (newWidth !== canvasWidth.value || newHeight !== canvasHeight.value) {
+        canvasWidth.value = newWidth
+        canvasHeight.value = newHeight
+      }
     }
   }
 

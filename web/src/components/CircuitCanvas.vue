@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, getCurrentInstance } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, getCurrentInstance } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { DOT_SIZE, COLORS } from '../utils/constants'
 import Wire from './Wire.vue'
@@ -115,7 +115,8 @@ export default {
   components: {
     Wire
   },
-  setup() {
+  emits: ['selectionChanged'],
+  setup(props, { emit }) {
     const container = ref(null)
     const componentRefs = ref({})
     
@@ -368,6 +369,21 @@ export default {
       return generateGglProgram(components.value, wires.value, componentRefs.value, componentInstances.value)
     }
     
+    function updateComponent(updatedComponent) {
+      const index = components.value.findIndex(c => c.id === updatedComponent.id)
+      if (index !== -1) {
+        components.value[index] = updatedComponent
+      }
+    }
+    
+    // Watch for selection changes and emit event
+    watch([selectedComponents, selection.selectedWires], () => {
+      emit('selectionChanged', {
+        components: selectedComponents.value,
+        wires: selection.selectedWires.value
+      })
+    }, { deep: true })
+    
     return {
       // Template refs
       container,
@@ -406,6 +422,7 @@ export default {
       addComponentAtCenter,
       clearCircuit,
       getCircuitData,
+      updateComponent,
       isDragging,
       getMousePos,
       zoomIn,

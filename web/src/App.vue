@@ -16,25 +16,48 @@
         />
       </template>
       <template #end>
+        <Button 
+          icon="pi pi-sliders-h" 
+          class="p-button-text p-button-sm" 
+          @click="inspectorVisible = !inspectorVisible"
+          v-tooltip.left="'Toggle Inspector'"
+        />
         <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation" :disabled="isRunning" />
         <Button icon="pi pi-stop" label="Stop" class="p-button-danger p-button-sm" @click="stopSimulation" :disabled="!isRunning" />
       </template>
     </Toolbar>
     
-    <div class="circuit-container">
-      <CircuitCanvas ref="canvas" />
+    <div class="main-content">
+      <div class="circuit-container" :class="{ 'inspector-open': inspectorVisible }">
+        <CircuitCanvas 
+          ref="canvas" 
+          @selectionChanged="handleSelectionChanged"
+        />
+      </div>
+      
+      <div v-if="inspectorVisible" class="inspector-panel">
+        <button class="inspector-close" @click="inspectorVisible = false">
+          <i class="pi pi-times"></i>
+        </button>
+        <ComponentInspector 
+          :component="selectedComponent"
+          @update:component="updateComponent"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import CircuitCanvas from './components/CircuitCanvas.vue'
+import ComponentInspector from './components/ComponentInspector.vue'
 import { usePyodide } from './composables/usePyodide'
 
 export default {
   name: 'App',
   components: {
-    CircuitCanvas
+    CircuitCanvas,
+    ComponentInspector
   },
   setup() {
     const { initialize, runPython, isLoading, isReady, error } = usePyodide()
@@ -43,6 +66,8 @@ export default {
   data() {
     return {
       isRunning: false,
+      inspectorVisible: true,
+      selectedComponent: null,
       menuItems: [
         {
           label: 'Logic',
@@ -149,6 +174,26 @@ output
       console.log('Stopping simulation...')
       this.isRunning = false
       // TODO: Implement actual stop logic if needed
+    },
+    
+    handleSelectionChanged(selection) {
+      // For now, just handle single component selection
+      if (selection.components.size === 1) {
+        const componentId = Array.from(selection.components)[0]
+        this.selectedComponent = this.$refs.canvas?.components.find(c => c.id === componentId) || null
+      } else {
+        this.selectedComponent = null
+      }
+    },
+    
+    updateComponent(updatedComponent) {
+      if (this.$refs.canvas) {
+        this.$refs.canvas.updateComponent(updatedComponent)
+        // Refresh the selected component reference to maintain sync
+        if (this.selectedComponent && this.selectedComponent.id === updatedComponent.id) {
+          this.selectedComponent = this.$refs.canvas.components.find(c => c.id === updatedComponent.id)
+        }
+      }
     }
   }
 }
@@ -178,6 +223,14 @@ body {
   border-bottom: 1px solid #e2e8f0;
   background: #ffffff;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  height: 48px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
 }
 
 .circuit-container {
@@ -189,33 +242,35 @@ body {
 
 /* PrimeVue customizations for Aura theme */
 .p-tieredmenu {
-  min-width: 200px;
-  border-radius: 8px;
+  min-width: 160px;
+  border-radius: 6px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Improve TieredMenu item spacing */
 .p-tieredmenu .p-menuitem-link {
-  padding: 0.75rem 1rem;
-  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  gap: 0.375rem;
+  font-size: 0.75rem;
 }
 
 .p-tieredmenu .p-menuitem-text {
-  margin-left: 0.5rem;
+  margin-left: 0.375rem;
+  font-size: 0.75rem;
 }
 
 .p-tieredmenu .p-menuitem-icon {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
 .p-tieredmenu .p-submenu-icon {
   margin-left: auto;
-  font-size: 0.75rem;
+  font-size: 0.625rem;
 }
 
 /* Add some vertical padding to menu sections */
 .p-tieredmenu .p-menu-list {
-  padding: 0.25rem 0;
+  padding: 0.125rem 0;
 }
 
 .p-button {
@@ -224,12 +279,12 @@ body {
 
 /* Improve button appearance */
 .p-button.p-button-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
 }
 
 .p-button.p-button-sm .p-button-icon {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
 /* Add spacing between icon and label */
@@ -245,17 +300,58 @@ body {
 }
 
 .p-toolbar {
-  padding: 0.75rem 1rem;
-  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  gap: 0.375rem;
 }
 
 /* Improve button spacing in toolbar */
 .p-toolbar .p-button + .p-button {
-  margin-left: 0.5rem;
+  margin-left: 0.375rem;
 }
 
 /* Ensure button text doesn't wrap */
 .p-button .p-button-label {
   white-space: nowrap;
+}
+
+/* Tooltip styles */
+.p-tooltip .p-tooltip-text {
+  font-size: 0.625rem;
+  padding: 0.375rem 0.625rem;
+}
+
+/* Inspector panel styles */
+.inspector-panel {
+  width: 220px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  position: relative;
+}
+
+.inspector-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.inspector-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 </style>
