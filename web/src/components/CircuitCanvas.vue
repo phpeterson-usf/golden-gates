@@ -108,6 +108,7 @@ import { useWireManagement } from '../composables/useWireManagement'
 import { useSelection } from '../composables/useSelection'
 import { useDragAndDrop } from '../composables/useDragAndDrop'
 import { useCircuitData } from '../composables/useCircuitData'
+import { useCircuitGeneration } from '../composables/useCircuitGeneration'
 
 export default {
   name: 'CircuitCanvas',
@@ -141,6 +142,9 @@ export default {
       clearCircuit,
       getCircuitData: getCircuitDataBase
     } = useCircuitData()
+    
+    // Circuit generation
+    const { generateGglProgram } = useCircuitGeneration()
     
     // Wire management
     const wireManagement = useWireManagement(components, gridSize.value)
@@ -348,12 +352,20 @@ export default {
       addComponent(type, snapped.x, snapped.y)
     }
     
+    // Computed property to get component instances
+    const componentInstances = computed(() => {
+      const instances = {}
+      Object.keys(componentRefs.value).forEach(id => {
+        const ref = componentRefs.value[id]
+        if (ref) {
+          instances[id] = ref
+        }
+      })
+      return instances
+    })
+    
     function getCircuitData() {
-      const baseData = getCircuitDataBase(componentRefs.value)
-      return {
-        ...baseData,
-        connections: wires.value
-      }
+      return generateGglProgram(components.value, wires.value, componentRefs.value, componentInstances.value)
     }
     
     return {

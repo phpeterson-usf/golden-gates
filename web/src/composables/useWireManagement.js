@@ -110,12 +110,21 @@ export function useWireManagement(components, gridSize) {
     // Add the final point at the actual connection position
     wirePoints.value.push(connectionPos)
     
-    // Create the wire
+    // Get the final points array
+    let finalPoints = [...wirePoints.value]
+    
+    // If we started from an input port, reverse the points to match logical flow
+    // (from output to input)
+    if (startConnection.value.portType === 'input') {
+      finalPoints = finalPoints.reverse()
+    }
+    
+    // Create the wire with points in the correct logical direction
     const wire = {
       id: `wire_${Date.now()}`,
-      points: [...wirePoints.value],
-      startConnection: outputConnection,
-      endConnection: inputConnection
+      points: finalPoints,
+      startConnection: outputConnection,  // Always the output (source)
+      endConnection: inputConnection      // Always the input (destination)
     }
     
     wires.value.push(wire)

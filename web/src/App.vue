@@ -101,26 +101,13 @@ export default {
           return
         }
         
-        if (circuitData.code.length === 0) {
+        if (!circuitData || circuitData.trim() === '') {
           console.log('No components in circuit')
           return
         }
         
-        // Generate GGL program
-        const gglProgram = `# GGL Circuit Program
-from ggl import io, logic, circuit
-
-# Create circuit
-c = circuit.Circuit()
-
-# Create components
-${circuitData.code.join('\n')}
-
-# TODO: Add wire connections here
-
-# TODO: Create circuit and run simulation
-c.Run()
-`
+        // The circuitData is now the complete GGL program
+        const gglProgram = circuitData
         
         console.log('Generated GGL program:')
         console.log(gglProgram)
