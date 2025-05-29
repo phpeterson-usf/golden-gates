@@ -253,6 +253,8 @@ export default {
         const pos = getMousePos(event)
         
         if (!drawingWire.value) {
+          // Clear selection when starting to draw a wire
+          clearSelection()
           // Start drawing a wire
           startWireDrawing(componentId, portIndex, portType, pos)
         } else {

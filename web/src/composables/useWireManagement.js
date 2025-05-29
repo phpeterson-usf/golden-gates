@@ -51,7 +51,13 @@ export function useWireManagement(components, gridSize) {
   function addWireWaypoint(mousePos) {
     if (!drawingWire.value) return
     
-    wirePoints.value.push({ ...mousePos })
+    // Snap the waypoint to the grid
+    const snappedPos = {
+      x: Math.round(mousePos.x / gridSize) * gridSize,
+      y: Math.round(mousePos.y / gridSize) * gridSize
+    }
+    
+    wirePoints.value.push(snappedPos)
     
     // Toggle direction for next segment
     wireDirection.value = wireDirection.value === 'horizontal' ? 'vertical' : 'horizontal'
