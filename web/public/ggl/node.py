@@ -1,6 +1,6 @@
-import logging
+from .ggl_logging import get_logger
 
-logger = logging.getLogger('node')
+logger = get_logger('node')
 
 class Connector:
     """Represents a specific input or output point on a node"""
@@ -101,7 +101,7 @@ class Node:
         # TODO: I don't love direct access to the points dict here
         # should propagate go into self.outputs, passing kind and label?
         for name, edges in self.outputs.points.items():
-            logger.debug(f'{self.kind} {self.label} outpoint {name} propagates: {value}')
+            logger.info(f'{self.kind} {self.label} outpoint {name} propagates: {value}')
             for e in edges:
                 e.propagate(value)
                 # NB: use += to join the lists rather than append() a list to a list

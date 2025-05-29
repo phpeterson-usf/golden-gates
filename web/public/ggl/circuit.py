@@ -2,6 +2,8 @@ from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import get_logger, set_global_js_logging
 
+logger = get_logger('circuit')
+
 class Circuit:
     """
     Circuits are a collection of Nodes which may be run()
@@ -16,8 +18,6 @@ class Circuit:
         # Set up logging for this circuit and all its components
         if js_logging is not None:
             set_global_js_logging(js_logging)
-        
-        self.logger = get_logger('circuit')
 
     def preflight(self):
         """

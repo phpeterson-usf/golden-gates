@@ -4,10 +4,8 @@ export function useCircuitGeneration() {
     const sections = []
     
     // Header
-    sections.push('# GGL Circuit Program')
     sections.push('from ggl import io, logic, circuit')
     sections.push('')
-    sections.push('# Create circuit with JS logging enabled')
     sections.push('c = circuit.Circuit(js_logging=True)')
     sections.push('')
     
@@ -76,13 +74,11 @@ export function useCircuitGeneration() {
       componentVarNames[component.id] = varName
       
       // Create component
-      sections.push(`# ${component.props?.label || varName}`)
       sections.push(generated.code)
       
       // Add incoming connections
       const incomingWires = wires.filter(w => w.endConnection.componentId === component.id)
       if (incomingWires.length > 0) {
-        sections.push(`# Connections to ${varName}:`)
         for (const wire of incomingWires) {
           const sourceVarName = componentVarNames[wire.startConnection.componentId]
           if (!sourceVarName) {
@@ -97,9 +93,7 @@ export function useCircuitGeneration() {
       sections.push('')
     }
     
-    sections.push('# Run simulation')
     sections.push('c.run()')
-    sections.push('print(r.value)')
     
     return sections.join('\n')
   }

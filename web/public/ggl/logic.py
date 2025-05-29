@@ -1,7 +1,7 @@
 from .node import BitsNode
-import logging
+from .ggl_logging import get_logger
 
-logger = logging.getLogger('logic')
+logger = get_logger('logic')
 
 class Gate(BitsNode):
     """
@@ -12,7 +12,7 @@ class Gate(BitsNode):
         self.label = label
 
     def logic(self, v1, v2):
-        logging.error(f'Gate logic() must be implemented for {self.kind}')
+        logger.error(f'Gate logic() must be implemented for {self.kind}')
 
     def propagate(self, value=0):
         """
@@ -29,7 +29,7 @@ class Gate(BitsNode):
             # Perform the Gate-specific logic (AND, OR, ...)
             rv = self.logic(prev, e.value)
             prev = e.value
-        logger.debug(f'{self.kind} logic: {rv}')
+        logger.info(f'{self.kind} propagates: {rv}')
         return super().propagate(rv)            
 
 

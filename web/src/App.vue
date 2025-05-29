@@ -171,11 +171,8 @@ exec(${JSON.stringify(gglProgram)})
 "Simulation completed"
 `
         
-        const result = await this.runPython(pythonCode)
+        await this.runPython(pythonCode)
         console.log('Simulation completed')
-        console.log('Captured output:', result)
-        
-        // TODO: Update circuit visualization with simulation results
         
       } catch (err) {
         console.error('Simulation error:', err)

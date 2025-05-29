@@ -35,7 +35,7 @@ class Output(IONode):
 
     def propagate(self, value=0):
         self.value = self.get_input_edge('0').value
-        logger.debug(f'Output {self.label} gets value {self.value}')
+        logger.info(f'Output {self.label} gets value {self.value}')
         
         # If we have a js_id and a callback is registered, notify JavaScript
         if self.js_id:
