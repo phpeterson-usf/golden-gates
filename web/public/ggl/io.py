@@ -1,7 +1,7 @@
 from .node import BitsNode
-import logging
+from .ggl_logging import get_logger
 
-logger = logging.getLogger('io')
+logger = get_logger('io')
 
 class IONode(BitsNode):
     """
@@ -29,12 +29,27 @@ class Output(IONode):
     """
 
     kind = 'Output'
-    def __init__(self, label='', bits=1):
+    def __init__(self, label='', bits=1, js_id=None):
         super().__init__(Output.kind, 1, 0, label, bits)
+        self.js_id = js_id
 
     def propagate(self, value=0):
         self.value = self.get_input_edge('0').value
         logger.debug(f'Output {self.label} gets value {self.value}')
+        
+        # If we have a js_id and a callback is registered, notify JavaScript
+        if self.js_id:
+            logger.info(f'Output {self.label} (js_id={self.js_id}) attempting callback with value {self.value}')
+            try:
+                import builtins
+                if hasattr(builtins, 'updateCallback'):
+                    updateCallback = builtins.updateCallback
+                    updateCallback(self.js_id, self.value)
+                    logger.info(f'Callback successful for {self.js_id}')
+                else:
+                    logger.warning('updateCallback not found in builtins')
+            except Exception as e:
+                logger.error(f'Callback failed: {e}')
 
 
 class Constant(IONode):

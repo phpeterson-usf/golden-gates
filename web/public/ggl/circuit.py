@@ -1,20 +1,23 @@
-import logging
 from .edge import Edge
 from .node import Node, Connector
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('circuit')
+from .ggl_logging import get_logger, set_global_js_logging
 
 class Circuit:
     """
     Circuits are a collection of Nodes which may be run()
     to produce a value in Output Nodes
     """
-    def __init__(self, label=''):
+    def __init__(self, label='', js_logging=None):
         self.label = label
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
+        
+        # Set up logging for this circuit and all its components
+        if js_logging is not None:
+            set_global_js_logging(js_logging)
+        
+        self.logger = get_logger('circuit')
 
     def preflight(self):
         """

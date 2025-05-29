@@ -6,17 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Golden Gates is an educational digital logic circuit simulation system with two main components:
 
-1. **GGL (Golden Gates Language)** - Python-based circuit simulation engine (`model/`)
+1. **GGL (Golden Gates Language)** - Python-based circuit simulation engine (`web/public/ggl/`)
 2. **Web Application** - Vue.js-based circuit designer interface (`web/`)
 
 ## Repository Structure
 
 ```
 golden-gates/
-├── model/               # GGL simulation engine
-│   ├── ggl/            # Core Python package
-│   └── CLAUDE.md       # Detailed GGL development guide
 ├── web/                # Web application
+│   ├── public/
+│   │   └── ggl/        # GGL simulation engine (Python package)
 │   ├── src/            # Vue.js source code
 │   └── README.md       # Web app setup instructions
 └── gglang/             # Language design documents
@@ -24,7 +23,7 @@ golden-gates/
 
 ## Component-Specific Guidance
 
-- For GGL simulation engine work: See `model/CLAUDE.md`
+- For GGL simulation engine work: See GGL documentation
 - For web application work: See `web/README.md`
 
 ## Integration Plans

@@ -95,10 +95,10 @@ export default {
         varName = `output${index}`
       }
       
-      // Generate GGL code for this output
+      // Generate GGL code for this output with js_id
       return {
         varName,
-        code: `${varName} = io.Output(bits=1, label="${this.label}")`
+        code: `${varName} = io.Output(bits=1, label="${this.label}", js_id="${this.id}")`
       }
     }
   }

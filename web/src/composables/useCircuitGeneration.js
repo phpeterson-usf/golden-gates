@@ -7,8 +7,8 @@ export function useCircuitGeneration() {
     sections.push('# GGL Circuit Program')
     sections.push('from ggl import io, logic, circuit')
     sections.push('')
-    sections.push('# Create circuit')
-    sections.push('c = circuit.Circuit()')
+    sections.push('# Create circuit with JS logging enabled')
+    sections.push('c = circuit.Circuit(js_logging=True)')
     sections.push('')
     
     const visited = new Set()
@@ -99,6 +99,7 @@ export function useCircuitGeneration() {
     
     sections.push('# Run simulation')
     sections.push('c.run()')
+    sections.push('print(r.value)')
     
     return sections.join('\n')
   }
@@ -107,7 +108,17 @@ export function useCircuitGeneration() {
     const sourcePort = wire.startConnection.portIndex
     const destPort = wire.endConnection.portIndex
     
-    // Generate connection with descriptive comment
+    // Generate connection based on port indices
+    let sourceExpr = sourceVarName
+    let destExpr = destVarName
+    
+    // Need to check the component type to determine if we need port specifiers
+    // AND gates have multiple inputs, so we always need to specify the input port
+    // For now, we'll always use port specifiers when available
+    sourceExpr = `${sourceVarName}.output("${sourcePort}")`
+    destExpr = `${destVarName}.input("${destPort}")`
+    
+    // Generate descriptive comment
     let comment = `# ${sourceVarName}`
     if (sourcePort > 0) {
       comment += `.out[${sourcePort}]`
@@ -117,7 +128,7 @@ export function useCircuitGeneration() {
       comment += `.in[${destPort}]`
     }
     
-    return `c.connect(${sourceVarName}, ${sourcePort}, ${destVarName}, ${destPort})    ${comment}`
+    return `c.connect(${sourceExpr}, ${destExpr})    ${comment}`
   }
   
   return {

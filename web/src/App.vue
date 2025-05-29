@@ -60,8 +60,8 @@ export default {
     ComponentInspector
   },
   setup() {
-    const { initialize, runPython, isLoading, isReady, error } = usePyodide()
-    return { initializePyodide: initialize, runPython, isPyodideLoading: isLoading, isPyodideReady: isReady, pyodideError: error }
+    const { initialize, runPython, isLoading, isReady, error, pyodide } = usePyodide()
+    return { initializePyodide: initialize, runPython, isPyodideLoading: isLoading, isPyodideReady: isReady, pyodideError: error, pyodide }
   },
   data() {
     return {
@@ -137,28 +137,43 @@ export default {
         console.log('Generated GGL program:')
         console.log(gglProgram)
         
-        // For now, just capture output
+        // Create callback for Python to update Vue components
+        window.__vueUpdateCallback = (componentId, value) => {
+          console.log(`Output ${componentId} updated to ${value}`)
+          // Update the component in the canvas
+          if (this.$refs.canvas) {
+            const component = this.$refs.canvas.components.find(c => c.id === componentId)
+            if (component && component.type === 'output') {
+              // Create a new component object to ensure Vue detects the change
+              const updatedComponent = {
+                ...component,
+                props: {
+                  ...component.props,
+                  value: value
+                }
+              }
+              this.$refs.canvas.updateComponent(updatedComponent)
+            }
+          }
+        }
+        
+        // Execute the GGL program
         const pythonCode = `
-import sys
-from io import StringIO
+# Make updateCallback available in builtins so all modules can access it
+import builtins
+import js
+builtins.updateCallback = js.window.__vueUpdateCallback
 
-# Capture stdout
-old_stdout = sys.stdout
-sys.stdout = StringIO()
+# Execute the GGL program
+exec(${JSON.stringify(gglProgram)})
 
-try:
-    print("Ready to execute GGL program...")
-    # TODO: exec() the GGL program here
-    
-    output = sys.stdout.getvalue()
-finally:
-    sys.stdout = old_stdout
-
-output
+# Return success
+"Simulation completed"
 `
         
         const result = await this.runPython(pythonCode)
-        console.log('Simulation output:', result)
+        console.log('Simulation completed')
+        console.log('Captured output:', result)
         
         // TODO: Update circuit visualization with simulation results
         
