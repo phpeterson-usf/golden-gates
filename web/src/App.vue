@@ -77,6 +77,11 @@ export default {
               label: 'And',
               icon: 'pi pi-fw pi-plus',
               command: () => this.addComponent('and-gate')
+            },
+            {
+              label: 'OR',
+              icon: 'pi pi-fw pi-plus',
+              command: () => this.addComponent('or-gate')
             }
           ]
         },

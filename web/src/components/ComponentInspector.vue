@@ -6,74 +6,47 @@
     </div>
     
     <div v-else class="inspector-content">
-      <!-- Component-specific properties -->
-      <div class="property-section" v-if="component.type === 'input'">
-        <h4>Input Properties</h4>
-        <div class="property-group">
-          <label>Label</label>
+      <!-- Component properties based on configuration -->
+      <div class="property-section" v-if="componentSchema">
+        <h4>{{ componentSchema.title }}</h4>
+        <div 
+          v-for="prop in componentSchema.properties" 
+          :key="prop.name"
+          class="property-group"
+        >
+          <label>{{ prop.label }}</label>
+          
+          <!-- Text input -->
           <InputText 
-            :modelValue="getPropValue('label', 'IN')" 
-            @update:modelValue="updateProp('label', $event)"
+            v-if="prop.type === 'text'"
+            :modelValue="getPropValue(prop.name, prop.default)" 
+            @update:modelValue="updateProp(prop.name, $event)"
           />
-        </div>
-        <div class="property-group">
-          <label>Value</label>
+          
+          <!-- Number input -->
           <InputNumber 
-            :modelValue="getPropValue('value', 0)" 
-            @update:modelValue="updateProp('value', $event)"
-            :min="0"
-            :max="Math.pow(2, getPropValue('bits', 1)) - 1"
-            :showButtons="true"
-          />
-        </div>
-        <div class="property-group">
-          <label>Bits</label>
-          <InputNumber 
-            :modelValue="getPropValue('bits', 1)" 
-            @update:modelValue="updateProp('bits', $event)"
-            :min="1"
-            :max="32"
-            :showButtons="true"
+            v-else-if="prop.type === 'number'"
+            :modelValue="getPropValue(prop.name, prop.default)" 
+            @update:modelValue="updateProp(prop.name, $event)"
+            :min="prop.min || 0"
+            :max="getMaxValue(prop)"
+            :showButtons="prop.showButtons !== false"
           />
         </div>
       </div>
       
-      <div class="property-section" v-else-if="component.type === 'output'">
-        <h4>Output Properties</h4>
-        <div class="property-group">
-          <label>Label</label>
-          <InputText 
-            :modelValue="getPropValue('label', 'OUT')" 
-            @update:modelValue="updateProp('label', $event)"
-          />
-        </div>
-      </div>
-      
-      <div class="property-section" v-else-if="component.type === 'and-gate'">
-        <h4>AND Gate Properties</h4>
-        <div class="property-group">
-          <label>Label</label>
-          <InputText 
-            :modelValue="getPropValue('label', 'AND')" 
-            @update:modelValue="updateProp('label', $event)"
-          />
-        </div>
-        <div class="property-group">
-          <label>Number of Inputs</label>
-          <InputNumber 
-            :modelValue="getPropValue('numInputs', 2)" 
-            @update:modelValue="updateProp('numInputs', $event)"
-            :min="2"
-            :max="8"
-            :showButtons="true"
-          />
-        </div>
+      <!-- Fallback for unknown component types -->
+      <div v-else class="property-section">
+        <h4>{{ getComponentTitle(component.type) }}</h4>
+        <p class="no-properties">No properties available</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { getComponentProperties } from '../config/componentProperties'
+
 export default {
   name: 'ComponentInspector',
   props: {
@@ -87,6 +60,11 @@ export default {
     }
   },
   emits: ['update:component'],
+  computed: {
+    componentSchema() {
+      return this.component ? getComponentProperties(this.component.type) : null
+    }
+  },
   methods: {
     getPropValue(propName, defaultValue) {
       const value = this.component?.props?.[propName]
@@ -95,22 +73,16 @@ export default {
       return value !== null && value !== undefined ? value : defaultValue
     },
     
-    getComponentIcon(type) {
-      const icons = {
-        'input': 'pi pi-circle',
-        'output': 'pi pi-circle-fill',
-        'and-gate': 'pi pi-sitemap'
+    getMaxValue(prop) {
+      if (prop.maxFormula && this.component) {
+        return prop.maxFormula(this.component.props || {})
       }
-      return icons[type] || 'pi pi-box'
+      return prop.max || 999999
     },
     
     getComponentTitle(type) {
-      const titles = {
-        'input': 'Input Node',
-        'output': 'Output Node',
-        'and-gate': 'AND Gate'
-      }
-      return titles[type] || 'Component'
+      const schema = getComponentProperties(type)
+      return schema?.title || 'Component'
     },
     
     updatePosition(axis, value) {
@@ -165,6 +137,13 @@ export default {
 
 .inspector-content {
   padding: 1rem;
+}
+
+.no-properties {
+  color: #6b7280;
+  font-size: 0.75rem;
+  text-align: center;
+  margin: 1rem 0;
 }
 
 .property-section {

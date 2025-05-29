@@ -1,8 +1,6 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
-    <!-- AND gate shape - MIL-STD-806B style -->
-    <!-- Rectangle left half + semicircle right half -->
-    <!-- Rectangle extends to x=60, semicircle radius is 30, so tip is at x=90 -->
+    <!-- Gate shape - MIL-STD-806B style -->
     <path
       :d="gatePath"
       :fill="fillColor"
@@ -28,7 +26,7 @@
     
     <!-- Output connection point -->
     <circle 
-      cx="90" 
+      :cx="outputX" 
       :cy="gateHeight / 2" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
@@ -39,8 +37,14 @@
     />
     
     <!-- Label -->
-    <text x="45" :y="gateHeight / 2 + 5" text-anchor="middle" class="component-label">
-      &amp;
+    <text 
+      v-if="label"
+      x="45" 
+      :y="gateHeight / 2 + 5" 
+      text-anchor="middle" 
+      class="component-label"
+    >
+      {{ label }}
     </text>
   </g>
 </template>
@@ -48,15 +52,30 @@
 <script>
 import { useDraggable, draggableProps } from '../composables/useDraggable'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
+import { getGateDefinition, generateGateCode } from '../config/gateDefinitions'
 
 export default {
-  name: 'AndGate',
+  name: 'LogicGate',
   props: {
     ...draggableProps,
+    gateType: {
+      type: String,
+      required: true,
+      validator: (value) => getGateDefinition(value) !== null
+    },
     numInputs: {
       type: Number,
       default: 2,
       validator: (value) => value >= 2 && value <= 8
+    },
+    bits: {
+      type: Number,
+      default: 1,
+      validator: (value) => value >= 1 && value <= 32
+    },
+    label: {
+      type: String,
+      default: ''
     }
   },
   emits: ['startDrag'],
@@ -73,6 +92,9 @@ export default {
     }
   },
   computed: {
+    gateDefinition() {
+      return getGateDefinition(this.gateType) || {}
+    },
     gateHeight() {
       // Calculate height based on number of inputs
       // Each input must be on a grid vertex (multiple of GRID_SIZE)
@@ -81,23 +103,37 @@ export default {
     gatePath() {
       // Dynamic SVG path based on gate height
       const h = this.gateHeight
-      // Add padding above and below the input range
       const padding = 15
-      return `M 0 ${-padding} L 60 ${-padding} A 30 30 0 0 1 60 ${h + padding} L 0 ${h + padding} L 0 ${-padding} Z`
+      
+      if (this.gateDefinition.getSvgPath) {
+        return this.gateDefinition.getSvgPath(h, padding)
+      }
+      
+      // Fallback to a simple rectangle if no path defined
+      return `M 0 ${-padding} L 90 ${-padding} L 90 ${h + padding} L 0 ${h + padding} Z`
+    },
+    outputX() {
+      // Account for gates with output bubbles (NAND, NOR)
+      return 90 - (this.gateDefinition.outputOffset || 0)
     }
   },
   methods: {
     generate() {
       // Extract the number from the component ID (e.g., "and-gate_1" -> 1)
-      const match = this.id.match(/and-gate_(\d+)/)
+      const match = this.id.match(new RegExp(`${this.gateType}-gate_(\\d+)`))
       const index = match ? match[1] : '0'
-      const varName = `and${index}`
+      const varName = `${this.gateType}${index}`
       
-      // Generate GGL code for this AND gate with num_inputs parameter
-      const numInputsParam = this.numInputs !== 2 ? `num_inputs=${this.numInputs}` : ''
+      // Use the centralized code generation
+      const code = generateGateCode(this.gateType, varName, {
+        numInputs: this.numInputs,
+        bits: this.bits,
+        label: this.label
+      })
+      
       return {
         varName,
-        code: `${varName} = logic.And(${numInputsParam})`
+        code
       }
     },
     getInputY(index) {

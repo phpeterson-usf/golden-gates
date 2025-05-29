@@ -1,78 +1,13 @@
 import { defineAsyncComponent } from 'vue'
 import { GRID_SIZE } from './constants'
+import { createGateRegistryEntry } from './componentFactory'
+import { gateDefinitions } from '../config/gateDefinitions'
 
 // Registry of all available circuit components
 export const componentRegistry = {
-  'and-gate': {
-    component: defineAsyncComponent(() => import('../components/AndGate.vue')),
-    label: 'Add Gate',
-    icon: 'pi pi-plus',
-    category: 'gates',
-    defaultProps: {
-      numInputs: 2
-    },
-    dimensions: {
-      width: 90,
-      height: 90
-    },
-    // Dynamic bounds based on numInputs
-    getBounds: (props) => {
-      const numInputs = props?.numInputs || 2
-      const gateHeight = (numInputs - 1) * GRID_SIZE
-      const padding = 15
-      return {
-        x: 0,
-        y: -padding,
-        width: 90,
-        height: gateHeight + (2 * padding)
-      }
-    },
-    // Dynamic center based on numInputs
-    getCenter: (props) => {
-      const numInputs = props?.numInputs || 2
-      const gateHeight = (numInputs - 1) * GRID_SIZE
-      return {
-        x: 45,
-        y: gateHeight / 2
-      }
-    },
-    // Visual bounds relative to the component's x,y position
-    bounds: {
-      x: 0,
-      y: -15,
-      width: 90,
-      height: 90
-    },
-    // Visual center relative to the component's x,y position
-    center: {
-      x: 45,
-      y: 30
-    },
-    // Dynamic connections based on numInputs
-    getConnections: (props) => {
-      const numInputs = props?.numInputs || 2
-      const gateHeight = (numInputs - 1) * GRID_SIZE
-      const inputs = []
-      for (let i = 0; i < numInputs; i++) {
-        inputs.push({ name: String(i), x: 0, y: i * GRID_SIZE })
-      }
-      return {
-        inputs,
-        outputs: [
-          { name: '0', x: 90, y: gateHeight / 2 }
-        ]
-      }
-    },
-    connections: {
-      inputs: [
-        { name: '0', x: 0, y: 0 },
-        { name: '1', x: 0, y: 60 }
-      ],
-      outputs: [
-        { name: '0', x: 90, y: 30 }
-      ]
-    }
-  },
+  // Logic gates - generated from gateDefinitions
+  'and-gate': createGateRegistryEntry('and', gateDefinitions.and),
+  'or-gate': createGateRegistryEntry('or', gateDefinitions.or),
   
   'input': {
     component: defineAsyncComponent(() => import('../components/InputNode.vue')),
@@ -148,8 +83,8 @@ export const componentRegistry = {
   }
   
   // Future components can be added here:
-  // 'or-gate': { ... },
   // 'not-gate': { ... },
+  // 'xor-gate': { ... },
   // 'wire': { ... }
 }
 
