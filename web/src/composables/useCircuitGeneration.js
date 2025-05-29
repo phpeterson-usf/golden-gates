@@ -2,11 +2,12 @@ export function useCircuitGeneration() {
   
   function generateGglProgram(components, wires, componentRefs, componentInstances) {
     const sections = []
+    const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
     // Header
     sections.push('from ggl import io, logic, circuit')
     sections.push('')
-    sections.push('c = circuit.Circuit(js_logging=True)')
+    sections.push(`${circuitVarName} = circuit.Circuit(js_logging=True)`)
     sections.push('')
     
     const visited = new Set()
@@ -86,19 +87,19 @@ export function useCircuitGeneration() {
             continue
           }
           
-          sections.push(generateConnection(wire, componentVarNames, sourceVarName, varName))
+          sections.push(generateConnection(wire, componentVarNames, sourceVarName, varName, circuitVarName))
         }
       }
       
       sections.push('')
     }
     
-    sections.push('c.run()')
+    sections.push(`${circuitVarName}.run()`)
     
     return sections.join('\n')
   }
   
-  function generateConnection(wire, componentVarNames, sourceVarName, destVarName) {
+  function generateConnection(wire, componentVarNames, sourceVarName, destVarName, circuitVarName) {
     const sourcePort = wire.startConnection.portIndex
     const destPort = wire.endConnection.portIndex
     
@@ -122,7 +123,7 @@ export function useCircuitGeneration() {
       comment += `.in[${destPort}]`
     }
     
-    return `c.connect(${sourceExpr}, ${destExpr})    ${comment}`
+    return `${circuitVarName}.connect(${sourceExpr}, ${destExpr})    ${comment}`
   }
   
   return {

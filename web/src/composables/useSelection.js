@@ -74,7 +74,14 @@ export function useSelection(components, wires) {
       if (!config) return
       
       // Get the visual center from the component registry
-      const center = config.center || { x: 0, y: 0 }
+      let center
+      if (config.getCenter) {
+        // Use dynamic center if available
+        center = config.getCenter(comp.props)
+      } else {
+        // Use static center
+        center = config.center || { x: 0, y: 0 }
+      }
       const checkX = comp.x + center.x
       const checkY = comp.y + center.y
       

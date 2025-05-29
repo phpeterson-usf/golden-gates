@@ -21,7 +21,15 @@ export function useWireManagement(components, gridSize) {
     if (!config) return
     
     // Get the connection point position relative to component
-    const connections = portType === 'output' ? config.connections.outputs : config.connections.inputs
+    let connections
+    if (config.getConnections) {
+      // Use dynamic connections if available
+      const dynamicConnections = config.getConnections(component.props)
+      connections = portType === 'output' ? dynamicConnections.outputs : dynamicConnections.inputs
+    } else {
+      // Use static connections
+      connections = portType === 'output' ? config.connections.outputs : config.connections.inputs
+    }
     const connectionPoint = connections?.[portIndex]
     if (!connectionPoint) return
     
@@ -82,7 +90,15 @@ export function useWireManagement(components, gridSize) {
     if (!config) return
     
     // Get the connection point position
-    const connections = portType === 'output' ? config.connections.outputs : config.connections.inputs
+    let connections
+    if (config.getConnections) {
+      // Use dynamic connections if available
+      const dynamicConnections = config.getConnections(component.props)
+      connections = portType === 'output' ? dynamicConnections.outputs : dynamicConnections.inputs
+    } else {
+      // Use static connections
+      connections = portType === 'output' ? config.connections.outputs : config.connections.inputs
+    }
     const connectionPoint = connections?.[portIndex]
     if (!connectionPoint) return
     

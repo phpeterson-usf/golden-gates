@@ -4,7 +4,7 @@
     <!-- Rectangle left half + semicircle right half -->
     <!-- Rectangle extends to x=60, semicircle radius is 30, so tip is at x=90 -->
     <path
-      d="M 0 -15 L 60 -15 A 30 30 0 0 1 60 75 L 0 75 L 0 -15 Z"
+      :d="gatePath"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"
@@ -12,32 +12,24 @@
       @mousedown="handleMouseDown"
     />
     
-    <!-- Input connection points (on grid: y=0 and y=60) -->
+    <!-- Input connection points -->
     <circle 
+      v-for="(input, index) in numInputs"
+      :key="`input-${index}`"
       cx="0" 
-      cy="0" 
+      :cy="getInputY(index)" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
       class="connection-point input"
       :data-component-id="id"
-      data-port="0"
-      data-type="input"
-    />
-    <circle 
-      cx="0" 
-      cy="60" 
-      :r="CONNECTION_DOT_RADIUS" 
-      :fill="COLORS.connectionFill" 
-      class="connection-point input"
-      :data-component-id="id"
-      data-port="1"
+      :data-port="index"
       data-type="input"
     />
     
-    <!-- Output connection point (on grid: x=90, y=30) -->
+    <!-- Output connection point -->
     <circle 
       cx="90" 
-      cy="30" 
+      :cy="gateHeight / 2" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
       class="connection-point output"
@@ -47,7 +39,7 @@
     />
     
     <!-- Label -->
-    <text x="45" y="35" text-anchor="middle" class="component-label">
+    <text x="45" :y="gateHeight / 2 + 5" text-anchor="middle" class="component-label">
       &amp;
     </text>
   </g>
@@ -55,12 +47,17 @@
 
 <script>
 import { useDraggable, draggableProps } from '../composables/useDraggable'
-import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default {
   name: 'AndGate',
   props: {
-    ...draggableProps
+    ...draggableProps,
+    numInputs: {
+      type: Number,
+      default: 2,
+      validator: (value) => value >= 2 && value <= 8
+    }
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
@@ -75,6 +72,20 @@ export default {
       CONNECTION_DOT_RADIUS
     }
   },
+  computed: {
+    gateHeight() {
+      // Calculate height based on number of inputs
+      // Each input must be on a grid vertex (multiple of GRID_SIZE)
+      return (this.numInputs - 1) * GRID_SIZE
+    },
+    gatePath() {
+      // Dynamic SVG path based on gate height
+      const h = this.gateHeight
+      // Add padding above and below the input range
+      const padding = 15
+      return `M 0 ${-padding} L 60 ${-padding} A 30 30 0 0 1 60 ${h + padding} L 0 ${h + padding} L 0 ${-padding} Z`
+    }
+  },
   methods: {
     generate() {
       // Extract the number from the component ID (e.g., "and-gate_1" -> 1)
@@ -82,11 +93,17 @@ export default {
       const index = match ? match[1] : '0'
       const varName = `and${index}`
       
-      // Generate GGL code for this AND gate
+      // Generate GGL code for this AND gate with num_inputs parameter
+      const numInputsParam = this.numInputs !== 2 ? `num_inputs=${this.numInputs}` : ''
       return {
         varName,
-        code: `${varName} = logic.And()`
+        code: `${varName} = logic.And(${numInputsParam})`
       }
+    },
+    getInputY(index) {
+      // Calculate Y position for each input
+      // Each input is on a grid vertex
+      return index * GRID_SIZE
     }
   }
 }

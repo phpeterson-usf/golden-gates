@@ -205,8 +205,18 @@ export default {
     
     // Keyboard event handling
     function handleKeyDown(event) {
-      // Delete selected components and wires
-      if (event.key === 'Delete' || event.key === 'Backspace') {
+      // Check if an input field is focused
+      const activeElement = document.activeElement
+      const isInputFocused = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.contentEditable === 'true' ||
+        activeElement.classList.contains('p-inputtext') ||
+        activeElement.classList.contains('p-inputnumber-input')
+      )
+      
+      // Delete selected components and wires (only if not typing in an input)
+      if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
         deleteSelected()
       }
       

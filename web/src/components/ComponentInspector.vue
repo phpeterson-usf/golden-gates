@@ -12,24 +12,24 @@
         <div class="property-group">
           <label>Label</label>
           <InputText 
-            :modelValue="component.props?.label || 'IN'" 
+            :modelValue="getPropValue('label', 'IN')" 
             @update:modelValue="updateProp('label', $event)"
           />
         </div>
         <div class="property-group">
           <label>Value</label>
           <InputNumber 
-            :modelValue="component.props?.value || 0" 
+            :modelValue="getPropValue('value', 0)" 
             @update:modelValue="updateProp('value', $event)"
             :min="0"
-            :max="Math.pow(2, component.props?.bits || 1) - 1"
+            :max="Math.pow(2, getPropValue('bits', 1)) - 1"
             :showButtons="true"
           />
         </div>
         <div class="property-group">
           <label>Bits</label>
           <InputNumber 
-            :modelValue="component.props?.bits || 1" 
+            :modelValue="getPropValue('bits', 1)" 
             @update:modelValue="updateProp('bits', $event)"
             :min="1"
             :max="32"
@@ -43,7 +43,7 @@
         <div class="property-group">
           <label>Label</label>
           <InputText 
-            :modelValue="component.props?.label || 'OUT'" 
+            :modelValue="getPropValue('label', 'OUT')" 
             @update:modelValue="updateProp('label', $event)"
           />
         </div>
@@ -54,8 +54,18 @@
         <div class="property-group">
           <label>Label</label>
           <InputText 
-            :modelValue="component.props?.label || 'AND'" 
+            :modelValue="getPropValue('label', 'AND')" 
             @update:modelValue="updateProp('label', $event)"
+          />
+        </div>
+        <div class="property-group">
+          <label>Number of Inputs</label>
+          <InputNumber 
+            :modelValue="getPropValue('numInputs', 2)" 
+            @update:modelValue="updateProp('numInputs', $event)"
+            :min="2"
+            :max="8"
+            :showButtons="true"
           />
         </div>
       </div>
@@ -78,6 +88,13 @@ export default {
   },
   emits: ['update:component'],
   methods: {
+    getPropValue(propName, defaultValue) {
+      const value = this.component?.props?.[propName]
+      // Return the actual value if it exists (including empty string)
+      // Only use default if value is null or undefined
+      return value !== null && value !== undefined ? value : defaultValue
+    },
+    
     getComponentIcon(type) {
       const icons = {
         'input': 'pi pi-circle',
