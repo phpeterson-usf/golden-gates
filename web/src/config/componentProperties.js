@@ -23,6 +23,13 @@ export const componentPropertySchema = {
         showButtons: true
       },
       {
+        name: 'base',
+        type: 'number',
+        label: 'Base',
+        default: 10,
+        hidden: true  // Hidden from inspector, managed internally
+      },
+      {
         name: 'bits',
         type: 'number',
         label: 'Bits',
@@ -44,6 +51,21 @@ export const componentPropertySchema = {
         type: 'text',
         label: 'Label',
         default: 'OUT'
+      },
+      {
+        name: 'bits',
+        type: 'number',
+        label: 'Bits',
+        default: 1,
+        min: 1,
+        max: 32,
+        showButtons: true
+      },
+      {
+        name: 'base',
+        type: 'base-selector',
+        label: 'Base',
+        default: 10
       }
     ]
   },

@@ -16,6 +16,7 @@ export const componentRegistry = {
     category: 'io',
     defaultProps: {
       value: 0,
+      base: 10,
       bits: 1,
       gridSize: GRID_SIZE
     },
@@ -25,10 +26,10 @@ export const componentRegistry = {
     },
     // Visual bounds relative to the component's x,y position
     bounds: {
-      x: 0,
-      y: -15,
-      width: GRID_SIZE,
-      height: GRID_SIZE
+      x: -10,  // Extended left to accommodate longer values
+      y: -30,  // Extended up to include value text
+      width: GRID_SIZE + 20,  // Extra width for value display
+      height: 45  // Height to include value text above
     },
     // Visual center relative to the component's x,y position
     center: {
@@ -53,6 +54,8 @@ export const componentRegistry = {
     category: 'io',
     defaultProps: {
       value: 0,
+      bits: 1,
+      base: 10,
       gridSize: GRID_SIZE
     },
     dimensions: {
@@ -61,10 +64,10 @@ export const componentRegistry = {
     },
     // Visual bounds relative to the component's x,y position
     bounds: {
-      x: 0,
-      y: -15,
-      width: GRID_SIZE,
-      height: GRID_SIZE
+      x: -10,  // Extended left to accommodate longer values
+      y: -30,  // Extended up to include value text
+      width: GRID_SIZE + 20,  // Extra width for value display
+      height: 45  // Height to include value text above
     },
     // Visual center relative to the component's x,y position
     center: {

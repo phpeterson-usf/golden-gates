@@ -384,7 +384,8 @@ export default {
     function updateComponent(updatedComponent) {
       const index = components.value.findIndex(c => c.id === updatedComponent.id)
       if (index !== -1) {
-        components.value[index] = updatedComponent
+        // Use Vue's reactivity-safe array update method
+        components.value.splice(index, 1, updatedComponent)
       }
     }
     

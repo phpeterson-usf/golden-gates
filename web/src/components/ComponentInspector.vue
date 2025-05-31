@@ -10,7 +10,7 @@
       <div class="property-section" v-if="componentSchema">
         <h4>{{ componentSchema.title }}</h4>
         <div 
-          v-for="prop in componentSchema.properties" 
+          v-for="prop in componentSchema.properties.filter(p => !p.hidden)" 
           :key="prop.name"
           class="property-group"
         >
@@ -24,6 +24,14 @@
           />
           
           <!-- Number input -->
+          <MultibaseNumberInput
+            v-else-if="prop.type === 'number' && component.type === 'input' && prop.name === 'value'"
+            :modelValue="getPropValue(prop.name, prop.default)" 
+            :base="getPropValue('base', 10)"
+            @update:both="updateMultipleProps($event)"
+            :min="prop.min || 0"
+            :max="getMaxValue(prop)"
+          />
           <InputNumber 
             v-else-if="prop.type === 'number'"
             :modelValue="getPropValue(prop.name, prop.default)" 
@@ -31,6 +39,13 @@
             :min="prop.min || 0"
             :max="getMaxValue(prop)"
             :showButtons="prop.showButtons !== false"
+          />
+          
+          <!-- Base selector -->
+          <BaseSelector
+            v-else-if="prop.type === 'base-selector'"
+            :modelValue="getPropValue(prop.name, prop.default)"
+            @update:modelValue="updateProp(prop.name, $event)"
           />
         </div>
       </div>
@@ -46,9 +61,15 @@
 
 <script>
 import { getComponentProperties } from '../config/componentProperties'
+import MultibaseNumberInput from './MultibaseNumberInput.vue'
+import BaseSelector from './BaseSelector.vue'
 
 export default {
   name: 'ComponentInspector',
+  components: {
+    MultibaseNumberInput,
+    BaseSelector
+  },
   props: {
     component: {
       type: Object,
@@ -86,7 +107,7 @@ export default {
     },
     
     updatePosition(axis, value) {
-      if (value === null || value === undefined) return
+      if (value === null || value === undefined || !this.component) return
       
       this.$emit('update:component', {
         ...this.component,
@@ -95,11 +116,25 @@ export default {
     },
     
     updateProp(propName, value) {
+      if (!this.component) return;
+      
       this.$emit('update:component', {
         ...this.component,
         props: {
           ...this.component.props,
           [propName]: value
+        }
+      })
+    },
+    
+    updateMultipleProps(updates) {
+      if (!this.component) return;
+      
+      this.$emit('update:component', {
+        ...this.component,
+        props: {
+          ...this.component.props,
+          ...updates
         }
       })
     }

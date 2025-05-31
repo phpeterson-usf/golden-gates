@@ -39,8 +39,8 @@
 /* Component value display */
 .component-value {
   font-family: monospace;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: normal;
   pointer-events: none;
   user-select: none;
 }
@@ -61,4 +61,23 @@
 /* Grid pattern styles */
 .grid-dot {
   fill: #cccccc;
+}
+
+/* Base selector dropdown styling - override p-component font-size */
+.p-dropdown-panel.p-component .p-dropdown-items .p-dropdown-item {
+  font-size: 12px !important;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item span.p-dropdown-item-label {
+  font-size: 12px !important;
+}
+
+/* Reduce padding to match inspector style */
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  padding: 6px 12px !important;
+}
+
+/* Selected value in the dropdown */
+.p-dropdown.p-component .p-dropdown-label {
+  font-size: 12px !important;
 }

@@ -1,5 +1,15 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
+    <!-- Value display (above the circle, centered on bounding box) -->
+    <text 
+      :x="gridSize / 2" 
+      y="-25" 
+      text-anchor="middle" 
+      class="component-value"
+    >
+      {{ formattedValue }}
+    </text>
+    
     <!-- Output circle (30 diameter, offset to center the input dot) -->
     <circle
       :cx="gridSize / 2"
@@ -34,16 +44,6 @@
     >
       {{ label }}
     </text>
-    
-    <!-- Value display (inside the circle) -->
-    <text 
-      :x="gridSize / 2" 
-      y="5" 
-      text-anchor="middle" 
-      class="component-value"
-    >
-      {{ value }}
-    </text>
   </g>
 </template>
 
@@ -53,6 +53,17 @@ import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 export default {
   name: 'OutputNode',
+  computed: {
+    formattedValue() {
+      if (this.base === 16) {
+        return '0x' + this.value.toString(16)
+      } else if (this.base === 2) {
+        return '0b' + this.value.toString(2)
+      } else {
+        return this.value.toString(10)
+      }
+    }
+  },
   props: {
     ...draggableProps,
     label: {
@@ -62,6 +73,14 @@ export default {
     value: {
       type: Number,
       default: 0
+    },
+    bits: {
+      type: Number,
+      default: 1
+    },
+    base: {
+      type: Number,
+      default: 10
     },
     gridSize: {
       type: Number,
@@ -98,7 +117,7 @@ export default {
       // Generate GGL code for this output with js_id
       return {
         varName,
-        code: `${varName} = io.Output(bits=1, label="${this.label}", js_id="${this.id}")`
+        code: `${varName} = io.Output(bits=${this.bits}, label="${this.label}", js_id="${this.id}")`
       }
     }
   }

@@ -7,6 +7,9 @@ import 'primevue/resources/primevue.min.css'
 import 'primevue/resources/themes/aura-light-blue/theme.css'
 import 'primeicons/primeicons.css'
 
+// Custom styles (must come after PrimeVue to override)
+import './styles/components.css'
+
 // PrimeVue components
 import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'

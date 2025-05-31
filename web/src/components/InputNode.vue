@@ -1,5 +1,15 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
+    <!-- Value display (above the square, centered on bounding box) -->
+    <text 
+      :x="gridSize / 2" 
+      y="-25" 
+      text-anchor="middle" 
+      class="component-value"
+    >
+      {{ formattedValue }}
+    </text>
+    
     <!-- Label -->
     <text 
       x="-10" 
@@ -35,16 +45,6 @@
       data-port="0"
       data-type="output"
     />
-    
-    <!-- Value display (inside the square) -->
-    <text 
-      :x="gridSize / 2" 
-      y="5" 
-      text-anchor="middle" 
-      class="component-value"
-    >
-      {{ value }}
-    </text>
   </g>
 </template>
 
@@ -54,6 +54,17 @@ import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 export default {
   name: 'InputNode',
+  computed: {
+    formattedValue() {
+      if (this.base === 16) {
+        return '0x' + this.value.toString(16)
+      } else if (this.base === 2) {
+        return '0b' + this.value.toString(2)
+      } else {
+        return this.value.toString(10)
+      }
+    }
+  },
   props: {
     ...draggableProps,
     label: {
@@ -63,6 +74,10 @@ export default {
     value: {
       type: Number,
       default: 0
+    },
+    base: {
+      type: Number,
+      default: 10
     },
     bits: {
       type: Number,
@@ -100,10 +115,20 @@ export default {
         varName = `input${index}`
       }
       
+      // Format value based on base
+      let valueStr
+      if (this.base === 16) {
+        valueStr = '0x' + this.value.toString(16)
+      } else if (this.base === 2) {
+        valueStr = '0b' + this.value.toString(2)
+      } else {
+        valueStr = this.value.toString(10)
+      }
+      
       // Generate GGL code for this input
       const lines = [
         `${varName} = io.Input(bits=${this.bits}, label="${this.label}")`,
-        `${varName}.value = ${this.value}`
+        `${varName}.value = ${valueStr}`
       ]
       
       return {

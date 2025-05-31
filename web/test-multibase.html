@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test MultibaseNumberInput Fix</title>
+</head>
+<body>
+    <h1>MultibaseNumberInput Test</h1>
+    <p>To test the fix:</p>
+    <ol>
+        <li>Run the app with <code>npm run dev</code></li>
+        <li>Add an Input component to the canvas</li>
+        <li>Select it to open the inspector</li>
+        <li>In the Value field, type "0xa9ff"</li>
+        <li>Press Tab to blur the field</li>
+        <li>The field should still show "0xa9ff" (not reset to "0")</li>
+    </ol>
+    <p>The fix moves the lastEmittedValue and lastEmittedBase variables to the proper scope so they persist between function calls.</p>
+</body>
+</html>
