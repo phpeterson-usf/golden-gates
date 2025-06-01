@@ -21,12 +21,12 @@
       {{ label }}
     </text>
     
-    <!-- Input square (30x30, offset up by 15 pixels to center the output dot) -->
+    <!-- Input square (larger by 5px, offset left so output point is on right edge) -->
     <rect
-      x="0"
-      y="-15"
-      :width="gridSize"
-      :height="gridSize"
+      x="-5"
+      :y="-(gridSize + 5) / 2"
+      :width="gridSize + 5"
+      :height="gridSize + 5"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"

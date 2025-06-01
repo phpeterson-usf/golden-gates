@@ -5,42 +5,58 @@ import { getGateDefinition } from '../config/gateDefinitions'
 // Shared functions for standard gate bounds and connections
 function standardGateBounds(props) {
   const numInputs = props?.numInputs || 2
-  const gateHeight = (numInputs - 1) * GRID_SIZE
-  const padding = 15
+  const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+  const padding = 10
+  
+  // All gates use fixed width of 3 grid units
   return {
     x: 0,
     y: -padding,
-    width: 90,
-    height: gateHeight + (2 * padding)
+    width: GRID_SIZE * 3,  // 45px
+    height: totalHeight + (2 * padding)
   }
 }
 
 function standardGateCenter(props) {
   const numInputs = props?.numInputs || 2
-  const gateHeight = (numInputs - 1) * GRID_SIZE
+  const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+  
+  // All gates centered at 1.5 grid units horizontally
   return {
-    x: 45,
-    y: gateHeight / 2
+    x: GRID_SIZE * 1.5,  // 22.5px (center of 45px width)
+    y: totalHeight / 2
   }
 }
 
 function standardGateConnections(props) {
   const numInputs = props?.numInputs || 2
-  const gateHeight = (numInputs - 1) * GRID_SIZE
   const inputs = []
+  
+  // All gates have inputs on alternating grid vertices
   for (let i = 0; i < numInputs; i++) {
-    inputs.push({ name: String(i), x: 0, y: i * GRID_SIZE })
+    inputs.push({ name: String(i), x: 0, y: i * GRID_SIZE * 2 })
   }
   
   // Get gate definition to check for output offset
   const gateType = props?.gateType
   const definition = gateType ? getGateDefinition(gateType) : null
-  const outputX = 90 - (definition?.outputOffset || 0)
+  const outputOffset = definition?.outputOffset || 0
   
+  // Calculate output Y position based on number of inputs
+  let outputY
+  if (numInputs === 2) {
+    outputY = GRID_SIZE  // 15px - between inputs at 0 and 30
+  } else {
+    // For more inputs, output is at center of total height
+    const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+    outputY = totalHeight / 2
+  }
+  
+  // All gates output at 3 grid units horizontally
   return {
     inputs,
     outputs: [
-      { name: '0', x: outputX, y: gateHeight / 2 }
+      { name: '0', x: GRID_SIZE * 3 - outputOffset, y: outputY }
     ]
   }
 }
@@ -59,8 +75,8 @@ export function createGateRegistryEntry(gateType, definition) {
       label: ''
     },
     dimensions: {
-      width: 90,
-      height: 90
+      width: GRID_SIZE * 3,  // 60px
+      height: GRID_SIZE * 3  // 60px for default 2-input gate space
     },
     // Dynamic bounds based on numInputs
     getBounds: standardGateBounds,
@@ -71,23 +87,23 @@ export function createGateRegistryEntry(gateType, definition) {
     // Static bounds for default 2-input gate
     bounds: {
       x: 0,
-      y: -15,
-      width: 90,
-      height: 90
+      y: -10,
+      width: GRID_SIZE * 3,  // 45px
+      height: GRID_SIZE * 2 + 20  // 50px (30px gate + 20px padding)
     },
     // Static center for default 2-input gate
     center: {
-      x: 45,
-      y: 30
+      x: GRID_SIZE * 1.5,  // 22.5px
+      y: GRID_SIZE         // 15px
     },
     // Static connections for default 2-input gate
     connections: {
       inputs: [
         { name: '0', x: 0, y: 0 },
-        { name: '1', x: 0, y: 60 }
+        { name: '1', x: 0, y: GRID_SIZE * 2 }  // 30px
       ],
       outputs: [
-        { name: '0', x: 90 - (definition.outputOffset || 0), y: 30 }
+        { name: '0', x: GRID_SIZE * 3 - (definition.outputOffset || 0), y: GRID_SIZE }  // 45px, 15px
       ]
     }
   }

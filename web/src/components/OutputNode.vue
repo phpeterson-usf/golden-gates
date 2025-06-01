@@ -10,11 +10,11 @@
       {{ formattedValue }}
     </text>
     
-    <!-- Output circle (30 diameter, offset to center the input dot) -->
+    <!-- Output circle (larger by 5px diameter, offset right so input point is on left edge) -->
     <circle
-      :cx="gridSize / 2"
+      :cx="(gridSize + 5) / 2"
       cy="0"
-      :r="gridSize / 2"
+      :r="(gridSize + 5) / 2"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"
