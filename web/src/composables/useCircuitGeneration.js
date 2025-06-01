@@ -131,11 +131,11 @@ export function useCircuitGeneration() {
     
     // Generate descriptive comment
     let comment = `# ${sourceVarName}`
-    if (sourcePort > 0) {
+    if (sourceOutputs.length > 1 && sourcePort > 0) {
       comment += `.out[${sourcePort}]`
     }
     comment += ` -> ${destVarName}`
-    if (destPort > 0) {
+    if (destInputs.length > 1 || destPort > 0) {
       comment += `.in[${destPort}]`
     }
     
