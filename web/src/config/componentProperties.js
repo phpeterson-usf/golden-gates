@@ -1,18 +1,37 @@
 // Configuration for component properties shown in the inspector
 // Each entry defines the properties available for a component type
 
+// Common property definitions that can be reused across components
+const commonProperties = {
+  label: {
+    name: 'label',
+    type: 'text',
+    label: 'Label'
+  },
+  bits: {
+    name: 'bits',
+    type: 'number',
+    label: 'Bits',
+    default: 1,
+    min: 1,
+    max: 32,
+    showButtons: true
+  },
+  rotation: {
+    name: 'rotation',
+    type: 'rotation-selector',
+    label: 'Rotation',
+    default: 0
+  }
+}
+
 export const componentPropertySchema = {
   // Input node properties
   'input': {
     title: 'Input Properties',
     icon: 'pi pi-circle',
     properties: [
-      {
-        name: 'label',
-        type: 'text',
-        label: 'Label',
-        default: 'IN'
-      },
+      { ...commonProperties.label, default: 'IN' },
       {
         name: 'value',
         type: 'number',
@@ -29,15 +48,8 @@ export const componentPropertySchema = {
         default: 10,
         hidden: true  // Hidden from inspector, managed internally
       },
-      {
-        name: 'bits',
-        type: 'number',
-        label: 'Bits',
-        default: 1,
-        min: 1,
-        max: 32,
-        showButtons: true
-      }
+      commonProperties.bits,
+      commonProperties.rotation
     ]
   },
   
@@ -46,27 +58,15 @@ export const componentPropertySchema = {
     title: 'Output Properties',
     icon: 'pi pi-circle-fill',
     properties: [
-      {
-        name: 'label',
-        type: 'text',
-        label: 'Label',
-        default: 'OUT'
-      },
-      {
-        name: 'bits',
-        type: 'number',
-        label: 'Bits',
-        default: 1,
-        min: 1,
-        max: 32,
-        showButtons: true
-      },
+      { ...commonProperties.label, default: 'OUT' },
+      commonProperties.bits,
       {
         name: 'base',
         type: 'base-selector',
         label: 'Base',
         default: 10
-      }
+      },
+      commonProperties.rotation
     ]
   },
   
@@ -75,12 +75,7 @@ export const componentPropertySchema = {
     title: 'AND Gate Properties',
     icon: 'pi pi-sitemap',
     properties: [
-      {
-        name: 'label',
-        type: 'text',
-        label: 'Label',
-        default: 'AND'
-      },
+      { ...commonProperties.label, default: 'AND' },
       {
         name: 'numInputs',
         type: 'number',
@@ -89,7 +84,8 @@ export const componentPropertySchema = {
         min: 2,
         max: 8,
         showButtons: true
-      }
+      },
+      commonProperties.rotation
     ]
   },
   
@@ -98,12 +94,7 @@ export const componentPropertySchema = {
     title: 'OR Gate Properties',
     icon: 'pi pi-sitemap',
     properties: [
-      {
-        name: 'label',
-        type: 'text',
-        label: 'Label',
-        default: 'OR'
-      },
+      { ...commonProperties.label, default: 'OR' },
       {
         name: 'numInputs',
         type: 'number',
@@ -113,15 +104,8 @@ export const componentPropertySchema = {
         max: 8,
         showButtons: true
       },
-      {
-        name: 'bits',
-        type: 'number',
-        label: 'Bits',
-        default: 1,
-        min: 1,
-        max: 32,
-        showButtons: true
-      }
+      commonProperties.bits,
+      commonProperties.rotation
     ]
   }
 }

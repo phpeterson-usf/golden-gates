@@ -18,7 +18,8 @@ export const componentRegistry = {
       value: 0,
       base: 10,
       bits: 1,
-      gridSize: GRID_SIZE
+      gridSize: GRID_SIZE,
+      rotation: 0
     },
     dimensions: {
       width: GRID_SIZE,
@@ -56,7 +57,8 @@ export const componentRegistry = {
       value: 0,
       bits: 1,
       base: 10,
-      gridSize: GRID_SIZE
+      gridSize: GRID_SIZE,
+      rotation: 0
     },
     dimensions: {
       width: GRID_SIZE,

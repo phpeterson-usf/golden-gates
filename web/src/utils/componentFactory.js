@@ -72,7 +72,8 @@ export function createGateRegistryEntry(gateType, definition) {
       gateType,
       numInputs: 2,
       bits: 1,
-      label: ''
+      label: '',
+      rotation: 0
     },
     dimensions: {
       width: GRID_SIZE * 3,  // 60px

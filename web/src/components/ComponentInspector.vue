@@ -47,6 +47,13 @@
             :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
+          
+          <!-- Rotation selector -->
+          <RotationSelector
+            v-else-if="prop.type === 'rotation-selector'"
+            :modelValue="getPropValue(prop.name, prop.default)"
+            @update:modelValue="updateProp(prop.name, $event)"
+          />
         </div>
       </div>
       
@@ -63,12 +70,14 @@
 import { getComponentProperties } from '../config/componentProperties'
 import MultibaseNumberInput from './MultibaseNumberInput.vue'
 import BaseSelector from './BaseSelector.vue'
+import RotationSelector from './RotationSelector.vue'
 
 export default {
   name: 'ComponentInspector',
   components: {
     MultibaseNumberInput,
-    BaseSelector
+    BaseSelector,
+    RotationSelector
   },
   props: {
     component: {

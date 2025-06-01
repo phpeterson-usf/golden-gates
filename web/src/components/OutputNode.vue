@@ -1,5 +1,7 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
+    <!-- Rotation group centered on input point -->
+    <g :transform="`rotate(${rotation}, 0, 0)`">
     <!-- Value display (above the circle, centered on component) -->
     <text 
       :x="(gridSize + 5) / 2" 
@@ -44,6 +46,7 @@
     >
       {{ label }}
     </text>
+    </g>
   </g>
 </template>
 
@@ -85,6 +88,11 @@ export default {
     gridSize: {
       type: Number,
       default: 30
+    },
+    rotation: {
+      type: Number,
+      default: 0,
+      validator: (value) => [0, 90, 180, 270].includes(value)
     }
   },
   emits: ['startDrag'],

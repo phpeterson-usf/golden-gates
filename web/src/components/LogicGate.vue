@@ -1,5 +1,7 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
+    <!-- Rotation group centered on output point -->
+    <g :transform="`rotate(${rotation}, ${outputX}, ${outputY})`">
     <!-- Vertical extension line for additional inputs -->
     <line
       v-if="numInputs > 2"
@@ -61,6 +63,7 @@
     >
       {{ label }}
     </text>
+    </g>
   </g>
 </template>
 
@@ -91,6 +94,11 @@ export default {
     label: {
       type: String,
       default: ''
+    },
+    rotation: {
+      type: Number,
+      default: 0,
+      validator: (value) => [0, 90, 180, 270].includes(value)
     }
   },
   emits: ['startDrag'],
