@@ -53,6 +53,17 @@ export default {
     let lastEmittedValue = props.modelValue;
     let lastEmittedBase = props.base;
     
+    // Check if a value overflows the current bit width
+    const checkOverflow = (value) => {
+      if (value > props.max) {
+        isValid.value = false;
+        const bits = Math.ceil(Math.log2(props.max + 1));
+        errorMessage.value = `Overflows ${bits} bits`;
+        return true;
+      }
+      return false;
+    };
+    
     // Convert number to display string based on base
     const formatNumber = (num, base) => {
       if (base === 16) {
@@ -72,8 +83,8 @@ export default {
       return formatNumber(props.modelValue, props.base);
     });
     
-    // Parse string to number
-    const parseNumber = (str) => {
+    // Parse string to number without range checking
+    const parseNumberRaw = (str) => {
       str = str.trim();
       if (str === '') return null;
       
@@ -97,8 +108,16 @@ export default {
         num = parseInt(str, 10);
       }
       
-      // Check if number is valid and within range
-      if (isNaN(num) || num < props.min || num > props.max) {
+      return isNaN(num) ? null : num;
+    };
+    
+    // Parse string to number with range checking
+    const parseNumber = (str) => {
+      const num = parseNumberRaw(str);
+      if (num === null) return null;
+      
+      // Check if number is within range
+      if (num < props.min || num > props.max) {
         return null;
       }
       
@@ -199,10 +218,8 @@ export default {
           const testNum = parseInt(newValue.replace(/^0[xXbB]/, ''), 
             newValue.match(/^0[xX]/) ? 16 : newValue.match(/^0[bB]/) ? 2 : 10);
           
-          if (!isNaN(testNum) && testNum > props.max) {
-            isValid.value = false;
-            const bits = Math.ceil(Math.log2(props.max + 1));
-            errorMessage.value = `Overflows ${bits} bits`;
+          if (!isNaN(testNum)) {
+            checkOverflow(testNum);
           }
         }
       }
@@ -251,6 +268,34 @@ export default {
         // This was our own change, keep tracking in sync
         lastEmittedValue = newValue;
         lastEmittedBase = newBase;
+      }
+    });
+    
+    // Watch for changes to max (bit width changes)
+    watch(() => props.max, (newMax, oldMax) => {
+      // Determine which value to check
+      let valueToCheck = props.modelValue;
+      
+      // If there's input text, parse and use that value instead
+      if (inputValue.value && inputValue.value !== '') {
+        const num = parseNumberRaw(inputValue.value);
+        if (num !== null) {
+          valueToCheck = num;
+        }
+      }
+      
+      // Check if the value overflows with the new max
+      if (valueToCheck > newMax) {
+        // Set overflow error
+        isValid.value = false;
+        const bits = Math.ceil(Math.log2(newMax + 1));
+        errorMessage.value = `Overflows ${bits} bits`;
+      } else {
+        // Clear overflow error if value now fits
+        if (errorMessage.value.includes('Overflows')) {
+          isValid.value = true;
+          errorMessage.value = '';
+        }
       }
     });
     
