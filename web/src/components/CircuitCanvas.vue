@@ -362,7 +362,11 @@ export default {
       const centerY = canvasHeight.value / 2
       const snapped = snapToGrid({ x: centerX, y: centerY })
       
-      addComponent(type, snapped.x, snapped.y)
+      const newComponent = addComponent(type, snapped.x, snapped.y)
+      
+      // Clear existing selection and select the new component
+      clearSelection()
+      selectComponent(newComponent.id)
     }
     
     // Computed property to get component instances
