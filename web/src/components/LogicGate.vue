@@ -50,12 +50,13 @@
       data-type="output"
     />
     
-    <!-- Label -->
+    <!-- Label (centered within the gate) -->
     <text 
       v-if="label"
-      x="45" 
-      :y="outputY + 5" 
+      :x="labelX" 
+      :y="outputY" 
       text-anchor="middle" 
+      dominant-baseline="middle"
       class="component-label"
     >
       {{ label }}
@@ -151,6 +152,19 @@ export default {
       } else {
         // Gate is centered, so output is at center of total height
         return this.totalHeight / 2
+      }
+    },
+    labelX() {
+      // Calculate horizontal center of each gate type
+      if (this.gateType === 'and') {
+        // AND gate extends to 45px (3 grid units)
+        return GRID_SIZE * 1.5  // 22.5px
+      } else if (this.gateType === 'or') {
+        // OR gate extends to 60px (4 grid units)
+        return GRID_SIZE * 2  // 30px
+      } else {
+        // Default for other gate types
+        return GRID_SIZE * 1.5
       }
     }
   },

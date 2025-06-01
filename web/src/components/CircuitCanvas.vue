@@ -159,8 +159,7 @@ export default {
       startWireDrawing,
       addWireWaypoint,
       completeWire,
-      cancelWireDrawing,
-      selectWire
+      cancelWireDrawing
     } = wireManagement
     
     // Selection management
@@ -173,6 +172,7 @@ export default {
       updateSelectionEnd,
       endSelection,
       selectComponent,
+      selectWire,
       clearSelection,
       deleteSelected,
       checkAndClearJustFinished

@@ -126,6 +126,20 @@ export function useSelection(components, wires) {
     }
   }
 
+  // Select/deselect a single wire
+  function selectWire(wireIndex, isMultiSelect = false) {
+    if (!isMultiSelect) {
+      selectedComponents.value.clear()
+      selectedWires.value.clear()
+    }
+    
+    if (selectedWires.value.has(wireIndex)) {
+      selectedWires.value.delete(wireIndex)
+    } else {
+      selectedWires.value.add(wireIndex)
+    }
+  }
+
   // Clear all selections
   function clearSelection() {
     selectedComponents.value.clear()
@@ -170,6 +184,7 @@ export function useSelection(components, wires) {
     updateSelectionEnd,
     endSelection,
     selectComponent,
+    selectWire,
     clearSelection,
     deleteSelected,
     checkAndClearJustFinished

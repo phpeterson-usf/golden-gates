@@ -1,9 +1,9 @@
 <template>
   <g :transform="`translate(${x}, ${y})`">
-    <!-- Value display (above the circle, centered on bounding box) -->
+    <!-- Value display (above the circle, centered on component) -->
     <text 
-      :x="gridSize / 2" 
-      y="-25" 
+      :x="(gridSize + 5) / 2" 
+      y="-15" 
       text-anchor="middle" 
       class="component-value"
     >

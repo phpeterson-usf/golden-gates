@@ -204,17 +204,7 @@ export function useWireManagement(components, gridSize) {
   }
 
   // Select/deselect a wire
-  function selectWire(index, isMultiSelect = false) {
-    if (!isMultiSelect) {
-      selectedWires.value.clear()
-    }
-    
-    if (selectedWires.value.has(index)) {
-      selectedWires.value.delete(index)
-    } else {
-      selectedWires.value.add(index)
-    }
-  }
+  // This function is replaced in CircuitCanvas to use the selection composable
 
   // Delete selected wires
   function deleteSelectedWires() {
@@ -280,7 +270,6 @@ export function useWireManagement(components, gridSize) {
     completeWire,
     cancelWireDrawing,
     addPointToWire,
-    selectWire,
     deleteSelectedWires,
     updateWireEndpoints
   }

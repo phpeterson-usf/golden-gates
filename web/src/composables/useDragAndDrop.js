@@ -23,9 +23,10 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
         selectedComponents.value.add(id)
       }
     } else {
-      // If not multi-selecting and clicked component isn't selected, clear selection
+      // If not multi-selecting and clicked component isn't selected, clear all selections
       if (!selectedComponents.value.has(id)) {
         selectedComponents.value.clear()
+        selectedWires.value.clear()
       }
       // Add the clicked component to selection
       selectedComponents.value.add(id)
