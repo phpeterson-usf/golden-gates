@@ -1,3 +1,5 @@
+import { componentRegistry } from '../utils/componentRegistry'
+
 export function useCircuitGeneration() {
   
   function generateGglProgram(components, wires, componentRefs, componentInstances) {
@@ -87,7 +89,7 @@ export function useCircuitGeneration() {
             continue
           }
           
-          sections.push(generateConnection(wire, componentVarNames, sourceVarName, varName, circuitVarName))
+          sections.push(generateConnection(wire, components, componentVarNames, sourceVarName, varName, circuitVarName))
         }
       }
       
@@ -99,19 +101,33 @@ export function useCircuitGeneration() {
     return sections.join('\n')
   }
   
-  function generateConnection(wire, componentVarNames, sourceVarName, destVarName, circuitVarName) {
+  function generateConnection(wire, components, componentVarNames, sourceVarName, destVarName, circuitVarName) {
     const sourcePort = wire.startConnection.portIndex
     const destPort = wire.endConnection.portIndex
     
-    // Generate connection based on port indices
+    // Find the source and destination components
+    const sourceComp = components.find(c => c.id === wire.startConnection.componentId)
+    const destComp = components.find(c => c.id === wire.endConnection.componentId)
+    
+    // Get component definitions from registry
+    const sourceConfig = componentRegistry[sourceComp.type]
+    const destConfig = componentRegistry[destComp.type]
+    
+    // Generate connection based on number of ports
     let sourceExpr = sourceVarName
     let destExpr = destVarName
     
-    // Need to check the component type to determine if we need port specifiers
-    // AND gates have multiple inputs, so we always need to specify the input port
-    // For now, we'll always use port specifiers when available
-    sourceExpr = `${sourceVarName}.output("${sourcePort}")`
-    destExpr = `${destVarName}.input("${destPort}")`
+    // Only add output specifier if component has multiple outputs
+    const sourceOutputs = sourceConfig?.connections?.outputs || []
+    if (sourceOutputs.length > 1) {
+      sourceExpr = `${sourceVarName}.output("${sourcePort}")`
+    }
+    
+    // Only add input specifier if component has multiple inputs
+    const destInputs = destConfig?.connections?.inputs || []
+    if (destInputs.length > 1) {
+      destExpr = `${destVarName}.input("${destPort}")`
+    }
     
     // Generate descriptive comment
     let comment = `# ${sourceVarName}`
