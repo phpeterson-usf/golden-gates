@@ -24,11 +24,10 @@ class Gate(BitsNode):
         # Get a list of edges from the inpoints for this Gate
         edges = self.inputs.get_edges()
         # Get the first value, then loop from the second...end
-        prev = edges[0].value
+        rv = edges[0].value
         for e in edges[1:]:
             # Perform the Gate-specific logic (AND, OR, ...)
-            rv = self.logic(prev, e.value)
-            prev = e.value
+            rv = self.logic(rv, e.value)
         logger.info(f'{self.kind} propagates: {rv}')
         return super().propagate(rv)            
 

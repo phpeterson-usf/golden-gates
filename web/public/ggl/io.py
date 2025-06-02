@@ -47,7 +47,7 @@ class Output(IONode):
                     updateCallback(self.js_id, self.value)
                     logger.info(f'Callback successful for {self.js_id}')
                 else:
-                    logger.warning('updateCallback not found in builtins')
+                    logger.warning('updateCallback not found in builtins - should js_id be None?')
             except Exception as e:
                 logger.error(f'Callback failed: {e}')
 
