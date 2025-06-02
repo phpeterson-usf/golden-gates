@@ -43,6 +43,18 @@
           :preview="true"
         />
         
+        <!-- Junction points -->
+        <circle
+          v-for="(junction, index) in wireJunctions"
+          :key="`junction-${index}`"
+          :cx="junction.pos.x"
+          :cy="junction.pos.y"
+          :r="CONNECTION_DOT_RADIUS"
+          :fill="COLORS.connectionFill"
+          class="wire-junction"
+          pointer-events="none"
+        />
+        
         <!-- Components -->
         <component
           v-for="comp in components"
@@ -99,7 +111,7 @@
 <script>
 import { ref, computed, onMounted, onUnmounted, watch, getCurrentInstance } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
-import { DOT_SIZE, COLORS } from '../utils/constants'
+import { DOT_SIZE, COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 import Wire from './Wire.vue'
 
 // Composables
@@ -156,14 +168,18 @@ export default {
       wirePoints,
       currentMousePos,
       previewPoints,
+      wireJunctions,
       startWireDrawing,
       addWireWaypoint,
       completeWire,
-      cancelWireDrawing
+      cancelWireDrawing,
+      findClosestGridPointOnWire,
+      startWireFromJunction,
+      completeWireAtJunction
     } = wireManagement
     
     // Selection management
-    const selection = useSelection(components, wires)
+    const selection = useSelection(components, wires, wireManagement.cleanupJunctionsForDeletedWires)
     const {
       selectedComponents,
       isSelecting,
@@ -187,7 +203,8 @@ export default {
       wires,
       selectedComponents,
       selection.selectedWires,
-      snapToGrid
+      snapToGrid,
+      wireJunctions
     )
     const {
       startDrag,
@@ -331,9 +348,30 @@ export default {
     }
     
     function handleWireClick(index, event) {
-      // Check if Command key is held
-      const isMultiSelect = event.metaKey || event.ctrlKey
-      selectWire(index, isMultiSelect)
+      // If we're drawing a wire and Alt is held, complete it with a junction
+      if (drawingWire.value && event.altKey) {
+        const pos = getMousePos(event)
+        const junctionPos = findClosestGridPointOnWire(index, pos)
+        
+        if (junctionPos) {
+          // Complete the wire at this junction
+          completeWireAtJunction(index, junctionPos)
+        }
+      } 
+      // If not drawing and Alt is held, start from junction
+      else if (!drawingWire.value && event.altKey) {
+        const pos = getMousePos(event)
+        const junctionPos = findClosestGridPointOnWire(index, pos)
+        
+        if (junctionPos) {
+          // Start drawing a new wire from this junction
+          startWireFromJunction(index, junctionPos)
+        }
+      } else {
+        // Normal selection behavior with Command/Ctrl for multi-select
+        const isMultiSelect = event.metaKey || event.ctrlKey
+        selectWire(index, isMultiSelect)
+      }
       // Stop propagation to prevent canvas click handler
       event.stopPropagation()
     }
@@ -422,9 +460,11 @@ export default {
       drawingWire,
       wirePoints,
       previewPoints,
+      wireJunctions,
       
       // Constants
       COLORS,
+      CONNECTION_DOT_RADIUS,
       
       // Methods
       getComponentType,

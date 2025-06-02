@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useDragAndDrop(components, wires, selectedComponents, selectedWires, snapToGrid) {
+export function useDragAndDrop(components, wires, selectedComponents, selectedWires, snapToGrid, wireJunctions) {
   // Dragging state
   const dragging = ref(null)
 
@@ -61,22 +61,42 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
       }
     }
     
-    // Also include wires that are connected to selected components
+    // Track wires that have endpoints connected to selected components
+    // but only move the specific endpoints, not the entire wire
+    const connectedWires = []
     wires.value.forEach((wire, index) => {
       if (!selectedWires.value.has(index)) {
         const startSelected = selectedComponents.value.has(wire.startConnection.componentId)
         const endSelected = selectedComponents.value.has(wire.endConnection.componentId)
         
         if (startSelected || endSelected) {
-          draggedWires.push({
+          connectedWires.push({
             index: index,
-            initialPoints: wire.points.map(p => ({ x: p.x, y: p.y })),
             startSelected,
-            endSelected
+            endSelected,
+            initialStartPos: { x: wire.startConnection.pos.x, y: wire.startConnection.pos.y },
+            initialEndPos: { x: wire.endConnection.pos.x, y: wire.endConnection.pos.y },
+            initialFirstPoint: { x: wire.points[0].x, y: wire.points[0].y },
+            initialLastPoint: { x: wire.points[wire.points.length - 1].x, y: wire.points[wire.points.length - 1].y }
           })
         }
       }
     })
+    
+    // Store initial positions of junctions that need to move with selected wires
+    const draggedJunctions = []
+    if (wireJunctions && wireJunctions.value) {
+      wireJunctions.value.forEach((junction, junctionIndex) => {
+        // Check if this junction's source wire is being dragged
+        const sourceWireDragged = draggedWires.some(wireInfo => wireInfo.index === junction.sourceWireIndex)
+        if (sourceWireDragged) {
+          draggedJunctions.push({
+            index: junctionIndex,
+            initialPos: { x: junction.pos.x, y: junction.pos.y }
+          })
+        }
+      })
+    }
     
     dragging.value = {
       id,
@@ -84,7 +104,9 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
       offsetY,
       hasMoved: false,
       components: draggedComponents,
-      wires: draggedWires
+      wires: draggedWires,
+      connectedWires: connectedWires,
+      junctions: draggedJunctions
     }
   }
 
@@ -107,6 +129,21 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
       }
     }
     
+    // Store initial positions of junctions that need to move with selected wires
+    const draggedJunctions = []
+    if (wireJunctions && wireJunctions.value) {
+      wireJunctions.value.forEach((junction, junctionIndex) => {
+        // Check if this junction's source wire is being dragged
+        const sourceWireDragged = selectedWires.value.has(junction.sourceWireIndex)
+        if (sourceWireDragged) {
+          draggedJunctions.push({
+            index: junctionIndex,
+            initialPos: { x: junction.pos.x, y: junction.pos.y }
+          })
+        }
+      })
+    }
+    
     dragging.value = {
       id: dragInfo.id,
       offsetX,
@@ -114,6 +151,8 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
       hasMoved: false,
       components: [], // No components when dragging wires
       wires: draggedWires,
+      connectedWires: [], // No connected wires when dragging wires directly
+      junctions: draggedJunctions,
       isWireDrag: true
     }
   }
@@ -171,6 +210,43 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
         wire.startConnection.pos.y = wireInfo.initialPoints[0].y + deltaY
         wire.endConnection.pos.x = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + deltaX
         wire.endConnection.pos.y = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + deltaY
+      }
+    }
+    
+    // Update connected wire endpoints (only the endpoints connected to selected components)
+    if (dragging.value.connectedWires) {
+      for (const wireInfo of dragging.value.connectedWires) {
+        const wire = wires.value[wireInfo.index]
+        if (wire) {
+          // Only update start connection if its component is selected
+          if (wireInfo.startSelected) {
+            wire.startConnection.pos.x = wireInfo.initialStartPos.x + deltaX
+            wire.startConnection.pos.y = wireInfo.initialStartPos.y + deltaY
+            // Update the first point of the wire
+            wire.points[0].x = wireInfo.initialFirstPoint.x + deltaX
+            wire.points[0].y = wireInfo.initialFirstPoint.y + deltaY
+          }
+          
+          // Only update end connection if its component is selected
+          if (wireInfo.endSelected) {
+            wire.endConnection.pos.x = wireInfo.initialEndPos.x + deltaX
+            wire.endConnection.pos.y = wireInfo.initialEndPos.y + deltaY
+            // Update the last point of the wire
+            wire.points[wire.points.length - 1].x = wireInfo.initialLastPoint.x + deltaX
+            wire.points[wire.points.length - 1].y = wireInfo.initialLastPoint.y + deltaY
+          }
+        }
+      }
+    }
+    
+    // Update junction positions
+    if (wireJunctions && wireJunctions.value && dragging.value.junctions) {
+      for (const junctionInfo of dragging.value.junctions) {
+        const junction = wireJunctions.value[junctionInfo.index]
+        if (junction) {
+          junction.pos.x = junctionInfo.initialPos.x + deltaX
+          junction.pos.y = junctionInfo.initialPos.y + deltaY
+        }
       }
     }
   }
@@ -231,6 +307,43 @@ export function useDragAndDrop(components, wires, selectedComponents, selectedWi
           wire.startConnection.pos.y = wireInfo.initialPoints[0].y + snappedDeltaY
           wire.endConnection.pos.x = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + snappedDeltaX
           wire.endConnection.pos.y = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + snappedDeltaY
+        }
+      }
+      
+      // Apply the snapped delta to connected wire endpoints
+      if (dragging.value.connectedWires) {
+        for (const wireInfo of dragging.value.connectedWires) {
+          const wire = wires.value[wireInfo.index]
+          if (wire) {
+            // Only update start connection if its component is selected
+            if (wireInfo.startSelected) {
+              wire.startConnection.pos.x = wireInfo.initialStartPos.x + snappedDeltaX
+              wire.startConnection.pos.y = wireInfo.initialStartPos.y + snappedDeltaY
+              // Update the first point of the wire
+              wire.points[0].x = wireInfo.initialFirstPoint.x + snappedDeltaX
+              wire.points[0].y = wireInfo.initialFirstPoint.y + snappedDeltaY
+            }
+            
+            // Only update end connection if its component is selected
+            if (wireInfo.endSelected) {
+              wire.endConnection.pos.x = wireInfo.initialEndPos.x + snappedDeltaX
+              wire.endConnection.pos.y = wireInfo.initialEndPos.y + snappedDeltaY
+              // Update the last point of the wire
+              wire.points[wire.points.length - 1].x = wireInfo.initialLastPoint.x + snappedDeltaX
+              wire.points[wire.points.length - 1].y = wireInfo.initialLastPoint.y + snappedDeltaY
+            }
+          }
+        }
+      }
+      
+      // Apply the snapped delta to all affected junctions
+      if (wireJunctions && wireJunctions.value && dragging.value.junctions) {
+        for (const junctionInfo of dragging.value.junctions) {
+          const junction = wireJunctions.value[junctionInfo.index]
+          if (junction) {
+            junction.pos.x = junctionInfo.initialPos.x + snappedDeltaX
+            junction.pos.y = junctionInfo.initialPos.y + snappedDeltaY
+          }
         }
       }
     }

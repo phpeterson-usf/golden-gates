@@ -61,7 +61,22 @@ export function useCanvasOperations() {
 
   // Get mouse position in canvas coordinates
   function getMousePos(event) {
-    const svg = event.currentTarget
+    // Find the SVG element - it might be the currentTarget or we need to traverse up
+    let svg = event.currentTarget
+    while (svg && svg.tagName !== 'svg') {
+      svg = svg.parentElement
+    }
+    
+    if (!svg || !svg.createSVGPoint) {
+      // Fallback: find the nearest SVG element
+      svg = event.target.closest('svg')
+    }
+    
+    if (!svg || !svg.createSVGPoint) {
+      console.error('Could not find SVG element')
+      return { x: 0, y: 0 }
+    }
+    
     const pt = svg.createSVGPoint()
     pt.x = event.clientX
     pt.y = event.clientY

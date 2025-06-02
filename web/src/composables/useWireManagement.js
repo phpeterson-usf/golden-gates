@@ -10,6 +10,7 @@ export function useWireManagement(components, gridSize) {
   const wireDirection = ref('horizontal') // 'horizontal' or 'vertical'
   const startConnection = ref(null)
   const currentMousePos = ref(null)
+  const wireJunctions = ref([])  // Track all junction points
 
   // Start drawing a wire from a connection point
   function startWireDrawing(componentId, portIndex, portType, mousePos) {
@@ -151,6 +152,15 @@ export function useWireManagement(components, gridSize) {
     
     wires.value.push(wire)
     
+    // If this was a junction connection, add the junction point
+    if (startConnection.value.isJunction) {
+      wireJunctions.value.push({
+        pos: startConnection.value.junctionPos,
+        sourceWireIndex: startConnection.value.sourceWireIndex,
+        connectedWireId: wire.id
+      })
+    }
+    
     // Reset wire drawing state
     cancelWireDrawing()
   }
@@ -203,17 +213,164 @@ export function useWireManagement(components, gridSize) {
     return previewPoints
   }
 
+  // Find the closest grid vertex on a wire to a given point
+  function findClosestGridPointOnWire(wireIndex, mousePos) {
+    const wire = wires.value[wireIndex]
+    if (!wire || wire.points.length < 2) return null
+    
+    let closestPoint = null
+    let minDistance = Infinity
+    
+    // Check each segment of the wire
+    for (let i = 0; i < wire.points.length - 1; i++) {
+      const p1 = wire.points[i]
+      const p2 = wire.points[i + 1]
+      
+      // Find grid points along this segment
+      const isHorizontal = p1.y === p2.y
+      const isVertical = p1.x === p2.x
+      
+      if (isHorizontal) {
+        // Check grid vertices along horizontal segment
+        const y = p1.y
+        const minX = Math.min(p1.x, p2.x)
+        const maxX = Math.max(p1.x, p2.x)
+        
+        // Round to nearest grid vertex
+        const gridX = Math.round(mousePos.x / gridSize) * gridSize
+        
+        // Check if this grid point is on the segment
+        if (gridX >= minX && gridX <= maxX) {
+          const distance = Math.abs(mousePos.x - gridX) + Math.abs(mousePos.y - y)
+          if (distance < minDistance) {
+            minDistance = distance
+            closestPoint = { x: gridX, y: y }
+          }
+        }
+      } else if (isVertical) {
+        // Check grid vertices along vertical segment
+        const x = p1.x
+        const minY = Math.min(p1.y, p2.y)
+        const maxY = Math.max(p1.y, p2.y)
+        
+        // Round to nearest grid vertex
+        const gridY = Math.round(mousePos.y / gridSize) * gridSize
+        
+        // Check if this grid point is on the segment
+        if (gridY >= minY && gridY <= maxY) {
+          const distance = Math.abs(mousePos.x - x) + Math.abs(mousePos.y - gridY)
+          if (distance < minDistance) {
+            minDistance = distance
+            closestPoint = { x: x, y: gridY }
+          }
+        }
+      }
+    }
+    
+    // Only return if we found a point close enough (within one grid unit)
+    return (closestPoint && minDistance <= gridSize) ? closestPoint : null
+  }
+
+  // Start drawing a wire from a junction on an existing wire
+  function startWireFromJunction(wireIndex, junctionPos) {
+    const wire = wires.value[wireIndex]
+    if (!wire) return
+    
+    // Use the original wire's source as our source
+    startConnection.value = {
+      ...wire.startConnection,
+      pos: junctionPos  // But start drawing from the junction position
+    }
+    
+    // Initialize wire drawing from the junction point
+    drawingWire.value = true
+    wirePoints.value = [junctionPos]
+    wireDirection.value = 'horizontal'
+    
+    // Store that this is a junction connection
+    startConnection.value.isJunction = true
+    startConnection.value.sourceWireIndex = wireIndex
+    startConnection.value.junctionPos = junctionPos
+  }
+
+  // Complete a wire at a junction on an existing wire
+  function completeWireAtJunction(wireIndex, junctionPos) {
+    if (!drawingWire.value || !startConnection.value) return
+    
+    const targetWire = wires.value[wireIndex]
+    if (!targetWire) return
+    
+    // Can't connect to the same wire we started from
+    if (startConnection.value.sourceWireIndex === wireIndex) {
+      cancelWireDrawing()
+      return
+    }
+    
+    // We need to determine if we started from an input or output
+    if (startConnection.value.portType === 'input') {
+      // Started from an input (like T), so we're connecting T to the wire's source
+      // The wire should go FROM the target wire's source TO our input
+      
+      // Add the junction point as the final point
+      wirePoints.value.push(junctionPos)
+      
+      // Create a wire from the target wire's source to our input
+      const wire = {
+        id: `wire_${Date.now()}`,
+        points: [...wirePoints.value].reverse(), // Reverse points for correct direction
+        startConnection: targetWire.startConnection,  // Use target wire's source
+        endConnection: startConnection.value  // Our input is the destination
+      }
+      
+      wires.value.push(wire)
+      
+      // Add junction point
+      wireJunctions.value.push({
+        pos: junctionPos,
+        sourceWireIndex: wireIndex,
+        connectedWireId: wire.id
+      })
+    } else {
+      // Started from an output, connecting to a wire is not typically done
+      // but if it is, it would mean connecting our output to the wire's destination
+      console.warn('Connecting from output to wire junction - unusual case')
+      cancelWireDrawing()
+      return
+    }
+    
+    // Reset wire drawing state
+    cancelWireDrawing()
+  }
+
   // Select/deselect a wire
   // This function is replaced in CircuitCanvas to use the selection composable
+
+  // Clean up junctions when wires are deleted
+  function cleanupJunctionsForDeletedWires(deletedIndices, deletedWireIds) {
+    wireJunctions.value = wireJunctions.value.filter(junction => {
+      // Remove junctions that were created from deleted wires
+      const isSourceDeleted = deletedIndices.includes(junction.sourceWireIndex)
+      // Remove junctions that connect to deleted wires
+      const isConnectedDeleted = deletedWireIds.includes(junction.connectedWireId)
+      
+      return !isSourceDeleted && !isConnectedDeleted
+    })
+  }
 
   // Delete selected wires
   function deleteSelectedWires() {
     // Sort indices in reverse order to avoid index shifting issues
     const indicesToDelete = Array.from(selectedWires.value).sort((a, b) => b - a)
     
+    // Get the wire IDs that will be deleted
+    const deletedWireIds = indicesToDelete.map(index => wires.value[index]?.id).filter(id => id)
+    
     indicesToDelete.forEach(index => {
       wires.value.splice(index, 1)
     })
+    
+    // Clean up junctions
+    cleanupJunctionsForDeletedWires(indicesToDelete, deletedWireIds)
     
     selectedWires.value.clear()
   }
@@ -263,6 +420,7 @@ export function useWireManagement(components, gridSize) {
     startConnection,
     currentMousePos,
     previewPoints,
+    wireJunctions,
     
     // Methods
     startWireDrawing,
@@ -271,6 +429,10 @@ export function useWireManagement(components, gridSize) {
     cancelWireDrawing,
     addPointToWire,
     deleteSelectedWires,
-    updateWireEndpoints
+    updateWireEndpoints,
+    findClosestGridPointOnWire,
+    startWireFromJunction,
+    completeWireAtJunction,
+    cleanupJunctionsForDeletedWires
   }
 }
