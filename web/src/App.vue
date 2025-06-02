@@ -79,7 +79,7 @@ export default {
               command: () => this.addComponent('and-gate')
             },
             {
-              label: 'OR',
+              label: 'Or',
               icon: 'pi pi-fw pi-plus',
               command: () => this.addComponent('or-gate')
             }

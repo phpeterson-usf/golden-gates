@@ -29,9 +29,9 @@ export default {
   computed: {
     options() {
       return [
-        { label: 'Binary', value: 2 },
-        { label: 'Decimal', value: 10 },
-        { label: 'Hexadecimal', value: 16 }
+        { label: 'Binary (2)', value: 2 },
+        { label: 'Decimal (10)', value: 10 },
+        { label: 'Hexadecimal (16)', value: 16 }
       ];
     }
   },

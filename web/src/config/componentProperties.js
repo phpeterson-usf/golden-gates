@@ -22,6 +22,15 @@ const commonProperties = {
     type: 'rotation-selector',
     label: 'Rotation',
     default: 0
+  },
+  numInputs: {
+        name: 'numInputs',
+        type: 'number',
+        label: 'Number of Inputs',
+        default: 2,
+        min: 2,
+        max: 8,
+        showButtons: true
   }
 }
 
@@ -29,9 +38,16 @@ export const componentPropertySchema = {
   // Input node properties
   'input': {
     title: 'Input Properties',
-    icon: 'pi pi-circle',
     properties: [
       { ...commonProperties.label, default: 'IN' },
+      {
+        name: 'base',
+        type: 'number',
+        label: 'Base',
+        default: 10,
+        hidden: true  // Hidden from inspector, managed internally
+      },
+      commonProperties.bits,
       {
         name: 'value',
         type: 'number',
@@ -41,14 +57,6 @@ export const componentPropertySchema = {
         maxFormula: (props) => Math.pow(2, props.bits || 1) - 1,
         showButtons: true
       },
-      {
-        name: 'base',
-        type: 'number',
-        label: 'Base',
-        default: 10,
-        hidden: true  // Hidden from inspector, managed internally
-      },
-      commonProperties.bits,
       commonProperties.rotation
     ]
   },
@@ -56,7 +64,6 @@ export const componentPropertySchema = {
   // Output node properties
   'output': {
     title: 'Output Properties',
-    icon: 'pi pi-circle-fill',
     properties: [
       { ...commonProperties.label, default: 'OUT' },
       commonProperties.bits,
@@ -73,18 +80,10 @@ export const componentPropertySchema = {
   // AND gate properties
   'and-gate': {
     title: 'AND Gate Properties',
-    icon: 'pi pi-sitemap',
     properties: [
       { ...commonProperties.label, default: 'AND' },
-      {
-        name: 'numInputs',
-        type: 'number',
-        label: 'Number of Inputs',
-        default: 2,
-        min: 2,
-        max: 8,
-        showButtons: true
-      },
+      commonProperties.numInputs,
+      commonProperties.bits,
       commonProperties.rotation
     ]
   },
@@ -92,18 +91,9 @@ export const componentPropertySchema = {
   // OR gate properties
   'or-gate': {
     title: 'OR Gate Properties',
-    icon: 'pi pi-sitemap',
     properties: [
       { ...commonProperties.label, default: 'OR' },
-      {
-        name: 'numInputs',
-        type: 'number',
-        label: 'Number of Inputs',
-        default: 2,
-        min: 2,
-        max: 8,
-        showButtons: true
-      },
+      commonProperties.numInputs,
       commonProperties.bits,
       commonProperties.rotation
     ]
