@@ -3,7 +3,7 @@ sys.path.append('../')
 
 from ggl import io, logic, circuit
 
-circuit0 = circuit.Circuit(js_logging=True)
+circuit0 = circuit.Circuit()
 
 a = io.Input(bits=8, label="A")
 a.value = 0b1111

@@ -18,3 +18,9 @@ name = "or-3-inputs"
 input = ["python3", "$project_tests/or-3-inputs.py"]
 expected = "255"
 rubric = 1
+
+[[tests]]
+name = "and-3-inputs"
+input = ["python3", "$project_tests/and-3-inputs.py"]
+expected = "8"
+rubric = 1
