@@ -30,11 +30,15 @@ function standardGateCenter(props) {
 
 function standardGateConnections(props) {
   const numInputs = props?.numInputs || 2
+  const invertedInputs = props?.invertedInputs || []
   const inputs = []
   
   // All gates have inputs on alternating grid vertices
+  // For inverted inputs, connection point is moved left to accommodate inversion circle
   for (let i = 0; i < numInputs; i++) {
-    inputs.push({ name: String(i), x: 0, y: i * GRID_SIZE * 2 })
+    const isInverted = invertedInputs.includes(i)
+    const x = isInverted ? -15 : 0  // Move connection point left for inverted inputs
+    inputs.push({ name: String(i), x, y: i * GRID_SIZE * 2 })
   }
   
   // Get gate definition to check for output offset

@@ -1,0 +1,101 @@
+/* Shared styles for inspector dropdown components */
+
+.inspector-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.inspector-dropdown .p-dropdown {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.625rem;
+}
+
+.inspector-dropdown .p-dropdown:hover {
+  border-color: #6b7280;
+}
+
+.inspector-dropdown .p-dropdown-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.5rem;
+}
+
+.inspector-dropdown .p-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inspector-dropdown .p-dropdown-trigger-icon {
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.inspector-dropdown .p-dropdown-open .p-dropdown-trigger-icon {
+  transform: rotate(180deg);
+}
+
+.inspector-dropdown .p-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-top: 2px;
+}
+
+.inspector-dropdown .p-dropdown-items-wrapper {
+  max-height: 200px;
+  overflow: auto;
+}
+
+.inspector-dropdown .p-dropdown-items {
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style-type: none;
+}
+
+.inspector-dropdown .p-dropdown-item {
+  margin: 0;
+  padding: 0.375rem 0.625rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.inspector-dropdown .p-dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+/* Checkmark styles for multi-select dropdowns */
+.inspector-dropdown .checkmark-wrapper {
+  width: 1rem;
+  margin-right: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inspector-dropdown .checkmark-wrapper .pi {
+  font-size: 0.625rem;
+  color: #10b981;
+}

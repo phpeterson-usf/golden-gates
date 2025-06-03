@@ -127,6 +127,11 @@ export function generateGateCode(gateType, varName, props) {
     params.push(`bits=${props.bits}`)
   }
   
+  // Add inverted_inputs parameter if specified and not empty
+  if (props.invertedInputs && props.invertedInputs.length > 0) {
+    params.push(`inverted_inputs=[${props.invertedInputs.join(', ')}]`)
+  }
+  
   // Add label parameter if specified
   if (props.label && props.label !== definition.label) {
     params.push(`label="${props.label}"`)

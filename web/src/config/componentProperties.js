@@ -31,6 +31,12 @@ const commonProperties = {
         min: 2,
         max: 8,
         showButtons: true
+  },
+  invertedInputs: {
+    name: 'invertedInputs',
+    type: 'inverted-inputs-selector',
+    label: 'Inverted Inputs',
+    default: []
   }
 }
 
@@ -83,6 +89,7 @@ export const componentPropertySchema = {
     properties: [
       { ...commonProperties.label, default: 'AND' },
       commonProperties.numInputs,
+      commonProperties.invertedInputs,
       commonProperties.bits,
       commonProperties.rotation
     ]
@@ -94,6 +101,7 @@ export const componentPropertySchema = {
     properties: [
       { ...commonProperties.label, default: 'OR' },
       commonProperties.numInputs,
+      commonProperties.invertedInputs,
       commonProperties.bits,
       commonProperties.rotation
     ]

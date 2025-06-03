@@ -26,11 +26,25 @@
       />
     </g>
     
+    <!-- Inversion circles for inverted inputs -->
+    <circle 
+      v-for="(input, index) in numInputs"
+      :key="`inversion-${index}`"
+      v-show="isInputInverted(index)"
+      :cx="getInversionCircleX()" 
+      :cy="getInputY(index)" 
+      :r="5" 
+      :fill="COLORS.canvasBackground" 
+      :stroke="strokeColor"
+      :stroke-width="strokeWidth"
+      class="inversion-circle"
+    />
+    
     <!-- Input connection points -->
     <circle 
       v-for="(input, index) in numInputs"
       :key="`input-${index}`"
-      cx="0" 
+      :cx="getInputConnectionX(index)" 
       :cy="getInputY(index)" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
@@ -99,6 +113,10 @@ export default {
       type: Number,
       default: 0,
       validator: (value) => [0, 90, 180, 270].includes(value)
+    },
+    invertedInputs: {
+      type: Array,
+      default: () => []
     }
   },
   emits: ['startDrag'],
@@ -187,7 +205,8 @@ export default {
       const code = generateGateCode(this.gateType, varName, {
         numInputs: this.numInputs,
         bits: this.bits,
-        label: this.label
+        label: this.label,
+        invertedInputs: this.invertedInputs
       })
       
       return {
@@ -199,6 +218,18 @@ export default {
       // Calculate Y position for each input
       // Inputs are on alternating grid vertices (0, 30, 60, 90...)
       return index * GRID_SIZE * 2
+    },
+    isInputInverted(index) {
+      return this.invertedInputs.includes(index)
+    },
+    getInversionCircleX() {
+      // Inversion circle positioned 7px from the left edge of the gate
+      return -7
+    },
+    getInputConnectionX(index) {
+      // For inverted inputs, connection point is at the left edge of the inversion circle
+      // For normal inputs, connection point is at x=0 (left edge of gate)
+      return this.isInputInverted(index) ? -15 : 0
     }
   }
 }

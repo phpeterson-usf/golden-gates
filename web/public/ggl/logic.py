@@ -7,9 +7,10 @@ class Gate(BitsNode):
     """
     Gate is a logic gate, like AND, OR, XOR, etc
     """
-    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1):
+    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(kind, num_inputs, num_outputs, label, bits)
         self.label = label
+        self.inverted_inputs = inverted_inputs or []
 
     def logic(self, v1, v2):
         logger.error(f'Gate logic() must be implemented for {self.kind}')
@@ -35,8 +36,8 @@ class Gate(BitsNode):
 class And(Gate):
     """And Gates perform bitwise AND"""
     kind = 'And'
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1):
-        super().__init__(And.kind, num_inputs, num_outputs, label, bits)
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(And.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 & v2
@@ -45,8 +46,8 @@ class And(Gate):
 class Or(Gate):
     """Or Gates perform bitwise OR"""
     kind = 'Or'
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1):
-        super().__init__(Or.kind, num_inputs, num_outputs, label, bits)
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Or.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 | v2

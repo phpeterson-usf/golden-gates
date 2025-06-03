@@ -54,6 +54,14 @@
             :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
+          
+          <!-- Inverted inputs selector -->
+          <InvertedInputsSelector
+            v-else-if="prop.type === 'inverted-inputs-selector'"
+            :modelValue="getPropValue(prop.name, prop.default)"
+            :numInputs="getPropValue('numInputs', 2)"
+            @update:modelValue="updateProp(prop.name, $event)"
+          />
         </div>
       </div>
       
@@ -71,13 +79,15 @@ import { getComponentProperties } from '../config/componentProperties'
 import MultibaseNumberInput from './MultibaseNumberInput.vue'
 import BaseSelector from './BaseSelector.vue'
 import RotationSelector from './RotationSelector.vue'
+import InvertedInputsSelector from './InvertedInputsSelector.vue'
 
 export default {
   name: 'ComponentInspector',
   components: {
     MultibaseNumberInput,
     BaseSelector,
-    RotationSelector
+    RotationSelector,
+    InvertedInputsSelector
   },
   props: {
     component: {
