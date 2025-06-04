@@ -237,10 +237,24 @@ export default {
 
 /* Override PrimeVue input styles for compact layout */
 .component-inspector :deep(.p-inputtext),
-.component-inspector :deep(.p-inputnumber-input) {
+.component-inspector :deep(.p-inputnumber-input),
+.component-inspector :deep(.p-dropdown) {
   font-size: 0.75rem;
   padding: 0.375rem 0.625rem;
   height: 32px;
+}
+
+.component-inspector :deep(.p-dropdown-label) {
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.component-inspector :deep(.p-dropdown-trigger) {
+  width: 1.75rem;
+}
+
+.component-inspector :deep(.p-dropdown-trigger-icon) {
+  font-size: 0.625rem;
 }
 
 .component-inspector :deep(.p-inputnumber-button) {
@@ -249,5 +263,53 @@ export default {
 
 .component-inspector :deep(.p-inputnumber-button .pi) {
   font-size: 0.625rem;
+}
+
+/* Style dropdowns to match other inputs */
+.component-inspector :deep(.p-dropdown) {
+  font-size: 0.75rem;
+  height: 32px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.component-inspector :deep(.p-dropdown .p-dropdown-label) {
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  line-height: 30px;
+}
+
+.component-inspector :deep(.p-dropdown .p-dropdown-trigger) {
+  width: 1.75rem;
+}
+
+.component-inspector :deep(.p-dropdown-trigger-icon) {
+  font-size: 0.625rem;
+}
+
+.component-inspector :deep(.p-dropdown-panel .p-dropdown-item) {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.625rem;
+}
+
+/* Ensure property groups contain their children properly */
+.property-group > * {
+  width: 100%;
+}
+
+/* Style the custom inspector dropdown to match */
+.component-inspector :deep(.inspector-dropdown) {
+  width: 100%;
+}
+
+/* Override PrimeVue dropdown panel styles for consistency */
+.component-inspector :deep(.p-dropdown-panel) {
+  font-size: 0.75rem;
+}
+
+.component-inspector :deep(.p-dropdown-items .p-dropdown-item) {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
 }
 </style>
