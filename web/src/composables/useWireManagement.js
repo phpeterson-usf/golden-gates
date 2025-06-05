@@ -42,7 +42,6 @@ export function useWireManagement(components, gridSize) {
 
     // Store the starting connection info
     startConnection.value = {
-      componentId,
       portIndex,
       portType,
       pos: connectionPos
@@ -115,7 +114,6 @@ export function useWireManagement(components, gridSize) {
     if (startConnection.value.portType === 'output') {
       outputConnection = startConnection.value
       inputConnection = {
-        componentId,
         portIndex,
         portType,
         pos: connectionPos
@@ -123,7 +121,6 @@ export function useWireManagement(components, gridSize) {
     } else {
       inputConnection = startConnection.value
       outputConnection = {
-        componentId,
         portIndex,
         portType,
         pos: connectionPos
@@ -376,10 +373,38 @@ export function useWireManagement(components, gridSize) {
   }
 
   // Update wire endpoints when components move
-  function updateWireEndpoints(componentId, deltaX, deltaY) {
+  function updateWireEndpoints(component, deltaX, deltaY) {
+    // Get component's connection points
+    const config = componentRegistry[component.type]
+    if (!config) return
+    
+    // Get all connection points for this component
+    let connections
+    if (config.getConnections) {
+      connections = config.getConnections(component.props)
+    } else {
+      connections = config.connections
+    }
+    
+    // Calculate old positions of all connection points
+    const oldOutputPositions = (connections.outputs || []).map(conn => ({
+      x: component.x - deltaX + conn.x,
+      y: component.y - deltaY + conn.y
+    }))
+    
+    const oldInputPositions = (connections.inputs || []).map(conn => ({
+      x: component.x - deltaX + conn.x,
+      y: component.y - deltaY + conn.y
+    }))
+    
     wires.value.forEach(wire => {
-      // Update start connection if it matches
-      if (wire.startConnection.componentId === componentId) {
+      // Check if start connection matches any output position
+      const startMatchIndex = oldOutputPositions.findIndex(pos => 
+        pos.x === wire.startConnection.pos.x && 
+        pos.y === wire.startConnection.pos.y
+      )
+      
+      if (startMatchIndex !== -1 && wire.startConnection.portIndex === startMatchIndex) {
         wire.startConnection.pos.x += deltaX
         wire.startConnection.pos.y += deltaY
         if (wire.points.length > 0) {
@@ -388,8 +413,13 @@ export function useWireManagement(components, gridSize) {
         }
       }
       
-      // Update end connection if it matches
-      if (wire.endConnection.componentId === componentId) {
+      // Check if end connection matches any input position
+      const endMatchIndex = oldInputPositions.findIndex(pos => 
+        pos.x === wire.endConnection.pos.x && 
+        pos.y === wire.endConnection.pos.y
+      )
+      
+      if (endMatchIndex !== -1 && wire.endConnection.portIndex === endMatchIndex) {
         wire.endConnection.pos.x += deltaX
         wire.endConnection.pos.y += deltaY
         if (wire.points.length > 0) {

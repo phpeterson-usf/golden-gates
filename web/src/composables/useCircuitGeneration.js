@@ -2,6 +2,45 @@ import { componentRegistry } from '../utils/componentRegistry'
 
 export function useCircuitGeneration() {
   
+  // Helper function to find component at a connection point
+  function findComponentAtConnection(components, connection) {
+    for (const component of components) {
+      const config = componentRegistry[component.type]
+      if (!config) continue
+      
+      // Get connections for this component
+      let connections
+      if (config.getConnections) {
+        connections = config.getConnections(component.props)
+      } else {
+        connections = config.connections
+      }
+      
+      // Check if this connection matches an output
+      if (connection.portType === 'output' && connections.outputs) {
+        const output = connections.outputs[connection.portIndex]
+        if (output) {
+          const outputPos = { x: component.x + output.x, y: component.y + output.y }
+          if (outputPos.x === connection.pos.x && outputPos.y === connection.pos.y) {
+            return component
+          }
+        }
+      }
+      
+      // Check if this connection matches an input
+      if (connection.portType === 'input' && connections.inputs) {
+        const input = connections.inputs[connection.portIndex]
+        if (input) {
+          const inputPos = { x: component.x + input.x, y: component.y + input.y }
+          if (inputPos.x === connection.pos.x && inputPos.y === connection.pos.y) {
+            return component
+          }
+        }
+      }
+    }
+    return null
+  }
+  
   function generateGglProgram(components, wires, componentRefs, componentInstances) {
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
@@ -44,9 +83,12 @@ export function useCircuitGeneration() {
       
       // Visit all components that feed INTO this one first
       // (unless they would create a cycle)
-      const incomingWires = wires.filter(w => w.endConnection.componentId === component.id)
+      const incomingWires = wires.filter(w => {
+        const endComp = findComponentAtConnection(components, w.endConnection)
+        return endComp && endComp.id === component.id
+      })
       for (const wire of incomingWires) {
-        const sourceComp = components.find(c => c.id === wire.startConnection.componentId)
+        const sourceComp = findComponentAtConnection(components, wire.startConnection)
         if (sourceComp && !visited.has(sourceComp.id)) {
           visitComponent(sourceComp)
         }
@@ -80,12 +122,20 @@ export function useCircuitGeneration() {
       sections.push(generated.code)
       
       // Add incoming connections
-      const incomingWires = wires.filter(w => w.endConnection.componentId === component.id)
+      const incomingWires = wires.filter(w => {
+        const endComp = findComponentAtConnection(components, w.endConnection)
+        return endComp && endComp.id === component.id
+      })
       if (incomingWires.length > 0) {
         for (const wire of incomingWires) {
-          const sourceVarName = componentVarNames[wire.startConnection.componentId]
+          const sourceComp = findComponentAtConnection(components, wire.startConnection)
+          if (!sourceComp) {
+            console.error(`Source component not found for wire connection at position ${wire.startConnection.pos.x},${wire.startConnection.pos.y}`)
+            continue
+          }
+          const sourceVarName = componentVarNames[sourceComp.id]
           if (!sourceVarName) {
-            console.error(`Source component ${wire.startConnection.componentId} not yet processed`)
+            console.error(`Source component ${sourceComp.id} not yet processed`)
             continue
           }
           
@@ -105,9 +155,14 @@ export function useCircuitGeneration() {
     const sourcePort = wire.startConnection.portIndex
     const destPort = wire.endConnection.portIndex
     
-    // Find the source and destination components
-    const sourceComp = components.find(c => c.id === wire.startConnection.componentId)
-    const destComp = components.find(c => c.id === wire.endConnection.componentId)
+    // Find the source and destination components by position
+    const sourceComp = findComponentAtConnection(components, wire.startConnection)
+    const destComp = findComponentAtConnection(components, wire.endConnection)
+    
+    if (!sourceComp || !destComp) {
+      console.error('Could not find components for wire connection')
+      return ''
+    }
     
     // Get component definitions from registry
     const sourceConfig = componentRegistry[sourceComp.type]
