@@ -110,17 +110,10 @@ export default {
   },
   methods: {
     generate() {
-      // Use label as variable name if it exists and is valid
       let varName
-      if (this.label && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.label)) {
-        // Label is a valid Python identifier
-        varName = this.label.toLowerCase()
-      } else {
-        // Fall back to numbered variable name
-        const match = this.id.match(/output_(\d+)/)
-        const index = match ? match[1] : '0'
-        varName = `output${index}`
-      }
+      const match = this.id.match(/output_(\d+)/)
+      const index = match ? match[1] : '0'
+      varName = `output${index}`
       
       // Generate GGL code for this output with js_id
       return {
