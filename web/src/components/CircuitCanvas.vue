@@ -178,6 +178,9 @@ export default {
       completeWireAtJunction
     } = wireManagement
     
+    // Track last component position for intelligent placement
+    const lastComponentPosition = ref({ x: 100, y: 100 })
+
     // Selection management
     const selection = useSelection(components, wires, wireManagement.cleanupJunctionsForDeletedWires)
     const {
@@ -207,6 +210,7 @@ export default {
       wireJunctions
     )
     const {
+      dragging,
       startDrag,
       startWireDrag,
       updateDrag,
@@ -334,7 +338,18 @@ export default {
     function handleMouseUp() {
       // End dragging
       if (isDragging()) {
+        const wasComponentDrag = !dragging.value?.isWireDrag
         endDrag(snapToGrid)
+        
+        // Update last component position if we were dragging components
+        if (wasComponentDrag && selectedComponents.value.size > 0) {
+          // Use the position of any selected component as the new reference
+          const selectedId = Array.from(selectedComponents.value)[0]
+          const selectedComponent = components.value.find(c => c.id === selectedId)
+          if (selectedComponent) {
+            lastComponentPosition.value = { x: selectedComponent.x, y: selectedComponent.y }
+          }
+        }
       }
       
       // End rubber-band selection
@@ -394,13 +409,16 @@ export default {
       })
     }
     
-    function addComponentAtCenter(type) {
-      // Add component at center of visible canvas
-      const centerX = canvasWidth.value / 2
-      const centerY = canvasHeight.value / 2
-      const snapped = snapToGrid({ x: centerX, y: centerY })
+    function addComponentAtSmartPosition(type) {
+      // Use last component position with offset (5 grid units down)
+      const x = lastComponentPosition.value.x
+      const y = lastComponentPosition.value.y + (gridSize.value * 5)
+      const snapped = snapToGrid({ x, y })
       
       const newComponent = addComponent(type, snapped.x, snapped.y)
+      
+      // Update last component position
+      lastComponentPosition.value = { x: snapped.x, y: snapped.y }
       
       // Clear existing selection and select the new component
       clearSelection()
@@ -476,7 +494,7 @@ export default {
       handleStartDrag,
       handleWireClick,
       handleWireMouseDown,
-      addComponentAtCenter,
+      addComponentAtSmartPosition,
       clearCircuit,
       getCircuitData,
       updateComponent,

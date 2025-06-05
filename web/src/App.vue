@@ -110,7 +110,7 @@ export default {
     },
     addComponent(type) {
       if (this.$refs.canvas) {
-        this.$refs.canvas.addComponentAtCenter(type)
+        this.$refs.canvas.addComponentAtSmartPosition(type)
       }
     },
     async runSimulation() {
