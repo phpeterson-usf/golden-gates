@@ -23,6 +23,7 @@ class Gate(BitsNode):
         """
         rv = 0
         # Get a list of edges from the inpoints for this Gate
+        # TODO: error handle for not gate since it only has one input
         edges = self.inputs.get_edges()
         # Get the first value, then loop from the second...end
         rv = edges[0].value
@@ -51,4 +52,48 @@ class Or(Gate):
 
     def logic(self, v1, v2):
         return v1 | v2
+    
+class Nor(Gate):
+    """Nor Gates perform bitwise NOR"""
+    kind = 'Nor'
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Nor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
+    def logic(self, v1, v2):
+        return ~(v1 | v2)
+
+class Xor(Gate):
+    """Xor Gates perform bitwise XOR"""
+    kind = 'Xor'
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Xor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+
+    def logic(self, v1, v2):
+        return v1 ^ v2
+
+class Xnor(Gate):
+    """Xnor Gates perform bitwise XNOR"""
+    kind = 'Xnor'
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Xnor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+
+    def logic(self, v1, v2):
+        return ~(v1 ^ v2)
+
+class Nand(Gate):
+    """Nand Gates perform bitwise NAND"""
+    kind = 'Nand'
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Nand.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+
+    def logic(self, v1, v2):
+        return ~(v1 & v2)
+    
+class Not(Gate):
+    """Not Gates perform bitwise NOT"""
+    kind = 'Not'
+    def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
+        super().__init__(Not.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+
+    def logic(self, v1):
+        return ~v1
