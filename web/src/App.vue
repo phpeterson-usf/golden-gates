@@ -84,6 +84,11 @@ export default {
               command: () => this.addComponent('or-gate')
             },
             {
+              label: 'Nand',
+              icon: 'pi pi-fw pi-plus',
+              command: () => this.addComponent('nand-gate')
+            },
+            {
               label: 'Nor',
               icon: 'pi pi-fw pi-plus',
               command: () => this.addComponent('nor-gate')

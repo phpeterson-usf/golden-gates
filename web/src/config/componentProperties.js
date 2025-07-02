@@ -107,6 +107,18 @@ export const componentPropertySchema = {
     ]
   },
   
+  // NAND gate properties
+  'nand-gate': {
+    title: 'NAND Gate Properties',
+    properties: [
+      { ...commonProperties.label, default: 'NAND' },
+      commonProperties.numInputs,
+      commonProperties.invertedInputs,
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
+  },
+  
   // NOR gate properties
   'nor-gate': {
     title: 'NOR Gate Properties',

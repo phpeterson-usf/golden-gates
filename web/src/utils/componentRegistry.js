@@ -8,6 +8,7 @@ export const componentRegistry = {
   // Logic gates - generated from gateDefinitions
   'and-gate': createGateRegistryEntry('and', gateDefinitions.and),
   'or-gate': createGateRegistryEntry('or', gateDefinitions.or),
+  'nand-gate': createGateRegistryEntry('nand', gateDefinitions.nand),
   'nor-gate': createGateRegistryEntry('nor', gateDefinitions.nor),
   
   'input': {

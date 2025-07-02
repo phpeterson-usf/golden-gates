@@ -65,21 +65,25 @@ export const gateDefinitions = {
     label: 'NAND Gate',
     logicClass: 'Nand',
     pythonModule: 'logic',
+    // SVG path generator for NAND gate shape (MIL-STD-806B)
     getSvgPath: (h, padding) => {
-      // AND gate shape with bubble at output
+      // NAND gate: standard AND gate + separate negation circle
+      // AND gate: rectangle + semicircle (same as regular AND gate)
+      const radius = GRID_SIZE  // Half of the height for the semicircle
+      const centerY = h / 2
       return `
         M 0 ${-padding} 
-        L 60 ${-padding} 
-        A 30 30 0 0 1 60 ${h + padding} 
+        L ${GRID_SIZE * 2} ${-padding} 
+        A ${radius} ${radius} 0 0 1 ${GRID_SIZE * 2} ${h + padding} 
         L 0 ${h + padding} 
         L 0 ${-padding} 
         Z
-        M 90 ${h/2}
-        A 5 5 0 1 1 80 ${h/2}
-        A 5 5 0 1 1 90 ${h/2}
+        M ${GRID_SIZE * 5} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 4} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 5} ${centerY}
       `
     },
-    outputOffset: 10 // Account for the bubble
+    outputOffset: -GRID_SIZE * 2  // Move output to 5 grid units (75px) to align with grid vertex
   },
   
   'nor': {
