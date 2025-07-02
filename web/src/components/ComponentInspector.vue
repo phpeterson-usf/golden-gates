@@ -244,6 +244,31 @@ export default {
   height: 32px;
 }
 
+/* Fix InputNumber width to match other inputs */
+.component-inspector :deep(.p-inputnumber) {
+  width: 100%;
+  display: flex;
+  max-width: 100%;
+}
+
+/* Ensure InputNumber input field doesn't overflow */
+.component-inspector :deep(.p-inputnumber .p-inputnumber-input) {
+  width: 100%;
+  flex: 1;
+}
+
+/* Fix MultibaseNumberInput width */
+.component-inspector :deep(.multibase-number-input) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.component-inspector :deep(.multibase-number-input input) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .component-inspector :deep(.p-dropdown-label) {
   padding: 0;
   font-size: 0.75rem;
@@ -296,6 +321,8 @@ export default {
 /* Ensure property groups contain their children properly */
 .property-group > * {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Style the custom inspector dropdown to match */
