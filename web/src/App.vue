@@ -13,7 +13,20 @@
           ref="insertMenu" 
           :model="menuItems" 
           :popup="true"
-        />
+        >
+          <template #item="{ item }">
+            <div class="menu-item-content">
+              <ComponentIcon 
+                v-if="item.componentType" 
+                :componentType="item.componentType" 
+                :size="16" 
+                class="component-icon-menu"
+              />
+              <i v-else-if="item.icon" :class="item.icon"></i>
+              <span class="menu-item-label">{{ item.label }}</span>
+            </div>
+          </template>
+        </TieredMenu>
       </template>
       <template #end>
         <Button 
@@ -51,12 +64,14 @@
 <script>
 import CircuitCanvas from './components/CircuitCanvas.vue'
 import ComponentInspector from './components/ComponentInspector.vue'
+import ComponentIcon from './components/ComponentIcon.vue'
 import { usePyodide } from './composables/usePyodide'
 
 export default {
   name: 'App',
   components: {
     CircuitCanvas,
+    ComponentIcon,
     ComponentInspector
   },
   setup() {
@@ -75,22 +90,22 @@ export default {
           items: [
             {
               label: 'And',
-              icon: 'pi pi-fw pi-plus',
+              componentType: 'and',
               command: () => this.addComponent('and-gate')
             },
             {
               label: 'Or',
-              icon: 'pi pi-fw pi-plus',
+              componentType: 'or',
               command: () => this.addComponent('or-gate')
             },
             {
               label: 'Nand',
-              icon: 'pi pi-fw pi-plus',
+              componentType: 'nand',
               command: () => this.addComponent('nand-gate')
             },
             {
               label: 'Nor',
-              icon: 'pi pi-fw pi-plus',
+              componentType: 'nor',
               command: () => this.addComponent('nor-gate')
             }
           ]
@@ -101,12 +116,12 @@ export default {
           items: [
             {
               label: 'Input',
-              icon: 'pi pi-fw pi-circle',
+              componentType: 'input',
               command: () => this.addComponent('input')
             },
             {
               label: 'Output',
-              icon: 'pi pi-fw pi-circle-fill',
+              componentType: 'output',
               command: () => this.addComponent('output')
             }
           ]
@@ -231,6 +246,23 @@ exec(${JSON.stringify(gglProgram)})
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Menu item styling for gate icons */
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.component-icon-menu {
+  flex-shrink: 0;
+}
+
+.menu-item-label {
+  flex: 1;
 }
 
 body {
