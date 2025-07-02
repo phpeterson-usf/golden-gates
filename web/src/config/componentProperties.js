@@ -105,6 +105,18 @@ export const componentPropertySchema = {
       commonProperties.bits,
       commonProperties.rotation
     ]
+  },
+  
+  // NOR gate properties
+  'nor-gate': {
+    title: 'NOR Gate Properties',
+    properties: [
+      { ...commonProperties.label, default: 'NOR' },
+      commonProperties.numInputs,
+      commonProperties.invertedInputs,
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
   }
 }
 

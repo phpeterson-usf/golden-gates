@@ -8,6 +8,7 @@ export const componentRegistry = {
   // Logic gates - generated from gateDefinitions
   'and-gate': createGateRegistryEntry('and', gateDefinitions.and),
   'or-gate': createGateRegistryEntry('or', gateDefinitions.or),
+  'nor-gate': createGateRegistryEntry('nor', gateDefinitions.nor),
   
   'input': {
     component: defineAsyncComponent(() => import('../components/InputNode.vue')),

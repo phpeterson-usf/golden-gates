@@ -86,22 +86,25 @@ export const gateDefinitions = {
     label: 'NOR Gate',
     logicClass: 'Nor',
     pythonModule: 'logic',
+    // SVG path generator for NOR gate shape (MIL-STD-806B)
     getSvgPath: (h, padding) => {
-      // OR gate shape with bubble at output
+      // Fixed-size NOR gate: OR gate shape with negation circle at output
+      // Width: 4 grid units (60px) for OR shape + 1 grid unit (15px) for negation circle = 75px total
+      const centerY = h / 2
       return `
         M 0 ${-padding}
-        Q 15 ${-padding}, 15 ${-padding}
-        Q 60 ${h/2 - 20}, 90 ${h/2}
-        Q 60 ${h/2 + 20}, 15 ${h + padding}
-        Q 15 ${h + padding}, 0 ${h + padding}
-        Q 10 ${h/2}, 0 ${-padding}
+        Q 12 ${-padding}, 12 ${-padding}
+        Q ${GRID_SIZE * 3} ${centerY - GRID_SIZE}, ${GRID_SIZE * 4} ${centerY}
+        Q ${GRID_SIZE * 3} ${centerY + GRID_SIZE}, 12 ${h + padding}
+        Q 12 ${h + padding}, 0 ${h + padding}
+        Q 10 ${centerY}, 0 ${-padding}
         Z
-        M 90 ${h/2}
-        A 5 5 0 1 1 80 ${h/2}
-        A 5 5 0 1 1 90 ${h/2}
+        M ${GRID_SIZE * 5} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 4} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 5} ${centerY}
       `
     },
-    outputOffset: 10 // Account for the bubble
+    outputOffset: -GRID_SIZE * 2  // Move output to 5 grid units (75px) to align with right edge of negation circle
   }
 }
 
