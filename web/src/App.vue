@@ -30,6 +30,13 @@
       </template>
       <template #end>
         <Button 
+          icon="pi pi-save" 
+          label="Save" 
+          class="p-button-sm" 
+          @click="saveCircuit"
+          v-tooltip.bottom="'Save circuit to file'"
+        />
+        <Button 
           icon="pi pi-sliders-h" 
           class="p-button-text p-button-sm" 
           @click="inspectorVisible = !inspectorVisible"
@@ -235,6 +242,74 @@ exec(${JSON.stringify(gglProgram)})
         if (this.selectedComponent && this.selectedComponent.id === updatedComponent.id) {
           this.selectedComponent = this.$refs.canvas.components.find(c => c.id === updatedComponent.id)
         }
+      }
+    },
+    
+    async saveCircuit() {
+      try {
+        // Get circuit data from canvas
+        const components = this.$refs.canvas?.components || []
+        const wires = this.$refs.canvas?.wires || []
+        const wireJunctions = this.$refs.canvas?.wireJunctions || []
+        
+        // Create the circuit data object
+        const circuitData = {
+          version: '1.0',
+          timestamp: new Date().toISOString(),
+          components: components,
+          wires: wires,
+          wireJunctions: wireJunctions
+        }
+        
+        // Convert to JSON string with nice formatting
+        const jsonString = JSON.stringify(circuitData, null, 2)
+        
+        // Check if File System Access API is supported
+        if ('showSaveFilePicker' in window) {
+          try {
+            // Use the File System Access API for better UX
+            const handle = await window.showSaveFilePicker({
+              suggestedName: `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`,
+              types: [{
+                description: 'JSON Circuit File',
+                accept: { 'application/json': ['.json'] }
+              }]
+            })
+            
+            // Create a writable stream and write the file
+            const writable = await handle.createWritable()
+            await writable.write(jsonString)
+            await writable.close()
+            
+            console.log('Circuit saved successfully using File System Access API')
+          } catch (err) {
+            // User cancelled the save dialog
+            if (err.name === 'AbortError') {
+              console.log('Save cancelled by user')
+              return
+            }
+            throw err
+          }
+        } else {
+          // Fallback to traditional download for browsers that don't support File System Access API
+          const blob = new Blob([jsonString], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`
+          document.body.appendChild(link)
+          link.click()
+          
+          // Clean up
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+          
+          console.log('Circuit saved successfully using fallback method')
+        }
+      } catch (error) {
+        console.error('Error saving circuit:', error)
+        // TODO: Show error message to user
       }
     }
   }
