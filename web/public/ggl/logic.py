@@ -30,9 +30,12 @@ class Gate(BitsNode):
         for e in edges[1:]:
             # Perform the Gate-specific logic (AND, OR, ...)
             rv = self.logic(rv, e.value)
+        rv = self.invert(rv)
         logger.info(f'{self.kind} propagates: {rv}')
-        return super().propagate(rv)            
-
+        return super().propagate(rv)
+    
+    def invert(self, rv):            
+        return rv
 
 class And(Gate):
     """And Gates perform bitwise AND"""
@@ -60,7 +63,10 @@ class Nor(Gate):
         super().__init__(Nor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
-        return ~(v1 | v2) & ((1 << self.bits) - 1)
+        return v1 | v2
+
+    def invert(self, rv):
+        return ~rv & ((1 << self.bits) - 1)
 
 class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
@@ -78,7 +84,10 @@ class Xnor(Gate):
         super().__init__(Xnor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
-        return ~(v1 ^ v2) & ((1 << self.bits) - 1)
+        return v1 ^ v2
+
+    def invert(self, rv):
+        return ~rv & ((1 << self.bits) - 1)
 
 class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
@@ -86,8 +95,13 @@ class Nand(Gate):
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(Nand.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
+    #def logic(self, v1, v2):
+    #    return ~(v1 & v2) & ((1 << self.bits) - 1)
     def logic(self, v1, v2):
-        return ~(v1 & v2) & ((1 << self.bits) - 1)
+        return v1 & v2
+
+    def invert(self, rv):
+        return ~rv & ((1 << self.bits) - 1)
     
 class Not(Gate):
     """Not Gates perform bitwise NOT"""
