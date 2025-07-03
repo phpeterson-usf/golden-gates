@@ -60,7 +60,7 @@ class Nor(Gate):
         super().__init__(Nor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
-        return ~(v1 | v2)
+        return ~(v1 | v2) & ((1 << self.bits) - 1)
 
 class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
@@ -78,7 +78,7 @@ class Xnor(Gate):
         super().__init__(Xnor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
-        return ~(v1 ^ v2)
+        return ~(v1 ^ v2) & ((1 << self.bits) - 1)
 
 class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
@@ -87,7 +87,7 @@ class Nand(Gate):
         super().__init__(Nand.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1, v2):
-        return ~(v1 & v2)
+        return ~(v1 & v2) & ((1 << self.bits) - 1)
     
 class Not(Gate):
     """Not Gates perform bitwise NOT"""
@@ -96,4 +96,4 @@ class Not(Gate):
         super().__init__(Not.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
     def logic(self, v1):
-        return ~v1
+        return ~v1 & ((1 << self.bits) - 1)
