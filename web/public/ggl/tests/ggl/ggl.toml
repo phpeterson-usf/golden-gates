@@ -24,3 +24,33 @@ name = "and-3-inputs"
 input = ["python3", "$project_tests/and-3-inputs.py"]
 expected = "8"
 rubric = 1
+
+[[tests]]
+name = "0-nand-0"
+input = ["python3", "$project_tests/0-nand-0.py"]
+expected = "1"
+rubric = 1
+
+[[tests]]
+name = "0-nor-0"
+input = ["python3", "$project_tests/0-nor-0.py"]
+expected = "1"
+rubric = 1
+
+[[tests]]
+name = "1-xnor-0"
+input = ["python3", "$project_tests/1-xnor-0.py"]
+expected = "0"
+rubric = 1
+
+[[tests]]
+name = "1-xor-1"
+input = ["python3", "$project_tests/1-xor-1.py"]
+expected = "0"
+rubric = 1
+
+[[tests]]
+name = "1-not"
+input = ["python3", "$project_tests/1-not.py"]
+expected = "0"
+rubric = 1
