@@ -97,3 +97,10 @@ class Not(Gate):
 
     def logic(self, v1):
         return ~v1 & ((1 << self.bits) - 1)
+
+    def propagate(self, value=0):
+        edges = self.inputs.get_edges()
+        rv = self.logic(edges[0].value)
+        logger.info(f'{self.kind} propagates: {rv}')
+        return super(Gate, self).propagate(rv)
+    
