@@ -14,7 +14,7 @@ b.value = 5                             # 0b101
 c = io.Input(bits=2, label="C")
 c.value = 0b1010                        # 10
 
-xnor1 = logic.Xnor(num_inputs=3)
+xnor1 = logic.Xnor(num_inputs=3, bits=4)
 circuit0.connect(a, xnor1.input("0"))
 circuit0.connect(b, xnor1.input("1"))
 circuit0.connect(c, xnor1.input("2"))
