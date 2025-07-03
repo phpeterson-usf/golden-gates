@@ -54,3 +54,9 @@ name = "1-not"
 input = ["python3", "$project_tests/1-not.py"]
 expected = "0"
 rubric = 1
+
+[[tests]]
+name = "not-8bit-input"
+input = ["python3", "$project_tests/not-8bit-input.py"]
+expected = "100"
+rubric = 1
