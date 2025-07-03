@@ -137,6 +137,7 @@ export default {
         acceptCallback: null,
         rejectCallback: null
       },
+      beforeUnloadHandler: null,
       menuItems: [
         {
           label: 'Logic',
@@ -434,6 +435,36 @@ exec(${JSON.stringify(gglProgram)})
         rejectCallback: onReject || (() => {})
       }
       this.showConfirmDialog = true
+    },
+    
+    hasUnsavedWork() {
+      // Check if there are any components or wires in the circuit
+      const components = this.$refs.canvas?.components || []
+      const wires = this.$refs.canvas?.wires || []
+      return components.length > 0 || wires.length > 0
+    },
+    
+    handleBeforeUnload(event) {
+      if (this.hasUnsavedWork()) {
+        // Modern browsers ignore custom messages for security reasons
+        // They show a generic "Leave site?" dialog instead
+        event.preventDefault()
+        event.returnValue = '' // Chrome requires this
+        return '' // Some browsers need this
+      }
+    }
+  },
+  
+  mounted() {
+    // Set up the beforeunload handler
+    this.beforeUnloadHandler = this.handleBeforeUnload.bind(this)
+    window.addEventListener('beforeunload', this.beforeUnloadHandler)
+  },
+  
+  beforeUnmount() {
+    // Clean up the beforeunload handler
+    if (this.beforeUnloadHandler) {
+      window.removeEventListener('beforeunload', this.beforeUnloadHandler)
     }
   }
 }
