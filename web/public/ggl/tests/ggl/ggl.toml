@@ -60,3 +60,9 @@ name = "not-8bit-input"
 input = ["python3", "$project_tests/not-8bit-input.py"]
 expected = "100"
 rubric = 1
+
+[[tests]]
+name = "xor-3-inputs"
+input = ["python3", "$project_tests/xor-3-inputs.py"]
+expected = "1"
+rubric = 1
