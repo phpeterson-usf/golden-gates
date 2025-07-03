@@ -457,6 +457,36 @@ export default {
       })
     }, { deep: true })
     
+    // Add wire directly (for loading from file)
+    function addWire(wireData) {
+      wires.value.push(wireData)
+    }
+    
+    // Add wire junction directly (for loading from file)
+    function addWireJunction(junctionData) {
+      wireJunctions.value.push(junctionData)
+    }
+    
+    // Load component directly from saved data (preserves ID and props)
+    function loadComponent(componentData) {
+      // Directly add the component without calling onCreate or generating new ID
+      components.value.push({
+        id: componentData.id,
+        type: componentData.type,
+        x: componentData.x,
+        y: componentData.y,
+        props: componentData.props || {}
+      })
+    }
+    
+    // Clear wires and junctions (extend clearCircuit functionality)
+    function clearAllCircuitData() {
+      clearCircuit() // This clears components
+      wires.value = []
+      wireJunctions.value = []
+      clearSelection()
+    }
+    
     return {
       // Template refs
       container,
@@ -495,13 +525,17 @@ export default {
       handleWireClick,
       handleWireMouseDown,
       addComponentAtSmartPosition,
-      clearCircuit,
+      clearCircuit: clearAllCircuitData, // Use extended version
       getCircuitData,
       updateComponent,
       isDragging,
       getMousePos,
       zoomIn,
-      zoomOut
+      zoomOut,
+      addComponent,
+      addWire,
+      addWireJunction,
+      loadComponent
     }
   }
 }

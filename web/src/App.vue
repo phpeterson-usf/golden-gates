@@ -1,5 +1,13 @@
 <template>
   <div id="app">
+    <ConfirmationDialog
+      v-model:visible="showConfirmDialog"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      :type="confirmDialog.type"
+      @accept="confirmDialog.acceptCallback"
+      @reject="confirmDialog.rejectCallback"
+    />
     <Toolbar class="app-toolbar">
       <template #start>
         <Button 
@@ -30,6 +38,13 @@
       </template>
       <template #end>
         <Button 
+          icon="pi pi-folder-open" 
+          label="Open" 
+          class="p-button-sm" 
+          @click="openCircuit"
+          v-tooltip.bottom="'Open circuit from file'"
+        />
+        <Button 
           icon="pi pi-save" 
           label="Save" 
           class="p-button-sm" 
@@ -48,7 +63,14 @@
     </Toolbar>
     
     <div class="main-content">
-      <div class="circuit-container" :class="{ 'inspector-open': inspectorVisible }">
+      <div 
+        class="circuit-container" 
+        :class="{ 'inspector-open': inspectorVisible, 'drag-over': isDraggingOver }"
+        @dragover.prevent="handleDragOver"
+        @drop.prevent="handleDrop"
+        @dragenter.prevent="handleDragEnter"
+        @dragleave.prevent="handleDragLeave"
+      >
         <CircuitCanvas 
           ref="canvas" 
           @selectionChanged="handleSelectionChanged"
@@ -72,24 +94,49 @@
 import CircuitCanvas from './components/CircuitCanvas.vue'
 import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
+import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import { usePyodide } from './composables/usePyodide'
+import { useFileOperations } from './composables/useFileOperations'
 
 export default {
   name: 'App',
   components: {
     CircuitCanvas,
     ComponentIcon,
-    ComponentInspector
+    ComponentInspector,
+    ConfirmationDialog
   },
   setup() {
     const { initialize, runPython, isLoading, isReady, error, pyodide } = usePyodide()
-    return { initializePyodide: initialize, runPython, isPyodideLoading: isLoading, isPyodideReady: isReady, pyodideError: error, pyodide }
+    const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileOperations()
+    
+    return { 
+      initializePyodide: initialize, 
+      runPython, 
+      isPyodideLoading: isLoading, 
+      isPyodideReady: isReady, 
+      pyodideError: error, 
+      pyodide,
+      saveCircuitFile,
+      openCircuitFile,
+      parseAndValidateJSON
+    }
   },
   data() {
     return {
       isRunning: false,
       inspectorVisible: true,
       selectedComponent: null,
+      isDraggingOver: false,
+      dragCounter: 0,
+      showConfirmDialog: false,
+      confirmDialog: {
+        title: '',
+        message: '',
+        type: 'warning',
+        acceptCallback: null,
+        rejectCallback: null
+      },
       menuItems: [
         {
           label: 'Logic',
@@ -247,70 +294,146 @@ exec(${JSON.stringify(gglProgram)})
     
     async saveCircuit() {
       try {
-        // Get circuit data from canvas
         const components = this.$refs.canvas?.components || []
         const wires = this.$refs.canvas?.wires || []
         const wireJunctions = this.$refs.canvas?.wireJunctions || []
         
-        // Create the circuit data object
-        const circuitData = {
-          version: '1.0',
-          timestamp: new Date().toISOString(),
-          components: components,
-          wires: wires,
-          wireJunctions: wireJunctions
-        }
-        
-        // Convert to JSON string with nice formatting
-        const jsonString = JSON.stringify(circuitData, null, 2)
-        
-        // Check if File System Access API is supported
-        if ('showSaveFilePicker' in window) {
-          try {
-            // Use the File System Access API for better UX
-            const handle = await window.showSaveFilePicker({
-              suggestedName: `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`,
-              types: [{
-                description: 'JSON Circuit File',
-                accept: { 'application/json': ['.json'] }
-              }]
-            })
-            
-            // Create a writable stream and write the file
-            const writable = await handle.createWritable()
-            await writable.write(jsonString)
-            await writable.close()
-            
-            console.log('Circuit saved successfully using File System Access API')
-          } catch (err) {
-            // User cancelled the save dialog
-            if (err.name === 'AbortError') {
-              console.log('Save cancelled by user')
-              return
-            }
-            throw err
-          }
-        } else {
-          // Fallback to traditional download for browsers that don't support File System Access API
-          const blob = new Blob([jsonString], { type: 'application/json' })
-          const url = URL.createObjectURL(blob)
-          
-          const link = document.createElement('a')
-          link.href = url
-          link.download = `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`
-          document.body.appendChild(link)
-          link.click()
-          
-          // Clean up
-          document.body.removeChild(link)
-          URL.revokeObjectURL(url)
-          
-          console.log('Circuit saved successfully using fallback method')
-        }
+        await this.saveCircuitFile(components, wires, wireJunctions)
       } catch (error) {
         console.error('Error saving circuit:', error)
-        // TODO: Show error message to user
+        alert('Error saving circuit: ' + error.message)
       }
+    },
+    
+    async openCircuit() {
+      try {
+        const fileContent = await this.openCircuitFile()
+        if (!fileContent) return
+        
+        const circuitData = this.parseAndValidateJSON(fileContent)
+        
+        // Check if current circuit has any components
+        const hasExistingCircuit = this.$refs.canvas?.components?.length > 0 || 
+                                  this.$refs.canvas?.wires?.length > 0
+        
+        if (hasExistingCircuit) {
+          this.showConfirmation({
+            title: 'Replace Circuit?',
+            message: 'This will replace your current circuit. Are you sure you want to continue?',
+            type: 'warning',
+            onAccept: () => this.loadCircuitData(circuitData)
+          })
+        } else {
+          this.loadCircuitData(circuitData)
+        }
+      } catch (error) {
+        console.error('Error opening circuit:', error)
+        alert('Error opening circuit: ' + error.message)
+      }
+    },
+    
+    loadCircuitData(circuitData) {
+      if (!this.$refs.canvas) return
+      
+      // Clear existing circuit
+      this.$refs.canvas.clearCircuit()
+      
+      // Load components
+      if (circuitData.components) {
+        circuitData.components.forEach(component => {
+          this.$refs.canvas.loadComponent(component)
+        })
+      }
+      
+      // Load wires
+      if (circuitData.wires) {
+        circuitData.wires.forEach(wire => {
+          this.$refs.canvas.addWire(wire)
+        })
+      }
+      
+      // Load wire junctions
+      if (circuitData.wireJunctions) {
+        circuitData.wireJunctions.forEach(junction => {
+          this.$refs.canvas.addWireJunction(junction)
+        })
+      }
+      
+      console.log('Circuit loaded successfully')
+    },
+    
+    handleDragEnter(event) {
+      this.dragCounter++
+      if (event.dataTransfer.types.includes('Files')) {
+        this.isDraggingOver = true
+      }
+    },
+    
+    handleDragLeave(event) {
+      this.dragCounter--
+      if (this.dragCounter <= 0) {
+        this.isDraggingOver = false
+        this.dragCounter = 0
+      }
+    },
+    
+    handleDragOver(event) {
+      // Check if the drag contains files
+      if (event.dataTransfer.types.includes('Files')) {
+        event.dataTransfer.dropEffect = 'copy'
+      }
+    },
+    
+    async handleDrop(event) {
+      this.isDraggingOver = false
+      this.dragCounter = 0
+      
+      const files = Array.from(event.dataTransfer.files)
+      
+      // Find the first JSON file
+      const jsonFile = files.find(file => 
+        file.type === 'application/json' || 
+        file.name.toLowerCase().endsWith('.json')
+      )
+      
+      if (!jsonFile) {
+        alert('Please drop a JSON circuit file')
+        return
+      }
+      
+      try {
+        const fileContent = await jsonFile.text()
+        const circuitData = this.parseAndValidateJSON(fileContent)
+        
+        // Check if current circuit has any components
+        const hasExistingCircuit = this.$refs.canvas?.components?.length > 0 || 
+                                  this.$refs.canvas?.wires?.length > 0
+        
+        if (hasExistingCircuit) {
+          this.showConfirmation({
+            title: 'Replace Circuit?',
+            message: 'This will replace your current circuit. Are you sure you want to continue?',
+            type: 'warning',
+            onAccept: () => this.loadCircuitData(circuitData)
+          })
+        } else {
+          this.loadCircuitData(circuitData)
+        }
+      } catch (error) {
+        console.error('Error loading dropped file:', error)
+        alert('Error loading circuit: ' + error.message)
+      }
+    },
+    
+    showConfirmation({ title, message, type = 'warning', onAccept, onReject }) {
+      this.confirmDialog = {
+        title,
+        message,
+        type,
+        acceptCallback: onAccept || (() => {}),
+        rejectCallback: onReject || (() => {})
+      }
+      this.showConfirmDialog = true
     }
   }
 }
@@ -372,6 +495,30 @@ body {
   overflow: hidden;
   position: relative;
   background-color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.circuit-container.drag-over {
+  background-color: #eff6ff;
+  border: 2px dashed #3b82f6;
+  box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.circuit-container.drag-over::after {
+  content: 'Drop JSON circuit file here';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* PrimeVue customizations for Aura theme */

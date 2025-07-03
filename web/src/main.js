@@ -19,6 +19,7 @@ import Sidebar from 'primevue/sidebar'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Tooltip from 'primevue/tooltip'
+import Dialog from 'primevue/dialog'
 
 const app = createApp(App)
 
@@ -32,6 +33,7 @@ app.component('TieredMenu', TieredMenu)
 app.component('Sidebar', Sidebar)
 app.component('InputText', InputText)
 app.component('InputNumber', InputNumber)
+app.component('Dialog', Dialog)
 
 // Register PrimeVue directives
 app.directive('tooltip', Tooltip)
