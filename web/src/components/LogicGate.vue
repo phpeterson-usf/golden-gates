@@ -98,7 +98,7 @@ export default {
     numInputs: {
       type: Number,
       default: 2,
-      validator: (value) => value >= 2 && value <= 8
+      validator: (value) => value >= 1 && value <= 8  // Allow 1 input for NOT gate
     },
     bits: {
       type: Number,
@@ -137,6 +137,10 @@ export default {
       return getGateDefinition(this.gateType) || {}
     },
     totalHeight() {
+      // For single input (NOT gate), use standard height
+      if (this.numInputs === 1) {
+        return GRID_SIZE * 2  // Standard 30px height
+      }
       // Total height needed to accommodate all inputs with alternating grid vertices
       return (this.numInputs - 1) * GRID_SIZE * 2
     },
@@ -151,6 +155,7 @@ export default {
         const centerY = this.totalHeight / 2 - GRID_SIZE
         return `translate(0, ${centerY})`
       }
+      // No transformation needed for 1 or 2 input gates
       return ''
     },
     gatePath() {
@@ -171,9 +176,12 @@ export default {
       return GRID_SIZE * 3 - (this.gateDefinition.outputOffset || 0)
     },
     outputY() {
+      // For 1 input (NOT gate), output is centered
+      if (this.numInputs === 1) {
+        return GRID_SIZE  // Center at 15px
+      }
       // For 2 inputs, output is at the grid vertex between them
-      // For more inputs, output moves with the centered gate
-      if (this.numInputs === 2) {
+      else if (this.numInputs === 2) {
         return GRID_SIZE  // Between inputs at 0 and GRID_SIZE*2
       } else {
         // Gate is centered, so output is at center of total height
@@ -188,9 +196,12 @@ export default {
       } else if (this.gateType === 'or') {
         // OR gate extends to 60px (4 grid units)
         return GRID_SIZE * 2  // 30px
-      } else if (this.gateType === 'xor') {
-        // XOR gate extends to 75px (5 grid units)
+      } else if (this.gateType === 'xor' || this.gateType === 'xnor') {
+        // XOR/XNOR gate extends to 75px (5 grid units)
         return GRID_SIZE * 2.5  // 37.5px
+      } else if (this.gateType === 'not') {
+        // NOT gate triangle center
+        return GRID_SIZE  // 15px (center of triangle)
       } else {
         // Default for other gate types
         return GRID_SIZE * 1.5
@@ -223,6 +234,11 @@ export default {
       if (definition && definition.getInputPositions) {
         const positions = definition.getInputPositions(this.numInputs)
         return positions[index]?.y || (index * GRID_SIZE * 2)
+      }
+      
+      // For single input gates (like NOT), center the input vertically
+      if (this.numInputs === 1) {
+        return this.totalHeight / 2
       }
       
       // Default: Calculate Y position for each input

@@ -159,6 +159,11 @@ export default {
               command: () => this.addComponent('xor-gate')
             },
             {
+              label: 'Not',
+              componentType: 'not',
+              command: () => this.addComponent('not-gate')
+            },
+            {
               label: 'Nand',
               componentType: 'nand',
               command: () => this.addComponent('nand-gate')

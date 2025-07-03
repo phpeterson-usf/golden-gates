@@ -9,6 +9,7 @@ export const componentRegistry = {
   'and-gate': createGateRegistryEntry('and', gateDefinitions.and),
   'or-gate': createGateRegistryEntry('or', gateDefinitions.or),
   'xor-gate': createGateRegistryEntry('xor', gateDefinitions.xor),
+  'not-gate': createGateRegistryEntry('not', gateDefinitions.not),
   'nand-gate': createGateRegistryEntry('nand', gateDefinitions.nand),
   'nor-gate': createGateRegistryEntry('nor', gateDefinitions.nor),
   'xnor-gate': createGateRegistryEntry('xnor', gateDefinitions.xnor),

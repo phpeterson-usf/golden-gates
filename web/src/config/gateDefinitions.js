@@ -79,6 +79,40 @@ export const gateDefinitions = {
     }
   },
 
+  'not': {
+    label: 'NOT Gate',
+    logicClass: 'Not',
+    pythonModule: 'logic',
+    getSvgPath: (h, padding) => {
+      // NOT gate: Triangle with negation circle (MIL-STD-806B)
+      const centerY = h / 2
+      const triangleWidth = GRID_SIZE * 2  // 30px triangle width
+      return `
+        M 0 ${-padding}
+        L ${triangleWidth} ${centerY}
+        L 0 ${h + padding}
+        L 0 ${-padding}
+        Z
+        M ${triangleWidth + 10} ${centerY}
+        A 5 5 0 1 1 ${triangleWidth} ${centerY}
+        A 5 5 0 1 1 ${triangleWidth + 10} ${centerY}
+      `
+    },
+    outputOffset: 5,  // Move output to right edge of negation circle (triangle is 30px + circle is 10px + 5px to edge)
+    // NOT gate has only one input
+    getInputPositions: (numInputs) => {
+      // For NOT gate, always return single centered input
+      return [{ x: 0, y: GRID_SIZE }]  // Single input at center (15px from top)
+    },
+    // NOT gate dimensions
+    dimensions: {
+      width: GRID_SIZE * 3,  // 45px total width (triangle + circle)
+      height: GRID_SIZE * 2  // Standard height
+    },
+    // NOT gate specific properties
+    defaultNumInputs: 1  // Specify that NOT gate has only 1 input
+  },
+
   'xnor': {
     label: 'XNOR Gate',
     logicClass: 'Xnor',

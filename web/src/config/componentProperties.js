@@ -118,6 +118,16 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+
+  // NOT gate properties
+  'not-gate': {
+    title: 'NOT Gate Properties',
+    properties: [
+      { ...commonProperties.label, default: 'NOT' },
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
+  },
   
   // NAND gate properties
   'nand-gate': {

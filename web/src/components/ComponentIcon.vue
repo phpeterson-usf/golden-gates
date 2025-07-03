@@ -21,7 +21,7 @@
     />
     <!-- Add a clear, prominent negation circle for small icons -->
     <circle 
-      v-if="size <= 20 && (componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
+      v-if="size <= 20 && (componentType === 'not' || componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
       :cx="negationCircleX" 
       :cy="15" 
       :r="3" 
@@ -54,7 +54,7 @@ export default {
   computed: {
     componentPath() {
       // Handle logic gates
-      if (['and', 'or', 'xor', 'nand', 'nor', 'xnor'].includes(this.componentType)) {
+      if (['and', 'or', 'xor', 'not', 'nand', 'nor', 'xnor'].includes(this.componentType)) {
         const definition = getGateDefinition(this.componentType)
         if (!definition) return ''
         
@@ -65,7 +65,7 @@ export default {
         let path = definition.getSvgPath(iconHeight, padding)
         
         // For small icons, remove the negation circles from the path (we'll add them as separate elements)
-        if (this.size <= 20 && (this.componentType === 'nand' || this.componentType === 'nor' || this.componentType === 'xnor')) {
+        if (this.size <= 20 && (this.componentType === 'not' || this.componentType === 'nand' || this.componentType === 'nor' || this.componentType === 'xnor')) {
           // Remove the negation circle arcs from the path entirely
           path = path.replace(/M [0-9\.\s\*\+\-]+A 5 5[^Z]+A 5 5[^Z]+/g, '')
         }
@@ -111,7 +111,9 @@ export default {
     
     negationCircleX() {
       // Position the negation circle at the right edge of the gate
-      if (this.componentType === 'nand') {
+      if (this.componentType === 'not') {
+        return 35 // Right edge of NOT triangle for small icons
+      } else if (this.componentType === 'nand') {
         return 38 // Right edge of AND gate for small icons
       } else if (this.componentType === 'nor') {
         return 42 // Right edge of OR gate for small icons
