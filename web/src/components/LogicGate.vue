@@ -188,6 +188,9 @@ export default {
       } else if (this.gateType === 'or') {
         // OR gate extends to 60px (4 grid units)
         return GRID_SIZE * 2  // 30px
+      } else if (this.gateType === 'xor') {
+        // XOR gate extends to 75px (5 grid units)
+        return GRID_SIZE * 2.5  // 37.5px
       } else {
         // Default for other gate types
         return GRID_SIZE * 1.5
@@ -215,7 +218,14 @@ export default {
       }
     },
     getInputY(index) {
-      // Calculate Y position for each input
+      // Check if gate definition has custom input positions
+      const definition = getGateDefinition(this.gateType)
+      if (definition && definition.getInputPositions) {
+        const positions = definition.getInputPositions(this.numInputs)
+        return positions[index]?.y || (index * GRID_SIZE * 2)
+      }
+      
+      // Default: Calculate Y position for each input
       // Inputs are on alternating grid vertices (0, 30, 60, 90...)
       return index * GRID_SIZE * 2
     },
@@ -227,7 +237,16 @@ export default {
       return -7
     },
     getInputConnectionX(index) {
-      // For inverted inputs, connection point is at the left edge of the inversion circle
+      // Check if gate definition has custom input positions
+      const definition = getGateDefinition(this.gateType)
+      if (definition && definition.getInputPositions) {
+        const positions = definition.getInputPositions(this.numInputs)
+        const baseX = positions[index]?.x || 0
+        // For inverted inputs, shift further left for the inversion circle
+        return this.isInputInverted(index) ? baseX - 15 : baseX
+      }
+      
+      // Default: For inverted inputs, connection point is at the left edge of the inversion circle
       // For normal inputs, connection point is at x=0 (left edge of gate)
       return this.isInputInverted(index) ? -15 : 0
     }

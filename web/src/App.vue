@@ -154,6 +154,11 @@ export default {
               command: () => this.addComponent('or-gate')
             },
             {
+              label: 'Xor',
+              componentType: 'xor',
+              command: () => this.addComponent('xor-gate')
+            },
+            {
               label: 'Nand',
               componentType: 'nand',
               command: () => this.addComponent('nand-gate')

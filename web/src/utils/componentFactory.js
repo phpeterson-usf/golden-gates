@@ -80,24 +80,24 @@ export function createGateRegistryEntry(gateType, definition) {
       rotation: 0
     },
     dimensions: {
-      width: GRID_SIZE * 3,  // 60px
-      height: GRID_SIZE * 3  // 60px for default 2-input gate space
+      width: definition.dimensions?.width || GRID_SIZE * 3,  // Use custom width if defined
+      height: definition.dimensions?.height || GRID_SIZE * 3  // Use custom height if defined
     },
     // Dynamic bounds based on numInputs
-    getBounds: standardGateBounds,
+    getBounds: definition.getBounds || standardGateBounds,
     // Dynamic center based on numInputs
-    getCenter: standardGateCenter,
+    getCenter: definition.getCenter || standardGateCenter,
     // Dynamic connections based on numInputs
     getConnections: (props) => standardGateConnections({ ...props, gateType }),
     // Static bounds for default 2-input gate
-    bounds: {
+    bounds: definition.bounds || {
       x: 0,
       y: -10,
       width: GRID_SIZE * 3,  // 45px
       height: GRID_SIZE * 2 + 20  // 50px (30px gate + 20px padding)
     },
     // Static center for default 2-input gate
-    center: {
+    center: definition.center || {
       x: GRID_SIZE * 1.5,  // 22.5px
       y: GRID_SIZE         // 15px
     },

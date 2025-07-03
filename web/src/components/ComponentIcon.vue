@@ -2,12 +2,20 @@
   <svg 
     :width="size" 
     :height="size" 
-    viewBox="0 0 60 30" 
+    viewBox="0 0 75 30" 
     class="gate-icon"
   >
     <path 
       :d="componentPath" 
       :fill="fillColor" 
+      :stroke="color" 
+      :stroke-width="strokeWidth"
+    />
+    <!-- Add concave line for XOR gate -->
+    <path 
+      v-if="componentType === 'xor' && xorConcaveLine"
+      :d="xorConcaveLine" 
+      fill="none"
       :stroke="color" 
       :stroke-width="strokeWidth"
     />
@@ -46,7 +54,7 @@ export default {
   computed: {
     componentPath() {
       // Handle logic gates
-      if (['and', 'or', 'nand', 'nor'].includes(this.componentType)) {
+      if (['and', 'or', 'xor', 'nand', 'nor'].includes(this.componentType)) {
         const definition = getGateDefinition(this.componentType)
         if (!definition) return ''
         
@@ -60,6 +68,16 @@ export default {
         if (this.size <= 20 && (this.componentType === 'nand' || this.componentType === 'nor')) {
           // Remove the negation circle arcs from the path entirely
           path = path.replace(/M [0-9\.\s\*\+\-]+A 5 5[^Z]+A 5 5[^Z]+/g, '')
+        }
+        
+        // For XOR gate, also need to handle the additional concave line
+        if (this.componentType === 'xor') {
+          // Split the path into main body and concave line
+          const pathParts = path.split('M 5')
+          if (pathParts.length > 1) {
+            // Return just the main body for now, we'll add the concave line as a separate stroke below
+            return pathParts[0].trim()
+          }
         }
         
         return path
@@ -107,6 +125,25 @@ export default {
         return this.color // Solid fill for output
       }
       return 'none' // No fill for gates and inputs
+    },
+    
+    xorConcaveLine() {
+      // Generate the concave line path for XOR gate
+      if (this.componentType === 'xor') {
+        const definition = getGateDefinition(this.componentType)
+        if (definition) {
+          const iconHeight = 30
+          const padding = 5
+          const fullPath = definition.getSvgPath(iconHeight, padding)
+          
+          // Extract the concave line part (after "M 5")
+          const pathParts = fullPath.split('M 5')
+          if (pathParts.length > 1) {
+            return 'M 5' + pathParts[1]
+          }
+        }
+      }
+      return null
     }
   }
 }

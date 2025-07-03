@@ -46,18 +46,36 @@ export const gateDefinitions = {
     logicClass: 'Xor',
     pythonModule: 'logic',
     getSvgPath: (h, padding) => {
-      // XOR gate with double curved input lines
+      // XOR gate: OR gate body with additional concave input line (MIL-STD-806B)
+      const centerY = h / 2
       return `
-        M 0 ${-padding}
-        Q 15 ${-padding}, 15 ${-padding}
-        Q 60 ${h/2 - 20}, 90 ${h/2}
-        Q 60 ${h/2 + 20}, 15 ${h + padding}
-        Q 15 ${h + padding}, 0 ${h + padding}
-        Q 10 ${h/2}, 0 ${-padding}
+        M ${GRID_SIZE} ${-padding}
+        Q ${GRID_SIZE + 12} ${-padding}, ${GRID_SIZE + 12} ${-padding}
+        Q ${GRID_SIZE * 4} ${centerY - GRID_SIZE}, ${GRID_SIZE * 5} ${centerY}
+        Q ${GRID_SIZE * 4} ${centerY + GRID_SIZE}, ${GRID_SIZE + 12} ${h + padding}
+        Q ${GRID_SIZE + 12} ${h + padding}, ${GRID_SIZE} ${h + padding}
+        Q ${GRID_SIZE + 10} ${centerY}, ${GRID_SIZE} ${-padding}
         Z
-        M -10 ${-padding}
-        Q -5 ${h/2}, -10 ${h + padding}
+        M 5 ${-padding}
+        Q 10 ${centerY}, 5 ${h + padding}
       `
+    },
+    outputOffset: -GRID_SIZE * 2,  // Move output further right
+    // Override input connection positions for XOR gate
+    getInputPositions: (numInputs) => {
+      const positions = []
+      // Calculate total height based on numInputs (same logic as LogicGate component)
+      const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+      const spacing = totalHeight / (numInputs - 1)
+      
+      for (let i = 0; i < numInputs; i++) {
+        positions.push({
+          x: 0,  // Inputs at x=0, before the concave line
+          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight
+        })
+      }
+      
+      return positions
     }
   },
   
