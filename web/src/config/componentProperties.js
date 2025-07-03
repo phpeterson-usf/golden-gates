@@ -106,6 +106,18 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+
+  // XOR gate properties
+  'xor-gate': {
+    title: 'XOR Gate Properties',
+    properties: [
+      { ...commonProperties.label, default: 'XOR' },
+      commonProperties.numInputs,
+      commonProperties.invertedInputs,
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
+  },
   
   // NAND gate properties
   'nand-gate': {
@@ -124,6 +136,18 @@ export const componentPropertySchema = {
     title: 'NOR Gate Properties',
     properties: [
       { ...commonProperties.label, default: 'NOR' },
+      commonProperties.numInputs,
+      commonProperties.invertedInputs,
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
+  },
+
+  // XNOR gate properties
+  'xnor-gate': {
+    title: 'XNOR Gate Properties',
+    properties: [
+      { ...commonProperties.label, default: 'XNOR' },
       commonProperties.numInputs,
       commonProperties.invertedInputs,
       commonProperties.bits,

@@ -167,6 +167,11 @@ export default {
               label: 'Nor',
               componentType: 'nor',
               command: () => this.addComponent('nor-gate')
+            },
+            {
+              label: 'Xnor',
+              componentType: 'xnor',
+              command: () => this.addComponent('xnor-gate')
             }
           ]
         },

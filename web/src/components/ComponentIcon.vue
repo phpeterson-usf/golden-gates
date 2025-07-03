@@ -2,7 +2,7 @@
   <svg 
     :width="size" 
     :height="size" 
-    viewBox="0 0 75 30" 
+    :viewBox="iconViewBox" 
     class="gate-icon"
   >
     <path 
@@ -11,9 +11,9 @@
       :stroke="color" 
       :stroke-width="strokeWidth"
     />
-    <!-- Add concave line for XOR gate -->
+    <!-- Add concave line for XOR and XNOR gates -->
     <path 
-      v-if="componentType === 'xor' && xorConcaveLine"
+      v-if="(componentType === 'xor' || componentType === 'xnor') && xorConcaveLine"
       :d="xorConcaveLine" 
       fill="none"
       :stroke="color" 
@@ -21,7 +21,7 @@
     />
     <!-- Add a clear, prominent negation circle for small icons -->
     <circle 
-      v-if="size <= 20 && (componentType === 'nand' || componentType === 'nor')" 
+      v-if="size <= 20 && (componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
       :cx="negationCircleX" 
       :cy="15" 
       :r="3" 
@@ -54,7 +54,7 @@ export default {
   computed: {
     componentPath() {
       // Handle logic gates
-      if (['and', 'or', 'xor', 'nand', 'nor'].includes(this.componentType)) {
+      if (['and', 'or', 'xor', 'nand', 'nor', 'xnor'].includes(this.componentType)) {
         const definition = getGateDefinition(this.componentType)
         if (!definition) return ''
         
@@ -65,13 +65,13 @@ export default {
         let path = definition.getSvgPath(iconHeight, padding)
         
         // For small icons, remove the negation circles from the path (we'll add them as separate elements)
-        if (this.size <= 20 && (this.componentType === 'nand' || this.componentType === 'nor')) {
+        if (this.size <= 20 && (this.componentType === 'nand' || this.componentType === 'nor' || this.componentType === 'xnor')) {
           // Remove the negation circle arcs from the path entirely
           path = path.replace(/M [0-9\.\s\*\+\-]+A 5 5[^Z]+A 5 5[^Z]+/g, '')
         }
         
-        // For XOR gate, also need to handle the additional concave line
-        if (this.componentType === 'xor') {
+        // For XOR and XNOR gates, also need to handle the additional concave line
+        if (this.componentType === 'xor' || this.componentType === 'xnor') {
           // Split the path into main body and concave line
           const pathParts = path.split('M 5')
           if (pathParts.length > 1) {
@@ -115,6 +115,8 @@ export default {
         return 38 // Right edge of AND gate for small icons
       } else if (this.componentType === 'nor') {
         return 42 // Right edge of OR gate for small icons
+      } else if (this.componentType === 'xnor') {
+        return 85 // Position for negation circle in XNOR gate (adjusted for wider viewBox)
       }
       return 0
     },
@@ -128,8 +130,8 @@ export default {
     },
     
     xorConcaveLine() {
-      // Generate the concave line path for XOR gate
-      if (this.componentType === 'xor') {
+      // Generate the concave line path for XOR and XNOR gates
+      if (this.componentType === 'xor' || this.componentType === 'xnor') {
         const definition = getGateDefinition(this.componentType)
         if (definition) {
           const iconHeight = 30
@@ -139,11 +141,30 @@ export default {
           // Extract the concave line part (after "M 5")
           const pathParts = fullPath.split('M 5')
           if (pathParts.length > 1) {
-            return 'M 5' + pathParts[1]
+            // For XNOR, stop before the negation circle part
+            let concaveLine = 'M 5' + pathParts[1]
+            if (this.componentType === 'xnor') {
+              // Remove the negation circle part (starts with "M")
+              const negationStart = concaveLine.indexOf('M', 3) // Find next M after "M 5"
+              if (negationStart > 0) {
+                concaveLine = concaveLine.substring(0, negationStart).trim()
+              }
+            }
+            return concaveLine
           }
         }
       }
       return null
+    },
+    
+    iconViewBox() {
+      // Adjust viewBox based on gate type to ensure all elements are visible
+      if (this.componentType === 'xnor') {
+        return "0 0 95 30"  // Wider to accommodate negation circle
+      } else if (this.componentType === 'xor') {
+        return "0 0 75 30"  // Standard XOR width
+      }
+      return "0 0 60 30"  // Standard width for other gates
     }
   }
 }

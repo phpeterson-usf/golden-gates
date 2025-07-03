@@ -78,6 +78,47 @@ export const gateDefinitions = {
       return positions
     }
   },
+
+  'xnor': {
+    label: 'XNOR Gate',
+    logicClass: 'Xnor',
+    pythonModule: 'logic',
+    getSvgPath: (h, padding) => {
+      // XNOR gate: XOR gate body with negation circle at output (MIL-STD-806B)
+      const centerY = h / 2
+      return `
+        M ${GRID_SIZE} ${-padding}
+        Q ${GRID_SIZE + 12} ${-padding}, ${GRID_SIZE + 12} ${-padding}
+        Q ${GRID_SIZE * 4} ${centerY - GRID_SIZE}, ${GRID_SIZE * 5} ${centerY}
+        Q ${GRID_SIZE * 4} ${centerY + GRID_SIZE}, ${GRID_SIZE + 12} ${h + padding}
+        Q ${GRID_SIZE + 12} ${h + padding}, ${GRID_SIZE} ${h + padding}
+        Q ${GRID_SIZE + 10} ${centerY}, ${GRID_SIZE} ${-padding}
+        Z
+        M 5 ${-padding}
+        Q 10 ${centerY}, 5 ${h + padding}
+        M ${GRID_SIZE * 6} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 5} ${centerY}
+        A 5 5 0 1 1 ${GRID_SIZE * 6} ${centerY}
+      `
+    },
+    outputOffset: -GRID_SIZE * 3,  // Move output further right to account for negation circle
+    // Override input connection positions for XNOR gate (same as XOR)
+    getInputPositions: (numInputs) => {
+      const positions = []
+      // Calculate total height based on numInputs (same logic as LogicGate component)
+      const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+      const spacing = totalHeight / (numInputs - 1)
+      
+      for (let i = 0; i < numInputs; i++) {
+        positions.push({
+          x: 0,  // Inputs at x=0, before the concave line
+          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight
+        })
+      }
+      
+      return positions
+    }
+  },
   
   'nand': {
     label: 'NAND Gate',

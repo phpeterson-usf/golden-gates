@@ -11,6 +11,7 @@ export const componentRegistry = {
   'xor-gate': createGateRegistryEntry('xor', gateDefinitions.xor),
   'nand-gate': createGateRegistryEntry('nand', gateDefinitions.nand),
   'nor-gate': createGateRegistryEntry('nor', gateDefinitions.nor),
+  'xnor-gate': createGateRegistryEntry('xnor', gateDefinitions.xnor),
   
   'input': {
     component: defineAsyncComponent(() => import('../components/InputNode.vue')),
