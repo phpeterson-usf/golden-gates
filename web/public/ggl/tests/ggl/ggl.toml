@@ -84,3 +84,9 @@ name = "xnor-3-inputs"
 input = ["python3", "$project_tests/xnor-3-inputs.py"]
 expected = "3"
 rubric = 1
+
+[[tests]]
+name = "sr-latch"
+input = ["python3", "$project_tests/sr-latch.py"]
+expected = "1\n0"
+rubric = 1
