@@ -26,6 +26,7 @@ class Gate(BitsNode):
         # TODO: error handle for not gate since it only has one input
         edges = self.inputs.get_edges()
         # Get the first value, then loop from the second...end
+        
         rv = edges[0].value
         for e in edges[1:]:
             # Perform the Gate-specific logic (AND, OR, ...)
@@ -67,6 +68,7 @@ class Nor(Gate):
 
     def invert(self, rv):
         return ~rv & ((1 << self.bits) - 1)
+    
 
 class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
@@ -95,8 +97,6 @@ class Nand(Gate):
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(Nand.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
-    #def logic(self, v1, v2):
-    #    return ~(v1 & v2) & ((1 << self.bits) - 1)
     def logic(self, v1, v2):
         return v1 & v2
 

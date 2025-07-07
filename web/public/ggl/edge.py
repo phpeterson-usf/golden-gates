@@ -45,6 +45,7 @@ class Edge:
         self.srcpoint = EdgePoint(srcnode, srcname)
         self.destpoints = EdgePoints(dstnode, dstname)
         self.value = 0
+        self.prev_value = None                  # track previous value
 
     def get_dest_nodes(self):
         return self.destpoints.get_dest_nodes()
@@ -57,3 +58,4 @@ class Edge:
         simulation runs a work queue which is populated breadth-first
         """
         self.value = value
+    

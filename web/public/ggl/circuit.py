@@ -4,6 +4,8 @@ from .ggl_logging import get_logger, set_global_js_logging
 
 logger = get_logger('circuit')
 
+MAX_ITERATIONS = 100  # Prevent infinite loops
+
 class Circuit:
     """
     Circuits are a collection of Nodes which may be run()
@@ -14,6 +16,7 @@ class Circuit:
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
+        self.all_nodes = set()
         
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -33,17 +36,45 @@ class Circuit:
         Each Node in the work queue does its function, and returns
         a list of any Nodes which must be re-evaluated
         """
-        work = []
-        for i in self.inputs:
-            work.append(i)
-        while len(work) > 0:
-            node = work[0]
-            new_work = node.propagate()
-            work.remove(node)
-            if new_work:
-                work += new_work
+        # work = []
+        # for i in self.inputs:
+        #     work.append(i)
+        # while len(work) > 0:
+        #     node = work[0]
+        #     new_work = node.propagate()
+        #     work.remove(node)
+        #     if new_work:
+        #         work += new_work
             # TODO: for cyclic circuits (SR-latch, D-flip-flop), well need
             # to check for stable outputs to avoid infinite loops
+        work = list(self.inputs)  # Start with all Input Nodes
+        iteration = 0
+
+        while iteration < MAX_ITERATIONS:
+            iteration += 1
+            logger.info(f"Simulation iteration {iteration}")
+
+            changes = 0
+            new_work = []
+
+            for node in work:
+                downstream = node.propagate()
+
+                # after propagation, check if any connected edges changed
+                for edges in node.outputs.points.values():
+                    for edge in edges:
+                        if edge.prev_value != edge.value:
+                            changes += 1
+                            new_work += edge.get_dest_nodes()
+
+            if changes == 0:
+                logger.info("Circuit stabilized.")
+                break
+
+            work = list(set(new_work))  # remove duplicates to prevent cycling through
+
+        if iteration == MAX_ITERATIONS:
+            logger.warning("Circuit did not stabilize within max iterations.")
 
     def connect(self, src, dest):
         """
@@ -81,5 +112,7 @@ class Circuit:
         destnode.set_input_edge(destname, edge)
         
         # Keep a list of Input Nodes so we can start the simulation from there
-        if srcnode.kind == 'Input':
+        if srcnode.kind == 'Input' and srcnode not in self.inputs:
             self.inputs.append(srcnode)
+        
+        self.all_nodes.update([srcnode, destnode])
