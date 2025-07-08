@@ -41,7 +41,7 @@ export function useCircuitGeneration() {
     return null
   }
   
-  function generateGglProgram(components, wires, componentRefs, componentInstances) {
+  function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances) {
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
@@ -130,7 +130,11 @@ export function useCircuitGeneration() {
         for (const wire of incomingWires) {
           const sourceComp = findComponentAtConnection(components, wire.startConnection)
           if (!sourceComp) {
-            console.error(`Source component not found for wire connection at position ${wire.startConnection.pos.x},${wire.startConnection.pos.y}`)
+            // Check if this wire is from a junction - if so, it will be handled later
+            const isJunctionWire = wireJunctions.some(j => j.connectedWireId === wire.id)
+            if (!isJunctionWire) {
+              console.error(`Source component not found for wire connection at position ${wire.startConnection.pos.x},${wire.startConnection.pos.y}`)
+            }
             continue
           }
           const sourceVarName = componentVarNames[sourceComp.id]
@@ -144,6 +148,43 @@ export function useCircuitGeneration() {
       }
       
       sections.push('')
+    }
+    
+    // Process wire junctions to find additional connections
+    // A junction connects wires together, so we need to find all wires connected through junctions
+    if (wireJunctions && wireJunctions.length > 0) {
+      // Build a map of wire connections through junctions
+      const wireConnections = new Map() // Map wire ID to the wire it connects to through a junction
+      
+      for (const junction of wireJunctions) {
+        // Find the source wire (the wire that was clicked on to create the junction)
+        const sourceWire = wires[junction.sourceWireIndex]
+        if (!sourceWire) continue
+        
+        // Find the connected wire (the new wire created from the junction)
+        const connectedWire = wires.find(w => w.id === junction.connectedWireId)
+        if (!connectedWire) continue
+        
+        // The connected wire inherits the source from the source wire
+        // So we need to create a connection from the source wire's source to the connected wire's destination
+        const sourceComp = findComponentAtConnection(components, sourceWire.startConnection)
+        const destComp = findComponentAtConnection(components, connectedWire.endConnection)
+        
+        if (sourceComp && destComp) {
+          const sourceVarName = componentVarNames[sourceComp.id]
+          const destVarName = componentVarNames[destComp.id]
+          
+          if (sourceVarName && destVarName) {
+            // Create a virtual wire representing the junction connection
+            const virtualWire = {
+              startConnection: sourceWire.startConnection,
+              endConnection: connectedWire.endConnection
+            }
+            
+            sections.push(generateConnection(virtualWire, components, componentVarNames, sourceVarName, destVarName, circuitVarName))
+          }
+        }
+      }
     }
     
     sections.push(`${circuitVarName}.run()`)

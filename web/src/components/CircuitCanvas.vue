@@ -438,7 +438,7 @@ export default {
     })
     
     function getCircuitData() {
-      return generateGglProgram(components.value, wires.value, componentRefs.value, componentInstances.value)
+      return generateGglProgram(components.value, wires.value, wireJunctions.value, componentRefs.value, componentInstances.value)
     }
     
     function updateComponent(updatedComponent) {

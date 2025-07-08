@@ -273,15 +273,14 @@ export function useWireManagement(components, gridSize) {
     const wire = wires.value[wireIndex]
     if (!wire) return
     
-    // Use the original wire's source as our source
+    // Use the original wire's source as our source - keep the original component position
     startConnection.value = {
-      ...wire.startConnection,
-      pos: junctionPos  // But start drawing from the junction position
+      ...wire.startConnection  // Keep original component position for finding the source
     }
     
     // Initialize wire drawing from the junction point
     drawingWire.value = true
-    wirePoints.value = [junctionPos]
+    wirePoints.value = [junctionPos]  // Start drawing from junction visually
     wireDirection.value = 'horizontal'
     
     // Store that this is a junction connection
