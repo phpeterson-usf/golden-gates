@@ -3,6 +3,7 @@ from .node import Node, Connector
 from .edge import Edge
 from .io import Input, Output
 from .logic import And, Or, Xor, Xnor, Nand, Nor, Not
+from .component import ComponentTemplate, ComponentInstance, ComponentConnector
 
 __all__ = [
     'Circuit',
@@ -17,5 +18,8 @@ __all__ = [
     'Xnor',
     'Nand',
     'Nor',
-    'Not'
+    'Not',
+    'ComponentTemplate',
+    'ComponentInstance',
+    'ComponentConnector'
 ]
