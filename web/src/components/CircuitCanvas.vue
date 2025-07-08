@@ -17,13 +17,20 @@
     <!-- Circuit elements -->
     <svg 
       class="circuit-canvas"
-      :class="{ dragging: isDragging() || isSelecting }"
+      :class="{ 
+        dragging: isDragging() || isSelecting,
+        'wire-drawing': drawingWire,
+        'junction-mode': isJunctionMode
+      }"
       :width="canvasWidth"
       :height="canvasHeight"
       @click="handleCanvasClick"
       @mousedown="handleCanvasMouseDown"
       @mousemove="handleMouseMove"
       @mouseup="handleMouseUp"
+      @keydown="handleKeyDown"
+      @keyup="handleKeyUp"
+      tabindex="0"
     >
       <g :transform="`scale(${zoom})`">
         <!-- Wires -->
@@ -32,6 +39,7 @@
           :key="`wire-${index}`"
           :points="wire.points"
           :selected="selectedWires.has(index)"
+          :data-wire-index="index"
           @click="handleWireClick(index, $event)"
           @mousedown="handleWireMouseDown(index, $event)"
         />
@@ -54,6 +62,36 @@
           class="wire-junction"
           pointer-events="none"
         />
+        
+        <!-- Junction preview point when Alt is held -->
+        <circle
+          v-if="junctionPreview"
+          :cx="junctionPreview.x"
+          :cy="junctionPreview.y"
+          :r="CONNECTION_DOT_RADIUS + 2"
+          fill="#3b82f6"
+          stroke="white"
+          stroke-width="2"
+          class="junction-preview"
+          pointer-events="none"
+        >
+          <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        
+        <!-- Connection preview point when hovering during wire drawing -->
+        <circle
+          v-if="connectionPreview"
+          :cx="connectionPreview.x"
+          :cy="connectionPreview.y"
+          :r="CONNECTION_DOT_RADIUS + 2"
+          fill="#3b82f6"
+          stroke="white"
+          stroke-width="2"
+          class="connection-preview"
+          pointer-events="none"
+        >
+          <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
+        </circle>
         
         <!-- Components -->
         <component
@@ -169,6 +207,7 @@ export default {
       currentMousePos,
       previewPoints,
       wireJunctions,
+      startConnection,
       startWireDrawing,
       addWireWaypoint,
       completeWire,
@@ -180,6 +219,71 @@ export default {
     
     // Track last component position for intelligent placement
     const lastComponentPosition = ref({ x: 100, y: 100 })
+
+    // Junction mode tracking for Alt key feedback
+    const isJunctionMode = ref(false)
+    const junctionPreview = ref(null)
+    const connectionPreview = ref(null)
+
+    // Key event handlers for junction mode
+    function handleKeyDown(event) {
+      if (event.altKey && !isJunctionMode.value) {
+        isJunctionMode.value = true
+        updatePreviewsOnModeChange()
+      }
+    }
+
+    function handleKeyUp(event) {
+      if (!event.altKey && isJunctionMode.value) {
+        isJunctionMode.value = false
+        updatePreviewsOnModeChange()
+      }
+    }
+    
+    // Store the last hovered wire for re-evaluation when mode changes
+    let lastHoveredWireIndex = null
+    
+    // Update previews when junction mode changes while mouse is stationary
+    function updatePreviewsOnModeChange() {
+      if (currentMousePos.value) {
+        if (isJunctionMode.value && lastHoveredWireIndex !== null) {
+          // Show junction preview for the last hovered wire
+          const junctionPos = findClosestGridPointOnWire(lastHoveredWireIndex, currentMousePos.value)
+          if (junctionPos) {
+            junctionPreview.value = junctionPos
+          }
+          connectionPreview.value = null
+        } else {
+          junctionPreview.value = null
+          connectionPreview.value = null
+        }
+      }
+    }
+
+    // Global key handlers for when canvas doesn't have focus
+    onMounted(() => {
+      const handleGlobalKeyDown = (event) => {
+        if (event.altKey && !isJunctionMode.value) {
+          isJunctionMode.value = true
+          updatePreviewsOnModeChange()
+        }
+      }
+      
+      const handleGlobalKeyUp = (event) => {
+        if (!event.altKey && isJunctionMode.value) {
+          isJunctionMode.value = false
+          updatePreviewsOnModeChange()
+        }
+      }
+      
+      window.addEventListener('keydown', handleGlobalKeyDown)
+      window.addEventListener('keyup', handleGlobalKeyUp)
+      
+      onUnmounted(() => {
+        window.removeEventListener('keydown', handleGlobalKeyDown)
+        window.removeEventListener('keyup', handleGlobalKeyUp)
+      })
+    })
 
     // Selection management
     const selection = useSelection(components, wires, wireManagement.cleanupJunctionsForDeletedWires)
@@ -323,6 +427,32 @@ export default {
       const pos = getMousePos(event)
       currentMousePos.value = pos
       
+      // Track which wire is being hovered for junction mode
+      const target = event.target
+      if (target && target.classList.contains('wire-segment')) {
+        const wireElement = target.closest('[data-wire-index]')
+        if (wireElement) {
+          lastHoveredWireIndex = parseInt(wireElement.dataset.wireIndex)
+        }
+      } else {
+        lastHoveredWireIndex = null
+      }
+      
+      // Handle junction preview when Alt is held
+      if (isJunctionMode.value) {
+        updateJunctionPreview(event, pos)
+        connectionPreview.value = null // Clear connection preview in junction mode
+      } else {
+        junctionPreview.value = null
+        
+        // Handle connection preview when drawing a wire
+        if (drawingWire.value) {
+          updateConnectionPreview(event, pos)
+        } else {
+          connectionPreview.value = null
+        }
+      }
+      
       // Handle rubber-band selection
       if (isSelecting.value) {
         updateSelectionEnd(pos)
@@ -333,6 +463,66 @@ export default {
       if (isDragging()) {
         updateDrag(pos)
       }
+    }
+    
+    function updateJunctionPreview(event, mousePos) {
+      // Check if hovering over a wire
+      const target = event.target
+      if (target && target.classList.contains('wire-segment')) {
+        // Find which wire is being hovered
+        const wireElement = target.closest('[data-wire-index]')
+        if (wireElement) {
+          const wireIndex = parseInt(wireElement.dataset.wireIndex)
+          const junctionPos = findClosestGridPointOnWire(wireIndex, mousePos)
+          if (junctionPos) {
+            junctionPreview.value = junctionPos
+            return
+          }
+        }
+      }
+      
+      // If not hovering over a wire, clear preview
+      junctionPreview.value = null
+    }
+    
+    function updateConnectionPreview(event, mousePos) {
+      // Check if hovering over a connection point
+      const target = event.target
+      if (target && target.classList.contains('connection-point')) {
+        const componentId = target.dataset.componentId
+        const portIndex = parseInt(target.dataset.port)
+        const portType = target.dataset.type
+        
+        // Check if this is a valid connection (different port type than what we started with)
+        if (startConnection.value && startConnection.value.portType !== portType) {
+          // Find the component to get the connection position
+          const component = components.value.find(c => c.id === componentId)
+          if (component) {
+            const config = componentRegistry[component.type]
+            let connections
+            if (config.getConnections) {
+              connections = config.getConnections(component.props)
+            } else {
+              connections = config.connections
+            }
+            
+            const connectionPoint = portType === 'output' ? 
+              connections.outputs?.[portIndex] : 
+              connections.inputs?.[portIndex]
+              
+            if (connectionPoint) {
+              connectionPreview.value = {
+                x: component.x + connectionPoint.x,
+                y: component.y + connectionPoint.y
+              }
+              return
+            }
+          }
+        }
+      }
+      
+      // If not hovering over a valid connection point, clear preview
+      connectionPreview.value = null
     }
     
     function handleMouseUp() {
@@ -509,6 +699,9 @@ export default {
       wirePoints,
       previewPoints,
       wireJunctions,
+      isJunctionMode,
+      junctionPreview,
+      connectionPreview,
       
       // Constants
       COLORS,
@@ -521,6 +714,8 @@ export default {
       handleCanvasMouseDown,
       handleMouseMove,
       handleMouseUp,
+      handleKeyDown,
+      handleKeyUp,
       handleStartDrag,
       handleWireClick,
       handleWireMouseDown,

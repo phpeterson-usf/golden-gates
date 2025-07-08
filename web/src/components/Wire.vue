@@ -1,5 +1,5 @@
 <template>
-  <g @click="handleClick" @mousedown="handleMouseDown">
+  <g @click="handleClick" @mousedown="handleMouseDown" :data-wire-index="$attrs['data-wire-index']">
     <!-- Invisible wider line for easier clicking -->
     <polyline
       v-if="!preview"
@@ -19,7 +19,7 @@
       :stroke-width="strokeWidth"
       stroke-linejoin="round"
       stroke-linecap="round"
-      class="wire"
+      class="wire wire-segment"
       :class="{ preview: preview, selected: selected }"
     />
   </g>

@@ -12,12 +12,14 @@
 
 /* Connection point styles */
 .connection-point {
-  cursor: crosshair;
-  transition: fill 0.2s ease;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
+  transition: fill 0.2s ease, stroke-width 0.2s ease;
 }
 
 .connection-point:hover {
   fill: var(--connection-hover-fill, #0066cc);
+  stroke: var(--connection-hover-fill, #0066cc);
+  stroke-width: 2;
 }
 
 .connection-point.input {
@@ -26,6 +28,46 @@
 
 .connection-point.output {
   /* Specific styles for output connection points */
+}
+
+/* Enhanced connection point colors during wire drawing */
+.wire-drawing .connection-point.input:hover {
+  fill: #3b82f6;
+  stroke: #3b82f6;
+  stroke-width: 3;
+}
+
+.wire-drawing .connection-point.output:hover {
+  fill: #3b82f6;
+  stroke: #3b82f6;
+  stroke-width: 3;
+}
+
+/* Junction creation cursor when Alt is held */
+.junction-mode {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="black"/><circle cx="12" cy="12" r="6" fill="none" stroke="black" stroke-width="2" stroke-dasharray="2,2"/><path d="M12 6v12M6 12h12" stroke="black" stroke-width="1"/></svg>') 12 12, crosshair;
+}
+
+/* Show connection cursor over junction preview */
+.junction-preview {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
+  pointer-events: all !important;
+}
+
+/* Wire highlighting during junction mode */
+.junction-mode .wire-segment:hover {
+  stroke: #3b82f6 !important;
+  stroke-width: 4 !important;
+  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.8));
+}
+
+/* Additional visual enhancements */
+.wire-drawing .circuit-canvas {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.junction-mode .circuit-canvas {
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 /* Component label styles */
