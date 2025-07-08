@@ -2,7 +2,7 @@ from .circuit import Circuit
 from .node import Node, Connector
 from .edge import Edge
 from .io import Input, Output
-from .logic import And, Or
+from .logic import And, Or, Xor, Xnor, Nand, Nor, Not
 
 __all__ = [
     'Circuit',
@@ -12,5 +12,10 @@ __all__ = [
     'Input',
     'Output',
     'And',
-    'Or'
+    'Or',
+    'Xor',
+    'Xnor',
+    'Nand',
+    'Nor',
+    'Not'
 ]

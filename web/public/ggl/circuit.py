@@ -36,17 +36,17 @@ class Circuit:
         Each Node in the work queue does its function, and returns
         a list of any Nodes which must be re-evaluated
         """
-        # work = []
-        # for i in self.inputs:
-        #     work.append(i)
-        # while len(work) > 0:
-        #     node = work[0]
-        #     new_work = node.propagate()
-        #     work.remove(node)
-        #     if new_work:
-        #         work += new_work
-            # TODO: for cyclic circuits (SR-latch, D-flip-flop), well need
-            # to check for stable outputs to avoid infinite loops
+        work = []
+        for i in self.inputs:
+            work.append(i)
+        while len(work) > 0:
+            node = work[0]
+            new_work = node.propagate()
+            work.remove(node)
+            if new_work:
+                work += new_work
+
+        """       
         work = list(self.inputs)  # Start with all Input Nodes
         iteration = 0
 
@@ -75,13 +75,24 @@ class Circuit:
 
         if iteration == MAX_ITERATIONS:
             logger.warning("Circuit did not stabilize within max iterations.")
+        """
 
     def connect(self, src, dest):
         """
         Connect nodes using connectors or nodes directly.
         - For nodes with single outputs/inputs, can pass the node directly
         - For multiple outputs/inputs, must use node.output("name") or node.input("name")
+        - For component instances, automatically registers component nodes
         """
+        # Import here to avoid circular dependency
+        from .component import ComponentConnector
+        
+        # Handle component instances - register their nodes if needed
+        if isinstance(src, ComponentConnector):
+            self._ensure_component_registered(src.component_instance)
+        if isinstance(dest, ComponentConnector):
+            self._ensure_component_registered(dest.component_instance)
+        
         # Determine source
         if isinstance(src, Connector):
             srcnode, srcname = src.node, src.name
@@ -116,3 +127,48 @@ class Circuit:
             self.inputs.append(srcnode)
         
         self.all_nodes.update([srcnode, destnode])
+    
+    def _ensure_component_registered(self, component_instance):
+        """
+        Ensure all nodes from a component instance are registered with this circuit.
+        This is called automatically when connecting to/from component nodes.
+        
+        Args:
+            component_instance: ComponentInstance to register
+        """
+        # Track which component instances we've already registered
+        if not hasattr(self, '_registered_components'):
+            self._registered_components = set()
+        
+        # Skip if already registered
+        instance_id = id(component_instance)
+        if instance_id in self._registered_components:
+            return
+        
+        # Register all nodes from the component
+        for node in component_instance.get_all_nodes():
+            self.all_nodes.add(node)
+            
+            # Don't add component's internal Input nodes to our inputs list
+            # They're not top-level inputs for this circuit
+            
+        self._registered_components.add(instance_id)
+        logger.info(f"Registered component instance {instance_id} with circuit")
+    
+
+def Component(circuit):
+    """
+    Create a reusable component template from a circuit definition.
+    
+    This function implements the circuit.Component(c) syntax from the GGL spec.
+    It returns a constructor function that creates fresh instances.
+    
+    Args:
+        circuit: A Circuit instance containing the component definition
+        
+    Returns:
+        ComponentTemplate: A template that can be called to create instances
+    """
+    from .component import ComponentTemplate
+    return ComponentTemplate(circuit)
+

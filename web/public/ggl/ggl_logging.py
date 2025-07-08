@@ -72,4 +72,4 @@ def set_global_js_logging(use_js):
 
 def get_logger(name):
     """Get a logger instance with the current global settings"""
-    return GGLLogger(name, logging.WARNING, use_js=_global_use_js)
+    return GGLLogger(name, logging.WARN, use_js=_global_use_js)

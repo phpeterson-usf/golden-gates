@@ -88,5 +88,27 @@ rubric = 1
 [[tests]]
 name = "sr-latch"
 input = ["python3", "$project_tests/sr-latch.py"]
-expected = "1\n0"
+expected = """1
+0"""
+rubric = 1
+
+[[tests]]
+name = "full-adder-component"
+input = ["python3", "$project_tests/full-adder-component.py"]
+expected = """
+0
+1
+"""
+rubric = 1
+
+[[tests]]
+name = "ripple-adder-4bit"
+input = ["python3", "$project_tests/ripple-adder-4bit.py"]
+expected = """
+0
+0
+0
+1
+0
+"""
 rubric = 1

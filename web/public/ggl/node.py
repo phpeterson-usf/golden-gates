@@ -102,14 +102,31 @@ class Node:
         # should propagate go into self.outputs, passing kind and label?
         for name, edges in self.outputs.points.items():
             logger.info(f'{self.kind} {self.label} outpoint {name} propagates: {value}')
+            logger.debug(f"{self.kind} {self.label} has {len(edges)} output edges on port {name}")
             for e in edges:
                 e.propagate(value)
+                dest_nodes = e.get_dest_nodes()
+                logger.debug(f"Edge propagated to {len(dest_nodes)} destinations: {[n.label for n in dest_nodes]}")
                 # NB: use += to join the lists rather than append() a list to a list
-                new_work += e.get_dest_nodes()
+                new_work += dest_nodes
+        logger.debug(f"{self.kind} {self.label} returning {len(new_work)} nodes to work queue")
         return new_work
 
     def preflight(self):
         logger.error("Node preflight() must be overridden")
+    
+    def clone(self, instance_id):
+        """
+        Create a copy of this node with a new instance ID.
+        Subclasses should override this to handle their specific parameters.
+        
+        Args:
+            instance_id: Unique identifier to append to labels
+            
+        Returns:
+            Node: A new instance with the same configuration
+        """
+        raise NotImplementedError(f"clone() must be implemented by {self.__class__.__name__}")
 
 
 class BitsNode(Node):
@@ -121,3 +138,14 @@ class BitsNode(Node):
         outnames = [str(o) for o in range(num_outputs)]
         super().__init__(kind, innames, outnames, label)
         self.bits = bits
+    
+    def clone(self, instance_id):
+        """Clone a BitsNode - subclasses may override for more specific behavior"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return self.__class__(
+            kind=self.kind,
+            num_inputs=len(self.inputs.points),
+            num_outputs=len(self.outputs.points),
+            label=new_label,
+            bits=self.bits
+        )

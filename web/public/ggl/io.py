@@ -22,6 +22,11 @@ class Input(IONode):
 
     def propagate(self, value=0):
         return super().propagate(self.value)
+    
+    def clone(self, instance_id):
+        """Clone an Input node"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return Input(label=new_label, bits=self.bits)
         
 class Output(IONode):
     """
@@ -50,6 +55,12 @@ class Output(IONode):
                     logger.warning('updateCallback not found in builtins - should js_id be None?')
             except Exception as e:
                 logger.error(f'Callback failed: {e}')
+    
+    def clone(self, instance_id):
+        """Clone an Output node"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        # Don't clone js_id - it's specific to the original instance
+        return Output(label=new_label, bits=self.bits, js_id=None)
 
 
 class Constant(IONode):
