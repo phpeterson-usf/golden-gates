@@ -57,7 +57,9 @@ export function useWireManagement(components, gridSize) {
 
   // Add a waypoint to the wire being drawn
   function addWireWaypoint(mousePos) {
-    if (!drawingWire.value) return
+    if (!drawingWire.value || wirePoints.value.length === 0) return
+    
+    const lastPoint = wirePoints.value[wirePoints.value.length - 1]
     
     // Snap the waypoint to the grid
     const snappedPos = {
@@ -65,7 +67,24 @@ export function useWireManagement(components, gridSize) {
       y: Math.round(mousePos.y / gridSize) * gridSize
     }
     
-    wirePoints.value.push(snappedPos)
+    // Add orthogonal points based on current direction (same logic as getPreviewPoint)
+    if (wireDirection.value === 'horizontal') {
+      // Horizontal first
+      if (snappedPos.x !== lastPoint.x) {
+        wirePoints.value.push({ x: snappedPos.x, y: lastPoint.y })
+      }
+      if (snappedPos.x !== lastPoint.x || snappedPos.y !== lastPoint.y) {
+        wirePoints.value.push(snappedPos)
+      }
+    } else {
+      // Vertical first
+      if (snappedPos.y !== lastPoint.y) {
+        wirePoints.value.push({ x: lastPoint.x, y: snappedPos.y })
+      }
+      if (snappedPos.x !== lastPoint.x || snappedPos.y !== lastPoint.y) {
+        wirePoints.value.push(snappedPos)
+      }
+    }
     
     // Toggle direction for next segment
     wireDirection.value = wireDirection.value === 'horizontal' ? 'vertical' : 'horizontal'
