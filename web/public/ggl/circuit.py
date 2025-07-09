@@ -1,6 +1,7 @@
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import get_logger, set_global_js_logging
+from collections import deque
 
 logger = get_logger('circuit')
 
@@ -47,7 +48,7 @@ class Circuit:
                 work += new_work"""
 
                
-        work = list(self.all_nodes)                             # start with all input Nodes
+        """work = list(self.inputs)                                # start with all input Nodes
         iteration = 0
 
         while iteration < MAX_ITERATIONS:
@@ -76,70 +77,54 @@ class Circuit:
                 break
 
             work = list(new_work)
+        if iteration == MAX_ITERATIONS:
+            logger.warning("Circuit did not stabilize within max iterations.")"""
+
+        work = work = list(self.inputs)                                     # start with all input Nodes
+        iteration = 0
+
+        output_history = deque(maxlen=10)                                   # use deque to track last ten inputs so that it stops before max iterations if the output values do not change
+
+        for node in self.all_nodes:
+            for edges in node.outputs.points.values():
+                for edge in edges:
+                    edge.prev_value = edge.value
+
+        while iteration < MAX_ITERATIONS:       
+            iteration += 1
+            logger.info(f"Simulation iteration {iteration}")
+
+            new_work = set()
+
+            while work:                                                     # first in first out queue
+                node = work.pop(0)
+                downstream_nodes = node.propagate() or []
+
+                for n in downstream_nodes:                                  # queue nodes returned by propagate
+                    new_work.add(n)
+
+                for edges in node.outputs.points.values():                  # queue nodes downstream of changed edge values
+                    for edge in edges:
+                        if edge.prev_value != edge.value:
+                            for dest_node in edge.get_dest_nodes():
+                                new_work.add(dest_node)
+
+
+            output_vals = {node.label: node.value for node in self.outputs} # get output values
+            logger.info(f"Outputs at iteration {iteration}: {output_vals}")
+
+            output_history.append(output_vals)                              # append output values to output history
+
+
+            if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
+                logger.info("Circuit stabilized (same output values for 10 iterations).")
+                break                                                       # check if last 10 output states are the same + break out of loop
+
+            work = list(new_work)
 
         if iteration == MAX_ITERATIONS:
             logger.warning("Circuit did not stabilize within max iterations.")
-        """iteration = 0
 
-        while iteration < MAX_ITERATIONS:
-            iteration += 1
-            logger.info(f"Simulation iteration {iteration}")
-
-            changes = 0
-            new_work = []
-
-            for node in work:
-                downstream = node.propagate()
-
-                # after propagation, check if any connected edges changed
-                for edges in node.outputs.points.values():
-                    for edge in edges:
-                        if edge.prev_value != edge.value:
-                            changes += 1
-                            new_work += edge.get_dest_nodes()
-
-            if changes == 0:
-                logger.info("Circuit stabilized.")
-                break
-
-            work = list(set(new_work))  # remove duplicates to prevent cycling through
-
-        if iteration == MAX_ITERATIONS:
-            logger.warning("Circuit did not stabilize within max iterations.")"""
-        
-        """iteration = 0
-        prev_output_values = {}
-
-        for o in self.outputs:
-            prev_output_values[o] = o.value
-
-        work = list(self.inputs)
-
-        while iteration < MAX_ITERATIONS:
-            iteration += 1
-            logger.info(f"Simulation iteration {iteration}")
-
-            new_work = []
-
-            for node in work:
-                downstream = node.propagate()
-                if downstream:
-                    new_work.extend(downstream)
-
-            # Check if any outputs changed
-            stabilized = True
-            for o in self.outputs:
-                if o.value != prev_output_values[o]:
-                    stabilized = False
-                    prev_output_values[o] = o.value  # Update tracked value
-
-            if stabilized:
-                logger.info("Circuit stabilized.")
-                return
-
-            work = list(set(new_work))  # De-duplicate
-
-        logger.warning("Circuit did not stabilize within max iterations.")"""
 
     def connect(self, src, dest):
         """
