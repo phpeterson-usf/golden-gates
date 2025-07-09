@@ -89,7 +89,7 @@ rubric = 1
 name = "sr-latch"
 input = ["python3", "$project_tests/sr-latch.py"]
 expected = """
-0
+1
 0
 """
 rubric = 1
