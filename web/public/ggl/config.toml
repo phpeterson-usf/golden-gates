@@ -23,5 +23,5 @@
 # access_token = "your access token here"
 
 [Test]
-tests_path = "~/phpeterson-usf/golden-gates/web/public/ggl/tests"
+tests_path = "/Users/smrithipanuganti/Desktop/cs398/golden-gates/web/public/ggl/tests"
 # digital_path = "~/Digital/Digital.jar"

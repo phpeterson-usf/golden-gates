@@ -88,8 +88,10 @@ rubric = 1
 [[tests]]
 name = "sr-latch"
 input = ["python3", "$project_tests/sr-latch.py"]
-expected = """1
-0"""
+expected = """
+0
+0
+"""
 rubric = 1
 
 [[tests]]

@@ -36,7 +36,7 @@ class Circuit:
         Each Node in the work queue does its function, and returns
         a list of any Nodes which must be re-evaluated
         """
-        work = []
+        """work = []
         for i in self.inputs:
             work.append(i)
         while len(work) > 0:
@@ -44,11 +44,42 @@ class Circuit:
             new_work = node.propagate()
             work.remove(node)
             if new_work:
-                work += new_work
+                work += new_work"""
 
-        """       
-        work = list(self.inputs)  # Start with all Input Nodes
+               
+        work = list(self.all_nodes)                             # start with all input Nodes
         iteration = 0
+
+        while iteration < MAX_ITERATIONS:
+            iteration += 1
+            logger.info(f"Simulation iteration {iteration}")
+
+            changes = 0
+            new_work = set()
+
+            while work:
+                node = work.pop(0)                              # first in first out queue
+                downstream_nodes = node.propagate() or []
+
+                for n in downstream_nodes:                      # queue nodes returned by propagate
+                    new_work.add(n)
+
+                for edges in node.outputs.points.values():      # queue nodes downstream of changed edge values
+                    for edge in edges:
+                        if edge.prev_value != edge.value:
+                            changes += 1
+                            for dest_node in edge.get_dest_nodes():
+                                new_work.add(dest_node)
+
+            if not new_work and changes == 0:
+                logger.info("Circuit stabilized.")
+                break
+
+            work = list(new_work)
+
+        if iteration == MAX_ITERATIONS:
+            logger.warning("Circuit did not stabilize within max iterations.")
+        """iteration = 0
 
         while iteration < MAX_ITERATIONS:
             iteration += 1
@@ -74,8 +105,41 @@ class Circuit:
             work = list(set(new_work))  # remove duplicates to prevent cycling through
 
         if iteration == MAX_ITERATIONS:
-            logger.warning("Circuit did not stabilize within max iterations.")
-        """
+            logger.warning("Circuit did not stabilize within max iterations.")"""
+        
+        """iteration = 0
+        prev_output_values = {}
+
+        for o in self.outputs:
+            prev_output_values[o] = o.value
+
+        work = list(self.inputs)
+
+        while iteration < MAX_ITERATIONS:
+            iteration += 1
+            logger.info(f"Simulation iteration {iteration}")
+
+            new_work = []
+
+            for node in work:
+                downstream = node.propagate()
+                if downstream:
+                    new_work.extend(downstream)
+
+            # Check if any outputs changed
+            stabilized = True
+            for o in self.outputs:
+                if o.value != prev_output_values[o]:
+                    stabilized = False
+                    prev_output_values[o] = o.value  # Update tracked value
+
+            if stabilized:
+                logger.info("Circuit stabilized.")
+                return
+
+            work = list(set(new_work))  # De-duplicate
+
+        logger.warning("Circuit did not stabilize within max iterations.")"""
 
     def connect(self, src, dest):
         """
@@ -125,6 +189,8 @@ class Circuit:
         # Keep a list of Input Nodes so we can start the simulation from there
         if srcnode.kind == 'Input' and srcnode not in self.inputs:
             self.inputs.append(srcnode)
+        if destnode.kind == 'Output' and destnode not in self.outputs:
+            self.outputs.append(destnode)
         
         self.all_nodes.update([srcnode, destnode])
     
