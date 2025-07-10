@@ -42,34 +42,17 @@ class Output(IONode):
         self.value = self.get_input_edge('0').value
         logger.info(f'Output {self.label} gets value {self.value}')
         
-        # If we have a js_id and a callback is registered, notify JavaScript
-        """if self.js_id:
-            logger.info(f'Output {self.label} (js_id={self.js_id}) attempting callback with value {self.value}')
-            try:
-                import builtins
-                if hasattr(builtins, 'updateCallback'):
-                    updateCallback = builtins.updateCallback
-                    updateCallback(self.js_id, self.value)
-                    logger.info(f'Callback successful for {self.js_id}')
-                else:
-                    logger.warning('updateCallback not found in builtins - should js_id be None?')
-            except Exception as e:
-                logger.error(f'Callback failed: {e}')"""
-        # method only calls updateCallback when output changes
-        old_value = self.value
-        self.value = self.get_input_edge('0').value
-        logger.info(f'Output {self.label} gets value {self.value}')
-
-        if self.value != old_value and self.js_id:
-            try:
-                import builtins
-                if hasattr(builtins, 'updateCallback'):
-                    updateCallback = builtins.updateCallback
-                    updateCallback(self.js_id, self.value)
-                else:
-                    logger.warning('updateCallback not found in builtins - should js_id be None?')
-            except Exception as e:
-                logger.error(f'Callback failed: {e}')
+        try:
+            import builtins
+            # If we have a JS object ID and we're running under pyodide,
+            # use the pyodide API to update the value of the JS object
+            if self.js_id and hasattr(builtins, 'updateCallback'):
+                updateCallback = builtins.updateCallback
+                updateCallback(self.js_id, self.value)
+            else:
+                logger.warning('updateCallback not found in builtins - should js_id be None?')
+        except Exception as e:
+            logger.error(f'Callback failed: {e}')
     
     def clone(self, instance_id):
         """Clone an Output node"""
