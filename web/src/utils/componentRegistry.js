@@ -100,6 +100,97 @@ export const componentRegistry = {
     defaultProps: {
       circuitId: '',
       label: 'Component'
+    },
+    // Dynamic connections based on the circuit it represents
+    getConnections: (props, circuitManager) => {
+      if (!props.circuitId || !circuitManager) {
+        // Default single input/output if no circuit specified
+        return {
+          inputs: [{ x: 0, y: 0 }],
+          outputs: [{ x: 90, y: 0 }] // Default width of 90px (6 grid units)
+        }
+      }
+      
+      const circuit = circuitManager.getCircuit(props.circuitId)
+      if (!circuit) {
+        return {
+          inputs: [{ x: 0, y: 0 }],
+          outputs: [{ x: 90, y: 0 }]
+        }
+      }
+      
+      // Analyze circuit to find inputs and outputs
+      const inputs = []
+      const outputs = []
+      
+      circuit.components.forEach(component => {
+        if (component.type === 'input') {
+          inputs.push({
+            id: component.id,
+            label: component.props?.label || 'IN',
+            bits: component.props?.bits || 1
+          })
+        } else if (component.type === 'output') {
+          outputs.push({
+            id: component.id,
+            label: component.props?.label || 'OUT',
+            bits: component.props?.bits || 1
+          })
+        }
+      })
+      
+      // Calculate grid-aligned dimensions
+      const maxPorts = Math.max(inputs.length, outputs.length, 1)
+      const minHeight = 4 * GRID_SIZE // 2 above + 2 below
+      const heightForPorts = maxPorts * 2 * GRID_SIZE // 2 grid units per port
+      const height = Math.max(minHeight, heightForPorts)
+      const width = 6 * GRID_SIZE // 90px
+      
+      // Calculate connection positions
+      const inputConnections = inputs.length === 0 ? 
+        [{ x: 0, y: Math.round(height / 2 / GRID_SIZE) * GRID_SIZE }] :
+        inputs.map((input, index) => {
+          const topMargin = GRID_SIZE
+          const availableHeight = height - 2 * topMargin
+          const spacing = availableHeight / (inputs.length - 1)
+          
+          let y
+          if (inputs.length === 1) {
+            y = height / 2
+          } else {
+            y = topMargin + index * spacing
+          }
+          
+          // Snap to nearest grid vertex
+          y = Math.round(y / GRID_SIZE) * GRID_SIZE
+          
+          return { x: 0, y }
+        })
+      
+      const outputConnections = outputs.length === 0 ? 
+        [{ x: width, y: Math.round(height / 2 / GRID_SIZE) * GRID_SIZE }] :
+        outputs.map((output, index) => {
+          const topMargin = GRID_SIZE
+          const availableHeight = height - 2 * topMargin
+          const spacing = availableHeight / (outputs.length - 1)
+          
+          let y
+          if (outputs.length === 1) {
+            y = height / 2
+          } else {
+            y = topMargin + index * spacing
+          }
+          
+          // Snap to nearest grid vertex
+          y = Math.round(y / GRID_SIZE) * GRID_SIZE
+          
+          return { x: width, y }
+        })
+      
+      return {
+        inputs: inputConnections,
+        outputs: outputConnections
+      }
     }
   }
   

@@ -246,7 +246,7 @@ export default {
           circuit.wireJunctions.splice(index, 1)
         }
       }
-    })
+    }, props.circuitManager)
     const {
       selectedWires,
       drawingWire,
@@ -413,7 +413,7 @@ export default {
     })
     
     function getCircuitData() {
-      return generateGglProgram(components.value, wires.value, wireJunctions.value, componentRefs.value, componentInstances.value)
+      return generateGglProgram(components.value, wires.value, wireJunctions.value, componentRefs.value, componentInstances.value, props.circuitManager)
     }
     
     

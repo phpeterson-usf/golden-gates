@@ -235,7 +235,7 @@ export function useCanvasInteractions(circuitManager, canvasOperations, wireMana
           const config = componentRegistry[component.type]
           let connections
           if (config.getConnections) {
-            connections = config.getConnections(component.props)
+            connections = config.getConnections(component.props, circuitManager)
           } else {
             connections = config.connections
           }

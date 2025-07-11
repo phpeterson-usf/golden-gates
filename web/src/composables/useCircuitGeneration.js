@@ -3,7 +3,7 @@ import { componentRegistry } from '../utils/componentRegistry'
 export function useCircuitGeneration() {
   
   // Helper function to find component at a connection point
-  function findComponentAtConnection(components, connection) {
+  function findComponentAtConnection(components, connection, circuitManager = null) {
     for (const component of components) {
       const config = componentRegistry[component.type]
       if (!config) continue
@@ -11,7 +11,7 @@ export function useCircuitGeneration() {
       // Get connections for this component
       let connections
       if (config.getConnections) {
-        connections = config.getConnections(component.props)
+        connections = config.getConnections(component.props, circuitManager)
       } else {
         connections = config.connections
       }
@@ -41,7 +41,7 @@ export function useCircuitGeneration() {
     return null
   }
   
-  function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances) {
+  function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances, circuitManager = null) {
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
@@ -82,12 +82,12 @@ export function useCircuitGeneration() {
       
       // Find all components connected downstream from this one
       const outgoingWires = wires.filter(w => {
-        const sourceComp = findComponentAtConnection(components, w.startConnection)
+        const sourceComp = findComponentAtConnection(components, w.startConnection, circuitManager)
         return sourceComp && sourceComp.id === component.id
       })
       
       for (const wire of outgoingWires) {
-        const destComp = findComponentAtConnection(components, wire.endConnection)
+        const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
         if (destComp && !visited.has(destComp.id)) {
           visited.add(destComp.id)
           queue.push(destComp)
@@ -142,8 +142,8 @@ export function useCircuitGeneration() {
         continue
       }
       
-      const sourceComp = findComponentAtConnection(components, wire.startConnection)
-      const destComp = findComponentAtConnection(components, wire.endConnection)
+      const sourceComp = findComponentAtConnection(components, wire.startConnection, circuitManager)
+      const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
       
       if (!sourceComp || !destComp) {
         // Check if this wire is from a junction - if so, it will be handled later
@@ -167,7 +167,7 @@ export function useCircuitGeneration() {
       
       if (!processedConnections.has(connectionKey)) {
         processedConnections.add(connectionKey)
-        sections.push(generateConnection(wire, components, componentVarNames, sourceVarName, destVarName, circuitVarName))
+        sections.push(generateConnection(wire, components, componentVarNames, sourceVarName, destVarName, circuitVarName, circuitManager))
       }
     }
     
@@ -180,8 +180,8 @@ export function useCircuitGeneration() {
         if (!sourceWire) continue
         
         // Process the original source wire connection first
-        const sourceWireStart = findComponentAtConnection(components, sourceWire.startConnection)
-        const sourceWireEnd = findComponentAtConnection(components, sourceWire.endConnection)
+        const sourceWireStart = findComponentAtConnection(components, sourceWire.startConnection, circuitManager)
+        const sourceWireEnd = findComponentAtConnection(components, sourceWire.endConnection, circuitManager)
         
         if (sourceWireStart && sourceWireEnd) {
           const startVarName = componentVarNames[sourceWireStart.id]
@@ -192,7 +192,7 @@ export function useCircuitGeneration() {
             
             if (!processedConnections.has(connectionKey)) {
               processedConnections.add(connectionKey)
-              sections.push(generateConnection(sourceWire, components, componentVarNames, startVarName, endVarName, circuitVarName))
+              sections.push(generateConnection(sourceWire, components, componentVarNames, startVarName, endVarName, circuitVarName, circuitManager))
             }
           }
         }
@@ -202,7 +202,7 @@ export function useCircuitGeneration() {
         
         for (const junctionWire of junctionWires) {
           // Each junction wire connects from the source wire's start to its own end
-          const junctionDest = findComponentAtConnection(components, junctionWire.endConnection)
+          const junctionDest = findComponentAtConnection(components, junctionWire.endConnection, circuitManager)
           
           if (sourceWireStart && junctionDest) {
             const sourceVarName = componentVarNames[sourceWireStart.id]
@@ -220,7 +220,7 @@ export function useCircuitGeneration() {
                   endConnection: junctionWire.endConnection
                 }
                 
-                sections.push(generateConnection(virtualWire, components, componentVarNames, sourceVarName, destVarName, circuitVarName))
+                sections.push(generateConnection(virtualWire, components, componentVarNames, sourceVarName, destVarName, circuitVarName, circuitManager))
               }
             }
           }
@@ -233,13 +233,13 @@ export function useCircuitGeneration() {
     return sections.join('\n')
   }
   
-  function generateConnection(wire, components, componentVarNames, sourceVarName, destVarName, circuitVarName) {
+  function generateConnection(wire, components, componentVarNames, sourceVarName, destVarName, circuitVarName, circuitManager = null) {
     const sourcePort = wire.startConnection.portIndex
     const destPort = wire.endConnection.portIndex
     
     // Find the source and destination components by position
-    const sourceComp = findComponentAtConnection(components, wire.startConnection)
-    const destComp = findComponentAtConnection(components, wire.endConnection)
+    const sourceComp = findComponentAtConnection(components, wire.startConnection, circuitManager)
+    const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
     
     if (!sourceComp || !destComp) {
       console.error('Could not find components for wire connection')

@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useWireManagement(components, gridSize, callbacks = {}) {
+export function useWireManagement(components, gridSize, callbacks = {}, circuitManager = null) {
   // Wire state - use passed refs or create local ones
   const wires = callbacks.wires || ref([])
   const wireJunctions = callbacks.wireJunctions || ref([])
@@ -32,7 +32,7 @@ export function useWireManagement(components, gridSize, callbacks = {}) {
     let connections
     if (config.getConnections) {
       // Use dynamic connections if available
-      const dynamicConnections = config.getConnections(component.props)
+      const dynamicConnections = config.getConnections(component.props, circuitManager)
       connections = portType === 'output' ? dynamicConnections.outputs : dynamicConnections.inputs
     } else {
       // Use static connections
@@ -119,7 +119,7 @@ export function useWireManagement(components, gridSize, callbacks = {}) {
     let connections
     if (config.getConnections) {
       // Use dynamic connections if available
-      const dynamicConnections = config.getConnections(component.props)
+      const dynamicConnections = config.getConnections(component.props, circuitManager)
       connections = portType === 'output' ? dynamicConnections.outputs : dynamicConnections.inputs
     } else {
       // Use static connections
@@ -417,7 +417,7 @@ export function useWireManagement(components, gridSize, callbacks = {}) {
     // Get all connection points for this component
     let connections
     if (config.getConnections) {
-      connections = config.getConnections(component.props)
+      connections = config.getConnections(component.props, circuitManager)
     } else {
       connections = config.connections
     }
