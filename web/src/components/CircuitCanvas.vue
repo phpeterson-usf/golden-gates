@@ -222,10 +222,30 @@ export default {
     const wireManagement = useWireManagement(components, gridSize.value, {
       wires: wires,
       wireJunctions: wireJunctions,
-      addWire: (wire) => activeCircuit.value?.wires.push(wire),
-      removeWire: (index) => activeCircuit.value?.wires.splice(index, 1),
-      addWireJunction: (junction) => activeCircuit.value?.wireJunctions.push(junction),
-      removeWireJunction: (index) => activeCircuit.value?.wireJunctions.splice(index, 1)
+      addWire: (wire) => {
+        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+        if (circuit?.wires) {
+          circuit.wires.push(wire)
+        }
+      },
+      removeWire: (index) => {
+        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+        if (circuit?.wires) {
+          circuit.wires.splice(index, 1)
+        }
+      },
+      addWireJunction: (junction) => {
+        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+        if (circuit?.wireJunctions) {
+          circuit.wireJunctions.push(junction)
+        }
+      },
+      removeWireJunction: (index) => {
+        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+        if (circuit?.wireJunctions) {
+          circuit.wireJunctions.splice(index, 1)
+        }
+      }
     })
     const {
       selectedWires,
@@ -253,8 +273,11 @@ export default {
         componentIds.forEach(id => removeComponent(id))
       },
       (index) => {
-        // Delete wires via circuit manager
-        activeCircuit.value?.wires.splice(index, 1)
+        // Delete wires via circuit manager - access raw circuit data
+        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+        if (circuit?.wires) {
+          circuit.wires.splice(index, 1)
+        }
       }
     )
     const {

@@ -369,13 +369,23 @@ export function useWireManagement(components, gridSize, callbacks = {}) {
 
   // Clean up junctions when wires are deleted
   function cleanupJunctionsForDeletedWires(deletedIndices, deletedWireIds) {
-    wireJunctions.value = wireJunctions.value.filter(junction => {
+    // Find which junctions need to be removed (in reverse order to avoid index shifting)
+    const junctionsToRemove = []
+    
+    wireJunctions.value.forEach((junction, index) => {
       // Remove junctions that were created from deleted wires
       const isSourceDeleted = deletedIndices.includes(junction.sourceWireIndex)
       // Remove junctions that connect to deleted wires
       const isConnectedDeleted = deletedWireIds.includes(junction.connectedWireId)
       
-      return !isSourceDeleted && !isConnectedDeleted
+      if (isSourceDeleted || isConnectedDeleted) {
+        junctionsToRemove.push(index)
+      }
+    })
+    
+    // Remove junctions using callback (in reverse order)
+    junctionsToRemove.reverse().forEach(index => {
+      removeWireJunction(index)
     })
   }
 
@@ -387,8 +397,9 @@ export function useWireManagement(components, gridSize, callbacks = {}) {
     // Get the wire IDs that will be deleted
     const deletedWireIds = indicesToDelete.map(index => wires.value[index]?.id).filter(id => id)
     
+    // Delete wires using callback
     indicesToDelete.forEach(index => {
-      wires.value.splice(index, 1)
+      removeWire(index)
     })
     
     // Clean up junctions
