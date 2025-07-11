@@ -2,7 +2,6 @@
   <g 
     :transform="`translate(${x}, ${y})`"
     :class="['base-circuit-component', componentClass]"
-    @mousedown="handleMouseDown"
     @dblclick="handleDoubleClick"
   >
     <!-- Component body - can be overridden by child components -->
@@ -18,6 +17,7 @@
         :rx="borderRadius"
         :ry="borderRadius"
         class="component-body"
+        @mousedown="handleMouseDown"
       />
     </slot>
     

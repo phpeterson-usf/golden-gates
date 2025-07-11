@@ -10,6 +10,9 @@
     :input-connections="inputConnections"
     :output-connections="outputConnections"
     :enable-double-click="true"
+    :connection-fill-color="COLORS.connectionFill"
+    :connection-stroke-color="COLORS.connectionFill"
+    :connection-stroke-width="0"
     component-class="schematic-component"
     @startDrag="$emit('startDrag', $event)"
     @doubleClick="handleDoubleClick"
@@ -51,7 +54,7 @@
 import { computed } from 'vue'
 import BaseCircuitComponent from './BaseCircuitComponent.vue'
 import { draggableProps } from '../composables/useDraggable'
-import { GRID_SIZE } from '../utils/constants'
+import { GRID_SIZE, COLORS } from '../utils/constants'
 
 export default {
   name: 'SchematicComponent',
@@ -210,7 +213,8 @@ export default {
       componentBounds,
       labelPosition,
       inputConnections,
-      outputConnections
+      outputConnections,
+      COLORS
     }
   }
 }
