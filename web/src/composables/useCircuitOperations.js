@@ -28,7 +28,7 @@ export function useCircuitOperations(circuitManager) {
    */
   function createNewCircuit() {
     const circuitCount = circuitManager.allCircuits.value.size + 1
-    circuitManager.createCircuit(`Circuit ${circuitCount}`)
+    circuitManager.createCircuit(`Circuit${circuitCount}`)
   }
   
   /**

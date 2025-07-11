@@ -91,14 +91,14 @@ export function useCircuitManager() {
     const circuit = {
       id,
       name: name || `Circuit${nextCircuitId.value - 1}`,
-      label: options.label || name || `Circuit ${nextCircuitId.value - 1}`,
+      label: options.label || (name ? name.replace(/Circuit(\d+)/, 'Circuit $1') : `Circuit ${nextCircuitId.value - 1}`),
       components: [],
       wires: [],
       wireJunctions: [],
       // Circuit properties that appear in inspector
       properties: {
         name: name || `Circuit${nextCircuitId.value - 1}`,
-        label: options.label || name || `Circuit ${nextCircuitId.value - 1}`,
+        label: options.label || (name ? name.replace(/Circuit(\d+)/, 'Circuit $1') : `Circuit ${nextCircuitId.value - 1}`),
         // Interface definition for when used as a component
         interface: {
           inputs: options.interface?.inputs || [],
