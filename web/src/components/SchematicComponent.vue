@@ -51,6 +51,7 @@
 import { computed } from 'vue'
 import BaseCircuitComponent from './BaseCircuitComponent.vue'
 import { draggableProps } from '../composables/useDraggable'
+import { GRID_SIZE } from '../utils/constants'
 
 export default {
   name: 'SchematicComponent',
@@ -120,9 +121,15 @@ export default {
       const outputs = circuitInterface.value?.outputs || []
       const maxPorts = Math.max(inputs.length, outputs.length, 1)
       
-      // Calculate height based on number of ports (minimum 60px, 20px per port)
-      const height = Math.max(60, maxPorts * 20 + 20)
-      const width = 80
+      // Calculate grid-aligned dimensions
+      // Width: 6 grid units (90px) - should be divisible by GRID_SIZE
+      const width = 6 * GRID_SIZE
+      
+      // Height: Ensure connection points align with grid
+      // Need at least 2 grid units above and below, plus 2 grid units per port
+      const minHeight = 4 * GRID_SIZE // 2 above + 2 below
+      const heightForPorts = maxPorts * 2 * GRID_SIZE // 2 grid units per port
+      const height = Math.max(minHeight, heightForPorts)
       
       return { x: 0, y: 0, width, height }
     })
@@ -137,12 +144,29 @@ export default {
       const bounds = componentBounds.value
       
       if (inputs.length === 0) {
-        // Default single input for backward compatibility
-        return [{ x: 0, y: bounds.height / 2 }]
+        // Default single input at center, snapped to grid
+        const centerY = Math.round(bounds.height / 2 / GRID_SIZE) * GRID_SIZE
+        return [{ x: 0, y: centerY }]
       }
       
       return inputs.map((input, index) => {
-        const y = (bounds.height / (inputs.length + 1)) * (index + 1)
+        // Distribute inputs evenly, starting from top margin
+        const topMargin = GRID_SIZE // 1 grid unit from top
+        const availableHeight = bounds.height - 2 * topMargin
+        const spacing = availableHeight / (inputs.length - 1)
+        
+        let y
+        if (inputs.length === 1) {
+          // Single input at center
+          y = bounds.height / 2
+        } else {
+          // Multiple inputs distributed evenly
+          y = topMargin + index * spacing
+        }
+        
+        // Snap to nearest grid vertex
+        y = Math.round(y / GRID_SIZE) * GRID_SIZE
+        
         return { x: 0, y }
       })
     })
@@ -152,12 +176,29 @@ export default {
       const bounds = componentBounds.value
       
       if (outputs.length === 0) {
-        // Default single output for backward compatibility
-        return [{ x: bounds.width, y: bounds.height / 2 }]
+        // Default single output at center, snapped to grid
+        const centerY = Math.round(bounds.height / 2 / GRID_SIZE) * GRID_SIZE
+        return [{ x: bounds.width, y: centerY }]
       }
       
       return outputs.map((output, index) => {
-        const y = (bounds.height / (outputs.length + 1)) * (index + 1)
+        // Distribute outputs evenly, starting from top margin
+        const topMargin = GRID_SIZE // 1 grid unit from top
+        const availableHeight = bounds.height - 2 * topMargin
+        const spacing = availableHeight / (outputs.length - 1)
+        
+        let y
+        if (outputs.length === 1) {
+          // Single output at center
+          y = bounds.height / 2
+        } else {
+          // Multiple outputs distributed evenly
+          y = topMargin + index * spacing
+        }
+        
+        // Snap to nearest grid vertex
+        y = Math.round(y / GRID_SIZE) * GRID_SIZE
+        
         return { x: bounds.width, y }
       })
     })
