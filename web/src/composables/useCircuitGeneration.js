@@ -2,6 +2,116 @@ import { componentRegistry } from '../utils/componentRegistry'
 
 export function useCircuitGeneration() {
   
+  // Helper function to find required component imports for circuit generation
+  function findRequiredComponentImportsForGeneration(components, circuitManager) {
+    if (!circuitManager) return ''
+    
+    const imports = new Set()
+    
+    components.forEach(comp => {
+      if (comp.type === 'schematic-component') {
+        const circuitId = comp.props?.circuitId || comp.circuitId
+        const componentDef = circuitManager.getComponentDefinition(circuitId)
+        if (componentDef) {
+          imports.add(`from ${componentDef.name} import ${componentDef.name}`)
+        }
+      }
+    })
+    
+    return Array.from(imports).join('\n')
+  }
+  
+  // Helper function to generate component code from registry
+  function generateComponentCode(component, varName) {
+    const config = componentRegistry[component.type]
+    if (!config) {
+      console.error(`No registry config found for component type: ${component.type}`)
+      return null
+    }
+
+    const props = component.props || {}
+    
+    switch (component.type) {
+      case 'input':
+        return `${varName} = io.Input(bits=${props.bits || 1}, label="${props.label || 'IN'}")\n${varName}.value = ${props.value || 0}`
+      
+      case 'output':
+        return `${varName} = io.Output(bits=${props.bits || 1}, label="${props.label || 'OUT'}", js_id="${component.id}")`
+      
+      case 'and-gate':
+        return `${varName} = logic.And(label="${props.label || 'and1'}")`
+      
+      case 'or-gate':
+        return `${varName} = logic.Or(label="${props.label || 'or1'}")`
+      
+      case 'not-gate':
+        return `${varName} = logic.Not(label="${props.label || 'not1'}")`
+      
+      case 'nand-gate':
+        return `${varName} = logic.Nand(label="${props.label || 'nand1'}")`
+      
+      case 'nor-gate':
+        return `${varName} = logic.Nor(label="${props.label || 'nor1'}")`
+      
+      case 'xor-gate':
+        return `${varName} = logic.Xor(label="${props.label || 'xor1'}")`
+      
+      case 'xnor-gate':
+        return `${varName} = logic.Xnor(label="${props.label || 'xnor1'}")`
+      
+      case 'buffer':
+        return `${varName} = logic.Buffer(label="${props.label || 'buf1'}")`
+      
+      default:
+        console.warn(`Unknown component type for code generation: ${component.type}`)
+        return null
+    }
+  }
+
+  // Helper function to get component outputs (handles both registry and schematic components)
+  function getComponentOutputs(component, circuitManager) {
+    if (component.type === 'schematic-component') {
+      const circuitId = component.props?.circuitId || component.circuitId
+      const componentDef = circuitManager?.getComponentDefinition?.(circuitId)
+      return componentDef?.interface?.outputs || []
+    } else {
+      const config = componentRegistry[component.type]
+      return config?.connections?.outputs || []
+    }
+  }
+
+  // Helper function to get component inputs (handles both registry and schematic components)
+  function getComponentInputs(component, circuitManager) {
+    if (component.type === 'schematic-component') {
+      const circuitId = component.props?.circuitId || component.circuitId
+      const componentDef = circuitManager?.getComponentDefinition?.(circuitId)
+      return componentDef?.interface?.inputs || []
+    } else {
+      const config = componentRegistry[component.type]
+      return config?.connections?.inputs || []
+    }
+  }
+
+  // Helper function to get port name from port index
+  function getPortName(ports, portIndex, portType) {
+    if (ports && ports[portIndex]) {
+      const port = ports[portIndex]
+      
+      // For schematic components, use the label from the interface
+      if (port.label) {
+        return port.label
+      }
+      
+      // Fallback to port id if no label
+      if (port.id) {
+        return port.id
+      }
+    }
+    
+    // Fallback to port index for regular components or when no name is found
+    return portIndex.toString()
+  }
+
   // Helper function to find component at a connection point
   function findComponentAtConnection(components, connection, circuitManager = null) {
     for (const component of components) {
@@ -47,6 +157,13 @@ export function useCircuitGeneration() {
     
     // Header
     sections.push('from ggl import io, logic, circuit')
+    
+    // Import all circuit components used in this circuit
+    const componentImports = findRequiredComponentImportsForGeneration(components, circuitManager)
+    if (componentImports) {
+      sections.push(componentImports)
+    }
+    
     sections.push('')
     sections.push(`${circuitVarName} = circuit.Circuit(js_logging=True)`)
     sections.push('')
@@ -104,22 +221,53 @@ export function useCircuitGeneration() {
     
     // Generate all component declarations first
     for (const component of componentOrder) {
-      // Get the component instance and call its generate() method
-      const instance = componentInstances[component.id]
-      if (!instance || !instance.generate) {
-        console.error(`Component ${component.id} has no generate method`)
-        continue
+      let varName
+      
+      if (component.type === 'schematic-component') {
+        // Handle schematic components (saved circuits)
+        const circuitId = component.props?.circuitId || component.circuitId
+        const componentDef = circuitManager?.getComponentDefinition?.(circuitId)
+        if (componentDef) {
+          // Create meaningful variable name based on the circuit name
+          const baseName = componentDef.name.toLowerCase()
+          const instanceCount = componentOrder.filter(c => 
+            c.type === 'schematic-component' && 
+            (c.props?.circuitId || c.circuitId) === circuitId
+          ).indexOf(component) + 1
+          varName = `${baseName}_${instanceCount}`
+          componentVarNames[component.id] = varName
+          sections.push(`${varName} = ${componentDef.name}()`)
+        } else {
+          console.error(`Schematic component definition not found for ${circuitId}`)
+          varName = `comp_${component.id.replace(/-/g, '_')}`
+          componentVarNames[component.id] = varName
+        }
+      } else {
+        // Handle regular components (input, output, logic gates)
+        varName = `comp_${component.id.replace(/-/g, '_')}`
+        componentVarNames[component.id] = varName
+        
+        const instance = componentInstances[component.id]
+        if (instance && instance.generate) {
+          // Use the component's own generate() method if available
+          const generated = instance.generate()
+          
+          // Update varName to match our naming convention
+          componentVarNames[component.id] = generated.varName
+          
+          // Create component
+          sections.push(generated.code)
+        } else {
+          // Fallback: Generate code directly from component registry
+          const generatedCode = generateComponentCode(component, varName)
+          if (generatedCode) {
+            sections.push(generatedCode)
+          } else {
+            console.error(`Could not generate code for component ${component.id} of type ${component.type}`)
+            continue
+          }
+        }
       }
-      
-      // Use the component's own generate() method
-      const generated = instance.generate()
-      const varName = generated.varName
-      
-      // Store the variable name for later use
-      componentVarNames[component.id] = varName
-      
-      // Create component
-      sections.push(generated.code)
     }
     
     sections.push('')
@@ -246,24 +394,24 @@ export function useCircuitGeneration() {
       return ''
     }
     
-    // Get component definitions from registry
-    const sourceConfig = componentRegistry[sourceComp.type]
-    const destConfig = componentRegistry[destComp.type]
+    // Get component configurations (either from registry or schematic definitions)
+    const sourceOutputs = getComponentOutputs(sourceComp, circuitManager)
+    const destInputs = getComponentInputs(destComp, circuitManager)
     
     // Generate connection based on number of ports
     let sourceExpr = sourceVarName
     let destExpr = destVarName
     
     // Only add output specifier if component has multiple outputs
-    const sourceOutputs = sourceConfig?.connections?.outputs || []
     if (sourceOutputs.length > 1) {
-      sourceExpr = `${sourceVarName}.output("${sourcePort}")`
+      const outputName = getPortName(sourceOutputs, sourcePort, 'output')
+      sourceExpr = `${sourceVarName}.output("${outputName}")`
     }
     
     // Only add input specifier if component has multiple inputs
-    const destInputs = destConfig?.connections?.inputs || []
     if (destInputs.length > 1) {
-      destExpr = `${destVarName}.input("${destPort}")`
+      const inputName = getPortName(destInputs, destPort, 'input')
+      destExpr = `${destVarName}.input("${inputName}")`
     }
     
     // Generate descriptive comment

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useFileOperations } from './useFileOperations'
 import { usePyodide } from './usePyodide'
+import { writeAllCircuitComponentsToPyodideMemfs, configurePythonImportPathForMemfs, executePythonProgramInPyodide } from './usePyodideMemfs'
 
 /**
  * Circuit Operations - Business logic for circuit management
@@ -66,9 +67,9 @@ export function useCircuitOperations(circuitManager) {
   }
   
   /**
-   * Run simulation on the current circuit
+   * Run simulation on the current circuit with support for hierarchical circuits
    */
-  async function runSimulation(canvasRef) {
+  async function runCircuitSimulationWithHierarchy(canvasRef) {
     isRunning.value = true
     
     try {
@@ -78,68 +79,89 @@ export function useCircuitOperations(circuitManager) {
         await initializePyodide()
       }
       
-      // Get circuit data from canvas
-      const circuitData = canvasRef?.getCircuitData()
+      // Get the actual Pyodide instance (not the reactive wrapper)
+      const pyodideInstance = pyodide.value
       
-      if (!circuitData) {
-        console.error('Unable to get circuit data')
-        return
+      // Step 1: Write all saved circuit components as Python modules to MEMFS
+      console.log('Writing circuit components to Pyodide MEMFS...')
+      await writeAllCircuitComponentsToPyodideMemfs(circuitManager, pyodideInstance)
+      
+      // Step 2: Configure Python import path for MEMFS (optional - MEMFS might already be in path)
+      try {
+        configurePythonImportPathForMemfs(pyodideInstance)
+      } catch (e) {
+        console.warn('Could not configure Python import path, continuing anyway:', e)
       }
       
-      if (!circuitData || circuitData.trim() === '') {
+      // Step 3: Generate GGL program for the current circuit
+      const mainCircuitGglProgram = generateGglProgramForCurrentCircuit(canvasRef)
+      
+      if (!mainCircuitGglProgram || mainCircuitGglProgram.trim() === '') {
         console.log('No components in circuit')
         return
       }
       
-      // The circuitData is now the complete GGL program
-      const gglProgram = circuitData
+      console.log('Generated hierarchical GGL program:')
+      console.log(mainCircuitGglProgram)
       
-      console.log('Generated GGL program:')
-      console.log(gglProgram)
+      // Step 4: Set up callback for Python to update Vue components
+      setupPythonVueUpdateCallback(canvasRef)
       
-      // Create callback for Python to update Vue components
-      window.__vueUpdateCallback = (componentId, value) => {
-        console.log(`Output ${componentId} updated to ${value}`)
-        // Update the component in the canvas
-        if (canvasRef) {
-          const component = canvasRef.components.find(c => c.id === componentId)
-          if (component && component.type === 'output') {
-            // Create a new component object to ensure Vue detects the change
-            const updatedComponent = {
-              ...component,
-              props: {
-                ...component.props,
-                value: value
-              }
-            }
-            canvasRef.updateComponent(updatedComponent)
-          }
-        }
-      }
+      // Step 5: Execute the complete hierarchical circuit program
+      await executePythonProgramInPyodide(mainCircuitGglProgram, pyodideInstance)
       
-      // Execute the GGL program
-      const pythonCode = `
-# Make updateCallback available in builtins so all modules can access it
-import builtins
-import js
-builtins.updateCallback = js.window.__vueUpdateCallback
-
-# Execute the GGL program
-exec(${JSON.stringify(gglProgram)})
-
-# Return success
-"Simulation completed"
-`
-      
-      await runPython(pythonCode)
-      console.log('Simulation completed')
+      console.log('Hierarchical circuit simulation completed successfully')
       
     } catch (err) {
-      console.error('Simulation error:', err)
-      // TODO: Show error to user
+      console.error('Hierarchical circuit simulation error:', err)
+      // TODO: Show error to user with more specific error handling
     } finally {
       isRunning.value = false
     }
+  }
+  
+  /**
+   * Generate GGL program for the current circuit (with hierarchical support)
+   */
+  function generateGglProgramForCurrentCircuit(canvasRef) {
+    const components = canvasRef?.components || []
+    const wires = canvasRef?.wires || []
+    const wireJunctions = canvasRef?.wireJunctions || []
+    const componentRefs = canvasRef?.componentRefs || {}
+    const componentInstances = canvasRef?.componentInstances || {}
+    
+    return canvasRef?.getCircuitData() || ''
+  }
+  
+  /**
+   * Set up the callback for Python to update Vue components
+   */
+  function setupPythonVueUpdateCallback(canvasRef) {
+    window.__vueUpdateCallback = (componentId, value) => {
+      console.log(`Output ${componentId} updated to ${value}`)
+      // Update the component in the canvas
+      if (canvasRef) {
+        const component = canvasRef.components.find(c => c.id === componentId)
+        if (component && component.type === 'output') {
+          // Create a new component object to ensure Vue detects the change
+          const updatedComponent = {
+            ...component,
+            props: {
+              ...component.props,
+              value: value
+            }
+          }
+          canvasRef.updateComponent(updatedComponent)
+        }
+      }
+    }
+  }
+  
+  /**
+   * Legacy simulation function for backwards compatibility
+   */
+  async function runSimulation(canvasRef) {
+    return await runCircuitSimulationWithHierarchy(canvasRef)
   }
   
   /**
@@ -312,6 +334,7 @@ exec(${JSON.stringify(gglProgram)})
     // Circuit operations
     createNewCircuit,
     runSimulation,
+    runCircuitSimulationWithHierarchy,
     stopSimulation,
     saveCircuit,
     openCircuit,

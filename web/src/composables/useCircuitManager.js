@@ -457,6 +457,7 @@ export function useCircuitManager() {
     addComponentToCircuit,
     removeComponent,
     removeComponentFromCircuit,
+    getComponentDefinition: (circuitId) => availableComponents.value.get(circuitId),
     updateComponent,
     updateComponentInCircuit,
     
