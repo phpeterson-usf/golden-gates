@@ -163,12 +163,44 @@ export const componentPropertySchema = {
       commonProperties.bits,
       commonProperties.rotation
     ]
+  },
+
+  // Circuit properties
+  'circuit': {
+    title: 'Circuit Properties',
+    properties: [
+      {
+        name: 'name',
+        label: 'Circuit Name',
+        type: 'text',
+        required: true
+      },
+      {
+        name: 'label',
+        label: 'Display Label',
+        type: 'text',
+        help: 'Label shown when used as a component'
+      }
+    ],
+    actions: [
+      {
+        name: 'saveAsComponent',
+        label: 'Save as Component',
+        type: 'button',
+        help: 'Save this circuit as a reusable component'
+      }
+    ]
   }
 }
 
 // Helper function to get properties for a component type
 export function getComponentProperties(type) {
   return componentPropertySchema[type] || null
+}
+
+// Helper function to get circuit properties
+export function getCircuitProperties() {
+  return componentPropertySchema['circuit']
 }
 
 // Helper function to get default props for a component type

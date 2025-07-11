@@ -16,6 +16,7 @@
       <!-- Footer with buttons -->
       <div class="modal-footer">
         <button
+          v-if="showCancel"
           class="modal-button modal-button-cancel"
           @click="handleReject"
         >
@@ -56,6 +57,10 @@ export default {
     cancelLabel: {
       type: String,
       default: 'No'
+    },
+    showCancel: {
+      type: Boolean,
+      default: true
     },
     type: {
       type: String,

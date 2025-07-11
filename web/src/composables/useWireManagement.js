@@ -1,16 +1,23 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useWireManagement(components, gridSize) {
-  // Wire state
-  const wires = ref([])
+export function useWireManagement(components, gridSize, callbacks = {}) {
+  // Wire state - use passed refs or create local ones
+  const wires = callbacks.wires || ref([])
+  const wireJunctions = callbacks.wireJunctions || ref([])
+  
   const selectedWires = ref(new Set())
   const drawingWire = ref(false)
   const wirePoints = ref([])
   const wireDirection = ref('horizontal') // 'horizontal' or 'vertical'
   const startConnection = ref(null)
   const currentMousePos = ref(null)
-  const wireJunctions = ref([])  // Track all junction points
+  
+  // Use callbacks if provided, otherwise use local functions
+  const addWire = callbacks.addWire || ((wire) => wires.value.push(wire))
+  const removeWire = callbacks.removeWire || ((index) => wires.value.splice(index, 1))
+  const addWireJunction = callbacks.addWireJunction || ((junction) => wireJunctions.value.push(junction))
+  const removeWireJunction = callbacks.removeWireJunction || ((index) => wireJunctions.value.splice(index, 1))
 
   // Start drawing a wire from a connection point
   function startWireDrawing(componentId, portIndex, portType, mousePos) {
@@ -166,7 +173,7 @@ export function useWireManagement(components, gridSize) {
       endConnection: inputConnection      // Always the input (destination)
     }
     
-    wires.value.push(wire)
+    addWire(wire)
     
     // If this was a junction connection, add the junction point
     if (startConnection.value.isJunction) {
@@ -337,7 +344,7 @@ export function useWireManagement(components, gridSize) {
         endConnection: startConnection.value  // Our input is the destination
       }
       
-      wires.value.push(wire)
+      addWire(wire)
       
       // Add junction point
       wireJunctions.value.push({

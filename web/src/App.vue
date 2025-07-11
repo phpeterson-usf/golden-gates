@@ -5,6 +5,8 @@
       :title="confirmDialog.title"
       :message="confirmDialog.message"
       :type="confirmDialog.type"
+      :acceptLabel="confirmDialog.acceptLabel"
+      :showCancel="confirmDialog.showCancel"
       @accept="confirmDialog.acceptCallback"
       @reject="confirmDialog.rejectCallback"
     />
@@ -35,20 +37,43 @@
             </div>
           </template>
         </TieredMenu>
+        
+        <!-- Circuit Tabs -->
+        <div v-if="circuitTabs.length > 0" class="circuit-tabs">
+          <Button
+            v-for="tab in circuitTabs"
+            :key="tab.id"
+            :label="tab.name"
+            :class="['circuit-tab', { 'active': tab.id === activeTabId }]"
+            @click="switchToTab(tab.id)"
+            text
+            size="small"
+          >
+            <template #default>
+              <span>{{ tab.name }}</span>
+              <i 
+                class="pi pi-times tab-close" 
+                @click.stop="closeTab(tab.id)"
+                v-if="circuitTabs.length > 1"
+              ></i>
+            </template>
+          </Button>
+        </div>
+        
       </template>
       <template #end>
         <Button 
           icon="pi pi-folder-open" 
           label="Open" 
           class="p-button-sm" 
-          @click="openCircuit"
+          @click="openCircuitFile"
           v-tooltip.bottom="'Open circuit from file'"
         />
         <Button 
           icon="pi pi-save" 
           label="Save" 
           class="p-button-sm" 
-          @click="saveCircuit"
+          @click="saveCircuitFile"
           v-tooltip.bottom="'Save circuit to file'"
         />
         <Button 
@@ -57,7 +82,7 @@
           @click="inspectorVisible = !inspectorVisible"
           v-tooltip.left="'Toggle Inspector'"
         />
-        <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation" :disabled="isRunning" />
+        <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation($refs.canvas)" :disabled="isRunning" />
         <Button icon="pi pi-stop" label="Stop" class="p-button-danger p-button-sm" @click="stopSimulation" :disabled="!isRunning" />
       </template>
     </Toolbar>
@@ -73,8 +98,22 @@
       >
         <CircuitCanvas 
           ref="canvas" 
+          :circuitManager="circuitManager"
           @selectionChanged="handleSelectionChanged"
         />
+        
+        <!-- Circuit Navigation Breadcrumbs -->
+        <div v-if="$refs.canvas?.breadcrumbs?.length > 1" class="circuit-breadcrumbs">
+          <template v-for="(crumb, index) in $refs.canvas?.breadcrumbs" :key="crumb.id">
+            <i v-if="index > 0" class="pi pi-angle-right breadcrumb-separator"></i>
+            <Button 
+              :label="crumb.name"
+              :class="['breadcrumb-button', { active: index === $refs.canvas?.breadcrumbs.length - 1 }]"
+              @click="$refs.canvas?.navigateToCircuit(crumb.id)"
+              text
+            />
+          </template>
+        </div>
       </div>
       
       <div v-if="inspectorVisible" class="inspector-panel">
@@ -83,7 +122,10 @@
         </button>
         <ComponentInspector 
           :component="selectedComponent"
+          :circuit="selectedCircuit"
           @update:component="updateComponent"
+          @update:circuit="updateCircuit"
+          @action="handleInspectorAction"
         />
       </div>
     </div>
@@ -97,6 +139,8 @@ import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import { usePyodide } from './composables/usePyodide'
 import { useFileOperations } from './composables/useFileOperations'
+import { useCircuitManager } from './composables/useCircuitManager'
+import { useCircuitOperations } from './composables/useCircuitOperations'
 
 export default {
   name: 'App',
@@ -107,38 +151,92 @@ export default {
     ConfirmationDialog
   },
   setup() {
-    const { initialize, runPython, isLoading, isReady, error, pyodide } = usePyodide()
-    const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileOperations()
+    // Initialize circuit manager (model layer)
+    const circuitManager = useCircuitManager()
+    
+    // Initialize circuit operations (controller layer)
+    const circuitOperations = useCircuitOperations(circuitManager)
+    
+    // Extract needed properties for template
+    const { 
+      tabs: circuitTabs, 
+      activeTabId, 
+      activeCircuit,
+      allCircuits,
+      availableComponentsArray,
+      createCircuit, 
+      switchToTab, 
+      closeTab 
+    } = circuitManager
+    
+    const {
+      createNewCircuit,
+      runSimulation,
+      stopSimulation,
+      saveCircuit,
+      openCircuit,
+      loadCircuitData,
+      handleDroppedFile,
+      handleInspectorAction,
+      showConfirmation,
+      hasUnsavedWork,
+      handleBeforeUnload,
+      isRunning,
+      isPyodideLoading,
+      isPyodideReady,
+      pyodideError,
+      pyodide,
+      showConfirmDialog,
+      confirmDialog
+    } = circuitOperations
     
     return { 
-      initializePyodide: initialize, 
-      runPython, 
-      isPyodideLoading: isLoading, 
-      isPyodideReady: isReady, 
-      pyodideError: error, 
+      // Circuit manager
+      circuitManager,
+      circuitTabs,
+      activeTabId,
+      activeCircuit,
+      allCircuits,
+      availableComponentsArray,
+      createCircuit,
+      switchToTab,
+      closeTab,
+      
+      // Circuit operations
+      createNewCircuit,
+      runSimulation,
+      stopSimulation,
+      saveCircuit,
+      openCircuit,
+      loadCircuitData,
+      handleDroppedFile,
+      handleInspectorAction,
+      showConfirmation,
+      hasUnsavedWork,
+      handleBeforeUnload,
+      isRunning,
+      isPyodideLoading,
+      isPyodideReady,
+      pyodideError,
       pyodide,
-      saveCircuitFile,
-      openCircuitFile,
-      parseAndValidateJSON
+      showConfirmDialog,
+      confirmDialog
     }
   },
   data() {
     return {
-      isRunning: false,
       inspectorVisible: true,
       selectedComponent: null,
+      selectedCircuit: null,
       isDraggingOver: false,
       dragCounter: 0,
-      showConfirmDialog: false,
-      confirmDialog: {
-        title: '',
-        message: '',
-        type: 'warning',
-        acceptCallback: null,
-        rejectCallback: null
-      },
-      beforeUnloadHandler: null,
-      menuItems: [
+      beforeUnloadHandler: null
+    }
+  },
+  computed: {
+    menuItems() {
+      // Base menu items
+      const baseItems = [
         {
           label: 'Logic',
           icon: 'pi pi-fw pi-sitemap',
@@ -195,8 +293,36 @@ export default {
               command: () => this.addComponent('output')
             }
           ]
+        },
+        {
+          label: 'Components',
+          icon: 'pi pi-fw pi-cube',
+          items: [
+            {
+              label: 'New Circuit',
+              icon: 'pi pi-fw pi-plus',
+              command: () => this.createNewCircuit()
+            },
+            {
+              separator: true
+            }
+          ]
         }
       ]
+      
+      // Add saved circuit components
+      const componentItems = baseItems.find(item => item.label === 'Components')
+      if (this.availableComponentsArray?.length > 0) {
+        this.availableComponentsArray.forEach(component => {
+          componentItems.items.push({
+            label: component.name,
+            icon: 'pi pi-fw pi-chip',
+            command: () => this.addCircuitComponent(component.id)
+          })
+        })
+      }
+      
+      return baseItems
     }
   },
   methods: {
@@ -208,93 +334,28 @@ export default {
         this.$refs.canvas.addComponentAtSmartPosition(type)
       }
     },
-    async runSimulation() {
-      this.isRunning = true
-      
-      try {
-        // Initialize Pyodide if not already initialized
-        if (!this.isPyodideReady) {
-          console.log('Initializing Pyodide...')
-          await this.initializePyodide()
+    
+    addCircuitComponent(circuitId) {
+      if (this.$refs.canvas) {
+        const component = this.circuitManager.createSchematicComponent(circuitId)
+        if (component) {
+          this.$refs.canvas.addComponentAtSmartPosition('schematic-component', component.props)
         }
-        
-        // Get circuit data from canvas
-        const circuitData = this.$refs.canvas?.getCircuitData()
-        
-        if (!circuitData) {
-          console.error('Unable to get circuit data')
-          return
-        }
-        
-        if (!circuitData || circuitData.trim() === '') {
-          console.log('No components in circuit')
-          return
-        }
-        
-        // The circuitData is now the complete GGL program
-        const gglProgram = circuitData
-        
-        console.log('Generated GGL program:')
-        console.log(gglProgram)
-        
-        // Create callback for Python to update Vue components
-        window.__vueUpdateCallback = (componentId, value) => {
-          console.log(`Output ${componentId} updated to ${value}`)
-          // Update the component in the canvas
-          if (this.$refs.canvas) {
-            const component = this.$refs.canvas.components.find(c => c.id === componentId)
-            if (component && component.type === 'output') {
-              // Create a new component object to ensure Vue detects the change
-              const updatedComponent = {
-                ...component,
-                props: {
-                  ...component.props,
-                  value: value
-                }
-              }
-              this.$refs.canvas.updateComponent(updatedComponent)
-            }
-          }
-        }
-        
-        // Execute the GGL program
-        const pythonCode = `
-# Make updateCallback available in builtins so all modules can access it
-import builtins
-import js
-builtins.updateCallback = js.window.__vueUpdateCallback
-
-# Execute the GGL program
-exec(${JSON.stringify(gglProgram)})
-
-# Return success
-"Simulation completed"
-`
-        
-        await this.runPython(pythonCode)
-        console.log('Simulation completed')
-        
-      } catch (err) {
-        console.error('Simulation error:', err)
-        // TODO: Show error to user
-      } finally {
-        this.isRunning = false
       }
     },
     
-    stopSimulation() {
-      console.log('Stopping simulation...')
-      this.isRunning = false
-      // TODO: Implement actual stop logic if needed
-    },
+    
     
     handleSelectionChanged(selection) {
-      // For now, just handle single component selection
+      // Handle single component selection
       if (selection.components.size === 1) {
         const componentId = Array.from(selection.components)[0]
         this.selectedComponent = this.$refs.canvas?.components.find(c => c.id === componentId) || null
+        this.selectedCircuit = null // Clear circuit selection when component is selected
       } else {
         this.selectedComponent = null
+        // Show current circuit properties when no component is selected
+        this.selectedCircuit = this.activeCircuit
       }
     },
     
@@ -308,74 +369,29 @@ exec(${JSON.stringify(gglProgram)})
       }
     },
     
-    async saveCircuit() {
-      try {
-        const components = this.$refs.canvas?.components || []
-        const wires = this.$refs.canvas?.wires || []
-        const wireJunctions = this.$refs.canvas?.wireJunctions || []
-        
-        await this.saveCircuitFile(components, wires, wireJunctions)
-      } catch (error) {
-        console.error('Error saving circuit:', error)
-        alert('Error saving circuit: ' + error.message)
-      }
-    },
-    
-    async openCircuit() {
-      try {
-        const fileContent = await this.openCircuitFile()
-        if (!fileContent) return
-        
-        const circuitData = this.parseAndValidateJSON(fileContent)
-        
-        // Check if current circuit has any components
-        const hasExistingCircuit = this.$refs.canvas?.components?.length > 0 || 
-                                  this.$refs.canvas?.wires?.length > 0
-        
-        if (hasExistingCircuit) {
-          this.showConfirmation({
-            title: 'Replace Circuit?',
-            message: 'This will replace your current circuit. Are you sure you want to continue?',
-            type: 'warning',
-            onAccept: () => this.loadCircuitData(circuitData)
-          })
-        } else {
-          this.loadCircuitData(circuitData)
+    updateCircuit(updatedCircuit) {
+      // Update circuit properties in the circuit manager
+      const circuit = this.circuitManager.getCircuit(updatedCircuit.id)
+      if (circuit) {
+        // Update reactive properties
+        circuit.name = updatedCircuit.name
+        circuit.label = updatedCircuit.label
+        circuit.properties = {
+          ...circuit.properties,
+          ...updatedCircuit.properties
         }
-      } catch (error) {
-        console.error('Error opening circuit:', error)
-        alert('Error opening circuit: ' + error.message)
+        
+        // Update selectedCircuit to reflect changes
+        this.selectedCircuit = circuit
       }
     },
     
-    loadCircuitData(circuitData) {
-      if (!this.$refs.canvas) return
-      
-      // Clear existing circuit
-      this.$refs.canvas.clearCircuit()
-      
-      // Load components
-      if (circuitData.components) {
-        circuitData.components.forEach(component => {
-          this.$refs.canvas.loadComponent(component)
-        })
-      }
-      
-      // Load wires
-      if (circuitData.wires) {
-        circuitData.wires.forEach(wire => {
-          this.$refs.canvas.addWire(wire)
-        })
-      }
-      
-      // Load wire junctions
-      if (circuitData.wireJunctions) {
-        circuitData.wireJunctions.forEach(junction => {
-          this.$refs.canvas.addWireJunction(junction)
-        })
-      }
-      
-      console.log('Circuit loaded successfully')
+    async saveCircuitFile() {
+      await this.saveCircuit(this.$refs.canvas)
+    },
+    
+    async openCircuitFile() {
+      await this.openCircuit(this.$refs.canvas)
     },
     
     handleDragEnter(event) {
@@ -417,63 +433,29 @@ exec(${JSON.stringify(gglProgram)})
         return
       }
       
-      try {
-        const fileContent = await jsonFile.text()
-        const circuitData = this.parseAndValidateJSON(fileContent)
-        
-        // Check if current circuit has any components
-        const hasExistingCircuit = this.$refs.canvas?.components?.length > 0 || 
-                                  this.$refs.canvas?.wires?.length > 0
-        
-        if (hasExistingCircuit) {
-          this.showConfirmation({
-            title: 'Replace Circuit?',
-            message: 'This will replace your current circuit. Are you sure you want to continue?',
-            type: 'warning',
-            onAccept: () => this.loadCircuitData(circuitData)
-          })
-        } else {
-          this.loadCircuitData(circuitData)
-        }
-      } catch (error) {
-        console.error('Error loading dropped file:', error)
-        alert('Error loading circuit: ' + error.message)
-      }
+      await this.handleDroppedFile(this.$refs.canvas, jsonFile)
     },
     
-    showConfirmation({ title, message, type = 'warning', onAccept, onReject }) {
-      this.confirmDialog = {
-        title,
-        message,
-        type,
-        acceptCallback: onAccept || (() => {}),
-        rejectCallback: onReject || (() => {})
-      }
-      this.showConfirmDialog = true
-    },
-    
-    hasUnsavedWork() {
-      // Check if there are any components or wires in the circuit
-      const components = this.$refs.canvas?.components || []
-      const wires = this.$refs.canvas?.wires || []
-      return components.length > 0 || wires.length > 0
-    },
-    
-    handleBeforeUnload(event) {
-      if (this.hasUnsavedWork()) {
-        // Modern browsers ignore custom messages for security reasons
-        // They show a generic "Leave site?" dialog instead
-        event.preventDefault()
-        event.returnValue = '' // Chrome requires this
-        return '' // Some browsers need this
-      }
-    }
   },
   
   mounted() {
     // Set up the beforeunload handler
-    this.beforeUnloadHandler = this.handleBeforeUnload.bind(this)
+    this.beforeUnloadHandler = (event) => this.handleBeforeUnload(this.$refs.canvas, event)
     window.addEventListener('beforeunload', this.beforeUnloadHandler)
+    
+    // Initialize selectedCircuit with the current circuit if no component is selected
+    if (!this.selectedComponent && this.activeCircuit) {
+      this.selectedCircuit = this.activeCircuit
+    }
+  },
+  
+  watch: {
+    // Watch for activeCircuit changes (tab switching) and update selectedCircuit if no component is selected
+    activeCircuit(newCircuit) {
+      if (!this.selectedComponent && newCircuit) {
+        this.selectedCircuit = newCircuit
+      }
+    }
   },
   
   beforeUnmount() {
@@ -680,5 +662,96 @@ body {
 .inspector-close:hover {
   background-color: #f3f4f6;
   color: #374151;
+}
+
+/* Circuit breadcrumb navigation */
+.circuit-breadcrumbs {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb-separator {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.breadcrumb-button {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  min-height: auto !important;
+  height: auto !important;
+  border-radius: 4px !important;
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
+.breadcrumb-button:hover {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.breadcrumb-button.active {
+  color: #1f2937 !important;
+  font-weight: 600 !important;
+}
+
+.breadcrumb-button.active:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Circuit tabs */
+.circuit-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.circuit-tab {
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  min-height: auto !important;
+  height: auto !important;
+  border-radius: 4px !important;
+  color: #6b7280 !important;
+  font-weight: 400 !important;
+  position: relative;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.circuit-tab:hover {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.circuit-tab.active {
+  background-color: #e5e7eb !important;
+  color: #1f2937 !important;
+  font-weight: 500 !important;
+}
+
+.circuit-tab .tab-close {
+  margin-left: 0.5rem;
+  font-size: 0.625rem;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.circuit-tab .tab-close:hover {
+  opacity: 1;
+  color: #ef4444 !important;
 }
 </style>

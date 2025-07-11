@@ -90,6 +90,17 @@ export const componentRegistry = {
     onCreate: (instance, index) => {
       instance.props.label = String.fromCharCode(82 + index) // R, S, T, etc.
     }
+  },
+  
+  'schematic-component': {
+    component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
+    label: 'Schematic Component',
+    icon: 'pi pi-cube',
+    category: 'components',
+    defaultProps: {
+      circuitId: '',
+      label: 'Component'
+    }
   }
   
   // Future components can be added here:

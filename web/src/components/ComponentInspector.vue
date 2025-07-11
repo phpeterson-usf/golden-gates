@@ -1,11 +1,64 @@
 <template>
   <div class="component-inspector">
-    <div v-if="!component" class="empty-state">
+    <div v-if="!component && !circuit" class="empty-state">
       <i class="pi pi-info-circle"></i>
-      <p>Select a component to view its properties</p>
+      <p>Select a component or circuit to view properties</p>
     </div>
     
-    <div v-else class="inspector-content">
+    <!-- Circuit properties -->
+    <div v-else-if="circuit && !component" class="inspector-content">
+      <div class="property-section" v-if="circuitSchema">
+        <h4>{{ circuitSchema.title }}</h4>
+        <div 
+          v-for="prop in circuitSchema.properties.filter(p => !p.hidden)" 
+          :key="prop.name"
+          class="property-group"
+        >
+          <label>{{ prop.label }}</label>
+          
+          <!-- Text input for circuit properties -->
+          <InputText 
+            v-if="prop.type === 'text'"
+            :modelValue="getCircuitValue(prop.name)"
+            @update:modelValue="updateCircuitValue(prop.name, $event)"
+            :placeholder="prop.placeholder"
+            class="property-input"
+          />
+          
+          <!-- Textarea for description -->
+          <Textarea 
+            v-else-if="prop.type === 'textarea'"
+            :modelValue="getCircuitValue(prop.name)"
+            @update:modelValue="updateCircuitValue(prop.name, $event)"
+            :placeholder="prop.placeholder"
+            :rows="3"
+            class="property-input"
+          />
+          
+          <small v-if="prop.help" class="property-help">{{ prop.help }}</small>
+        </div>
+        
+        <!-- Circuit Actions -->
+        <div v-if="circuitSchema.actions" class="actions-section">
+          <div 
+            v-for="action in circuitSchema.actions" 
+            :key="action.name"
+            class="action-group"
+          >
+            <Button 
+              :label="action.label"
+              :title="action.help"
+              class="p-button-sm action-button"
+              @click="handleAction(action.name)"
+            />
+            <small v-if="action.help" class="property-help">{{ action.help }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Component properties -->
+    <div v-else-if="component" class="inspector-content">
       <!-- Component properties based on configuration -->
       <div class="property-section" v-if="componentSchema">
         <h4>{{ componentSchema.title }}</h4>
@@ -75,11 +128,12 @@
 </template>
 
 <script>
-import { getComponentProperties } from '../config/componentProperties'
+import { getComponentProperties, getCircuitProperties } from '../config/componentProperties'
 import MultibaseNumberInput from './MultibaseNumberInput.vue'
 import BaseSelector from './BaseSelector.vue'
 import RotationSelector from './RotationSelector.vue'
 import InvertedInputsSelector from './InvertedInputsSelector.vue'
+import Textarea from 'primevue/textarea'
 
 export default {
   name: 'ComponentInspector',
@@ -87,10 +141,15 @@ export default {
     MultibaseNumberInput,
     BaseSelector,
     RotationSelector,
-    InvertedInputsSelector
+    InvertedInputsSelector,
+    Textarea
   },
   props: {
     component: {
+      type: Object,
+      default: null
+    },
+    circuit: {
       type: Object,
       default: null
     },
@@ -99,10 +158,13 @@ export default {
       default: 30
     }
   },
-  emits: ['update:component'],
+  emits: ['update:component', 'update:circuit', 'action'],
   computed: {
     componentSchema() {
       return this.component ? getComponentProperties(this.component.type) : null
+    },
+    circuitSchema() {
+      return this.circuit ? getCircuitProperties() : null
     }
   },
   methods: {
@@ -155,6 +217,37 @@ export default {
           ...this.component.props,
           ...updates
         }
+      })
+    },
+    
+    // Circuit value methods
+    getCircuitValue(propName) {
+      if (propName === 'name') return this.circuit?.name || ''
+      if (propName === 'label') return this.circuit?.label || ''
+      return this.circuit?.properties?.[propName] || ''
+    },
+    
+    updateCircuitValue(propName, value) {
+      if (!this.circuit) return
+      
+      const updatedCircuit = {
+        ...this.circuit,
+        [propName]: value,
+        properties: {
+          ...this.circuit.properties,
+          [propName]: value
+        }
+      }
+      
+      this.$emit('update:circuit', updatedCircuit)
+    },
+    
+    // Handle action button clicks
+    handleAction(actionName) {
+      this.$emit('action', {
+        action: actionName,
+        circuit: this.circuit,
+        component: this.component
       })
     }
   }
@@ -219,6 +312,21 @@ export default {
 
 .property-group {
   margin-bottom: 0.75rem;
+}
+
+.actions-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.action-group {
+  margin-bottom: 0.75rem;
+}
+
+.action-button {
+  width: 100%;
+  margin-bottom: 0.25rem;
 }
 
 .property-group label {

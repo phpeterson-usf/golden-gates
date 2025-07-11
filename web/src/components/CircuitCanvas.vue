@@ -103,8 +103,10 @@
           :x="comp.x"
           :y="comp.y"
           :selected="selectedComponents.has(comp.id)"
+          :circuitManager="comp.type === 'schematic-component' ? circuitManager : undefined"
           v-bind="comp.props"
           @startDrag="handleStartDrag"
+          @editSubcircuit="handleEditSubcircuit"
         />
         
         <!-- Rubber-band selection rectangle -->
@@ -157,6 +159,7 @@ import { useCanvasOperations } from '../composables/useCanvasOperations'
 import { useWireManagement } from '../composables/useWireManagement'
 import { useSelection } from '../composables/useSelection'
 import { useDragAndDrop } from '../composables/useDragAndDrop'
+import { useCanvasInteractions } from '../composables/useCanvasInteractions'
 import { useCircuitData } from '../composables/useCircuitData'
 import { useCircuitGeneration } from '../composables/useCircuitGeneration'
 
@@ -164,6 +167,12 @@ export default {
   name: 'CircuitCanvas',
   components: {
     Wire
+  },
+  props: {
+    circuitManager: {
+      type: Object,
+      required: true
+    }
   },
   emits: ['selectionChanged'],
   setup(props, { emit }) {
@@ -185,28 +194,45 @@ export default {
       setupResizeObserver
     } = useCanvasOperations()
     
-    // Circuit data management
+    // Use the passed circuit manager instead of creating our own
     const {
-      components,
+      activeCircuit,
       addComponent,
       removeComponent,
-      clearCircuit,
+      updateComponent,
+      clearCurrentCircuit,
+      navigateToCircuit,
+      breadcrumbs
+    } = props.circuitManager
+    
+    // Use current circuit components and wires directly
+    const components = computed(() => activeCircuit.value?.components || [])
+    const wires = computed(() => activeCircuit.value?.wires || [])
+    const wireJunctions = computed(() => activeCircuit.value?.wireJunctions || [])
+    
+    // Circuit data management (for backward compatibility)
+    const {
       getCircuitData: getCircuitDataBase
     } = useCircuitData()
     
     // Circuit generation
     const { generateGglProgram } = useCircuitGeneration()
     
-    // Wire management
-    const wireManagement = useWireManagement(components, gridSize.value)
+    // Wire management - pass the shared model functions
+    const wireManagement = useWireManagement(components, gridSize.value, {
+      wires: wires,
+      wireJunctions: wireJunctions,
+      addWire: (wire) => activeCircuit.value?.wires.push(wire),
+      removeWire: (index) => activeCircuit.value?.wires.splice(index, 1),
+      addWireJunction: (junction) => activeCircuit.value?.wireJunctions.push(junction),
+      removeWireJunction: (index) => activeCircuit.value?.wireJunctions.splice(index, 1)
+    })
     const {
-      wires,
       selectedWires,
       drawingWire,
       wirePoints,
       currentMousePos,
       previewPoints,
-      wireJunctions,
       startConnection,
       startWireDrawing,
       addWireWaypoint,
@@ -217,76 +243,20 @@ export default {
       completeWireAtJunction
     } = wireManagement
     
-    // Track last component position for intelligent placement
-    const lastComponentPosition = ref({ x: 100, y: 100 })
-
-    // Junction mode tracking for Alt key feedback
-    const isJunctionMode = ref(false)
-    const junctionPreview = ref(null)
-    const connectionPreview = ref(null)
-
-    // Key event handlers for junction mode
-    function handleKeyDown(event) {
-      if (event.altKey && !isJunctionMode.value) {
-        isJunctionMode.value = true
-        updatePreviewsOnModeChange()
-      }
-    }
-
-    function handleKeyUp(event) {
-      if (!event.altKey && isJunctionMode.value) {
-        isJunctionMode.value = false
-        updatePreviewsOnModeChange()
-      }
-    }
-    
-    // Store the last hovered wire for re-evaluation when mode changes
-    let lastHoveredWireIndex = null
-    
-    // Update previews when junction mode changes while mouse is stationary
-    function updatePreviewsOnModeChange() {
-      if (currentMousePos.value) {
-        if (isJunctionMode.value && lastHoveredWireIndex !== null) {
-          // Show junction preview for the last hovered wire
-          const junctionPos = findClosestGridPointOnWire(lastHoveredWireIndex, currentMousePos.value)
-          if (junctionPos) {
-            junctionPreview.value = junctionPos
-          }
-          connectionPreview.value = null
-        } else {
-          junctionPreview.value = null
-          connectionPreview.value = null
-        }
-      }
-    }
-
-    // Global key handlers for when canvas doesn't have focus
-    onMounted(() => {
-      const handleGlobalKeyDown = (event) => {
-        if (event.altKey && !isJunctionMode.value) {
-          isJunctionMode.value = true
-          updatePreviewsOnModeChange()
-        }
-      }
-      
-      const handleGlobalKeyUp = (event) => {
-        if (!event.altKey && isJunctionMode.value) {
-          isJunctionMode.value = false
-          updatePreviewsOnModeChange()
-        }
-      }
-      
-      window.addEventListener('keydown', handleGlobalKeyDown)
-      window.addEventListener('keyup', handleGlobalKeyUp)
-      
-      onUnmounted(() => {
-        window.removeEventListener('keydown', handleGlobalKeyDown)
-        window.removeEventListener('keyup', handleGlobalKeyUp)
-      })
-    })
-
     // Selection management
-    const selection = useSelection(components, wires, wireManagement.cleanupJunctionsForDeletedWires)
+    const selection = useSelection(
+      components, 
+      wires, 
+      wireManagement.cleanupJunctionsForDeletedWires,
+      (componentIds) => {
+        // Delete components via circuit manager
+        componentIds.forEach(id => removeComponent(id))
+      },
+      (index) => {
+        // Delete wires via circuit manager
+        activeCircuit.value?.wires.splice(index, 1)
+      }
+    )
     const {
       selectedComponents,
       isSelecting,
@@ -301,8 +271,8 @@ export default {
       checkAndClearJustFinished
     } = selection
     
-    // Replace selectedWires ref with the one from selection
-    selectedWires.value = selection.selectedWires.value
+    // Note: selectedWires is managed by both wireManagement and selection composables
+    // We use selection.selectedWires for component selection logic
     
     // Drag and drop
     const dragAndDrop = useDragAndDrop(
@@ -321,6 +291,50 @@ export default {
       endDrag,
       isDragging
     } = dragAndDrop
+
+    // Canvas interactions (controller layer) - must come after selection and dragAndDrop
+    const canvasInteractions = useCanvasInteractions(
+      props.circuitManager,
+      { getMousePos, snapToGrid, gridSize },
+      wireManagement,
+      selection,
+      dragAndDrop
+    )
+    
+    const {
+      lastComponentPosition,
+      isJunctionMode,
+      junctionPreview,
+      connectionPreview,
+      handleCanvasClick,
+      handleCanvasMouseDown,
+      handleMouseMove,
+      handleMouseUp,
+      handleKeyDown: handleInteractionKeyDown,
+      handleKeyUp: handleInteractionKeyUp,
+      handleWireClick,
+      handleWireMouseDown,
+      addComponentAtSmartPosition
+    } = canvasInteractions
+
+    // Global key handlers for when canvas doesn't have focus
+    onMounted(() => {
+      const handleGlobalKeyDown = (event) => {
+        handleInteractionKeyDown(event)
+      }
+      
+      const handleGlobalKeyUp = (event) => {
+        handleInteractionKeyUp(event)
+      }
+      
+      window.addEventListener('keydown', handleGlobalKeyDown)
+      window.addEventListener('keyup', handleGlobalKeyUp)
+      
+      onUnmounted(() => {
+        window.removeEventListener('keydown', handleGlobalKeyDown)
+        window.removeEventListener('keyup', handleGlobalKeyUp)
+      })
+    })
     
     // Constants
     const dotSize = ref(DOT_SIZE)
@@ -329,34 +343,12 @@ export default {
     setupResizeObserver(container)
     
     // Keyboard event handling
-    function handleKeyDown(event) {
-      // Check if an input field is focused
-      const activeElement = document.activeElement
-      const isInputFocused = activeElement && (
-        activeElement.tagName === 'INPUT' || 
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.contentEditable === 'true' ||
-        activeElement.classList.contains('p-inputtext') ||
-        activeElement.classList.contains('p-inputnumber-input')
-      )
-      
-      // Delete selected components and wires (only if not typing in an input)
-      if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
-        deleteSelected()
-      }
-      
-      // Cancel wire drawing with Escape
-      if (event.key === 'Escape' && drawingWire.value) {
-        cancelWireDrawing()
-      }
-    }
-    
     onMounted(() => {
-      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener('keydown', handleInteractionKeyDown)
     })
     
     onUnmounted(() => {
-      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleInteractionKeyDown)
     })
     
     // Methods
@@ -372,248 +364,18 @@ export default {
       }
     }
     
-    function handleCanvasClick(event) {
-      // Ignore clicks if we just finished selecting
-      if (checkAndClearJustFinished()) {
-        return
-      }
-      
-      const target = event.target
-      
-      // Check if we clicked on a connection point
-      if (target.classList.contains('connection-point')) {
-        const componentId = target.dataset.componentId
-        const portIndex = parseInt(target.dataset.port)
-        const portType = target.dataset.type // 'input' or 'output'
-        const pos = getMousePos(event)
-        
-        if (!drawingWire.value) {
-          // Clear selection when starting to draw a wire
-          clearSelection()
-          // Start drawing a wire
-          startWireDrawing(componentId, portIndex, portType, pos)
-        } else {
-          // Complete the wire if clicking on a compatible connection
-          completeWire(componentId, portIndex, portType)
-        }
-        return
-      }
-      
-      // If drawing a wire and clicked elsewhere, add a waypoint
-      if (drawingWire.value) {
-        const pos = getMousePos(event)
-        addWireWaypoint(pos)
-        return
-      }
-      
-      // Otherwise, clicking on canvas deselects all
-      if (target === event.currentTarget) {
-        clearSelection()
-      }
-    }
     
-    function handleCanvasMouseDown(event) {
-      // Only start selection on the canvas itself, not on components
-      if (event.target === event.currentTarget && !drawingWire.value) {
-        const pos = getMousePos(event)
-        const clearExisting = !event.shiftKey && !event.metaKey && !event.ctrlKey
-        startSelection(pos, clearExisting)
-        event.preventDefault()
-      }
-    }
     
-    function handleMouseMove(event) {
-      // Always update current mouse position for wire preview
-      const pos = getMousePos(event)
-      currentMousePos.value = pos
-      
-      // Track which wire is being hovered for junction mode
-      const target = event.target
-      if (target && target.classList.contains('wire-segment')) {
-        const wireElement = target.closest('[data-wire-index]')
-        if (wireElement) {
-          lastHoveredWireIndex = parseInt(wireElement.dataset.wireIndex)
-        }
-      } else {
-        lastHoveredWireIndex = null
-      }
-      
-      // Handle junction preview when Alt is held
-      if (isJunctionMode.value) {
-        updateJunctionPreview(event, pos)
-        connectionPreview.value = null // Clear connection preview in junction mode
-      } else {
-        junctionPreview.value = null
-        
-        // Handle connection preview when drawing a wire
-        if (drawingWire.value) {
-          updateConnectionPreview(event, pos)
-        } else {
-          connectionPreview.value = null
-        }
-      }
-      
-      // Handle rubber-band selection
-      if (isSelecting.value) {
-        updateSelectionEnd(pos)
-        return
-      }
-      
-      // Handle dragging
-      if (isDragging()) {
-        updateDrag(pos)
-      }
-    }
     
-    function updateJunctionPreview(event, mousePos) {
-      // Check if hovering over a wire
-      const target = event.target
-      if (target && target.classList.contains('wire-segment')) {
-        // Find which wire is being hovered
-        const wireElement = target.closest('[data-wire-index]')
-        if (wireElement) {
-          const wireIndex = parseInt(wireElement.dataset.wireIndex)
-          const junctionPos = findClosestGridPointOnWire(wireIndex, mousePos)
-          if (junctionPos) {
-            junctionPreview.value = junctionPos
-            return
-          }
-        }
-      }
-      
-      // If not hovering over a wire, clear preview
-      junctionPreview.value = null
-    }
-    
-    function updateConnectionPreview(event, mousePos) {
-      // Check if hovering over a connection point
-      const target = event.target
-      if (target && target.classList.contains('connection-point')) {
-        const componentId = target.dataset.componentId
-        const portIndex = parseInt(target.dataset.port)
-        const portType = target.dataset.type
-        
-        // Check if this is a valid connection (different port type than what we started with)
-        if (startConnection.value && startConnection.value.portType !== portType) {
-          // Find the component to get the connection position
-          const component = components.value.find(c => c.id === componentId)
-          if (component) {
-            const config = componentRegistry[component.type]
-            let connections
-            if (config.getConnections) {
-              connections = config.getConnections(component.props)
-            } else {
-              connections = config.connections
-            }
-            
-            const connectionPoint = portType === 'output' ? 
-              connections.outputs?.[portIndex] : 
-              connections.inputs?.[portIndex]
-              
-            if (connectionPoint) {
-              connectionPreview.value = {
-                x: component.x + connectionPoint.x,
-                y: component.y + connectionPoint.y
-              }
-              return
-            }
-          }
-        }
-      }
-      
-      // If not hovering over a valid connection point, clear preview
-      connectionPreview.value = null
-    }
-    
-    function handleMouseUp() {
-      // End dragging
-      if (isDragging()) {
-        const wasComponentDrag = !dragging.value?.isWireDrag
-        endDrag(snapToGrid)
-        
-        // Update last component position if we were dragging components
-        if (wasComponentDrag && selectedComponents.value.size > 0) {
-          // Use the position of any selected component as the new reference
-          const selectedId = Array.from(selectedComponents.value)[0]
-          const selectedComponent = components.value.find(c => c.id === selectedId)
-          if (selectedComponent) {
-            lastComponentPosition.value = { x: selectedComponent.x, y: selectedComponent.y }
-          }
-        }
-      }
-      
-      // End rubber-band selection
-      if (isSelecting.value) {
-        endSelection()
-      }
-    }
     
     function handleStartDrag(dragInfo) {
       startDrag(dragInfo)
     }
     
-    function handleWireClick(index, event) {
-      // If we're drawing a wire and Alt is held, complete it with a junction
-      if (drawingWire.value && event.altKey) {
-        const pos = getMousePos(event)
-        const junctionPos = findClosestGridPointOnWire(index, pos)
-        
-        if (junctionPos) {
-          // Complete the wire at this junction
-          completeWireAtJunction(index, junctionPos)
-        }
-      } 
-      // If not drawing and Alt is held, start from junction
-      else if (!drawingWire.value && event.altKey) {
-        const pos = getMousePos(event)
-        const junctionPos = findClosestGridPointOnWire(index, pos)
-        
-        if (junctionPos) {
-          // Start drawing a new wire from this junction
-          startWireFromJunction(index, junctionPos)
-        }
-      } else {
-        // Normal selection behavior with Command/Ctrl for multi-select
-        const isMultiSelect = event.metaKey || event.ctrlKey
-        selectWire(index, isMultiSelect)
-      }
-      // Stop propagation to prevent canvas click handler
-      event.stopPropagation()
+    function handleEditSubcircuit(circuitId) {
+      navigateToCircuit(circuitId)
     }
     
-    function handleWireMouseDown(wireIndex, event) {
-      // Only start drag if the wire is selected
-      if (!selection.selectedWires.value.has(wireIndex)) return
-      
-      event.stopPropagation()
-      
-      // Get mouse position
-      const pos = getMousePos(event)
-      const wire = wires.value[wireIndex]
-      if (!wire || wire.points.length === 0) return
-      
-      startWireDrag(wireIndex, {
-        id: `wire_drag_${wireIndex}`,
-        offsetX: pos.x - wire.points[0].x,
-        offsetY: pos.y - wire.points[0].y
-      })
-    }
-    
-    function addComponentAtSmartPosition(type) {
-      // Use last component position with offset (5 grid units down)
-      const x = lastComponentPosition.value.x
-      const y = lastComponentPosition.value.y + (gridSize.value * 5)
-      const snapped = snapToGrid({ x, y })
-      
-      const newComponent = addComponent(type, snapped.x, snapped.y)
-      
-      // Update last component position
-      lastComponentPosition.value = { x: snapped.x, y: snapped.y }
-      
-      // Clear existing selection and select the new component
-      clearSelection()
-      selectComponent(newComponent.id)
-    }
     
     // Computed property to get component instances
     const componentInstances = computed(() => {
@@ -631,13 +393,6 @@ export default {
       return generateGglProgram(components.value, wires.value, wireJunctions.value, componentRefs.value, componentInstances.value)
     }
     
-    function updateComponent(updatedComponent) {
-      const index = components.value.findIndex(c => c.id === updatedComponent.id)
-      if (index !== -1) {
-        // Use Vue's reactivity-safe array update method
-        components.value.splice(index, 1, updatedComponent)
-      }
-    }
     
     // Watch for selection changes and emit event
     watch([selectedComponents, selection.selectedWires], () => {
@@ -649,31 +404,30 @@ export default {
     
     // Add wire directly (for loading from file)
     function addWire(wireData) {
-      wires.value.push(wireData)
+      activeCircuit.value?.wires.push(wireData)
     }
     
     // Add wire junction directly (for loading from file)
     function addWireJunction(junctionData) {
-      wireJunctions.value.push(junctionData)
+      activeCircuit.value?.wireJunctions.push(junctionData)
     }
     
     // Load component directly from saved data (preserves ID and props)
     function loadComponent(componentData) {
       // Directly add the component without calling onCreate or generating new ID
-      components.value.push({
+      const component = {
         id: componentData.id,
         type: componentData.type,
         x: componentData.x,
         y: componentData.y,
         props: componentData.props || {}
-      })
+      }
+      addComponent(component)
     }
     
-    // Clear wires and junctions (extend clearCircuit functionality)
-    function clearAllCircuitData() {
-      clearCircuit() // This clears components
-      wires.value = []
-      wireJunctions.value = []
+    // Clear current circuit
+    function clearCircuit() {
+      clearCurrentCircuit()
       clearSelection()
     }
     
@@ -692,7 +446,7 @@ export default {
       components,
       wires,
       selectedComponents,
-      selectedWires,
+      selectedWires: selection.selectedWires,
       isSelecting,
       selectionRect,
       drawingWire,
@@ -702,6 +456,10 @@ export default {
       isJunctionMode,
       junctionPreview,
       connectionPreview,
+      
+      // Hierarchical circuit state
+      activeCircuit,
+      breadcrumbs,
       
       // Constants
       COLORS,
@@ -714,23 +472,27 @@ export default {
       handleCanvasMouseDown,
       handleMouseMove,
       handleMouseUp,
-      handleKeyDown,
-      handleKeyUp,
+      handleKeyDown: handleInteractionKeyDown,
+      handleKeyUp: handleInteractionKeyUp,
       handleStartDrag,
+      handleEditSubcircuit,
       handleWireClick,
       handleWireMouseDown,
       addComponentAtSmartPosition,
-      clearCircuit: clearAllCircuitData, // Use extended version
+      clearCircuit,
       getCircuitData,
       updateComponent,
+      loadComponent,
+      addWire,
+      addWireJunction,
       isDragging,
       getMousePos,
       zoomIn,
       zoomOut,
-      addComponent,
-      addWire,
-      addWireJunction,
-      loadComponent
+      
+      // Circuit hierarchy methods
+      navigateToCircuit,
+      ...props.circuitManager
     }
   }
 }

@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useSelection(components, wires, onWiresDeleted = null) {
+export function useSelection(components, wires, onWiresDeleted = null, onComponentsDeleted = null, onWireDelete = null) {
   // Selection state
   const selectedComponents = ref(new Set())
   const selectedWires = ref(new Set())
@@ -148,25 +148,31 @@ export function useSelection(components, wires, onWiresDeleted = null) {
 
   // Delete selected items
   function deleteSelected() {
-    // Delete selected components
-    components.value = components.value.filter(comp => 
-      !selectedComponents.value.has(comp.id)
-    )
+    // Delete selected components via callback
+    if (onComponentsDeleted && selectedComponents.value.size > 0) {
+      const componentIdsToDelete = Array.from(selectedComponents.value)
+      onComponentsDeleted(componentIdsToDelete)
+    }
     
     // Delete selected wires (in reverse order to maintain indices)
     const wireIndicesToDelete = Array.from(selectedWires.value).sort((a, b) => b - a)
     
-    // Get wire IDs before deletion if callback provided
-    const deletedWireIds = onWiresDeleted ? 
-      wireIndicesToDelete.map(index => wires.value[index]?.id).filter(id => id) : []
-    
-    wireIndicesToDelete.forEach(index => {
-      wires.value.splice(index, 1)
-    })
-    
-    // Call the callback to handle junction cleanup
-    if (onWiresDeleted) {
-      onWiresDeleted(wireIndicesToDelete, deletedWireIds)
+    if (wireIndicesToDelete.length > 0) {
+      // Get wire IDs before deletion if callback provided
+      const deletedWireIds = onWiresDeleted ? 
+        wireIndicesToDelete.map(index => wires.value[index]?.id).filter(id => id) : []
+      
+      // Delete wires via callback if provided
+      if (onWireDelete) {
+        wireIndicesToDelete.forEach(index => {
+          onWireDelete(index)
+        })
+      }
+      
+      // Call the callback to handle junction cleanup
+      if (onWiresDeleted) {
+        onWiresDeleted(wireIndicesToDelete, deletedWireIds)
+      }
     }
     
     clearSelection()
