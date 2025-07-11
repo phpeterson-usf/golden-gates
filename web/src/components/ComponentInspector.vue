@@ -16,9 +16,19 @@
         >
           <label>{{ prop.label }}</label>
           
-          <!-- Text input for circuit properties -->
+          <!-- Python identifier input for circuit name -->
+          <PythonIdentifierInput 
+            v-if="prop.type === 'text' && prop.name === 'name'"
+            :modelValue="getCircuitValue(prop.name)"
+            @update:modelValue="updateCircuitValue(prop.name, $event)"
+            :placeholder="prop.placeholder"
+            :required="true"
+            class="property-input"
+          />
+          
+          <!-- Regular text input for other circuit properties -->
           <InputText 
-            v-if="prop.type === 'text'"
+            v-else-if="prop.type === 'text'"
             :modelValue="getCircuitValue(prop.name)"
             @update:modelValue="updateCircuitValue(prop.name, $event)"
             :placeholder="prop.placeholder"
@@ -133,6 +143,7 @@ import MultibaseNumberInput from './MultibaseNumberInput.vue'
 import BaseSelector from './BaseSelector.vue'
 import RotationSelector from './RotationSelector.vue'
 import InvertedInputsSelector from './InvertedInputsSelector.vue'
+import PythonIdentifierInput from './PythonIdentifierInput.vue'
 import Textarea from 'primevue/textarea'
 
 export default {
@@ -142,6 +153,7 @@ export default {
     BaseSelector,
     RotationSelector,
     InvertedInputsSelector,
+    PythonIdentifierInput,
     Textarea
   },
   props: {
@@ -335,6 +347,14 @@ export default {
   font-size: 0.75rem;
   font-weight: 500;
   color: #4b5563;
+}
+
+.property-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.625rem;
+  color: #6b7280;
+  font-style: normal;
 }
 
 .position-inputs {

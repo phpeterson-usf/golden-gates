@@ -26,13 +26,13 @@ export function useCircuitManager() {
     if (allCircuits.value.size === 0) {
       const defaultCircuit = {
         id: 'circuit_1',
-        name: 'Circuit 1',
+        name: 'Circuit1',
         label: 'Circuit 1',
         components: [],
         wires: [],
         wireJunctions: [],
         properties: {
-          name: 'Circuit 1',
+          name: 'Circuit1',
           label: 'Circuit 1'
         }
       }
@@ -90,14 +90,14 @@ export function useCircuitManager() {
     const id = options.id || `circuit_${nextCircuitId.value++}`
     const circuit = {
       id,
-      name: name || `Circuit ${nextCircuitId.value - 1}`,
+      name: name || `Circuit${nextCircuitId.value - 1}`,
       label: options.label || name || `Circuit ${nextCircuitId.value - 1}`,
       components: [],
       wires: [],
       wireJunctions: [],
       // Circuit properties that appear in inspector
       properties: {
-        name: name || `Circuit ${nextCircuitId.value - 1}`,
+        name: name || `Circuit${nextCircuitId.value - 1}`,
         label: options.label || name || `Circuit ${nextCircuitId.value - 1}`,
         // Interface definition for when used as a component
         interface: {

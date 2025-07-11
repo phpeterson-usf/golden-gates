@@ -173,7 +173,8 @@ export const componentPropertySchema = {
         name: 'name',
         label: 'Circuit Name',
         type: 'text',
-        required: true
+        required: true,
+        help: 'Upper, lower, digit, underscore'
       },
       {
         name: 'label',
