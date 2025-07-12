@@ -314,6 +314,11 @@ export function useCanvasInteractions(circuitManager, canvasOperations, wireMana
    * Handle wire mouse down events
    */
   function handleWireMouseDown(wireIndex, event) {
+    // Skip drag behavior if Alt is held (junction mode)
+    if (event.altKey || isJunctionMode.value) {
+      return  // Let the click handler deal with junction creation
+    }
+    
     // Only start drag if the wire is selected
     if (!selection.selectedWires.value.has(wireIndex)) return
     
