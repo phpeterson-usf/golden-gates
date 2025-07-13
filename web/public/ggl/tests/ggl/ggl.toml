@@ -114,3 +114,9 @@ expected = """
 0
 """
 rubric = 1
+
+[[tests]]
+name = "splitter-merger-test"
+input = ["python3", "$project_tests/splitter-merger-test.py"]
+expected = "10"
+rubric = 1
