@@ -39,7 +39,7 @@ class Splitter(WireNode):
         for i in range(self.bits):
             # mask bit at i to get bit_val, and then propagate to the output node
             bit_val = (input_value >> i) & 1
-            logger.info(f'Splitter {self.label} output {i}: {bit_val}')
+            logger.info(f'{self.kind} {self.label} output {i}: {bit_val}')
             
             for edge in self.outputs.points[str(i)]:
                 edge.propagate(bit_val)
@@ -62,5 +62,20 @@ class Merger(WireNode):
             bit = edge.value & 1
             # or all bits together to get an output value
             bits |= (bit << i)
-        logger.info(f'Merger {self.label} combined value: {bits}')
+        logger.info(f'{self.kind} {self.label} combined value: {bits}')
         return super().propagate(bits)
+    
+class Tunnel(WireNode):
+    """
+    Tunnels a value from input to output, used for readability and to reduce wiring
+    """
+    kind = 'Tunnel'
+
+    def __init__(self, label='', bits=1):
+        super().__init__(Tunnel.kind, num_inputs=1, num_outputs=1, label=label, bits=bits)
+
+    def propagate(self, value=0):
+        input_edge = self.inputs.get_edge('0')
+        input_value = input_edge.value
+        logger.info(f'{self.kind} {self.label} passes value: {input_value}')
+        return super().propagate(input_value)
