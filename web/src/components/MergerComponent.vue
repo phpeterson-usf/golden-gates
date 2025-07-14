@@ -160,9 +160,4 @@ function getRangeLabel(index) {
 .merger-component {
   pointer-events: all;
 }
-
-.connection-point {
-  fill: black;
-  pointer-events: all;
-}
 </style>
