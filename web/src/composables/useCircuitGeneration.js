@@ -430,7 +430,62 @@ export function useCircuitGeneration() {
     return `${circuitVarName}.connect(${sourceExpr}, ${destExpr})    ${comment}`
   }
   
+  /**
+   * Generate a GGL program for a circuit component (without run() call)
+   */
+  function generateGglProgramForCircuitComponent(circuit, circuitManager) {
+    // Generate the GGL code for this circuit (without run() call for components)
+    return generateGglProgram(
+      circuit.components,
+      circuit.wires,
+      circuit.wireJunctions,
+      {}, // componentRefs - not needed for component generation
+      {}, // componentInstances - not needed for component generation
+      circuitManager,
+      false // Don't include run() call for component modules
+    )
+  }
+
+  /**
+   * Wrap a GGL program as an importable Python component module
+   */
+  function wrapGglProgramAsComponentModule(componentName, gglProgram, requiredImports) {
+    return `from ggl import circuit, logic, io
+
+# Import other components this circuit uses
+${requiredImports}
+
+# Build the circuit
+${gglProgram}
+
+# Export as a reusable component
+${componentName} = circuit.Component(circuit0)
+`
+  }
+
+  /**
+   * Find all component imports required by a circuit
+   */
+  function findRequiredComponentImports(components, circuitManager) {
+    const imports = new Set()
+    
+    components.forEach(comp => {
+      if (comp.type === 'schematic-component') {
+        const circuitId = comp.props?.circuitId || comp.circuitId
+        const componentDef = circuitManager.getComponentDefinition(circuitId)
+        if (componentDef) {
+          imports.add(`from ${componentDef.name} import ${componentDef.name}`)
+        }
+      }
+    })
+    
+    return Array.from(imports).join('\n')
+  }
+
   return {
-    generateGglProgram
+    generateGglProgram,
+    generateGglProgramForCircuitComponent,
+    wrapGglProgramAsComponentModule,
+    findRequiredComponentImports
   }
 }

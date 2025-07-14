@@ -11,6 +11,10 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
   // Clean up any existing component files first
   await removeExistingComponentFilesFromMemfs(pyodide)
   
+  // Import circuit generation functions
+  const { useCircuitGeneration } = await import('./useCircuitGeneration.js')
+  const { generateGglProgramForCircuitComponent, wrapGglProgramAsComponentModule, findRequiredComponentImports } = useCircuitGeneration()
+  
   // Write ALL saved components as Python modules to MEMFS
   for (const [id, component] of circuitManager.availableComponents.value) {
     if (component.type === 'circuit-component') {
@@ -18,10 +22,7 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
       if (!circuit) continue
       
       // Generate GGL program for this component's circuit
-      const gglProgramCode = await generateGglProgramForCircuitComponent(
-        circuit,
-        circuitManager
-      )
+      const gglProgramCode = generateGglProgramForCircuitComponent(circuit, circuitManager)
       
       // Wrap as importable Python module
       const pythonModuleCode = wrapGglProgramAsComponentModule(
@@ -40,61 +41,6 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
   }
 }
 
-/**
- * Generate a GGL program for a circuit component
- */
-async function generateGglProgramForCircuitComponent(circuit, circuitManager) {
-  // Import the circuit generation function
-  const { useCircuitGeneration } = await import('./useCircuitGeneration.js')
-  const { generateGglProgram } = useCircuitGeneration()
-  
-  // Generate the GGL code for this circuit (without run() call for components)
-  return generateGglProgram(
-    circuit.components,
-    circuit.wires,
-    circuit.wireJunctions,
-    {}, // componentRefs - not needed for component generation
-    {}, // componentInstances - not needed for component generation
-    circuitManager,
-    false // Don't include run() call for component modules
-  )
-}
-
-/**
- * Wrap a GGL program as an importable Python component module
- */
-function wrapGglProgramAsComponentModule(componentName, gglProgram, requiredImports) {
-  return `from ggl import circuit, logic, io
-
-# Import other components this circuit uses
-${requiredImports}
-
-# Build the circuit
-${gglProgram}
-
-# Export as a reusable component
-${componentName} = circuit.Component(circuit0)
-`
-}
-
-/**
- * Find all component imports required by a circuit
- */
-function findRequiredComponentImports(components, circuitManager) {
-  const imports = new Set()
-  
-  components.forEach(comp => {
-    if (comp.type === 'schematic-component') {
-      const circuitId = comp.props?.circuitId || comp.circuitId
-      const componentDef = circuitManager.getComponentDefinition(circuitId)
-      if (componentDef) {
-        imports.add(`from ${componentDef.name} import ${componentDef.name}`)
-      }
-    }
-  })
-  
-  return Array.from(imports).join('\n')
-}
 
 /**
  * Remove existing component files from Pyodide's MEMFS
