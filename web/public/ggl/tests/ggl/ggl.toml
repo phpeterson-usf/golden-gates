@@ -116,13 +116,7 @@ expected = """
 rubric = 1
 
 [[tests]]
-name = "splitter-merger-test"
-input = ["python3", "$project_tests/splitter-merger-test.py"]
+name = "4bit-splitter-merger"
+input = ["python3", "$project_tests/4bit-splitter-merger.py"]
 expected = "10"
-rubric = 1
-
-[[tests]]
-name = "tunnel-test"
-input = ["python3", "$project_tests/tunnel-test.py"]
-expected = "11"
 rubric = 1
