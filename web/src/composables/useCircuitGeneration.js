@@ -2,24 +2,6 @@ import { componentRegistry } from '../utils/componentRegistry'
 
 export function useCircuitGeneration() {
   
-  // Helper function to find required component imports for circuit generation
-  function findRequiredComponentImportsForGeneration(components, circuitManager) {
-    if (!circuitManager) return ''
-    
-    const imports = new Set()
-    
-    components.forEach(comp => {
-      if (comp.type === 'schematic-component') {
-        const circuitId = comp.props?.circuitId || comp.circuitId
-        const componentDef = circuitManager.getComponentDefinition(circuitId)
-        if (componentDef) {
-          imports.add(`from ${componentDef.name} import ${componentDef.name}`)
-        }
-      }
-    })
-    
-    return Array.from(imports).join('\n')
-  }
   
   // Helper function to generate component code from registry
   function generateComponentCode(component, varName) {
@@ -159,7 +141,7 @@ export function useCircuitGeneration() {
     sections.push('from ggl import io, logic, circuit')
     
     // Import all circuit components used in this circuit
-    const componentImports = findRequiredComponentImportsForGeneration(components, circuitManager)
+    const componentImports = findRequiredComponentImports(components, circuitManager)
     if (componentImports) {
       sections.push(componentImports)
     }
@@ -466,14 +448,14 @@ ${componentName} = circuit.Component(circuit0)
   /**
    * Find all component imports required by a circuit
    */
-  function findRequiredComponentImports(components, circuitManager) {
+  function findRequiredComponentImports(components, circuitManager, excludeComponentName = null) {
     const imports = new Set()
     
     components.forEach(comp => {
       if (comp.type === 'schematic-component') {
         const circuitId = comp.props?.circuitId || comp.circuitId
         const componentDef = circuitManager.getComponentDefinition(circuitId)
-        if (componentDef) {
+        if (componentDef && componentDef.name !== excludeComponentName) {
           imports.add(`from ${componentDef.name} import ${componentDef.name}`)
         }
       }

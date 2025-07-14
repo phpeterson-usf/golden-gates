@@ -265,15 +265,12 @@ export function useCircuitOperations(circuitManager) {
         try {
           // Restore the circuit definition
           if (data.circuit) {
-            // Add the circuit to the circuit manager if it doesn't exist
-            if (!circuitManager.getCircuit(circuitId)) {
-              // Create circuit with the saved data
-              const circuit = {
-                ...data.circuit,
-                id: circuitId
-              }
-              circuitManager.allCircuits.value.set(circuitId, circuit)
+            // Always restore circuit data (overwrite existing if needed)
+            const circuit = {
+              ...data.circuit,
+              id: circuitId
             }
+            circuitManager.allCircuits.value.set(circuitId, circuit)
           }
           
           // Restore the component definition
@@ -286,19 +283,42 @@ export function useCircuitOperations(circuitManager) {
       })
     }
     
-    // Apply circuit properties to the current circuit
-    if (circuitManager.activeCircuit.value) {
-      const activeCircuit = circuitManager.activeCircuit.value
+    // Ensure we're loading into the correct circuit context
+    // Create a new circuit or use the active circuit appropriately
+    let targetCircuit = circuitManager.activeCircuit.value
+    
+    // If the loaded circuit has a different name than the active circuit, 
+    // we should create a new circuit or rename the active circuit
+    if (targetCircuit && circuitData.name && circuitData.name !== targetCircuit.name) {
+      // Check if any of the schematic components reference the current active circuit
+      const hasConflict = circuitData.components?.some(component => {
+        if (component.type === 'schematic-component') {
+          const circuitId = component.props?.circuitId || component.circuitId
+          return circuitId === targetCircuit.id
+        }
+        return false
+      })
       
+      if (hasConflict) {
+        // Create a new circuit for the loaded data to avoid conflicts
+        const newCircuitName = circuitData.name || `Circuit${Date.now()}`
+        targetCircuit = circuitManager.createCircuit(newCircuitName, {
+          label: circuitData.label || newCircuitName
+        })
+      }
+    }
+    
+    // Apply circuit properties to the target circuit
+    if (targetCircuit) {
       if (circuitData.name) {
-        activeCircuit.name = circuitData.name
+        targetCircuit.name = circuitData.name
       }
       if (circuitData.label) {
-        activeCircuit.label = circuitData.label
+        targetCircuit.label = circuitData.label
       }
       if (circuitData.interface) {
-        activeCircuit.properties = activeCircuit.properties || {}
-        activeCircuit.properties.interface = circuitData.interface
+        targetCircuit.properties = targetCircuit.properties || {}
+        targetCircuit.properties.interface = circuitData.interface
       }
     }
     

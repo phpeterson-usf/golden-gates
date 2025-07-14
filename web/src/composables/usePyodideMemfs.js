@@ -28,7 +28,7 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
       const pythonModuleCode = wrapGglProgramAsComponentModule(
         component.name,
         gglProgramCode,
-        findRequiredComponentImports(circuit.components, circuitManager)
+        findRequiredComponentImports(circuit.components, circuitManager, component.name)
       )
       
       // Write to Pyodide's MEMFS
