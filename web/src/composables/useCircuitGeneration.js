@@ -151,7 +151,7 @@ export function useCircuitGeneration() {
     return null
   }
   
-  function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances, circuitManager = null) {
+  function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances, circuitManager = null, includeRun = true) {
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
@@ -376,7 +376,10 @@ export function useCircuitGeneration() {
       }
     }
     
-    sections.push(`${circuitVarName}.run()`)
+    // Only include run() call for main circuit execution, not for component definitions
+    if (includeRun) {
+      sections.push(`${circuitVarName}.run()`)
+    }
     
     return sections.join('\n')
   }
@@ -402,14 +405,14 @@ export function useCircuitGeneration() {
     let sourceExpr = sourceVarName
     let destExpr = destVarName
     
-    // Only add output specifier if component has multiple outputs
-    if (sourceOutputs.length > 1) {
+    // For schematic components, always specify ports since they're circuit.Component objects
+    // For regular components, only specify ports if there are multiple
+    if (sourceComp.type === 'schematic-component' || sourceOutputs.length > 1) {
       const outputName = getPortName(sourceOutputs, sourcePort, 'output')
       sourceExpr = `${sourceVarName}.output("${outputName}")`
     }
     
-    // Only add input specifier if component has multiple inputs
-    if (destInputs.length > 1) {
+    if (destComp.type === 'schematic-component' || destInputs.length > 1) {
       const inputName = getPortName(destInputs, destPort, 'input')
       destExpr = `${destVarName}.input("${inputName}")`
     }

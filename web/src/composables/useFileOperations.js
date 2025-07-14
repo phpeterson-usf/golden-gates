@@ -1,14 +1,21 @@
 export function useFileOperations() {
 
-  const saveCircuit = async (components, wires, wireJunctions) => {
+  const saveCircuit = async (components, wires, wireJunctions, circuitMetadata = {}, schematicComponents = {}) => {
     try {
-      // Create the circuit data object
+      // Create the circuit data object with consistent top-level structure
       const circuitData = {
-        version: '1.0',
+        version: '1.1', // Bump version to indicate enhanced format
         timestamp: new Date().toISOString(),
+        // Circuit-level properties at top level for consistency with version/timestamp
+        name: circuitMetadata.name || 'Untitled Circuit',
+        label: circuitMetadata.label || circuitMetadata.name || 'Untitled Circuit',
+        interface: circuitMetadata.interface,
+        // Component instances and structure
         components: components || [],
         wires: wires || [],
-        wireJunctions: wireJunctions || []
+        wireJunctions: wireJunctions || [],
+        // Schematic component definitions for hierarchical circuits
+        schematicComponents: schematicComponents || {}
       }
       
       // Convert to JSON string with nice formatting
@@ -18,8 +25,10 @@ export function useFileOperations() {
       if ('showSaveFilePicker' in window) {
         try {
           // Use the File System Access API for better UX
+          const circuitName = circuitMetadata.name || 'circuit'
+          const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
           const handle = await window.showSaveFilePicker({
-            suggestedName: `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`,
+            suggestedName: `${circuitName}_${timestamp}.json`,
             types: [{
               description: 'JSON Circuit File',
               accept: { 'application/json': ['.json'] }
@@ -45,9 +54,11 @@ export function useFileOperations() {
         const blob = new Blob([jsonString], { type: 'application/json' })
         const url = URL.createObjectURL(blob)
         
+        const circuitName = circuitMetadata.name || 'circuit'
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
         const link = document.createElement('a')
         link.href = url
-        link.download = `circuit_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`
+        link.download = `${circuitName}_${timestamp}.json`
         document.body.appendChild(link)
         link.click()
         
@@ -146,6 +157,23 @@ export function useFileOperations() {
           typeof component.y !== 'number') {
         throw new Error('Invalid component structure')
       }
+    }
+    
+    // Validate v1.1+ format fields
+    if (circuitData.name && typeof circuitData.name !== 'string') {
+      throw new Error('Invalid circuit file: name must be a string')
+    }
+    
+    if (circuitData.label && typeof circuitData.label !== 'string') {
+      throw new Error('Invalid circuit file: label must be a string')
+    }
+    
+    if (circuitData.interface && typeof circuitData.interface !== 'object') {
+      throw new Error('Invalid circuit file: interface must be an object')
+    }
+    
+    if (circuitData.schematicComponents && typeof circuitData.schematicComponents !== 'object') {
+      throw new Error('Invalid circuit file: schematicComponents must be an object')
     }
     
     return true

@@ -32,6 +32,9 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
       
       // Write to Pyodide's MEMFS
       const fileName = `${component.name}.py`
+      console.log(`\n=== Writing ${fileName} to MEMFS ===`)
+      console.log(pythonModuleCode)
+      console.log(`=== End of ${fileName} ===\n`)
       pyodide.FS.writeFile(fileName, pythonModuleCode)
     }
   }
@@ -45,14 +48,15 @@ async function generateGglProgramForCircuitComponent(circuit, circuitManager) {
   const { useCircuitGeneration } = await import('./useCircuitGeneration.js')
   const { generateGglProgram } = useCircuitGeneration()
   
-  // Generate the GGL code for this circuit
+  // Generate the GGL code for this circuit (without run() call for components)
   return generateGglProgram(
     circuit.components,
     circuit.wires,
     circuit.wireJunctions,
     {}, // componentRefs - not needed for component generation
     {}, // componentInstances - not needed for component generation
-    circuitManager
+    circuitManager,
+    false // Don't include run() call for component modules
   )
 }
 

@@ -101,8 +101,9 @@ export function useCircuitOperations(circuitManager) {
         return
       }
       
-      console.log('Generated hierarchical GGL program:')
+      console.log('\n=== Main Circuit GGL Program ===')
       console.log(mainCircuitGglProgram)
+      console.log('=== End of Main Circuit ===\n')
       
       // Step 4: Set up callback for Python to update Vue components
       setupPythonVueUpdateCallback(canvasRef)
@@ -182,7 +183,35 @@ export function useCircuitOperations(circuitManager) {
       const wires = canvasRef?.wires || []
       const wireJunctions = canvasRef?.wireJunctions || []
       
-      await saveCircuitFile(components, wires, wireJunctions)
+      // Get circuit metadata from the current active circuit
+      const activeCircuit = circuitManager.activeCircuit.value
+      const circuitMetadata = activeCircuit ? {
+        name: activeCircuit.name,
+        label: activeCircuit.label,
+        // Only include interface from properties, not duplicate name/label
+        interface: activeCircuit.properties?.interface
+      } : {}
+      
+      // Collect all schematic component definitions used in this circuit
+      const usedSchematicComponents = {}
+      components.forEach(component => {
+        if (component.type === 'schematic-component') {
+          const circuitId = component.props?.circuitId || component.circuitId
+          const componentDef = circuitManager.getComponentDefinition(circuitId)
+          if (componentDef) {
+            // Get the full circuit definition
+            const circuit = circuitManager.getCircuit(circuitId)
+            if (circuit) {
+              usedSchematicComponents[circuitId] = {
+                definition: componentDef,
+                circuit: circuit
+              }
+            }
+          }
+        }
+      })
+      
+      await saveCircuitFile(components, wires, wireJunctions, circuitMetadata, usedSchematicComponents)
     } catch (error) {
       console.error('Error saving circuit:', error)
       alert('Error saving circuit: ' + error.message)
@@ -227,6 +256,51 @@ export function useCircuitOperations(circuitManager) {
     
     // Clear existing circuit
     canvasRef.clearCircuit()
+    
+    // For v1.1+ format, restore schematic component definitions first
+    if (circuitData.schematicComponents && Object.keys(circuitData.schematicComponents).length > 0) {
+      console.log('Restoring schematic component definitions...')
+      
+      Object.entries(circuitData.schematicComponents).forEach(([circuitId, data]) => {
+        try {
+          // Restore the circuit definition
+          if (data.circuit) {
+            // Add the circuit to the circuit manager if it doesn't exist
+            if (!circuitManager.getCircuit(circuitId)) {
+              // Create circuit with the saved data
+              const circuit = {
+                ...data.circuit,
+                id: circuitId
+              }
+              circuitManager.allCircuits.value.set(circuitId, circuit)
+            }
+          }
+          
+          // Restore the component definition
+          if (data.definition) {
+            circuitManager.availableComponents.value.set(circuitId, data.definition)
+          }
+        } catch (error) {
+          console.warn(`Failed to restore schematic component ${circuitId}:`, error)
+        }
+      })
+    }
+    
+    // Apply circuit properties to the current circuit
+    if (circuitManager.activeCircuit.value) {
+      const activeCircuit = circuitManager.activeCircuit.value
+      
+      if (circuitData.name) {
+        activeCircuit.name = circuitData.name
+      }
+      if (circuitData.label) {
+        activeCircuit.label = circuitData.label
+      }
+      if (circuitData.interface) {
+        activeCircuit.properties = activeCircuit.properties || {}
+        activeCircuit.properties.interface = circuitData.interface
+      }
+    }
     
     // Load components
     if (circuitData.components) {
