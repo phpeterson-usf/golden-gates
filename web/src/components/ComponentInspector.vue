@@ -125,6 +125,14 @@
             :numInputs="getPropValue('numInputs', 2)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
+          
+          <!-- Bit range table for splitter -->
+          <BitRangeTable
+            v-else-if="prop.type === 'bit-range-table'"
+            :modelValue="getPropValue(prop.name, prop.default)"
+            :inputBits="getPropValue('inputBits', 8)"
+            @update:modelValue="updateProp(prop.name, $event)"
+          />
         </div>
       </div>
       
@@ -143,6 +151,7 @@ import MultibaseNumberInput from './MultibaseNumberInput.vue'
 import BaseSelector from './BaseSelector.vue'
 import RotationSelector from './RotationSelector.vue'
 import InvertedInputsSelector from './InvertedInputsSelector.vue'
+import BitRangeTable from './BitRangeTable.vue'
 import PythonIdentifierInput from './PythonIdentifierInput.vue'
 import Textarea from 'primevue/textarea'
 
@@ -153,6 +162,7 @@ export default {
     BaseSelector,
     RotationSelector,
     InvertedInputsSelector,
+    BitRangeTable,
     PythonIdentifierInput,
     Textarea
   },

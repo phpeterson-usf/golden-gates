@@ -295,6 +295,17 @@ export default {
           ]
         },
         {
+          label: 'Wires',
+          icon: 'pi pi-fw pi-share-alt',
+          items: [
+            {
+              label: 'Splitter',
+              componentType: 'splitter',
+              command: () => this.addComponent('splitter')
+            }
+          ]
+        },
+        {
           label: 'Components',
           icon: 'pi pi-fw pi-cube',
           items: [

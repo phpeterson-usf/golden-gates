@@ -165,6 +165,28 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Splitter properties
+  'splitter': {
+    title: 'Splitter Properties',
+    properties: [
+      {
+        name: 'inputBits',
+        type: 'number',
+        label: 'Bits in',
+        default: 8,
+        min: 1,
+        max: 64,
+        showButtons: true
+      },
+      {
+        name: 'ranges',
+        type: 'bit-range-table',
+        label: 'Outputs'
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // Circuit properties
   'circuit': {
     title: 'Circuit Properties',
