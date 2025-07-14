@@ -21,7 +21,7 @@
           <InputNumber 
             v-model="range.start" 
             :min="0" 
-            :max="props.inputBits - 1"
+            :max="maxBits - 1"
             @update:modelValue="updateRange(index)"
             placeholder="0"
             class="range-input"
@@ -30,7 +30,7 @@
           <InputNumber 
             v-model="range.end" 
             :min="range.start" 
-            :max="props.inputBits - 1"
+            :max="maxBits - 1"
             @update:modelValue="updateRange(index)"
             placeholder="0"
             class="range-input"
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineEmits, defineProps } from 'vue'
+import { ref, watch, computed, defineEmits, defineProps } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 
@@ -63,8 +63,15 @@ const props = defineProps({
   inputBits: {
     type: Number,
     default: 8
+  },
+  outputBits: {
+    type: Number,
+    default: 8
   }
 })
+
+// Use inputBits for splitter, outputBits for merger
+const maxBits = computed(() => props.inputBits || props.outputBits || 8)
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -75,8 +82,8 @@ watch(() => props.modelValue, (newValue) => {
   ranges.value = [...newValue]
 }, { deep: true })
 
-// Watch for inputBits changes to clamp ranges
-watch(() => props.inputBits, (newBits) => {
+// Watch for bit count changes to clamp ranges
+watch(maxBits, (newBits) => {
   ranges.value.forEach(range => {
     if (range.start >= newBits) range.start = newBits - 1
     if (range.end >= newBits) range.end = newBits - 1
@@ -96,7 +103,7 @@ function addRange() {
   
   // Find first unused bit
   let startBit = 0
-  for (let i = 0; i < props.inputBits; i++) {
+  for (let i = 0; i < maxBits.value; i++) {
     if (!usedBits.has(i)) {
       startBit = i
       break

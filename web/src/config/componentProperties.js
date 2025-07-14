@@ -187,6 +187,28 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Merger properties
+  'merger': {
+    title: 'Merger Properties',
+    properties: [
+      {
+        name: 'outputBits',
+        type: 'number',
+        label: 'Bits out',
+        default: 8,
+        min: 1,
+        max: 64,
+        showButtons: true
+      },
+      {
+        name: 'ranges',
+        type: 'bit-range-table',
+        label: 'Inputs'
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // Circuit properties
   'circuit': {
     title: 'Circuit Properties',

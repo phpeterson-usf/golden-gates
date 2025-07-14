@@ -1,51 +1,51 @@
 <template>
-  <g class="splitter-component" :transform="`translate(${x}, ${y}) rotate(${rotation})`">
-    <!-- Splitter body (vertical line with thick stroke) -->
+  <g class="merger-component" :transform="`translate(${x}, ${y}) rotate(${rotation})`">
+    <!-- Merger body (vertical line with thick stroke) -->
     <line 
       :x1="gridSize" 
       :y1="0" 
       :x2="gridSize" 
       :y2="height" 
-      :class="['splitter-body', { 'selected': selected }]"
+      :class="['merger-body', { 'selected': selected }]"
       :stroke-width="8"
       :data-component-id="id"
       @mousedown="handleMouseDown"
     />
     
-    <!-- Input connection line -->
+    <!-- Output connection line -->
     <line 
-      x1="0" 
-      :y1="inputY" 
-      :x2="gridSize" 
-      :y2="inputY" 
+      :x1="gridSize" 
+      :y1="outputY" 
+      :x2="2 * gridSize" 
+      :y2="outputY" 
       class="connector-line"
     />
     
-    <!-- Input bits label positioned to the left and above the input point -->
+    <!-- Output bits label positioned to the right and above the output point -->
     <text 
-      :x="-8" 
-      :y="inputY - 3" 
+      :x="2 * gridSize + 8" 
+      :y="outputY - 3" 
       class="range-label"
-      text-anchor="end"
+      text-anchor="start"
     >
-      {{ inputBits }}
+      {{ outputBits }}
     </text>
     
-    <!-- Output connection lines with labels -->
-    <g v-for="(output, index) in outputs" :key="index">
+    <!-- Input connection lines with labels -->
+    <g v-for="(input, index) in inputs" :key="index">
       <line 
-        :x1="gridSize" 
-        :y1="output.y" 
-        :x2="2 * gridSize" 
-        :y2="output.y" 
+        x1="0" 
+        :y1="input.y" 
+        :x2="gridSize" 
+        :y2="input.y" 
         class="connector-line"
       />
-      <!-- Range label positioned to the right of the connection point -->
+      <!-- Range label positioned to the left of the connection point -->
       <text 
-        :x="2 * gridSize + 8" 
-        :y="output.y - 3" 
+        :x="-8" 
+        :y="input.y - 3" 
         class="range-label"
-        text-anchor="start"
+        text-anchor="end"
       >
         {{ getRangeLabel(index) }}
       </text>
@@ -53,25 +53,25 @@
     
     <!-- Connection points -->
     <circle 
-      cx="0" 
-      :cy="inputY" 
-      :r="CONNECTION_DOT_RADIUS" 
-      class="connection-point input-point"
-      :data-component-id="id"
-      :data-port="0"
-      data-type="input"
-    />
-    
-    <circle 
-      v-for="(output, index) in outputs" 
-      :key="`output-${index}`"
       :cx="2 * gridSize" 
-      :cy="output.y" 
+      :cy="outputY" 
       :r="CONNECTION_DOT_RADIUS" 
       class="connection-point output-point"
       :data-component-id="id"
-      :data-port="index"
+      :data-port="0"
       data-type="output"
+    />
+    
+    <circle 
+      v-for="(input, index) in inputs" 
+      :key="`input-${index}`"
+      cx="0" 
+      :cy="input.y" 
+      :r="CONNECTION_DOT_RADIUS" 
+      class="connection-point input-point"
+      :data-component-id="id"
+      :data-port="index"
+      data-type="input"
     />
   </g>
 </template>
@@ -103,7 +103,7 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  inputBits: {
+  outputBits: {
     type: Number,
     default: 8
   },
@@ -129,19 +129,19 @@ const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useDraggable(pr
 
 // Get dynamic connections
 const connections = computed(() => {
-  const config = componentRegistry['splitter']
+  const config = componentRegistry['merger']
   return config.getConnections(props)
 })
 
 // Get dynamic dimensions
 const dimensions = computed(() => {
-  const config = componentRegistry['splitter']
+  const config = componentRegistry['merger']
   return config.getDimensions(props)
 })
 
 const height = computed(() => dimensions.value.height)
-const inputY = computed(() => connections.value.inputs[0].y)
-const outputs = computed(() => connections.value.outputs)
+const outputY = computed(() => connections.value.outputs[0].y)
+const inputs = computed(() => connections.value.inputs)
 
 // Get range label for display
 function getRangeLabel(index) {
@@ -157,7 +157,7 @@ function getRangeLabel(index) {
 </script>
 
 <style scoped>
-.splitter-component {
+.merger-component {
   pointer-events: all;
 }
 

@@ -302,6 +302,11 @@ export default {
               label: 'Splitter',
               componentType: 'splitter',
               command: () => this.addComponent('splitter')
+            },
+            {
+              label: 'Merger',
+              componentType: 'merger',
+              command: () => this.addComponent('merger')
             }
           ]
         },

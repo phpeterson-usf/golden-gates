@@ -151,6 +151,65 @@ export const componentRegistry = {
     }
   },
   
+  'merger': {
+    component: defineAsyncComponent(() => import('../components/MergerComponent.vue')),
+    label: 'Merger',
+    icon: 'pi pi-sign-in',
+    category: 'wires',
+    defaultProps: {
+      outputBits: 8,
+      ranges: [
+        { start: 0, end: 1 },
+        { start: 2, end: 3 },
+        { start: 4, end: 5 },
+        { start: 6, end: 7 }
+      ],
+      rotation: 0
+    },
+    // Dynamic connections based on ranges
+    getConnections: (props) => {
+      const ranges = props.ranges || []
+      const inputCount = ranges.length
+      const minHeight = 4 * GRID_SIZE // Increased minimum height
+      const totalHeight = Math.max(minHeight, (inputCount + 1) * GRID_SIZE) // More spacing
+      
+      // Multiple inputs on the left, evenly spaced with proper margins
+      const inputs = ranges.map((_, index) => {
+        let y
+        if (inputCount === 1) {
+          y = totalHeight / 2
+        } else {
+          // Add top and bottom margins, distribute the rest evenly
+          const topMargin = GRID_SIZE
+          const bottomMargin = GRID_SIZE
+          const availableHeight = totalHeight - topMargin - bottomMargin
+          const spacing = availableHeight / (inputCount - 1)
+          y = topMargin + index * spacing
+        }
+        // Snap to grid
+        y = Math.round(y / GRID_SIZE) * GRID_SIZE
+        return { x: 0, y }
+      })
+      
+      // Single output on the right, centered
+      const outputs = [{ 
+        x: 2 * GRID_SIZE, 
+        y: Math.round(totalHeight / 2 / GRID_SIZE) * GRID_SIZE 
+      }]
+      
+      return { inputs, outputs }
+    },
+    getDimensions: (props) => {
+      const inputCount = (props.ranges || []).length
+      const minHeight = 4 * GRID_SIZE // Increased minimum height
+      const height = Math.max(minHeight, (inputCount + 1) * GRID_SIZE) // More spacing
+      return {
+        width: 2 * GRID_SIZE,
+        height: height
+      }
+    }
+  },
+  
   'schematic-component': {
     component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
     label: 'Schematic Component',
