@@ -23,5 +23,25 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin'
     }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.js'],
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'tests/',
+        'dist/',
+        '**/*.test.js'
+      ]
+    },
+    reporter: process.env.CI ? 'verbose' : 'default'
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
   }
 })
