@@ -11,10 +11,10 @@ circuit0 = circuit.Circuit()
 a = io.Input(bits=32, label="a")
 a.value = 0x12345678 
 
-split = wires.Splitter(label="split", bits=32, splits=[8, 8, 8, 8])
+split = wires.Splitter(label="split", bits=32, splits=[(0,7),(8,15),(16,23),(24,31)])
 
 
-merge = wires.Merger(label="merge", bits=32, merge_inputs=[8, 8, 8, 8])
+merge = wires.Merger(label="merge", bits=32, merge_inputs=[(0,7),(8,15),(16,23),(24,31)])
 
 
 r = io.Output(bits=32, label="r")
