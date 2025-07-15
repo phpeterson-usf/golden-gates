@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { GRID_SIZE } from '../utils/constants'
 
-export function useCanvasOperations() {
+export function useCanvasViewport() {
   // Canvas dimensions
   const canvasWidth = ref(800)
   const canvasHeight = ref(600)

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useDragAndDrop(components, wires, selectedComponents, selectedWires, snapToGrid, wireJunctions) {
+export function useDragController(components, wires, selectedComponents, selectedWires, snapToGrid, wireJunctions) {
   // Dragging state
   const dragging = ref(null)
 

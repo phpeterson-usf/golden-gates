@@ -1,4 +1,4 @@
-export function useFileOperations() {
+export function useFileService() {
 
   const saveCircuit = async (components, wires, wireJunctions, circuitMetadata = {}, schematicComponents = {}) => {
     try {
@@ -40,11 +40,9 @@ export function useFileOperations() {
           await writable.write(jsonString)
           await writable.close()
           
-          console.log('Circuit saved successfully using File System Access API')
         } catch (err) {
           // User cancelled the save dialog
           if (err.name === 'AbortError') {
-            console.log('Save cancelled by user')
             return
           }
           throw err
@@ -66,7 +64,6 @@ export function useFileOperations() {
         document.body.removeChild(link)
         URL.revokeObjectURL(url)
         
-        console.log('Circuit saved successfully using fallback method')
       }
     } catch (error) {
       console.error('Error saving circuit:', error)
@@ -95,7 +92,6 @@ export function useFileOperations() {
         } catch (err) {
           // User cancelled the open dialog
           if (err.name === 'AbortError') {
-            console.log('Open cancelled by user')
             return null
           }
           throw err

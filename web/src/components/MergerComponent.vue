@@ -79,7 +79,7 @@
 <script setup>
 import { computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
-import { useDraggable } from '../composables/useDraggable'
+import { useComponentView } from '../composables/useComponentView'
 import { CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 const props = defineProps({
@@ -125,7 +125,7 @@ const props = defineProps({
 const emit = defineEmits(['startDrag'])
 
 // Use the draggable composable for selection and dragging
-const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useDraggable(props, emit)
+const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
 
 // Get dynamic connections
 const connections = computed(() => {

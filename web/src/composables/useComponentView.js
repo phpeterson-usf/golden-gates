@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { COLORS, STROKE_WIDTHS } from '../utils/constants'
 
-export function useDraggable(props, emit) {
+export function useComponentView(props, emit) {
   // Handle mouse down for dragging
   const handleMouseDown = (event) => {
     // Get the actual position where the user clicked relative to the SVG

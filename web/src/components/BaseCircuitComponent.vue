@@ -78,7 +78,7 @@
 
 <script>
 import { computed } from 'vue'
-import { useDraggable, draggableProps } from '../composables/useDraggable'
+import { useComponentView, draggableProps } from '../composables/useComponentView'
 
 export default {
   name: 'BaseCircuitComponent',
@@ -153,7 +153,7 @@ export default {
   },
   emits: ['startDrag', 'doubleClick'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useDraggable(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
     
     const displayLabel = computed(() => {
       return props.label || 'Component'

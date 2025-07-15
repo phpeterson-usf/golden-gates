@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { useFileOperations } from './useFileOperations'
+import { useFileService } from './useFileService'
 import { usePyodide } from './usePyodide'
 import { writeAllCircuitComponentsToPyodideMemfs, configurePythonImportPathForMemfs, executePythonProgramInPyodide } from './usePyodideMemfs'
 
@@ -7,8 +7,8 @@ import { writeAllCircuitComponentsToPyodideMemfs, configurePythonImportPathForMe
  * Circuit Operations - Business logic for circuit management
  * Provides controller layer functionality for circuit operations
  */
-export function useCircuitOperations(circuitManager) {
-  const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileOperations()
+export function useAppController(circuitManager) {
+  const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileService()
   const { initialize: initializePyodide, runPython, isLoading: isPyodideLoading, isReady: isPyodideReady, error: pyodideError, pyodide } = usePyodide()
   
   // Simulation state
@@ -75,7 +75,6 @@ export function useCircuitOperations(circuitManager) {
     try {
       // Initialize Pyodide if not already initialized
       if (!isPyodideReady.value) {
-        console.log('Initializing Pyodide...')
         await initializePyodide()
       }
       
@@ -83,7 +82,6 @@ export function useCircuitOperations(circuitManager) {
       const pyodideInstance = pyodide.value
       
       // Step 1: Write all saved circuit components as Python modules to MEMFS
-      console.log('Writing circuit components to Pyodide MEMFS...')
       await writeAllCircuitComponentsToPyodideMemfs(circuitManager, pyodideInstance)
       
       // Step 2: Configure Python import path for MEMFS (optional - MEMFS might already be in path)
@@ -97,13 +95,9 @@ export function useCircuitOperations(circuitManager) {
       const mainCircuitGglProgram = generateGglProgramForCurrentCircuit(canvasRef)
       
       if (!mainCircuitGglProgram || mainCircuitGglProgram.trim() === '') {
-        console.log('No components in circuit')
         return
       }
       
-      console.log('\n=== Main Circuit GGL Program ===')
-      console.log(mainCircuitGglProgram)
-      console.log('=== End of Main Circuit ===\n')
       
       // Step 4: Set up callback for Python to update Vue components
       setupPythonVueUpdateCallback(canvasRef)
@@ -111,7 +105,6 @@ export function useCircuitOperations(circuitManager) {
       // Step 5: Execute the complete hierarchical circuit program
       await executePythonProgramInPyodide(mainCircuitGglProgram, pyodideInstance)
       
-      console.log('Hierarchical circuit simulation completed successfully')
       
     } catch (err) {
       console.error('Hierarchical circuit simulation error:', err)
@@ -125,13 +118,17 @@ export function useCircuitOperations(circuitManager) {
    * Generate GGL program for the current circuit (with hierarchical support)
    */
   function generateGglProgramForCurrentCircuit(canvasRef) {
-    const components = canvasRef?.components || []
-    const wires = canvasRef?.wires || []
-    const wireJunctions = canvasRef?.wireJunctions || []
-    const componentRefs = canvasRef?.componentRefs || {}
-    const componentInstances = canvasRef?.componentInstances || {}
+    if (!canvasRef) {
+      console.error('No canvas reference provided to generateGglProgramForCurrentCircuit')
+      return ''
+    }
     
-    return canvasRef?.getCircuitData() || ''
+    if (typeof canvasRef.getCircuitData !== 'function') {
+      console.error('Canvas reference does not have getCircuitData method')
+      return ''
+    }
+    
+    return canvasRef.getCircuitData()
   }
   
   /**
@@ -139,7 +136,6 @@ export function useCircuitOperations(circuitManager) {
    */
   function setupPythonVueUpdateCallback(canvasRef) {
     window.__vueUpdateCallback = (componentId, value) => {
-      console.log(`Output ${componentId} updated to ${value}`)
       // Update the component in the canvas
       if (canvasRef) {
         const component = canvasRef.components.find(c => c.id === componentId)
@@ -169,7 +165,6 @@ export function useCircuitOperations(circuitManager) {
    * Stop simulation
    */
   function stopSimulation() {
-    console.log('Stopping simulation...')
     isRunning.value = false
     // TODO: Implement actual stop logic if needed
   }
@@ -259,7 +254,6 @@ export function useCircuitOperations(circuitManager) {
     
     // For v1.1+ format, restore schematic component definitions first
     if (circuitData.schematicComponents && Object.keys(circuitData.schematicComponents).length > 0) {
-      console.log('Restoring schematic component definitions...')
       
       Object.entries(circuitData.schematicComponents).forEach(([circuitId, data]) => {
         try {
@@ -343,7 +337,6 @@ export function useCircuitOperations(circuitManager) {
       })
     }
     
-    console.log('Circuit loaded successfully')
   }
   
   /**

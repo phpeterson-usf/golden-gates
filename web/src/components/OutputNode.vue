@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { useDraggable, draggableProps } from '../composables/useDraggable'
+import { useComponentView, draggableProps } from '../composables/useComponentView'
 import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 export default {
@@ -97,7 +97,7 @@ export default {
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useDraggable(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
     
     return {
       handleMouseDown,

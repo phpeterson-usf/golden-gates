@@ -53,7 +53,7 @@
 <script>
 import { computed } from 'vue'
 import BaseCircuitComponent from './BaseCircuitComponent.vue'
-import { draggableProps } from '../composables/useDraggable'
+import { draggableProps } from '../composables/useComponentView'
 import { GRID_SIZE, COLORS } from '../utils/constants'
 
 export default {

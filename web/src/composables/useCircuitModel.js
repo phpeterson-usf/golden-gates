@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
  * Circuit Manager - Centralized state management for all circuits
  * Provides a clean MVC model layer for circuit data and operations
  */
-export function useCircuitManager() {
+export function useCircuitModel() {
   // Core data structure - all circuits in a flat Map for easy management
   const allCircuits = ref(new Map())
   
@@ -421,6 +421,34 @@ export function useCircuitManager() {
     nextCircuitId.value = state.nextCircuitId || 1
   }
   
+  // Generate circuit data for Python execution (legacy function from useCircuitData)
+  function getCircuitData(componentRefs = {}, circuitId = null) {
+    const targetCircuit = circuitId ? getCircuit(circuitId) : activeCircuit.value
+    if (!targetCircuit) return { components: [], componentRefs: {}, code: [] }
+    
+    const componentCode = []
+    const componentRefMap = {}
+    
+    // Get refs to all component instances (only if componentRefs is provided)
+    if (componentRefs && typeof componentRefs === 'object') {
+      targetCircuit.components.forEach(comp => {
+        // In Vue 3 with v-for, refs might be stored as arrays
+        const componentInstance = componentRefs[comp.id]?.[0] || componentRefs[comp.id]
+        if (componentInstance && typeof componentInstance.generate === 'function') {
+          const generated = componentInstance.generate()
+          componentCode.push(generated.code)
+          componentRefMap[comp.id] = generated.varName
+        }
+      })
+    }
+    
+    return {
+      components: targetCircuit.components,
+      componentRefs: componentRefMap,
+      code: componentCode
+    }
+  }
+
   return {
     // State (renamed for consistency)
     allCircuits,
@@ -476,6 +504,9 @@ export function useCircuitManager() {
     
     // Import/Export
     exportState,
-    importState
+    importState,
+    
+    // Legacy functions (from useCircuitData)
+    getCircuitData
   }
 }

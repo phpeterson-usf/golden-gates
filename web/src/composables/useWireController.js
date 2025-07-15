@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useWireManagement(components, gridSize, callbacks = {}, circuitManager = null) {
+export function useWireController(components, gridSize, callbacks = {}, circuitManager = null) {
   // Wire state - use passed refs or create local ones
   const wires = callbacks.wires || ref([])
   const wireJunctions = callbacks.wireJunctions || ref([])

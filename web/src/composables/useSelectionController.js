@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useSelection(components, wires, onWiresDeleted = null, onComponentsDeleted = null, onWireDelete = null) {
+export function useSelectionController(components, wires, onWiresDeleted = null, onComponentsDeleted = null, onWireDelete = null) {
   // Selection state
   const selectedComponents = ref(new Set())
   const selectedWires = ref(new Set())

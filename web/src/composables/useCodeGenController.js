@@ -1,6 +1,6 @@
 import { componentRegistry } from '../utils/componentRegistry'
 
-export function useCircuitGeneration() {
+export function useCodeGenController() {
   
   
   // Helper function to generate component code from registry
@@ -421,8 +421,8 @@ export function useCircuitGeneration() {
       circuit.components,
       circuit.wires,
       circuit.wireJunctions,
-      {}, // componentRefs - not needed for component generation
-      {}, // componentInstances - not needed for component generation
+      {}, // componentRefs - not available when generating for saved components
+      {}, // componentInstances - not available when generating for saved components  
       circuitManager,
       false // Don't include run() call for component modules
     )

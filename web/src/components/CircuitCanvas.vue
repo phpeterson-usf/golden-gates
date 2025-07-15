@@ -155,13 +155,12 @@ import { DOT_SIZE, COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 import Wire from './Wire.vue'
 
 // Composables
-import { useCanvasOperations } from '../composables/useCanvasOperations'
-import { useWireManagement } from '../composables/useWireManagement'
-import { useSelection } from '../composables/useSelection'
-import { useDragAndDrop } from '../composables/useDragAndDrop'
-import { useCanvasInteractions } from '../composables/useCanvasInteractions'
-import { useCircuitData } from '../composables/useCircuitData'
-import { useCircuitGeneration } from '../composables/useCircuitGeneration'
+import { useCanvasViewport } from '../composables/useCanvasViewport'
+import { useWireController } from '../composables/useWireController'
+import { useSelectionController } from '../composables/useSelectionController'
+import { useDragController } from '../composables/useDragController'
+import { useCanvasController } from '../composables/useCanvasController'
+import { useCodeGenController } from '../composables/useCodeGenController'
 
 export default {
   name: 'CircuitCanvas',
@@ -192,7 +191,7 @@ export default {
       snapToGrid,
       getMousePos,
       setupResizeObserver
-    } = useCanvasOperations()
+    } = useCanvasViewport()
     
     // Use the passed circuit manager instead of creating our own
     const {
@@ -210,16 +209,14 @@ export default {
     const wires = computed(() => activeCircuit.value?.wires || [])
     const wireJunctions = computed(() => activeCircuit.value?.wireJunctions || [])
     
-    // Circuit data management (for backward compatibility)
-    const {
-      getCircuitData: getCircuitDataBase
-    } = useCircuitData()
+    // Circuit data management (from circuit model)
+    const { getCircuitData: getCircuitDataBase } = props.circuitManager
     
     // Circuit generation
-    const { generateGglProgram } = useCircuitGeneration()
+    const { generateGglProgram } = useCodeGenController()
     
     // Wire management - pass the shared model functions
-    const wireManagement = useWireManagement(components, gridSize.value, {
+    const wireManagement = useWireController(components, gridSize.value, {
       wires: wires,
       wireJunctions: wireJunctions,
       addWire: (wire) => {
@@ -264,7 +261,7 @@ export default {
     } = wireManagement
     
     // Selection management
-    const selection = useSelection(
+    const selection = useSelectionController(
       components, 
       wires, 
       wireManagement.cleanupJunctionsForDeletedWires,
@@ -298,7 +295,7 @@ export default {
     // We use selection.selectedWires for component selection logic
     
     // Drag and drop
-    const dragAndDrop = useDragAndDrop(
+    const dragAndDrop = useDragController(
       components,
       wires,
       selectedComponents,
@@ -316,7 +313,7 @@ export default {
     } = dragAndDrop
 
     // Canvas interactions (controller layer) - must come after selection and dragAndDrop
-    const canvasInteractions = useCanvasInteractions(
+    const canvasInteractions = useCanvasController(
       props.circuitManager,
       { getMousePos, snapToGrid, gridSize },
       wireManagement,
@@ -514,8 +511,7 @@ export default {
       zoomOut,
       
       // Circuit hierarchy methods
-      navigateToCircuit,
-      ...props.circuitManager
+      navigateToCircuit
     }
   }
 }

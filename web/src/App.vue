@@ -138,9 +138,9 @@ import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import { usePyodide } from './composables/usePyodide'
-import { useFileOperations } from './composables/useFileOperations'
-import { useCircuitManager } from './composables/useCircuitManager'
-import { useCircuitOperations } from './composables/useCircuitOperations'
+import { useFileService } from './composables/useFileService'
+import { useCircuitModel } from './composables/useCircuitModel'
+import { useAppController } from './composables/useAppController'
 
 export default {
   name: 'App',
@@ -152,10 +152,10 @@ export default {
   },
   setup() {
     // Initialize circuit manager (model layer)
-    const circuitManager = useCircuitManager()
+    const circuitManager = useCircuitModel()
     
     // Initialize circuit operations (controller layer)
-    const circuitOperations = useCircuitOperations(circuitManager)
+    const circuitOperations = useAppController(circuitManager)
     
     // Extract needed properties for template
     const { 

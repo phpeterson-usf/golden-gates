@@ -12,8 +12,8 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
   await removeExistingComponentFilesFromMemfs(pyodide)
   
   // Import circuit generation functions
-  const { useCircuitGeneration } = await import('./useCircuitGeneration.js')
-  const { generateGglProgramForCircuitComponent, wrapGglProgramAsComponentModule, findRequiredComponentImports } = useCircuitGeneration()
+  const { useCodeGenController } = await import('./useCodeGenController.js')
+  const { generateGglProgramForCircuitComponent, wrapGglProgramAsComponentModule, findRequiredComponentImports } = useCodeGenController()
   
   // Write ALL saved components as Python modules to MEMFS
   for (const [id, component] of circuitManager.availableComponents.value) {
@@ -33,9 +33,6 @@ export async function writeAllCircuitComponentsToPyodideMemfs(circuitManager, py
       
       // Write to Pyodide's MEMFS
       const fileName = `${component.name}.py`
-      console.log(`\n=== Writing ${fileName} to MEMFS ===`)
-      console.log(pythonModuleCode)
-      console.log(`=== End of ${fileName} ===\n`)
       pyodide.FS.writeFile(fileName, pythonModuleCode)
     }
   }

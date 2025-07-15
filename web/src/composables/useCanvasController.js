@@ -5,7 +5,7 @@ import { componentRegistry } from '../utils/componentRegistry'
  * Canvas Interactions - UI interaction logic for circuit canvas
  * Provides controller layer functionality for canvas user interactions
  */
-export function useCanvasInteractions(circuitManager, canvasOperations, wireManagement, selection, dragAndDrop) {
+export function useCanvasController(circuitManager, canvasOperations, wireManagement, selection, dragAndDrop) {
   const { getMousePos, snapToGrid, gridSize } = canvasOperations
   const { clearSelection, selectComponent, deleteSelected, checkAndClearJustFinished } = selection
   const { startWireDrawing, completeWire, addWireWaypoint, cancelWireDrawing, drawingWire } = wireManagement
