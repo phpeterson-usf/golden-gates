@@ -40,6 +40,14 @@ export function useCodeGenController() {
       
       case 'xnor-gate':
         return `${varName} = logic.Xnor(label="${props.label || 'xnor1'}")`
+ 
+      case 'splitter':
+        const splitsStr = JSON.stringify(props.splits || [])
+        return `${varName} = wires.Splitter(label="${props.label || 'splitter1'}", bits=${props.bits || 1}, splits=${splitsStr})`
+      
+      case 'merger':
+        const mergeInputsStr = JSON.stringify(props.merge_inputs || [])
+        return `${varName} = wires.Merger(label="${props.label || 'merger1'}", bits=${props.bits || 1}, merge_inputs=${mergeInputsStr})`
       
       case 'buffer':
         return `${varName} = logic.Buffer(label="${props.label || 'buf1'}")`
@@ -138,7 +146,7 @@ export function useCodeGenController() {
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
     // Header
-    sections.push('from ggl import io, logic, circuit')
+    sections.push('from ggl import io, logic, circuit, wires')
     
     // Import all circuit components used in this circuit
     const componentImports = findRequiredComponentImports(components, circuitManager)
@@ -432,7 +440,7 @@ export function useCodeGenController() {
    * Wrap a GGL program as an importable Python component module
    */
   function wrapGglProgramAsComponentModule(componentName, gglProgram, requiredImports) {
-    return `from ggl import circuit, logic, io
+    return `from ggl import circuit, logic, io, wires
 
 # Import other components this circuit uses
 ${requiredImports}

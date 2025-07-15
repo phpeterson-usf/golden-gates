@@ -140,6 +140,11 @@ export const componentRegistry = {
       
       return { inputs, outputs }
     },
+    getPythonProps: (props) => ({
+      label: props.label,
+      bits: props.inputBits,
+      merges: (props.ranges || []).map(r => [r.start, r.end])
+    }),
     getDimensions: (props) => {
       const outputCount = (props.ranges || []).length
       const minHeight = 4 * GRID_SIZE // Increased minimum height
@@ -199,6 +204,11 @@ export const componentRegistry = {
       
       return { inputs, outputs }
     },
+    getPythonProps: (props) => ({
+      label: props.label,
+      bits: props.outputBits,
+      merges: (props.ranges || []).map(r => [r.start, r.end])
+    }),
     getDimensions: (props) => {
       const inputCount = (props.ranges || []).length
       const minHeight = 4 * GRID_SIZE // Increased minimum height
