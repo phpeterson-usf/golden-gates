@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, defineEmits, defineProps } from 'vue'
+import { ref, watch, computed } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 
