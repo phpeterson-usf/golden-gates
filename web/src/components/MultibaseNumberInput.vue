@@ -16,6 +16,7 @@
 
 <script>
 import { ref, computed, watch } from 'vue';
+import { formatWithLeadingZeros } from '../composables/useLeadingZeros';
 
 export default {
   name: 'MultibaseNumberInput',
@@ -57,30 +58,21 @@ export default {
     const checkOverflow = (value) => {
       if (value > props.max) {
         isValid.value = false;
-        const bits = Math.ceil(Math.log2(props.max + 1));
-        errorMessage.value = `Overflows ${bits} bits`;
+        errorMessage.value = `Overflows ${bits.value} bits`;
         return true;
       }
       return false;
     };
     
-    // Convert number to display string based on base
-    const formatNumber = (num, base) => {
-      if (base === 16) {
-        return '0x' + num.toString(16);
-      } else if (base === 2) {
-        return '0b' + num.toString(2);
-      } else {
-        return num.toString(10);
-      }
-    };
+    // Calculate bits from max value
+    const bits = computed(() => Math.ceil(Math.log2(props.max + 1)));
     
     // Convert number to display string
     const displayValue = computed(() => {
       if (inputValue.value !== '') {
         return inputValue.value;
       }
-      return formatNumber(props.modelValue, props.base);
+      return formatWithLeadingZeros(props.modelValue, props.base, bits.value);
     });
     
     // Parse string to number without range checking

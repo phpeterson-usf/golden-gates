@@ -53,19 +53,14 @@
 
 <script>
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { formatWithLeadingZeros } from '../composables/useLeadingZeros'
 import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 export default {
   name: 'InputNode',
   computed: {
     formattedValue() {
-      if (this.base === 16) {
-        return '0x' + this.value.toString(16)
-      } else if (this.base === 2) {
-        return '0b' + this.value.toString(2)
-      } else {
-        return this.value.toString(10)
-      }
+      return formatWithLeadingZeros(this.value, this.base, this.bits)
     }
   },
   props: {
@@ -117,14 +112,7 @@ export default {
       varName = `input${index}`
       
       // Format value based on base
-      let valueStr
-      if (this.base === 16) {
-        valueStr = '0x' + this.value.toString(16)
-      } else if (this.base === 2) {
-        valueStr = '0b' + this.value.toString(2)
-      } else {
-        valueStr = this.value.toString(10)
-      }
+      const valueStr = formatWithLeadingZeros(this.value, this.base, this.bits)
       
       // Generate GGL code for this input
       const lines = [

@@ -52,19 +52,14 @@
 
 <script>
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { formatWithLeadingZeros } from '../composables/useLeadingZeros'
 import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
 export default {
   name: 'OutputNode',
   computed: {
     formattedValue() {
-      if (this.base === 16) {
-        return '0x' + this.value.toString(16)
-      } else if (this.base === 2) {
-        return '0b' + this.value.toString(2)
-      } else {
-        return this.value.toString(10)
-      }
+      return formatWithLeadingZeros(this.value, this.base, this.bits)
     }
   },
   props: {

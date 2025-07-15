@@ -64,7 +64,7 @@ describe('MultibaseNumberInput', () => {
     it('should display binary values correctly', () => {
       const wrapper = createWrapper({ modelValue: 5, base: 2 })
       const input = wrapper.find('input')
-      expect(input.element.value).toBe('0b101')
+      expect(input.element.value).toBe('0b00000101')
     })
 
     it('should display zero values correctly in all bases', () => {
@@ -72,10 +72,10 @@ describe('MultibaseNumberInput', () => {
       expect(wrapper.find('input').element.value).toBe('0')
 
       wrapper = createWrapper({ modelValue: 0, base: 16 })
-      expect(wrapper.find('input').element.value).toBe('0x0')
+      expect(wrapper.find('input').element.value).toBe('0x00')
 
       wrapper = createWrapper({ modelValue: 0, base: 2 })
-      expect(wrapper.find('input').element.value).toBe('0b0')
+      expect(wrapper.find('input').element.value).toBe('0b00000000')
     })
   })
 
