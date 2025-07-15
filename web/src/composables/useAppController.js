@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { useFileService } from './useFileService'
-import { usePyodide } from './usePyodide'
-import { writeAllCircuitComponentsToPyodideMemfs, configurePythonImportPathForMemfs, executePythonProgramInPyodide } from './usePyodideMemfs'
+import { usePythonEngine } from './usePythonEngine'
 
 /**
  * Circuit Operations - Business logic for circuit management
@@ -9,7 +8,7 @@ import { writeAllCircuitComponentsToPyodideMemfs, configurePythonImportPathForMe
  */
 export function useAppController(circuitManager) {
   const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileService()
-  const { initialize: initializePyodide, runPython, isLoading: isPyodideLoading, isReady: isPyodideReady, error: pyodideError, pyodide } = usePyodide()
+  const { initialize: initializePyodide, runPython, isLoading: isPyodideLoading, isReady: isPyodideReady, error: pyodideError, pyodide, executeHierarchicalCircuit } = usePythonEngine()
   
   // Simulation state
   const isRunning = ref(false)
@@ -78,32 +77,23 @@ export function useAppController(circuitManager) {
         await initializePyodide()
       }
       
-      // Get the actual Pyodide instance (not the reactive wrapper)
-      const pyodideInstance = pyodide.value
-      
-      // Step 1: Write all saved circuit components as Python modules to MEMFS
-      await writeAllCircuitComponentsToPyodideMemfs(circuitManager, pyodideInstance)
-      
-      // Step 2: Configure Python import path for MEMFS (optional - MEMFS might already be in path)
-      try {
-        configurePythonImportPathForMemfs(pyodideInstance)
-      } catch (e) {
-        console.warn('Could not configure Python import path, continuing anyway:', e)
-      }
-      
-      // Step 3: Generate GGL program for the current circuit
+      // Generate GGL program for the current circuit
       const mainCircuitGglProgram = generateGglProgramForCurrentCircuit(canvasRef)
       
       if (!mainCircuitGglProgram || mainCircuitGglProgram.trim() === '') {
         return
       }
       
+      // Log the generated GGL program for debugging and verification
+      console.log('\n=== Main Circuit GGL Program ===')
+      console.log(mainCircuitGglProgram)
+      console.log('=== End of Main Circuit ===\n')
       
-      // Step 4: Set up callback for Python to update Vue components
+      // Set up callback for Python to update Vue components
       setupPythonVueUpdateCallback(canvasRef)
       
-      // Step 5: Execute the complete hierarchical circuit program
-      await executePythonProgramInPyodide(mainCircuitGglProgram, pyodideInstance)
+      // Execute the complete hierarchical circuit program
+      await executeHierarchicalCircuit(circuitManager, mainCircuitGglProgram)
       
       
     } catch (err) {

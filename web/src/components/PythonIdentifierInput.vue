@@ -3,6 +3,21 @@
     <div class="error-tooltip" v-if="errorMessage">
       {{ errorMessage }}
     </div>
+    <!-- 
+      NOTE: Unusual readonly approach to prevent macOS autocomplete
+      
+      macOS Safari/WebKit aggressively shows autocomplete suggestions from Contacts
+      even with autocomplete="off". The readonly trick prevents this:
+      
+      1. Field starts as readonly (prevents autocomplete from showing)
+      2. On focus: remove readonly so user can type
+      3. On blur: restore readonly to prevent future autocomplete
+      
+      Additional attributes help prevent autocomplete:
+      - autocomplete="nope" (invalid value browsers respect)
+      - name="xkslrklrkuutyxu" (random string that won't match patterns)
+      - spellcheck="false" (prevents spellcheck suggestions)
+    -->
     <input
       type="text"
       :value="modelValue"
@@ -10,6 +25,12 @@
       @blur="handleBlur"
       :class="['p-inputtext', 'p-component', { 'p-filled': modelValue, 'p-invalid': !isValid }]"
       :placeholder="placeholder"
+      autocomplete="nope"
+      spellcheck="false"
+      name="xkslrklrkuutyxu"
+      role="textbox"
+      readonly
+      @focus="makeEditable"
     />
   </div>
 </template>
@@ -101,11 +122,21 @@ export default {
       errorMessage.value = validation.error;
     };
     
-    const handleBlur = () => {
+    const handleBlur = (event) => {
       // Re-validate on blur to ensure error state is correct
       const validation = validateIdentifier(props.modelValue);
       isValid.value = validation.valid;
       errorMessage.value = validation.error;
+      
+      // IMPORTANT: Re-enable readonly to prevent macOS autocomplete from showing
+      // This is part of the readonly trick - see template comment for details
+      event.target.readOnly = true;
+    };
+    
+    const makeEditable = (event) => {
+      // IMPORTANT: Remove readonly when user focuses so they can type
+      // This is part of the readonly trick - see template comment for details
+      event.target.readOnly = false;
     };
     
     // Watch for external changes to modelValue
@@ -124,7 +155,8 @@ export default {
       isValid,
       errorMessage,
       handleInput,
-      handleBlur
+      handleBlur,
+      makeEditable
     };
   }
 };

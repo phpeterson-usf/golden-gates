@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { componentRegistry } from '../utils/componentRegistry'
+import { useComponentController } from './useComponentController'
 
 /**
  * Canvas Interactions - UI interaction logic for circuit canvas
@@ -10,10 +10,11 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   const { clearSelection, selectComponent, deleteSelected, checkAndClearJustFinished } = selection
   const { startWireDrawing, completeWire, addWireWaypoint, cancelWireDrawing, drawingWire } = wireManagement
   const { isDragging, updateDrag, endDrag } = dragAndDrop
-  const { activeCircuit, addComponent } = circuitManager
+  const { activeCircuit } = circuitManager
   
-  // Track last component position for intelligent placement
-  const lastComponentPosition = ref({ x: 100, y: 100 })
+  // Component controller for component-related logic
+  const componentController = useComponentController(circuitManager, canvasOperations)
+  const { lastComponentPosition, addComponentAtSmartPosition, getComponentConnections, updateLastComponentPosition } = componentController
   
   // Junction mode tracking for Alt key feedback
   const isJunctionMode = ref(false)
@@ -140,7 +141,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         const selectedId = Array.from(selection.selectedComponents.value)[0]
         const selectedComponent = activeCircuit.value?.components.find(c => c.id === selectedId)
         if (selectedComponent) {
-          lastComponentPosition.value = { x: selectedComponent.x, y: selectedComponent.y }
+          updateLastComponentPosition(selectedComponent.x, selectedComponent.y)
         }
       }
     }
@@ -232,13 +233,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         // Find the component to get the connection position
         const component = activeCircuit.value?.components.find(c => c.id === componentId)
         if (component) {
-          const config = componentRegistry[component.type]
-          let connections
-          if (config.getConnections) {
-            connections = config.getConnections(component.props, circuitManager)
-          } else {
-            connections = config.connections
-          }
+          const connections = getComponentConnections(component)
           
           const connectionPoint = portType === 'output' ? 
             connections.outputs?.[portIndex] : 
@@ -337,57 +332,16 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   }
   
   /**
-   * Add component at smart position
+   * Add component at smart position with selection handling
    */
-  function addComponentAtSmartPosition(type, customProps = {}) {
-    // Ensure we have a current circuit to add components to
-    if (!activeCircuit.value) {
-      console.warn('No current circuit available for component insertion')
-      return null
+  function addComponentAtSmartPositionWithSelection(type, customProps = {}) {
+    const newComponent = addComponentAtSmartPosition(type, customProps)
+    
+    if (newComponent) {
+      // Clear existing selection and select the new component
+      clearSelection()
+      selectComponent(newComponent.id)
     }
-    
-    // Use last component position with offset (5 grid units down)
-    const x = lastComponentPosition.value.x
-    const y = lastComponentPosition.value.y + (gridSize.value * 5)
-    const snapped = snapToGrid({ x, y })
-    
-    // Get component configuration
-    const config = componentRegistry[type]
-    if (!config) return null
-    
-    // Count existing components of this type to generate unique ID
-    const existingOfType = activeCircuit.value.components.filter(c => c.type === type).length
-    const id = `${type}_${existingOfType + 1}`
-    
-    // Create new component
-    const newComponent = {
-      id,
-      type,
-      x: snapped.x,
-      y: snapped.y,
-      props: { ...config.defaultProps, ...customProps }
-    }
-    
-    // Handle special component types with onCreate
-    if (config.onCreate) {
-      if (type === 'input') {
-        const inputCount = activeCircuit.value.components.filter(c => c.type === 'input').length
-        config.onCreate(newComponent, inputCount)
-      } else if (type === 'output') {
-        const outputCount = activeCircuit.value.components.filter(c => c.type === 'output').length
-        config.onCreate(newComponent, outputCount)
-      }
-    }
-    
-    // Add to current circuit
-    addComponent(newComponent)
-    
-    // Update last component position
-    lastComponentPosition.value = { x: snapped.x, y: snapped.y }
-    
-    // Clear existing selection and select the new component
-    clearSelection()
-    selectComponent(newComponent.id)
     
     return newComponent
   }
@@ -410,6 +364,6 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     handleWireMouseDown,
     
     // Component operations
-    addComponentAtSmartPosition
+    addComponentAtSmartPosition: addComponentAtSmartPositionWithSelection
   }
 }

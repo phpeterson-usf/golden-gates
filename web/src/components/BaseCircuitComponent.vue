@@ -197,7 +197,7 @@ export default {
 }
 
 .connection-point {
-  cursor: crosshair;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
   transition: fill 0.2s ease;
 }
 
@@ -211,11 +211,11 @@ export default {
 }
 
 .base-circuit-component .connection-point {
-  cursor: crosshair; /* Connection cursor */
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair; /* Custom target cursor */
 }
 
-/* Future: Add target cursor for connection mode */
+/* Connection mode cursor */
 .base-circuit-component.connection-mode .connection-point {
-  cursor: crosshair; /* Can be changed to custom target cursor */
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair; /* Custom target cursor */
 }
 </style>
