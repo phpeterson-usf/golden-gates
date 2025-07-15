@@ -246,13 +246,15 @@ export const componentRegistry = {
           inputs.push({
             id: component.id,
             label: component.props?.label || 'IN',
-            bits: component.props?.bits || 1
+            bits: component.props?.bits || 1,
+            rotation: component.props?.rotation || 0
           })
         } else if (component.type === 'output') {
           outputs.push({
             id: component.id,
             label: component.props?.label || 'OUT',
-            bits: component.props?.bits || 1
+            bits: component.props?.bits || 1,
+            rotation: component.props?.rotation || 0
           })
         }
       })
@@ -282,7 +284,23 @@ export const componentRegistry = {
           // Snap to nearest grid vertex
           y = Math.round(y / GRID_SIZE) * GRID_SIZE
           
-          return { x: 0, y }
+          // Move connection points to different edges based on rotation
+          const rotation = input.rotation || 0
+          let connectionPoint = { x: 0, y }
+          
+          if (rotation === 90) {
+            // Input rotated 90°: connection point moves to top edge
+            connectionPoint = { x: width / 2, y: 0 }
+          } else if (rotation === 180) {
+            // Input rotated 180°: connection point moves to right edge  
+            connectionPoint = { x: width, y: y }
+          } else if (rotation === 270) {
+            // Input rotated 270°: connection point moves to bottom edge
+            connectionPoint = { x: width / 2, y: height }
+          }
+          // 0° rotation stays at left edge (default)
+          
+          return connectionPoint
         })
       
       const outputConnections = outputs.length === 0 ? 
@@ -302,7 +320,23 @@ export const componentRegistry = {
           // Snap to nearest grid vertex
           y = Math.round(y / GRID_SIZE) * GRID_SIZE
           
-          return { x: width, y }
+          // Move connection points to different edges based on rotation
+          const rotation = output.rotation || 0
+          let connectionPoint = { x: width, y }
+          
+          if (rotation === 90) {
+            // Output rotated 90°: connection point moves to bottom edge
+            connectionPoint = { x: width / 2, y: height }
+          } else if (rotation === 180) {
+            // Output rotated 180°: connection point moves to left edge
+            connectionPoint = { x: 0, y: y }
+          } else if (rotation === 270) {
+            // Output rotated 270°: connection point moves to top edge
+            connectionPoint = { x: width / 2, y: 0 }
+          }
+          // 0° rotation stays at right edge (default)
+          
+          return connectionPoint
         })
       
       return {

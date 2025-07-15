@@ -23,12 +23,12 @@
       <text
         v-for="(input, index) in circuitInterface?.inputs || []"
         :key="`input-${index}`"
-        :x="inputConnections[index]?.x + 8"
-        :y="inputConnections[index]?.y + 4"
+        :x="inputLabelPositions[index]?.x"
+        :y="inputLabelPositions[index]?.y"
         font-size="10"
         font-family="Arial, sans-serif"
         fill="#374151"
-        text-anchor="start"
+        :text-anchor="inputLabelPositions[index]?.anchor"
       >
         {{ input.label }}
       </text>
@@ -37,12 +37,12 @@
       <text
         v-for="(output, index) in circuitInterface?.outputs || []"
         :key="`output-${index}`"
-        :x="outputConnections[index]?.x - 8"
-        :y="outputConnections[index]?.y + 4"
+        :x="outputLabelPositions[index]?.x"
+        :y="outputLabelPositions[index]?.y"
         font-size="10"
         font-family="Arial, sans-serif"
         fill="#374151"
-        text-anchor="end"
+        :text-anchor="outputLabelPositions[index]?.anchor"
       >
         {{ output.label }}
       </text>
@@ -78,9 +78,64 @@ export default {
   },
   emits: ['startDrag', 'editSubcircuit'],
   setup(props, { emit }) {
+    // Constants for label positioning based on GRID_SIZE
+    const LABEL_HORIZONTAL_MARGIN = Math.round(GRID_SIZE / 2) // ~8px when GRID_SIZE=15
+    const LABEL_VERTICAL_SPACING = GRID_SIZE // 15px when GRID_SIZE=15
+    const LABEL_VERTICAL_MARGIN = Math.round(GRID_SIZE / 3) // ~5px when GRID_SIZE=15
+    
     const handleDoubleClick = (event) => {
       emit('editSubcircuit', props.circuitId)
     }
+    
+    // Helper function to get connection point position based on rotation
+    const getRotatedConnectionPoint = (rotation, bounds, defaultY) => {
+      const rotationMap = {
+        90: { x: bounds.width / 2, y: 0 },
+        180: { x: bounds.width, y: defaultY },
+        270: { x: bounds.width / 2, y: bounds.height },
+        0: { x: 0, y: defaultY }
+      }
+      return rotationMap[rotation] || rotationMap[0]
+    }
+    
+    // Helper function to get rotated connection point for outputs
+    const getRotatedOutputConnectionPoint = (rotation, bounds, defaultY) => {
+      const rotationMap = {
+        90: { x: bounds.width / 2, y: bounds.height },
+        180: { x: 0, y: defaultY },
+        270: { x: bounds.width / 2, y: 0 },
+        0: { x: bounds.width, y: defaultY }
+      }
+      return rotationMap[rotation] || rotationMap[0]
+    }
+    
+    // Helper function to get label position based on rotation
+    const getLabelPosition = (connection, rotation, isInput = true) => {
+      const positionMap = {
+        90: {
+          x: connection.x,
+          y: connection.y + (isInput ? LABEL_VERTICAL_SPACING : -LABEL_VERTICAL_MARGIN),
+          anchor: 'middle'
+        },
+        180: {
+          x: connection.x + (isInput ? -LABEL_HORIZONTAL_MARGIN : LABEL_HORIZONTAL_MARGIN),
+          y: connection.y + 4,
+          anchor: isInput ? 'end' : 'start'
+        },
+        270: {
+          x: connection.x,
+          y: connection.y + (isInput ? -LABEL_VERTICAL_MARGIN : LABEL_VERTICAL_SPACING),
+          anchor: 'middle'
+        },
+        0: {
+          x: connection.x + (isInput ? LABEL_HORIZONTAL_MARGIN : -LABEL_HORIZONTAL_MARGIN),
+          y: connection.y + 4,
+          anchor: isInput ? 'start' : 'end'
+        }
+      }
+      return positionMap[rotation] || positionMap[0]
+    }
+    
     
     // Computed label that updates when the source circuit changes
     const componentLabel = computed(() => {
@@ -104,13 +159,15 @@ export default {
           inputs.push({
             id: component.id,
             label: component.props?.label || 'IN',
-            bits: component.props?.bits || 1
+            bits: component.props?.bits || 1,
+            rotation: component.props?.rotation || 0
           })
         } else if (component.type === 'output') {
           outputs.push({
             id: component.id,
             label: component.props?.label || 'OUT',
-            bits: component.props?.bits || 1
+            bits: component.props?.bits || 1,
+            rotation: component.props?.rotation || 0
           })
         }
       })
@@ -170,7 +227,9 @@ export default {
         // Snap to nearest grid vertex
         y = Math.round(y / GRID_SIZE) * GRID_SIZE
         
-        return { x: 0, y }
+        // Apply rotation based on the original component's rotation
+        const rotation = input.rotation || 0
+        return getRotatedConnectionPoint(rotation, bounds, y)
       })
     })
     
@@ -202,7 +261,33 @@ export default {
         // Snap to nearest grid vertex
         y = Math.round(y / GRID_SIZE) * GRID_SIZE
         
-        return { x: bounds.width, y }
+        // Apply rotation based on the original component's rotation
+        const rotation = output.rotation || 0
+        return getRotatedOutputConnectionPoint(rotation, bounds, y)
+      })
+    })
+    
+    // Computed input label positions
+    const inputLabelPositions = computed(() => {
+      const inputs = circuitInterface.value?.inputs || []
+      const connections = inputConnections.value
+      
+      return inputs.map((input, index) => {
+        const connection = connections[index]
+        const rotation = input.rotation || 0
+        return getLabelPosition(connection, rotation, true)
+      })
+    })
+    
+    // Computed output label positions
+    const outputLabelPositions = computed(() => {
+      const outputs = circuitInterface.value?.outputs || []
+      const connections = outputConnections.value
+      
+      return outputs.map((output, index) => {
+        const connection = connections[index]
+        const rotation = output.rotation || 0
+        return getLabelPosition(connection, rotation, false)
       })
     })
     
@@ -214,6 +299,8 @@ export default {
       labelPosition,
       inputConnections,
       outputConnections,
+      inputLabelPositions,
+      outputLabelPositions,
       COLORS
     }
   }
