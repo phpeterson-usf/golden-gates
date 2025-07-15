@@ -25,57 +25,56 @@ class Splitter(WireNode):
     Splits multi bit input into individual 1 bit outputs
     """
     kind = 'Splitter'
-    
+    # TODO: error checking if the splits don't add up to total input bits
+    # TODO: edit so that it can be customized to more than singular bit outputs (ex: 32 bits -> 8, 8, 8, 8 bit outputs)
     def __init__(self, label='', bits=1, splits=None):
         if splits is None:
-            splits = [1] * bits                                         # default to 1-bit outputs
-        # TODO: error checking if the splits don't add up to total input bits
+            splits = [(i, i) for i in range(bits)]                      # default to 1-bit outputs
+        
         self.splits = splits
         super().__init__(Splitter.kind, num_inputs=1, num_outputs=len(splits), label=label, bits=bits)
 
     def propagate(self, value=0):
-        # TODO: edit so that it can be customized to more than singular bit outputs (ex: 32 bits -> 8, 8, 8, 8 bit outputs)
         input_edge = self.inputs.get_edge('0')
         input_value = input_edge.value if input_edge else 0
 
         new_work = []
-        offset = 0
-        for i, width in enumerate(self.splits):
+        for i, (start, end) in enumerate(self.splits):
+            width = end - start + 1
             mask = (1 << width) - 1                                     # mask bit at i to get bit_val, and then propagate to the output node
-            chunk = (input_value >> offset) & mask
-            logger.info(f'{self.kind} {self.label} output {i}: {bin(chunk)}')
+            chunk = (input_value >> start) & mask
+
+            logger.info(f'{self.kind} {self.label} output {i} ({start}-{end}): {bin(chunk)}')
 
             for edge in self.outputs.points[str(i)]:
                 edge.propagate(chunk)
                 new_work += edge.get_dest_nodes()
 
-            offset += width
-
         return new_work
-
+# TODO: list of tuples
 class Merger(WireNode):
     """
     Merges multiple 1 bit inputs into a single output
     """
     kind = 'Merger'
-    
+
     def __init__(self, label='', bits=1, merge_inputs=None):
         if merge_inputs is None:
-            merge_inputs = [1] * bits                                   # default to 1-bit inputs
+            merge_inputs = [(i, i) for i in range(bits)]                # default to 1-bit inputs
 
         self.merge_inputs = merge_inputs
         super().__init__(Merger.kind, num_inputs=len(merge_inputs), num_outputs=1, label=label, bits=bits)
 
     def propagate(self, value=0):
         output_val = 0
-        offset = 0
 
-        for i, width in enumerate(self.merge_inputs):
+        for i, (start, end) in enumerate(self.merge_inputs):
+            width = end - start + 1
             edge = self.inputs.get_edge(str(i))
             input_val = edge.value if edge else 0                       # mask to width and shift into position
-            chunk = input_val & ((1 << width) - 1)
-            output_val |= (chunk << offset)                             # or all bits together to get an output value
-            offset += width
+            masked = input_val & ((1 << width) - 1)                     # or all bits together to get an output value
+
+            output_val |= (masked << start)
 
         logger.info(f'{self.kind} {self.label} combined value: {bin(output_val)}')
         return super().propagate(output_val)
