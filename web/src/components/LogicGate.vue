@@ -81,42 +81,43 @@
   </g>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
-import { getGateDefinition, generateGateCode } from '../config/gateDefinitions'
+import { getGateDefinition } from '../config/gateDefinitions'
 
-export default {
+export default defineComponent({
   name: 'LogicGate',
   props: {
     ...draggableProps,
+    // Gate props
     gateType: {
       type: String,
       required: true,
-      validator: (value) => getGateDefinition(value) !== null
+      validator: (value: string) => getGateDefinition(value) !== null
     },
     numInputs: {
       type: Number,
       default: 2,
-      validator: (value) => value >= 1 && value <= 8  // Allow 1 input for NOT gate
+      validator: (value: number) => value >= 1 && value <= 8  // Allow 1 input for NOT gate
     },
     bits: {
       type: Number,
       default: 1,
-      validator: (value) => value >= 1 && value <= 32
+      validator: (value: number) => value >= 1 && value <= 32
     },
     label: {
       type: String,
       default: ''
     },
-    rotation: {
-      type: Number,
-      default: 0,
-      validator: (value) => [0, 90, 180, 270].includes(value)
-    },
     invertedInputs: {
       type: Array,
       default: () => []
+    },
+    rotation: {
+      type: Number,
+      default: 0
     }
   },
   emits: ['startDrag'],
@@ -209,25 +210,6 @@ export default {
     }
   },
   methods: {
-    generate() {
-      // Extract the number from the component ID (e.g., "and-gate_1" -> 1)
-      const match = this.id.match(new RegExp(`${this.gateType}-gate_(\\d+)`))
-      const index = match ? match[1] : '0'
-      const varName = `${this.gateType}${index}`
-      
-      // Use the centralized code generation
-      const code = generateGateCode(this.gateType, varName, {
-        numInputs: this.numInputs,
-        bits: this.bits,
-        label: this.label,
-        invertedInputs: this.invertedInputs
-      })
-      
-      return {
-        varName,
-        code
-      }
-    },
     getInputY(index) {
       // Check if gate definition has custom input positions
       const definition = getGateDefinition(this.gateType)
@@ -267,7 +249,7 @@ export default {
       return this.isInputInverted(index) ? -15 : 0
     }
   }
-}
+})
 </script>
 
 <style scoped>

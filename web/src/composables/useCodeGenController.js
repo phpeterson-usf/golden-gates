@@ -1,62 +1,12 @@
 import { componentRegistry } from '../utils/componentRegistry'
+import { resetNameRegistry } from '../generators/BaseComponentGenerator'
+import { createComponentGenerator } from '../generators/ComponentGeneratorFactory'
 
 export function useCodeGenController() {
   
   
-  // Helper function to generate component code from registry
-  function generateComponentCode(component, varName) {
-    const config = componentRegistry[component.type]
-    if (!config) {
-      console.error(`No registry config found for component type: ${component.type}`)
-      return null
-    }
-
-    const props = component.props || {}
-    
-    switch (component.type) {
-      case 'input':
-        return `${varName} = io.Input(bits=${props.bits || 1}, label="${props.label || 'IN'}")\n${varName}.value = ${props.value || 0}`
-      
-      case 'output':
-        return `${varName} = io.Output(bits=${props.bits || 1}, label="${props.label || 'OUT'}", js_id="${component.id}")`
-      
-      case 'and-gate':
-        return `${varName} = logic.And(label="${props.label || 'and1'}")`
-      
-      case 'or-gate':
-        return `${varName} = logic.Or(label="${props.label || 'or1'}")`
-      
-      case 'not-gate':
-        return `${varName} = logic.Not(label="${props.label || 'not1'}")`
-      
-      case 'nand-gate':
-        return `${varName} = logic.Nand(label="${props.label || 'nand1'}")`
-      
-      case 'nor-gate':
-        return `${varName} = logic.Nor(label="${props.label || 'nor1'}")`
-      
-      case 'xor-gate':
-        return `${varName} = logic.Xor(label="${props.label || 'xor1'}")`
-      
-      case 'xnor-gate':
-        return `${varName} = logic.Xnor(label="${props.label || 'xnor1'}")`
- 
-      case 'splitter':
-        const splitsStr = JSON.stringify(props.splits || [])
-        return `${varName} = wires.Splitter(label="${props.label || 'splitter1'}", bits=${props.bits || 1}, splits=${splitsStr})`
-      
-      case 'merger':
-        const mergeInputsStr = JSON.stringify(props.merge_inputs || [])
-        return `${varName} = wires.Merger(label="${props.label || 'merger1'}", bits=${props.bits || 1}, merge_inputs=${mergeInputsStr})`
-      
-      case 'buffer':
-        return `${varName} = logic.Buffer(label="${props.label || 'buf1'}")`
-      
-      default:
-        console.warn(`Unknown component type for code generation: ${component.type}`)
-        return null
-    }
-  }
+  // All components now use TypeScript mixins for code generation
+  // No fallback logic needed - every component implements generate() via mixins
 
   // Helper function to get component outputs (handles both registry and schematic components)
   function getComponentOutputs(component, circuitManager) {
@@ -66,6 +16,11 @@ export function useCodeGenController() {
       return componentDef?.interface?.outputs || []
     } else {
       const config = componentRegistry[component.type]
+      if (config?.getConnections) {
+        // Use dynamic connections for components like splitter/merger
+        const connections = config.getConnections(component.props || {})
+        return connections.outputs || []
+      }
       return config?.connections?.outputs || []
     }
   }
@@ -78,6 +33,11 @@ export function useCodeGenController() {
       return componentDef?.interface?.inputs || []
     } else {
       const config = componentRegistry[component.type]
+      if (config?.getConnections) {
+        // Use dynamic connections for components like splitter/merger
+        const connections = config.getConnections(component.props || {})
+        return connections.inputs || []
+      }
       return config?.connections?.inputs || []
     }
   }
@@ -90,6 +50,11 @@ export function useCodeGenController() {
       // For schematic components, use the label from the interface
       if (port.label) {
         return port.label
+      }
+      
+      // For components with named ports (like splitter/merger), use the name
+      if (port.name) {
+        return port.name
       }
       
       // Fallback to port id if no label
@@ -142,6 +107,9 @@ export function useCodeGenController() {
   }
   
   function generateGglProgram(components, wires, wireJunctions, componentRefs, componentInstances, circuitManager = null, includeRun = true) {
+    // Reset the global name registry for fresh sequential naming
+    resetNameRegistry()
+    
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
     
@@ -239,21 +207,23 @@ export function useCodeGenController() {
         
         const instance = componentInstances[component.id]
         if (instance && instance.generate) {
-          // Use the component's own generate() method if available
+          // Use the component's own generate() method (all components have this via mixins)
           const generated = instance.generate()
           
-          // Update varName to match our naming convention
+          // Update varName to match the component's preferred naming
           componentVarNames[component.id] = generated.varName
           
           // Create component
           sections.push(generated.code)
         } else {
-          // Fallback: Generate code directly from component registry
-          const generatedCode = generateComponentCode(component, varName)
-          if (generatedCode) {
-            sections.push(generatedCode)
-          } else {
-            console.error(`Could not generate code for component ${component.id} of type ${component.type}`)
+          // Use TypeScript factory to generate code from component data
+          try {
+            const generator = createComponentGenerator(component)
+            const generated = generator.generate()
+            componentVarNames[component.id] = generated.varName
+            sections.push(generated.code)
+          } catch (error) {
+            console.error(`Failed to generate code for component ${component.id} of type ${component.type}:`, error)
             continue
           }
         }
@@ -429,8 +399,8 @@ export function useCodeGenController() {
       circuit.components,
       circuit.wires,
       circuit.wireJunctions,
-      {}, // componentRefs - not available when generating for saved components
-      {}, // componentInstances - not available when generating for saved components  
+      {}, // componentRefs - not needed when using factory approach
+      {}, // componentInstances - not needed when using factory approach
       circuitManager,
       false // Don't include run() call for component modules
     )
@@ -471,6 +441,8 @@ ${componentName} = circuit.Component(circuit0)
     
     return Array.from(imports).join('\n')
   }
+
+
 
   return {
     generateGglProgram,

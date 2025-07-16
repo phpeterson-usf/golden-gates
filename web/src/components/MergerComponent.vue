@@ -76,84 +76,78 @@
   </g>
 </template>
 
-<script setup>
-import { computed } from 'vue'
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { useComponentView } from '../composables/useComponentView'
 import { CONNECTION_DOT_RADIUS } from '../utils/constants'
 
-const props = defineProps({
-  id: {
-    type: String,
-    required: true
+export default defineComponent({
+  name: 'MergerComponent',
+  props: {
+    // Merger props
+    id: { type: String, required: true },
+    label: { type: String, default: '' },
+    ranges: { type: Array, default: () => [] },
+    outputBits: { type: Number, default: 8 },
+    x: { type: Number, default: 0 },
+    y: { type: Number, default: 0 },
+    selected: { type: Boolean, default: false },
+    rotation: { type: Number, default: 0 },
+    gridSize: { type: Number, default: 15 }
   },
-  x: {
-    type: Number,
-    default: 0
+  emits: ['startDrag'],
+  computed: {
+    // Get dynamic connections
+    connections() {
+      const config = componentRegistry['merger']
+      return config.getConnections(this.$props)
+    },
+    
+    // Get dynamic dimensions
+    dimensions() {
+      const config = componentRegistry['merger']
+      return config.getDimensions(this.$props)
+    },
+    
+    height() {
+      return this.dimensions.height
+    },
+    
+    outputY() {
+      return this.connections.outputs[0].y
+    },
+    
+    inputs() {
+      return this.connections.inputs
+    }
   },
-  y: {
-    type: Number,
-    default: 0
+  setup(props, { emit }) {
+    // Use the draggable composable for selection and dragging
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
+    
+    return {
+      handleMouseDown,
+      fillColor,
+      strokeColor,
+      strokeWidth,
+      CONNECTION_DOT_RADIUS
+    }
   },
-  selected: {
-    type: Boolean,
-    default: false
-  },
-  rotation: {
-    type: Number,
-    default: 0
-  },
-  outputBits: {
-    type: Number,
-    default: 8
-  },
-  ranges: {
-    type: Array,
-    default: () => [
-      { start: 0, end: 1 },
-      { start: 2, end: 3 },
-      { start: 4, end: 5 },
-      { start: 6, end: 7 }
-    ]
-  },
-  gridSize: {
-    type: Number,
-    default: 15
+  methods: {
+    // Get range label for display
+    getRangeLabel(index: number): string {
+      const range = this.ranges[index]
+      if (!range) return ''
+      
+      if (range.start === range.end) {
+        return range.start.toString()
+      } else {
+        return `${range.start}-${range.end}`
+      }
+    }
   }
 })
-
-const emit = defineEmits(['startDrag'])
-
-// Use the draggable composable for selection and dragging
-const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
-
-// Get dynamic connections
-const connections = computed(() => {
-  const config = componentRegistry['merger']
-  return config.getConnections(props)
-})
-
-// Get dynamic dimensions
-const dimensions = computed(() => {
-  const config = componentRegistry['merger']
-  return config.getDimensions(props)
-})
-
-const height = computed(() => dimensions.value.height)
-const outputY = computed(() => connections.value.outputs[0].y)
-const inputs = computed(() => connections.value.inputs)
-
-// Get range label for display
-function getRangeLabel(index) {
-  const range = props.ranges[index]
-  if (!range) return ''
-  
-  if (range.start === range.end) {
-    return range.start.toString()
-  } else {
-    return `${range.start}-${range.end}`
-  }
-}
 </script>
 
 <style scoped>

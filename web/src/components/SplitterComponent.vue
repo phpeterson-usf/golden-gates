@@ -76,84 +76,78 @@
   </g>
 </template>
 
-<script setup>
-import { computed } from 'vue'
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { useComponentView } from '../composables/useComponentView'
 import { CONNECTION_DOT_RADIUS } from '../utils/constants'
 
-const props = defineProps({
-  id: {
-    type: String,
-    required: true
+export default defineComponent({
+  name: 'SplitterComponent',
+  props: {
+    // Splitter props
+    id: { type: String, required: true },
+    label: { type: String, default: '' },
+    ranges: { type: Array, default: () => [] },
+    inputBits: { type: Number, default: 8 },
+    x: { type: Number, default: 0 },
+    y: { type: Number, default: 0 },
+    selected: { type: Boolean, default: false },
+    rotation: { type: Number, default: 0 },
+    gridSize: { type: Number, default: 15 }
   },
-  x: {
-    type: Number,
-    default: 0
+  emits: ['startDrag'],
+  computed: {
+    // Get dynamic connections
+    connections() {
+      const config = componentRegistry['splitter']
+      return config.getConnections(this.$props)
+    },
+    
+    // Get dynamic dimensions
+    dimensions() {
+      const config = componentRegistry['splitter']
+      return config.getDimensions(this.$props)
+    },
+    
+    height() {
+      return this.dimensions.height
+    },
+    
+    inputY() {
+      return this.connections.inputs[0].y
+    },
+    
+    outputs() {
+      return this.connections.outputs
+    }
   },
-  y: {
-    type: Number,
-    default: 0
+  setup(props, { emit }) {
+    // Use the draggable composable for selection and dragging
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
+    
+    return {
+      handleMouseDown,
+      fillColor,
+      strokeColor,
+      strokeWidth,
+      CONNECTION_DOT_RADIUS
+    }
   },
-  selected: {
-    type: Boolean,
-    default: false
-  },
-  rotation: {
-    type: Number,
-    default: 0
-  },
-  inputBits: {
-    type: Number,
-    default: 8
-  },
-  ranges: {
-    type: Array,
-    default: () => [
-      { start: 0, end: 1 },
-      { start: 2, end: 3 },
-      { start: 4, end: 5 },
-      { start: 6, end: 7 }
-    ]
-  },
-  gridSize: {
-    type: Number,
-    default: 15
+  methods: {
+    // Get range label for display
+    getRangeLabel(index: number): string {
+      const range = this.ranges[index]
+      if (!range) return ''
+      
+      if (range.start === range.end) {
+        return range.start.toString()
+      } else {
+        return `${range.start}-${range.end}`
+      }
+    }
   }
 })
-
-const emit = defineEmits(['startDrag'])
-
-// Use the draggable composable for selection and dragging
-const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
-
-// Get dynamic connections
-const connections = computed(() => {
-  const config = componentRegistry['splitter']
-  return config.getConnections(props)
-})
-
-// Get dynamic dimensions
-const dimensions = computed(() => {
-  const config = componentRegistry['splitter']
-  return config.getDimensions(props)
-})
-
-const height = computed(() => dimensions.value.height)
-const inputY = computed(() => connections.value.inputs[0].y)
-const outputs = computed(() => connections.value.outputs)
-
-// Get range label for display
-function getRangeLabel(index) {
-  const range = props.ranges[index]
-  if (!range) return ''
-  
-  if (range.start === range.end) {
-    return range.start.toString()
-  } else {
-    return `${range.start}-${range.end}`
-  }
-}
 </script>
 
 <style scoped>

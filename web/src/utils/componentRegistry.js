@@ -116,6 +116,7 @@ export const componentRegistry = {
       
       // Single input on the left, centered
       const inputs = [{ 
+        name: '0',
         x: 0, 
         y: Math.round(totalHeight / 2 / GRID_SIZE) * GRID_SIZE 
       }]
@@ -135,7 +136,11 @@ export const componentRegistry = {
         }
         // Snap to grid
         y = Math.round(y / GRID_SIZE) * GRID_SIZE
-        return { x: 2 * GRID_SIZE, y }
+        return { 
+          name: index.toString(),
+          x: 2 * GRID_SIZE, 
+          y 
+        }
       })
       
       return { inputs, outputs }
@@ -193,11 +198,16 @@ export const componentRegistry = {
         }
         // Snap to grid
         y = Math.round(y / GRID_SIZE) * GRID_SIZE
-        return { x: 0, y }
+        return { 
+          name: index.toString(),
+          x: 0, 
+          y 
+        }
       })
       
       // Single output on the right, centered
       const outputs = [{ 
+        name: '0',
         x: 2 * GRID_SIZE, 
         y: Math.round(totalHeight / 2 / GRID_SIZE) * GRID_SIZE 
       }]

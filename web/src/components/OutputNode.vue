@@ -50,47 +50,36 @@
   </g>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
-import { formatWithLeadingZeros } from '../composables/useLeadingZeros'
 import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
-export default {
+export default defineComponent({
   name: 'OutputNode',
-  computed: {
-    formattedValue() {
-      return formatWithLeadingZeros(this.value, this.base, this.bits)
-    }
-  },
   props: {
     ...draggableProps,
-    label: {
-      type: String,
-      default: 'OUT'
-    },
-    value: {
-      type: Number,
-      default: 0
-    },
-    bits: {
-      type: Number,
-      default: 1
-    },
-    base: {
-      type: Number,
-      default: 10
-    },
-    gridSize: {
-      type: Number,
-      default: 30
-    },
-    rotation: {
-      type: Number,
-      default: 0,
-      validator: (value) => [0, 90, 180, 270].includes(value)
-    }
+    // IO props
+    label: { type: String, default: 'OUT' },
+    value: { type: Number, default: 0 },
+    base: { type: Number, default: 10 },
+    bits: { type: Number, default: 1 },
+    rotation: { type: Number, default: 0 },
+    gridSize: { type: Number, default: 30 }
   },
   emits: ['startDrag'],
+  computed: {
+    formattedValue() {
+      // Format value based on base
+      if (this.base === 16) {
+        return '0x' + this.value.toString(16).padStart(Math.ceil(this.bits / 4), '0').toUpperCase()
+      } else if (this.base === 2) {
+        return '0b' + this.value.toString(2).padStart(this.bits, '0')
+      } else {
+        return this.value.toString()
+      }
+    }
+  },
   setup(props, { emit }) {
     const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
     
@@ -102,22 +91,8 @@ export default {
       COLORS,
       CONNECTION_DOT_RADIUS
     }
-  },
-  methods: {
-    generate() {
-      let varName
-      const match = this.id.match(/output_(\d+)/)
-      const index = match ? match[1] : '0'
-      varName = `output${index}`
-      
-      // Generate GGL code for this output with js_id
-      return {
-        varName,
-        code: `${varName} = io.Output(bits=${this.bits}, label="${this.label}", js_id="${this.id}")`
-      }
-    }
   }
-}
+})
 </script>
 
 <style scoped>

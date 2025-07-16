@@ -51,47 +51,36 @@
   </g>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
-import { formatWithLeadingZeros } from '../composables/useLeadingZeros'
 import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
 
-export default {
+export default defineComponent({
   name: 'InputNode',
-  computed: {
-    formattedValue() {
-      return formatWithLeadingZeros(this.value, this.base, this.bits)
-    }
-  },
   props: {
     ...draggableProps,
-    label: {
-      type: String,
-      default: 'IN'
-    },
-    value: {
-      type: Number,
-      default: 0
-    },
-    base: {
-      type: Number,
-      default: 10
-    },
-    bits: {
-      type: Number,
-      default: 1
-    },
-    gridSize: {
-      type: Number,
-      default: 30
-    },
-    rotation: {
-      type: Number,
-      default: 0,
-      validator: (value) => [0, 90, 180, 270].includes(value)
-    }
+    // IO props  
+    label: { type: String, default: 'IN' },
+    value: { type: Number, default: 0 },
+    base: { type: Number, default: 10 },
+    bits: { type: Number, default: 1 },
+    rotation: { type: Number, default: 0 },
+    gridSize: { type: Number, default: 30 }
   },
   emits: ['startDrag'],
+  computed: {
+    formattedValue() {
+      // Format value based on base
+      if (this.base === 16) {
+        return '0x' + this.value.toString(16).padStart(Math.ceil(this.bits / 4), '0').toUpperCase()
+      } else if (this.base === 2) {
+        return '0b' + this.value.toString(2).padStart(this.bits, '0')
+      } else {
+        return this.value.toString()
+      }
+    }
+  },
   setup(props, { emit }) {
     const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
     
@@ -103,30 +92,9 @@ export default {
       COLORS,
       CONNECTION_DOT_RADIUS
     }
-  },
-  methods: {
-    generate() {
-      let varName
-      const match = this.id.match(/input_(\d+)/)
-      const index = match ? match[1] : '0'
-      varName = `input${index}`
-      
-      // Format value based on base
-      const valueStr = formatWithLeadingZeros(this.value, this.base, this.bits)
-      
-      // Generate GGL code for this input
-      const lines = [
-        `${varName} = io.Input(bits=${this.bits}, label="${this.label}")`,
-        `${varName}.value = ${valueStr}`
-      ]
-      
-      return {
-        varName,
-        code: lines.join('\n')
-      }
-    }
   }
-}
+  // generate() method will be added back later if needed
+})
 </script>
 
 <style scoped>

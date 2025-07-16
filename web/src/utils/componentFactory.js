@@ -89,7 +89,8 @@ export function createGateRegistryEntry(gateType, definition) {
       numInputs: definition.defaultNumInputs || 2,  // Use gate-specific default if provided
       bits: 1,
       label: '',
-      rotation: 0
+      rotation: 0,
+      invertedInputs: []
     },
     dimensions: {
       width: definition.dimensions?.width || GRID_SIZE * 3,  // Use custom width if defined

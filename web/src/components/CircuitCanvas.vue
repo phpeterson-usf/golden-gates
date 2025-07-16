@@ -178,6 +178,7 @@ export default {
     const container = ref(null)
     const componentRefs = ref({})
     
+    
     // Canvas operations
     const {
       canvasWidth,
@@ -406,6 +407,7 @@ export default {
           instances[id] = ref
         }
       })
+      
       return instances
     })
     
