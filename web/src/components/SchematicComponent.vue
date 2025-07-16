@@ -210,18 +210,15 @@ export default {
       }
       
       return inputs.map((input, index) => {
-        // Distribute inputs evenly, starting from top margin
-        const topMargin = GRID_SIZE // 1 grid unit from top
-        const availableHeight = bounds.height - 2 * topMargin
-        const spacing = availableHeight / (inputs.length - 1)
-        
         let y
         if (inputs.length === 1) {
           // Single input at center
           y = bounds.height / 2
         } else {
-          // Multiple inputs distributed evenly
-          y = topMargin + index * spacing
+          // Multiple inputs: use consistent 2 grid unit spacing
+          const topMargin = GRID_SIZE // 1 grid unit from top
+          const inputSpacing = 2 * GRID_SIZE // 2 grid units per input
+          y = topMargin + index * inputSpacing
         }
         
         // Snap to nearest grid vertex
@@ -244,18 +241,15 @@ export default {
       }
       
       return outputs.map((output, index) => {
-        // Distribute outputs evenly, starting from top margin
-        const topMargin = GRID_SIZE // 1 grid unit from top
-        const availableHeight = bounds.height - 2 * topMargin
-        const spacing = availableHeight / (outputs.length - 1)
-        
         let y
         if (outputs.length === 1) {
           // Single output at center
           y = bounds.height / 2
         } else {
-          // Multiple outputs distributed evenly
-          y = topMargin + index * spacing
+          // Multiple outputs: use same logic as inputs for better alignment
+          const topMargin = GRID_SIZE // 1 grid unit from top
+          const outputSpacing = 2 * GRID_SIZE // 2 grid units per output (same as inputs)
+          y = topMargin + index * outputSpacing
         }
         
         // Snap to nearest grid vertex

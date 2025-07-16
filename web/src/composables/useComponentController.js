@@ -9,8 +9,8 @@ export function useComponentController(circuitManager, canvasOperations) {
   const { snapToGrid, gridSize } = canvasOperations
   const { activeCircuit, addComponent } = circuitManager
   
-  // Track last component position for intelligent placement
-  const lastComponentPosition = ref({ x: 100, y: 100 })
+  // Track last component position for intelligent placement (in grid units)
+  const lastComponentPosition = ref({ x: 7, y: 7 })
   
   /**
    * Add component at smart position with auto-naming and unique ID generation
@@ -24,8 +24,8 @@ export function useComponentController(circuitManager, canvasOperations) {
     
     // Use last component position with offset (5 grid units down)
     const x = lastComponentPosition.value.x
-    const y = lastComponentPosition.value.y + (gridSize.value * 5)
-    const snapped = snapToGrid({ x, y })
+    const y = lastComponentPosition.value.y + 5
+    const snapped = { x, y }  // Already in grid units
     
     // Get component configuration
     const config = componentRegistry[type]

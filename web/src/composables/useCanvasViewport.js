@@ -51,7 +51,7 @@ export function useCanvasViewport() {
     zoom.value = 1
   }
 
-  // Snap position to grid
+  // Snap position to grid and return pixel coordinates
   function snapToGrid(pos) {
     return {
       x: Math.round(pos.x / gridSize.value) * gridSize.value,

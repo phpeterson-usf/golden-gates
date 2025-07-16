@@ -5,26 +5,26 @@ import { getGateDefinition } from '../config/gateDefinitions'
 // Shared functions for standard gate bounds and connections
 function standardGateBounds(props) {
   const numInputs = props?.numInputs || 2
-  const totalHeight = numInputs === 1 ? GRID_SIZE * 2 : (numInputs - 1) * GRID_SIZE * 2
-  const padding = 10
+  const totalHeight = numInputs === 1 ? 2 : (numInputs - 1) * 2  // In grid units
+  const padding = 10  // Still in pixels for visual bounds
   
   // All gates use fixed width of 3 grid units
   return {
     x: 0,
     y: -padding,
-    width: GRID_SIZE * 3,  // 45px
-    height: totalHeight + (2 * padding)
+    width: GRID_SIZE * 3,  // 45px (still in pixels for visual bounds)
+    height: totalHeight * GRID_SIZE + (2 * padding)  // Convert to pixels
   }
 }
 
 function standardGateCenter(props) {
   const numInputs = props?.numInputs || 2
-  const totalHeight = numInputs === 1 ? GRID_SIZE * 2 : (numInputs - 1) * GRID_SIZE * 2
+  const totalHeight = numInputs === 1 ? 2 : (numInputs - 1) * 2  // In grid units
   
   // All gates centered at 1.5 grid units horizontally
   return {
-    x: GRID_SIZE * 1.5,  // 22.5px (center of 45px width)
-    y: totalHeight / 2
+    x: GRID_SIZE * 1.5,  // 22.5px (center of 45px width) - still in pixels for visual center
+    y: totalHeight * GRID_SIZE / 2  // Convert to pixels
   }
 }
 
@@ -40,7 +40,7 @@ function standardGateConnections(props) {
     const positions = definition.getInputPositions(numInputs)
     positions.forEach((pos, i) => {
       const isInverted = invertedInputs.includes(i)
-      const x = isInverted ? pos.x - 15 : pos.x
+      const x = isInverted ? pos.x - 1 : pos.x  // Move left 1 grid unit for inverted inputs
       inputs.push({ name: String(i), x, y: pos.y })
     })
   } else {
@@ -48,23 +48,24 @@ function standardGateConnections(props) {
     // For inverted inputs, connection point is moved left to accommodate inversion circle
     for (let i = 0; i < numInputs; i++) {
       const isInverted = invertedInputs.includes(i)
-      const x = isInverted ? -15 : 0  // Move connection point left for inverted inputs
-      inputs.push({ name: String(i), x, y: i * GRID_SIZE * 2 })
+      const x = isInverted ? -1 : 0  // Move connection point left 1 grid unit for inverted inputs
+      inputs.push({ name: String(i), x, y: i * 2 })  // 2 grid units spacing
     }
   }
   
-  // Get output offset
-  const outputOffset = definition?.outputOffset || 0
+  // Get output offset (convert from pixels to grid units)
+  const outputOffsetPixels = definition?.outputOffset || 0
+  const outputOffset = outputOffsetPixels / GRID_SIZE
   
   // Calculate output Y position based on number of inputs
   let outputY
   if (numInputs === 1) {
-    outputY = GRID_SIZE  // 15px - centered for single input
+    outputY = 1  // 1 grid unit - centered for single input
   } else if (numInputs === 2) {
-    outputY = GRID_SIZE  // 15px - between inputs at 0 and 30
+    outputY = 1  // 1 grid unit - between inputs at 0 and 2
   } else {
     // For more inputs, output is at center of total height
-    const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+    const totalHeight = (numInputs - 1) * 2  // 2 grid units spacing
     outputY = totalHeight / 2
   }
   
@@ -72,7 +73,7 @@ function standardGateConnections(props) {
   return {
     inputs,
     outputs: [
-      { name: '0', x: GRID_SIZE * 3 - outputOffset, y: outputY }
+      { name: '0', x: 3 - outputOffset, y: outputY }  // 3 grid units right minus any offset
     ]
   }
 }
@@ -118,19 +119,19 @@ export function createGateRegistryEntry(gateType, definition) {
     connections: definition.defaultNumInputs === 1 ? {
       // Single input for NOT gate
       inputs: [
-        { name: '0', x: 0, y: GRID_SIZE }  // 15px - centered
+        { name: '0', x: 0, y: 1 }  // 1 grid unit - centered
       ],
       outputs: [
-        { name: '0', x: GRID_SIZE * 3 - (definition.outputOffset || 0), y: GRID_SIZE }  // 45px, 15px
+        { name: '0', x: 3 - (definition.outputOffset || 0) / GRID_SIZE, y: 1 }  // 3 grid units right, 1 down
       ]
     } : {
       // Default 2-input connections
       inputs: [
         { name: '0', x: 0, y: 0 },
-        { name: '1', x: 0, y: GRID_SIZE * 2 }  // 30px
+        { name: '1', x: 0, y: 2 }  // 2 grid units down
       ],
       outputs: [
-        { name: '0', x: GRID_SIZE * 3 - (definition.outputOffset || 0), y: GRID_SIZE }  // 45px, 15px
+        { name: '0', x: 3 - (definition.outputOffset || 0) / GRID_SIZE, y: 1 }  // 3 grid units right, 1 down
       ]
     }
   }

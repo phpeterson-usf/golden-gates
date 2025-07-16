@@ -1,10 +1,10 @@
 <template>
-  <g :transform="`translate(${x}, ${y})`">
+  <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on input point -->
     <g :transform="`rotate(${rotation}, 0, 0)`">
     <!-- Value display (above the circle, centered on component) -->
     <text 
-      :x="(gridSize + 5) / 2" 
+      :x="(GRID_SIZE + 5) / 2" 
       y="-15" 
       text-anchor="middle" 
       class="component-value"
@@ -14,9 +14,9 @@
     
     <!-- Output circle (larger by 5px diameter, offset right so input point is on left edge) -->
     <circle
-      :cx="(gridSize + 5) / 2"
+      :cx="(GRID_SIZE + 5) / 2"
       cy="0"
-      :r="(gridSize + 5) / 2"
+      :r="(GRID_SIZE + 5) / 2"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"
@@ -38,7 +38,7 @@
     
     <!-- Label (to the right of the circle) -->
     <text 
-      :x="gridSize + 10" 
+      :x="GRID_SIZE + 10" 
       y="5" 
       text-anchor="start" 
       font-size="14" 
@@ -53,7 +53,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
-import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default defineComponent({
   name: 'OutputNode',
@@ -64,8 +64,7 @@ export default defineComponent({
     value: { type: Number, default: 0 },
     base: { type: Number, default: 10 },
     bits: { type: Number, default: 1 },
-    rotation: { type: Number, default: 0 },
-    gridSize: { type: Number, default: 30 }
+    rotation: { type: Number, default: 0 }
   },
   emits: ['startDrag'],
   computed: {
@@ -89,7 +88,8 @@ export default defineComponent({
       strokeColor,
       strokeWidth,
       COLORS,
-      CONNECTION_DOT_RADIUS
+      CONNECTION_DOT_RADIUS,
+      GRID_SIZE
     }
   }
 })

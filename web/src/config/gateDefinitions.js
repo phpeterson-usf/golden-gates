@@ -64,14 +64,21 @@ export const gateDefinitions = {
     // Override input connection positions for XOR gate
     getInputPositions: (numInputs) => {
       const positions = []
-      // Calculate total height based on numInputs (same logic as LogicGate component)
-      const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+      
+      // Handle single input case
+      if (numInputs === 1) {
+        positions.push({ x: 0, y: 1 })  // Single input centered at 1 grid unit
+        return positions
+      }
+      
+      // Calculate total height in grid units (2 grid units per input spacing)
+      const totalHeight = (numInputs - 1) * 2
       const spacing = totalHeight / (numInputs - 1)
       
       for (let i = 0; i < numInputs; i++) {
         positions.push({
-          x: 0,  // Inputs at x=0, before the concave line
-          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight
+          x: 0,  // Inputs at x=0, before the concave line (in grid units)
+          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight (in grid units)
         })
       }
       
@@ -102,7 +109,7 @@ export const gateDefinitions = {
     // NOT gate has only one input
     getInputPositions: (numInputs) => {
       // For NOT gate, always return single centered input
-      return [{ x: 0, y: GRID_SIZE }]  // Single input at center (15px from top)
+      return [{ x: 0, y: 1 }]  // Single input at center (1 grid unit from top)
     },
     // NOT gate dimensions
     dimensions: {
@@ -139,14 +146,21 @@ export const gateDefinitions = {
     // Override input connection positions for XNOR gate (same as XOR)
     getInputPositions: (numInputs) => {
       const positions = []
-      // Calculate total height based on numInputs (same logic as LogicGate component)
-      const totalHeight = (numInputs - 1) * GRID_SIZE * 2
+      
+      // Handle single input case
+      if (numInputs === 1) {
+        positions.push({ x: 0, y: 1 })  // Single input centered at 1 grid unit
+        return positions
+      }
+      
+      // Calculate total height in grid units (2 grid units per input spacing)
+      const totalHeight = (numInputs - 1) * 2
       const spacing = totalHeight / (numInputs - 1)
       
       for (let i = 0; i < numInputs; i++) {
         positions.push({
-          x: 0,  // Inputs at x=0, before the concave line
-          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight
+          x: 0,  // Inputs at x=0, before the concave line (in grid units)
+          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight (in grid units)
         })
       }
       

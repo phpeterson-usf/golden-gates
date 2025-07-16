@@ -55,8 +55,8 @@
         <circle
           v-for="(junction, index) in wireJunctions"
           :key="`junction-${index}`"
-          :cx="junction.pos.x"
-          :cy="junction.pos.y"
+          :cx="gridToPixel(junction.pos).x"
+          :cy="gridToPixel(junction.pos).y"
           :r="CONNECTION_DOT_RADIUS"
           :fill="COLORS.connectionFill"
           class="wire-junction"
@@ -66,8 +66,8 @@
         <!-- Junction preview point when Alt is held -->
         <circle
           v-if="junctionPreview"
-          :cx="junctionPreview.x"
-          :cy="junctionPreview.y"
+          :cx="gridToPixel(junctionPreview).x"
+          :cy="gridToPixel(junctionPreview).y"
           :r="CONNECTION_DOT_RADIUS + 2"
           fill="#3b82f6"
           stroke="white"
@@ -151,7 +151,7 @@
 <script>
 import { ref, computed, onMounted, onUnmounted, watch, getCurrentInstance } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
-import { DOT_SIZE, COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { DOT_SIZE, COLORS, CONNECTION_DOT_RADIUS, gridToPixel } from '../utils/constants'
 import Wire from './Wire.vue'
 
 // Composables
@@ -333,6 +333,7 @@ export default {
       handleMouseUp,
       handleKeyDown: handleInteractionKeyDown,
       handleKeyUp: handleInteractionKeyUp,
+      handleWindowBlur,
       handleWireClick,
       handleWireMouseDown,
       addComponentAtSmartPosition
@@ -350,10 +351,12 @@ export default {
       
       window.addEventListener('keydown', handleGlobalKeyDown)
       window.addEventListener('keyup', handleGlobalKeyUp)
+      window.addEventListener('blur', handleWindowBlur)
       
       onUnmounted(() => {
         window.removeEventListener('keydown', handleGlobalKeyDown)
         window.removeEventListener('keyup', handleGlobalKeyUp)
+        window.removeEventListener('blur', handleWindowBlur)
       })
     })
     
@@ -486,6 +489,7 @@ export default {
       // Constants
       COLORS,
       CONNECTION_DOT_RADIUS,
+      gridToPixel,
       
       // Methods
       getComponentType,

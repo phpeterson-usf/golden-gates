@@ -1,10 +1,10 @@
 <template>
-  <g :transform="`translate(${x}, ${y})`">
+  <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on output point -->
-    <g :transform="`rotate(${rotation}, ${gridSize}, 0)`">
+    <g :transform="`rotate(${rotation}, ${GRID_SIZE}, 0)`">
     <!-- Value display (above the square, centered on component) -->
     <text 
-      :x="(gridSize - 5) / 2" 
+      :x="(GRID_SIZE - 5) / 2" 
       y="-15" 
       text-anchor="middle" 
       class="component-value"
@@ -26,9 +26,9 @@
     <!-- Input square (larger by 5px, offset left so output point is on right edge) -->
     <rect
       x="-5"
-      :y="-(gridSize + 5) / 2"
-      :width="gridSize + 5"
-      :height="gridSize + 5"
+      :y="-(GRID_SIZE + 5) / 2"
+      :width="GRID_SIZE + 5"
+      :height="GRID_SIZE + 5"
       :fill="fillColor"
       :stroke="strokeColor"
       :stroke-width="strokeWidth"
@@ -38,7 +38,7 @@
     
     <!-- Output connection point (right side, centered - on grid vertex) -->
     <circle 
-      :cx="gridSize" 
+      :cx="GRID_SIZE" 
       cy="0" 
       :r="CONNECTION_DOT_RADIUS" 
       :fill="COLORS.connectionFill" 
@@ -54,7 +54,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
-import { COLORS, CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default defineComponent({
   name: 'InputNode',
@@ -65,8 +65,7 @@ export default defineComponent({
     value: { type: Number, default: 0 },
     base: { type: Number, default: 10 },
     bits: { type: Number, default: 1 },
-    rotation: { type: Number, default: 0 },
-    gridSize: { type: Number, default: 30 }
+    rotation: { type: Number, default: 0 }
   },
   emits: ['startDrag'],
   computed: {
@@ -90,7 +89,8 @@ export default defineComponent({
       strokeColor,
       strokeWidth,
       COLORS,
-      CONNECTION_DOT_RADIUS
+      CONNECTION_DOT_RADIUS,
+      GRID_SIZE
     }
   }
   // generate() method will be added back later if needed

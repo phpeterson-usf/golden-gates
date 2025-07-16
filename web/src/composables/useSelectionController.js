@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
+import { GRID_SIZE } from '../utils/constants'
 
 export function useSelectionController(components, wires, onWiresDeleted = null, onComponentsDeleted = null, onWireDelete = null) {
   // Selection state
@@ -82,8 +83,9 @@ export function useSelectionController(components, wires, onWiresDeleted = null,
         // Use static center
         center = config.center || { x: 0, y: 0 }
       }
-      const checkX = comp.x + center.x
-      const checkY = comp.y + center.y
+      // Convert component position from grid units to pixels, then add pixel-based center offset
+      const checkX = comp.x * GRID_SIZE + center.x
+      const checkY = comp.y * GRID_SIZE + center.y
       
       // Check if the component's visual center is within the selection rectangle
       if (checkX >= rect.x && 
@@ -99,14 +101,18 @@ export function useSelectionController(components, wires, onWiresDeleted = null,
       const firstPoint = wire.points[0]
       const lastPoint = wire.points[wire.points.length - 1]
       
-      if (firstPoint.x >= rect.x && 
-          firstPoint.x <= rect.x + rect.width &&
-          firstPoint.y >= rect.y && 
-          firstPoint.y <= rect.y + rect.height &&
-          lastPoint.x >= rect.x && 
-          lastPoint.x <= rect.x + rect.width &&
-          lastPoint.y >= rect.y && 
-          lastPoint.y <= rect.y + rect.height) {
+      // Convert wire points from grid units to pixels for comparison with selection rectangle
+      const firstPointPixels = { x: firstPoint.x * GRID_SIZE, y: firstPoint.y * GRID_SIZE }
+      const lastPointPixels = { x: lastPoint.x * GRID_SIZE, y: lastPoint.y * GRID_SIZE }
+      
+      if (firstPointPixels.x >= rect.x && 
+          firstPointPixels.x <= rect.x + rect.width &&
+          firstPointPixels.y >= rect.y && 
+          firstPointPixels.y <= rect.y + rect.height &&
+          lastPointPixels.x >= rect.x && 
+          lastPointPixels.x <= rect.x + rect.width &&
+          lastPointPixels.y >= rect.y && 
+          lastPointPixels.y <= rect.y + rect.height) {
         selectedWires.value.add(index)
       }
     })

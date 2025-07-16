@@ -23,7 +23,6 @@ export const componentRegistry = {
       value: 0,
       base: 10,
       bits: 1,
-      gridSize: GRID_SIZE,
       rotation: 0
     },
     dimensions: {
@@ -44,7 +43,7 @@ export const componentRegistry = {
     },
     connections: {
       outputs: [
-        { name: '0', x: GRID_SIZE, y: 0 }
+        { name: '0', x: 1, y: 0 }  // 1 grid unit right, 0 units down
       ]
     },
     // Special handling for input nodes
@@ -62,7 +61,6 @@ export const componentRegistry = {
       value: 0,
       bits: 1,
       base: 10,
-      gridSize: GRID_SIZE,
       rotation: 0
     },
     dimensions: {
@@ -83,7 +81,7 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: '0', x: 0, y: 0 }
+        { name: '0', x: 0, y: 0 }  // At component origin (already in grid units)
       ]
     },
     // Special handling for output nodes
@@ -111,14 +109,14 @@ export const componentRegistry = {
     getConnections: (props) => {
       const ranges = props.ranges || []
       const outputCount = ranges.length
-      const minHeight = 4 * GRID_SIZE // Increased minimum height
-      const totalHeight = Math.max(minHeight, (outputCount + 1) * GRID_SIZE) // More spacing
+      const minHeight = 4 // Minimum height in grid units
+      const totalHeight = Math.max(minHeight, (outputCount + 1)) // More spacing in grid units
       
       // Single input on the left, centered
       const inputs = [{ 
         name: '0',
         x: 0, 
-        y: Math.round(totalHeight / 2 / GRID_SIZE) * GRID_SIZE 
+        y: Math.round(totalHeight / 2) // In grid units
       }]
       
       // Multiple outputs on the right, evenly spaced with proper margins
@@ -128,17 +126,17 @@ export const componentRegistry = {
           y = totalHeight / 2
         } else {
           // Add top and bottom margins, distribute the rest evenly
-          const topMargin = GRID_SIZE
-          const bottomMargin = GRID_SIZE
+          const topMargin = 1 // 1 grid unit margin
+          const bottomMargin = 1 // 1 grid unit margin
           const availableHeight = totalHeight - topMargin - bottomMargin
           const spacing = availableHeight / (outputCount - 1)
           y = topMargin + index * spacing
         }
         // Snap to grid
-        y = Math.round(y / GRID_SIZE) * GRID_SIZE
+        y = Math.round(y)
         return { 
           name: index.toString(),
-          x: 2 * GRID_SIZE, 
+          x: 2, // 2 grid units right
           y 
         }
       })
@@ -180,8 +178,8 @@ export const componentRegistry = {
     getConnections: (props) => {
       const ranges = props.ranges || []
       const inputCount = ranges.length
-      const minHeight = 4 * GRID_SIZE // Increased minimum height
-      const totalHeight = Math.max(minHeight, (inputCount + 1) * GRID_SIZE) // More spacing
+      const minHeight = 4 // Minimum height in grid units
+      const totalHeight = Math.max(minHeight, (inputCount + 1)) // More spacing in grid units
       
       // Multiple inputs on the left, evenly spaced with proper margins
       const inputs = ranges.map((_, index) => {
@@ -190,14 +188,14 @@ export const componentRegistry = {
           y = totalHeight / 2
         } else {
           // Add top and bottom margins, distribute the rest evenly
-          const topMargin = GRID_SIZE
-          const bottomMargin = GRID_SIZE
+          const topMargin = 1 // 1 grid unit margin
+          const bottomMargin = 1 // 1 grid unit margin
           const availableHeight = totalHeight - topMargin - bottomMargin
           const spacing = availableHeight / (inputCount - 1)
           y = topMargin + index * spacing
         }
         // Snap to grid
-        y = Math.round(y / GRID_SIZE) * GRID_SIZE
+        y = Math.round(y)
         return { 
           name: index.toString(),
           x: 0, 
@@ -208,8 +206,8 @@ export const componentRegistry = {
       // Single output on the right, centered
       const outputs = [{ 
         name: '0',
-        x: 2 * GRID_SIZE, 
-        y: Math.round(totalHeight / 2 / GRID_SIZE) * GRID_SIZE 
+        x: 2, // 2 grid units right
+        y: Math.round(totalHeight / 2) // In grid units
       }]
       
       return { inputs, outputs }
@@ -245,7 +243,7 @@ export const componentRegistry = {
         // Default single input/output if no circuit specified
         return {
           inputs: [{ x: 0, y: 0 }],
-          outputs: [{ x: 90, y: 0 }] // Default width of 90px (6 grid units)
+          outputs: [{ x: 6, y: 0 }] // Default width of 6 grid units
         }
       }
       
@@ -253,7 +251,7 @@ export const componentRegistry = {
       if (!circuit) {
         return {
           inputs: [{ x: 0, y: 0 }],
-          outputs: [{ x: 90, y: 0 }]
+          outputs: [{ x: 6, y: 0 }] // 6 grid units wide
         }
       }
       
@@ -281,28 +279,28 @@ export const componentRegistry = {
       
       // Calculate grid-aligned dimensions
       const maxPorts = Math.max(inputs.length, outputs.length, 1)
-      const minHeight = 4 * GRID_SIZE // 2 above + 2 below
-      const heightForPorts = maxPorts * 2 * GRID_SIZE // 2 grid units per port
+      const minHeight = 4 // 2 above + 2 below (in grid units)
+      const heightForPorts = maxPorts * 2 // 2 grid units per port
       const height = Math.max(minHeight, heightForPorts)
-      const width = 6 * GRID_SIZE // 90px
+      const width = 6 // 6 grid units wide
       
       // Calculate connection positions
       const inputConnections = inputs.length === 0 ? 
-        [{ x: 0, y: Math.round(height / 2 / GRID_SIZE) * GRID_SIZE }] :
+        [{ x: 0, y: Math.round(height / 2) }] :
         inputs.map((input, index) => {
-          const topMargin = GRID_SIZE
-          const availableHeight = height - 2 * topMargin
-          const spacing = availableHeight / (inputs.length - 1)
-          
           let y
           if (inputs.length === 1) {
+            // Single input at center
             y = height / 2
           } else {
-            y = topMargin + index * spacing
+            // Multiple inputs: use consistent 2 grid unit spacing
+            const topMargin = 1 // 1 grid unit from top
+            const inputSpacing = 2 // 2 grid units per input
+            y = topMargin + index * inputSpacing
           }
           
           // Snap to nearest grid vertex
-          y = Math.round(y / GRID_SIZE) * GRID_SIZE
+          y = Math.round(y)
           
           // Move connection points to different edges based on rotation
           const rotation = input.rotation || 0
@@ -324,21 +322,21 @@ export const componentRegistry = {
         })
       
       const outputConnections = outputs.length === 0 ? 
-        [{ x: width, y: Math.round(height / 2 / GRID_SIZE) * GRID_SIZE }] :
+        [{ x: width, y: Math.round(height / 2) }] :
         outputs.map((output, index) => {
-          const topMargin = GRID_SIZE
-          const availableHeight = height - 2 * topMargin
-          const spacing = availableHeight / (outputs.length - 1)
-          
           let y
           if (outputs.length === 1) {
+            // Single output at center
             y = height / 2
           } else {
-            y = topMargin + index * spacing
+            // Multiple outputs: use consistent 2 grid unit spacing
+            const topMargin = 1 // 1 grid unit from top
+            const outputSpacing = 2 // 2 grid units per output
+            y = topMargin + index * outputSpacing
           }
           
           // Snap to nearest grid vertex
-          y = Math.round(y / GRID_SIZE) * GRID_SIZE
+          y = Math.round(y)
           
           // Move connection points to different edges based on rotation
           const rotation = output.rotation || 0

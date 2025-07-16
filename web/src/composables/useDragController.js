@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { GRID_SIZE } from '../utils/constants'
 
 export function useDragController(components, wires, selectedComponents, selectedWires, snapToGrid, wireJunctions) {
   // Dragging state
@@ -100,8 +101,8 @@ export function useDragController(components, wires, selectedComponents, selecte
     
     dragging.value = {
       id,
-      offsetX,
-      offsetY,
+      offsetX: offsetX,  // Keep offset in pixels
+      offsetY: offsetY,  // Keep offset in pixels
       hasMoved: false,
       components: draggedComponents,
       wires: draggedWires,
@@ -161,8 +162,9 @@ export function useDragController(components, wires, selectedComponents, selecte
   function updateDrag(mousePos) {
     if (!dragging.value) return
     
-    const newX = mousePos.x - dragging.value.offsetX
-    const newY = mousePos.y - dragging.value.offsetY
+    // Convert mouse position to grid units and apply offset (offset is in pixels)
+    const newX = (mousePos.x - dragging.value.offsetX) / GRID_SIZE
+    const newY = (mousePos.y - dragging.value.offsetY) / GRID_SIZE
     
     // Mark that we've moved
     dragging.value.hasMoved = true
@@ -174,12 +176,14 @@ export function useDragController(components, wires, selectedComponents, selecte
       // For wire dragging, use the first wire's first point as reference
       const firstWire = wires.value[dragging.value.wires[0].index]
       if (!firstWire) return
+      // Both newX/Y and initialPoints are in grid units
       deltaX = newX - dragging.value.wires[0].initialPoints[0].x
       deltaY = newY - dragging.value.wires[0].initialPoints[0].y
     } else {
       // For component dragging, use the dragged component as reference
       const draggedComp = dragging.value.components.find(c => c.id === dragging.value.id)
       if (!draggedComp) return
+      // Both positions are already in grid units
       deltaX = newX - draggedComp.initialX
       deltaY = newY - draggedComp.initialY
     }
@@ -188,6 +192,7 @@ export function useDragController(components, wires, selectedComponents, selecte
     for (const dragInfo of dragging.value.components) {
       const component = components.value.find(c => c.id === dragInfo.id)
       if (component) {
+        // Apply delta in grid units (initialX/Y are already in grid units)
         component.x = dragInfo.initialX + deltaX
         component.y = dragInfo.initialY + deltaY
       }
@@ -264,19 +269,23 @@ export function useDragController(components, wires, selectedComponents, selecte
         // For wire dragging, snap the first point of the first wire
         const firstWire = wires.value[dragging.value.wires[0].index]
         if (firstWire) {
-          const snapped = snapToGrid(firstWire.points[0])
-          snappedDeltaX = snapped.x - dragging.value.wires[0].initialPoints[0].x
-          snappedDeltaY = snapped.y - dragging.value.wires[0].initialPoints[0].y
+          // Wire points are in grid units, convert to pixels for snapping
+          const snapped = snapToGrid({ x: firstWire.points[0].x * GRID_SIZE, y: firstWire.points[0].y * GRID_SIZE })
+          // Calculate delta in grid units (both snapped and initialPoints are in grid units)
+          snappedDeltaX = (snapped.x / GRID_SIZE) - dragging.value.wires[0].initialPoints[0].x
+          snappedDeltaY = (snapped.y / GRID_SIZE) - dragging.value.wires[0].initialPoints[0].y
         }
       } else {
         // For component dragging, find the current position of the dragged component
         const draggedComp = components.value.find(c => c.id === dragging.value.id)
         if (draggedComp) {
-          const snapped = snapToGrid({ x: draggedComp.x, y: draggedComp.y })
+          // Components are already in grid units, convert to pixels for snapping
+          const snapped = snapToGrid({ x: draggedComp.x * GRID_SIZE, y: draggedComp.y * GRID_SIZE })
           const initialComp = dragging.value.components.find(c => c.id === dragging.value.id)
           if (initialComp) {
-            snappedDeltaX = snapped.x - initialComp.initialX
-            snappedDeltaY = snapped.y - initialComp.initialY
+            // Calculate delta in grid units (snapped is now in pixels, so convert back)
+            snappedDeltaX = (snapped.x / GRID_SIZE) - initialComp.initialX
+            snappedDeltaY = (snapped.y / GRID_SIZE) - initialComp.initialY
           }
         }
       }
@@ -285,6 +294,7 @@ export function useDragController(components, wires, selectedComponents, selecte
       for (const dragInfo of dragging.value.components) {
         const component = components.value.find(c => c.id === dragInfo.id)
         if (component) {
+          // Apply delta in grid units (initialX/Y are already in grid units)
           component.x = dragInfo.initialX + snappedDeltaX
           component.y = dragInfo.initialY + snappedDeltaY
         }

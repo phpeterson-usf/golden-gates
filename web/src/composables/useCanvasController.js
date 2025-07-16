@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { useComponentController } from './useComponentController'
+import { GRID_SIZE, gridToPixel, pixelToGrid } from '../utils/constants'
 
 /**
  * Canvas Interactions - UI interaction logic for circuit canvas
@@ -45,7 +46,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       if (!drawingWire.value) {
         // Clear selection when starting to draw a wire
         clearSelection()
-        // Start drawing a wire
+        // Start drawing a wire (pos is in pixels, which is what startWireDrawing expects)
         startWireDrawing(componentId, portIndex, portType, pos)
       } else {
         // Complete the wire if clicking on a compatible connection
@@ -56,7 +57,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     
     // If drawing a wire and clicked elsewhere, add a waypoint
     if (drawingWire.value) {
-      const pos = getMousePos(event)
+      const pos = getMousePos(event)  // Use pixel coordinates for waypoint calculation
       addWireWaypoint(pos)
       return
     }
@@ -86,7 +87,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   function handleMouseMove(event) {
     // Always update current mouse position for wire preview
     const pos = getMousePos(event)
-    wireManagement.currentMousePos.value = pos
+    wireManagement.currentMousePos.value = pixelToGrid(pos)  // Convert to grid units for wire system
     
     // Track which wire is being hovered for junction mode
     const target = event.target
@@ -101,14 +102,14 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     
     // Handle junction preview when Alt is held
     if (isJunctionMode.value) {
-      updateJunctionPreview(event, pos)
+      updateJunctionPreview(event, pos)  // Use pixel coordinates for junction finding
       connectionPreview.value = null // Clear connection preview in junction mode
     } else {
       junctionPreview.value = null
       
       // Handle connection preview when drawing a wire
       if (drawingWire.value) {
-        updateConnectionPreview(event, pos)
+        updateConnectionPreview(event, pos)  // Use pixel coordinates for connection finding
       } else {
         connectionPreview.value = null
       }
@@ -193,6 +194,14 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       updatePreviewsOnModeChange()
     }
   }
+
+  // Reset junction mode when window loses focus to prevent stuck alt key state
+  function handleWindowBlur() {
+    if (isJunctionMode.value) {
+      isJunctionMode.value = false
+      updatePreviewsOnModeChange()
+    }
+  }
   
   /**
    * Update junction preview
@@ -207,7 +216,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         const wireIndex = parseInt(wireElement.dataset.wireIndex)
         const junctionPos = wireManagement.findClosestGridPointOnWire(wireIndex, mousePos)
         if (junctionPos) {
-          junctionPreview.value = junctionPos
+          junctionPreview.value = junctionPos  // Already in grid units
           return
         }
       }
@@ -240,10 +249,12 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
             connections.inputs?.[portIndex]
             
           if (connectionPoint) {
-            connectionPreview.value = {
+            // Convert grid coordinates to pixels for rendering
+            const gridPosition = {
               x: component.x + connectionPoint.x,
               y: component.y + connectionPoint.y
             }
+            connectionPreview.value = gridToPixel(gridPosition)
             return
           }
         }
@@ -260,10 +271,11 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   function updatePreviewsOnModeChange() {
     if (wireManagement.currentMousePos.value) {
       if (isJunctionMode.value && lastHoveredWireIndex !== null) {
-        // Show junction preview for the last hovered wire
-        const junctionPos = wireManagement.findClosestGridPointOnWire(lastHoveredWireIndex, wireManagement.currentMousePos.value)
+        // Convert grid coordinates back to pixels for junction finding
+        const pixelPos = gridToPixel(wireManagement.currentMousePos.value)
+        const junctionPos = wireManagement.findClosestGridPointOnWire(lastHoveredWireIndex, pixelPos)
         if (junctionPos) {
-          junctionPreview.value = junctionPos
+          junctionPreview.value = junctionPos  // Already in grid units
         }
         connectionPreview.value = null
       } else {
@@ -279,7 +291,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   function handleWireClick(index, event) {
     // If we're drawing a wire and Alt is held, complete it with a junction
     if (drawingWire.value && event.altKey) {
-      const pos = getMousePos(event)
+      const pos = getMousePos(event)  // Use pixel coordinates for junction finding
       const junctionPos = wireManagement.findClosestGridPointOnWire(index, pos)
       
       if (junctionPos) {
@@ -289,7 +301,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     } 
     // If not drawing and Alt is held, start from junction
     else if (!drawingWire.value && event.altKey) {
-      const pos = getMousePos(event)
+      const pos = getMousePos(event)  // Use pixel coordinates for junction finding
       const junctionPos = wireManagement.findClosestGridPointOnWire(index, pos)
       
       if (junctionPos) {
@@ -326,8 +338,8 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     
     dragAndDrop.startWireDrag(wireIndex, {
       id: `wire_drag_${wireIndex}`,
-      offsetX: pos.x - wire.points[0].x,
-      offsetY: pos.y - wire.points[0].y
+      offsetX: pos.x - (wire.points[0].x * GRID_SIZE),
+      offsetY: pos.y - (wire.points[0].y * GRID_SIZE)
     })
   }
   
@@ -360,6 +372,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     handleMouseUp,
     handleKeyDown,
     handleKeyUp,
+    handleWindowBlur,
     handleWireClick,
     handleWireMouseDown,
     

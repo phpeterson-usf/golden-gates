@@ -1,10 +1,10 @@
 <template>
-  <g class="merger-component" :transform="`translate(${x}, ${y}) rotate(${rotation})`">
+  <g class="merger-component" :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE}) rotate(${rotation})`">
     <!-- Merger body (vertical line with thick stroke) -->
     <line 
-      :x1="gridSize" 
+      :x1="GRID_SIZE" 
       :y1="0" 
-      :x2="gridSize" 
+      :x2="GRID_SIZE" 
       :y2="height" 
       :class="['merger-body', { 'selected': selected }]"
       :stroke-width="8"
@@ -14,16 +14,16 @@
     
     <!-- Output connection line -->
     <line 
-      :x1="gridSize" 
+      :x1="GRID_SIZE" 
       :y1="outputY" 
-      :x2="2 * gridSize" 
+      :x2="2 * GRID_SIZE" 
       :y2="outputY" 
       class="connector-line"
     />
     
     <!-- Output bits label positioned to the right and above the output point -->
     <text 
-      :x="2 * gridSize + 8" 
+      :x="2 * GRID_SIZE + 8" 
       :y="outputY - 3" 
       class="range-label"
       text-anchor="start"
@@ -36,7 +36,7 @@
       <line 
         x1="0" 
         :y1="input.y" 
-        :x2="gridSize" 
+        :x2="GRID_SIZE" 
         :y2="input.y" 
         class="connector-line"
       />
@@ -53,7 +53,7 @@
     
     <!-- Connection points -->
     <circle 
-      :cx="2 * gridSize" 
+      :cx="2 * GRID_SIZE" 
       :cy="outputY" 
       :r="CONNECTION_DOT_RADIUS" 
       class="connection-point output-point"
@@ -80,7 +80,7 @@
 import { defineComponent } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { useComponentView } from '../composables/useComponentView'
-import { CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default defineComponent({
   name: 'MergerComponent',
@@ -93,8 +93,7 @@ export default defineComponent({
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },
     selected: { type: Boolean, default: false },
-    rotation: { type: Number, default: 0 },
-    gridSize: { type: Number, default: 15 }
+    rotation: { type: Number, default: 0 }
   },
   emits: ['startDrag'],
   computed: {
@@ -115,11 +114,14 @@ export default defineComponent({
     },
     
     outputY() {
-      return this.connections.outputs[0].y
+      return this.connections.outputs[0].y * GRID_SIZE
     },
     
     inputs() {
-      return this.connections.inputs
+      return this.connections.inputs.map(input => ({
+        ...input,
+        y: input.y * GRID_SIZE
+      }))
     }
   },
   setup(props, { emit }) {
@@ -131,7 +133,8 @@ export default defineComponent({
       fillColor,
       strokeColor,
       strokeWidth,
-      CONNECTION_DOT_RADIUS
+      CONNECTION_DOT_RADIUS,
+      GRID_SIZE
     }
   },
   methods: {

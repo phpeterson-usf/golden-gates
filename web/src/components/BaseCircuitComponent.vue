@@ -1,6 +1,6 @@
 <template>
   <g 
-    :transform="`translate(${x}, ${y})`"
+    :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`"
     :class="['base-circuit-component', componentClass]"
     @dblclick="handleDoubleClick"
   >
@@ -79,6 +79,7 @@
 <script>
 import { computed } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { GRID_SIZE } from '../utils/constants'
 
 export default {
   name: 'BaseCircuitComponent',
@@ -172,7 +173,8 @@ export default {
       fillColor,
       strokeColor,
       strokeWidth,
-      displayLabel
+      displayLabel,
+      GRID_SIZE
     }
   }
 }

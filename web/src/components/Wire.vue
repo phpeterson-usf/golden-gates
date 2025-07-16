@@ -27,7 +27,7 @@
 
 <script>
 import { computed } from 'vue'
-import { COLORS, STROKE_WIDTHS } from '../utils/constants'
+import { COLORS, STROKE_WIDTHS, gridToPixel } from '../utils/constants'
 
 export default {
   name: 'Wire',
@@ -48,7 +48,10 @@ export default {
   emits: ['click', 'mousedown'],
   setup(props, { emit }) {
     const pointsString = computed(() => {
-      return props.points.map(p => `${p.x},${p.y}`).join(' ')
+      return props.points.map(p => {
+        const pixelPoint = gridToPixel(p)
+        return `${pixelPoint.x},${pixelPoint.y}`
+      }).join(' ')
     })
     
     const strokeColor = computed(() => {
@@ -86,7 +89,7 @@ export default {
 <style scoped>
 .wire {
   pointer-events: stroke;
-  cursor: pointer;
+  cursor: move;
 }
 
 .wire.preview {
@@ -101,6 +104,6 @@ export default {
 
 .wire-hitbox {
   pointer-events: stroke;
-  cursor: pointer;
+  cursor: move;
 }
 </style>

@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
+import { GRID_SIZE, gridToPixel, pixelToGrid } from '../utils/constants'
 
 export function useWireController(components, gridSize, callbacks = {}, circuitManager = null) {
   // Wire state - use passed refs or create local ones
@@ -42,6 +43,7 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     if (!connectionPoint) return
     
     // Calculate the actual connection point position
+    // component.x/y are in grid units, connectionPoint.x/y are now in grid units
     const connectionPos = {
       x: component.x + connectionPoint.x,
       y: component.y + connectionPoint.y
@@ -68,10 +70,10 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     
     const lastPoint = wirePoints.value[wirePoints.value.length - 1]
     
-    // Snap the waypoint to the grid
+    // Snap the waypoint to the grid (convert to grid units)
     const snappedPos = {
-      x: Math.round(mousePos.x / gridSize) * gridSize,
-      y: Math.round(mousePos.y / gridSize) * gridSize
+      x: Math.round(mousePos.x / GRID_SIZE),
+      y: Math.round(mousePos.y / GRID_SIZE)
     }
     
     // Add orthogonal points based on current direction (same logic as getPreviewPoint)
@@ -129,6 +131,7 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     if (!connectionPoint) return
     
     // Calculate the actual connection point position
+    // component.x/y are in grid units, connectionPoint.x/y are now in grid units
     const connectionPos = {
       x: component.x + connectionPoint.x,
       y: component.y + connectionPoint.y
@@ -208,10 +211,10 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     const lastPoint = wirePoints.value[wirePoints.value.length - 1]
     const previewPoints = []
     
-    // Snap to grid
+    // mousePos is already in grid units, so just round to nearest grid point
     const snappedPos = {
-      x: Math.round(mousePos.x / gridSize) * gridSize,
-      y: Math.round(mousePos.y / gridSize) * gridSize
+      x: Math.round(mousePos.x),
+      y: Math.round(mousePos.y)
     }
     
     // Create orthogonal path based on current direction
@@ -260,11 +263,11 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
         const maxX = Math.max(p1.x, p2.x)
         
         // Round to nearest grid vertex
-        const gridX = Math.round(mousePos.x / gridSize) * gridSize
+        const gridX = Math.round(mousePos.x / GRID_SIZE)
         
         // Check if this grid point is on the segment
         if (gridX >= minX && gridX <= maxX) {
-          const distance = Math.abs(mousePos.x - gridX) + Math.abs(mousePos.y - y)
+          const distance = Math.abs(mousePos.x / GRID_SIZE - gridX) + Math.abs(mousePos.y / GRID_SIZE - y)
           if (distance < minDistance) {
             minDistance = distance
             closestPoint = { x: gridX, y: y }
@@ -277,11 +280,11 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
         const maxY = Math.max(p1.y, p2.y)
         
         // Round to nearest grid vertex
-        const gridY = Math.round(mousePos.y / gridSize) * gridSize
+        const gridY = Math.round(mousePos.y / GRID_SIZE)
         
         // Check if this grid point is on the segment
         if (gridY >= minY && gridY <= maxY) {
-          const distance = Math.abs(mousePos.x - x) + Math.abs(mousePos.y - gridY)
+          const distance = Math.abs(mousePos.x / GRID_SIZE - x) + Math.abs(mousePos.y / GRID_SIZE - gridY)
           if (distance < minDistance) {
             minDistance = distance
             closestPoint = { x: x, y: gridY }
@@ -291,7 +294,7 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     }
     
     // Only return if we found a point close enough (within one grid unit)
-    return (closestPoint && minDistance <= gridSize) ? closestPoint : null
+    return (closestPoint && minDistance <= 1) ? closestPoint : null
   }
 
   // Start drawing a wire from a junction on an existing wire
@@ -423,14 +426,15 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     }
     
     // Calculate old positions of all connection points
+    // component.x/y are in grid units, deltaX/Y are in grid units, conn.x/y are now in grid units
     const oldOutputPositions = (connections.outputs || []).map(conn => ({
-      x: component.x - deltaX + conn.x,
-      y: component.y - deltaY + conn.y
+      x: (component.x - deltaX) + conn.x,
+      y: (component.y - deltaY) + conn.y
     }))
     
     const oldInputPositions = (connections.inputs || []).map(conn => ({
-      x: component.x - deltaX + conn.x,
-      y: component.y - deltaY + conn.y
+      x: (component.x - deltaX) + conn.x,
+      y: (component.y - deltaY) + conn.y
     }))
     
     wires.value.forEach(wire => {

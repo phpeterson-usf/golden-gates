@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { COLORS, STROKE_WIDTHS } from '../utils/constants'
+import { COLORS, STROKE_WIDTHS, GRID_SIZE } from '../utils/constants'
 
 export function useComponentView(props, emit) {
   // Handle mouse down for dragging
@@ -25,10 +25,11 @@ export function useComponentView(props, emit) {
     }
     
     // Calculate offset from the component's position, accounting for zoom
+    // Convert component position from grid units to pixels for calculation
     emit('startDrag', {
       id: props.id,
-      offsetX: svgP.x / zoom - props.x,
-      offsetY: svgP.y / zoom - props.y,
+      offsetX: svgP.x / zoom - (props.x * GRID_SIZE),
+      offsetY: svgP.y / zoom - (props.y * GRID_SIZE),
       event: event
     })
   }

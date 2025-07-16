@@ -4,7 +4,7 @@ export function useFileService() {
     try {
       // Create the circuit data object with consistent top-level structure
       const circuitData = {
-        version: '1.1', // Bump version to indicate enhanced format
+        version: '1.2', // Grid unit coordinate system
         timestamp: new Date().toISOString(),
         // Circuit-level properties at top level for consistency with version/timestamp
         name: circuitMetadata.name || 'Untitled Circuit',
@@ -175,11 +175,93 @@ export function useFileService() {
     return true
   }
 
+  const migrateCircuitData = (circuitData) => {
+    // Constants for migration
+    const GRID_SIZE = 15
+    
+    // Check if this is an old format that needs migration
+    // We can detect this by checking if wire coordinates are large numbers (pixels)
+    // or if version is missing/old
+    const needsMigration = !circuitData.version || circuitData.version < '1.2'
+    
+    if (!needsMigration) {
+      return circuitData
+    }
+    
+    // Create a copy to avoid mutating original data
+    const migratedData = JSON.parse(JSON.stringify(circuitData))
+    
+    // Migrate component coordinates (if they're in pixels)
+    if (migratedData.components) {
+      migratedData.components.forEach(component => {
+        // If coordinates are large numbers, they're likely in pixels
+        if (component.x > 20 || component.y > 20) {
+          component.x = Math.round(component.x / GRID_SIZE)
+          component.y = Math.round(component.y / GRID_SIZE)
+        }
+      })
+    }
+    
+    // Migrate wire coordinates (if they're in pixels)
+    if (migratedData.wires) {
+      migratedData.wires.forEach(wire => {
+        if (wire.points) {
+          wire.points.forEach(point => {
+            // If coordinates are large numbers, they're likely in pixels
+            if (point.x > 20 || point.y > 20) {
+              point.x = Math.round(point.x / GRID_SIZE)
+              point.y = Math.round(point.y / GRID_SIZE)
+            }
+          })
+        }
+        
+        // Migrate wire connection positions
+        if (wire.startConnection && wire.startConnection.pos) {
+          const pos = wire.startConnection.pos
+          if (pos.x > 20 || pos.y > 20) {
+            pos.x = Math.round(pos.x / GRID_SIZE)
+            pos.y = Math.round(pos.y / GRID_SIZE)
+          }
+        }
+        
+        if (wire.endConnection && wire.endConnection.pos) {
+          const pos = wire.endConnection.pos
+          if (pos.x > 20 || pos.y > 20) {
+            pos.x = Math.round(pos.x / GRID_SIZE)
+            pos.y = Math.round(pos.y / GRID_SIZE)
+          }
+        }
+      })
+    }
+    
+    // Migrate wire junction positions
+    if (migratedData.wireJunctions) {
+      migratedData.wireJunctions.forEach(junction => {
+        if (junction.pos) {
+          const pos = junction.pos
+          if (pos.x > 20 || pos.y > 20) {
+            pos.x = Math.round(pos.x / GRID_SIZE)
+            pos.y = Math.round(pos.y / GRID_SIZE)
+          }
+        }
+      })
+    }
+    
+    // Update version to indicate migration
+    migratedData.version = '1.2'
+    
+    return migratedData
+  }
+
   const parseAndValidateJSON = (jsonString) => {
     try {
       const circuitData = JSON.parse(jsonString)
       validateCircuitData(circuitData)
-      return circuitData
+      
+      // Migrate data format if needed
+      const migratedData = migrateCircuitData(circuitData)
+      
+      return migratedData
     } catch (err) {
       if (err instanceof SyntaxError) {
         throw new Error('Invalid JSON format: ' + err.message)

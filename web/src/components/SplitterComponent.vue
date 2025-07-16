@@ -1,10 +1,10 @@
 <template>
-  <g class="splitter-component" :transform="`translate(${x}, ${y}) rotate(${rotation})`">
+  <g class="splitter-component" :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE}) rotate(${rotation})`">
     <!-- Splitter body (vertical line with thick stroke) -->
     <line 
-      :x1="gridSize" 
+      :x1="GRID_SIZE" 
       :y1="0" 
-      :x2="gridSize" 
+      :x2="GRID_SIZE" 
       :y2="height" 
       :class="['splitter-body', { 'selected': selected }]"
       :stroke-width="8"
@@ -16,7 +16,7 @@
     <line 
       x1="0" 
       :y1="inputY" 
-      :x2="gridSize" 
+      :x2="GRID_SIZE" 
       :y2="inputY" 
       class="connector-line"
     />
@@ -34,15 +34,15 @@
     <!-- Output connection lines with labels -->
     <g v-for="(output, index) in outputs" :key="index">
       <line 
-        :x1="gridSize" 
+        :x1="GRID_SIZE" 
         :y1="output.y" 
-        :x2="2 * gridSize" 
+        :x2="2 * GRID_SIZE" 
         :y2="output.y" 
         class="connector-line"
       />
       <!-- Range label positioned to the right of the connection point -->
       <text 
-        :x="2 * gridSize + 8" 
+        :x="2 * GRID_SIZE + 8" 
         :y="output.y - 3" 
         class="range-label"
         text-anchor="start"
@@ -65,7 +65,7 @@
     <circle 
       v-for="(output, index) in outputs" 
       :key="`output-${index}`"
-      :cx="2 * gridSize" 
+      :cx="2 * GRID_SIZE" 
       :cy="output.y" 
       :r="CONNECTION_DOT_RADIUS" 
       class="connection-point output-point"
@@ -80,7 +80,7 @@
 import { defineComponent } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { useComponentView } from '../composables/useComponentView'
-import { CONNECTION_DOT_RADIUS } from '../utils/constants'
+import { CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default defineComponent({
   name: 'SplitterComponent',
@@ -93,8 +93,7 @@ export default defineComponent({
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },
     selected: { type: Boolean, default: false },
-    rotation: { type: Number, default: 0 },
-    gridSize: { type: Number, default: 15 }
+    rotation: { type: Number, default: 0 }
   },
   emits: ['startDrag'],
   computed: {
@@ -115,11 +114,14 @@ export default defineComponent({
     },
     
     inputY() {
-      return this.connections.inputs[0].y
+      return this.connections.inputs[0].y * GRID_SIZE
     },
     
     outputs() {
-      return this.connections.outputs
+      return this.connections.outputs.map(output => ({
+        ...output,
+        y: output.y * GRID_SIZE
+      }))
     }
   },
   setup(props, { emit }) {
@@ -131,7 +133,8 @@ export default defineComponent({
       fillColor,
       strokeColor,
       strokeWidth,
-      CONNECTION_DOT_RADIUS
+      CONNECTION_DOT_RADIUS,
+      GRID_SIZE
     }
   },
   methods: {

@@ -3,6 +3,27 @@ export const GRID_SIZE = 15
 export const DOT_SIZE = 2
 export const CONNECTION_DOT_RADIUS = 3
 
+// Coordinate conversion utilities
+export function gridToPixel(gridCoord) {
+  if (typeof gridCoord === 'number') {
+    return gridCoord * GRID_SIZE
+  }
+  return {
+    x: gridCoord.x * GRID_SIZE,
+    y: gridCoord.y * GRID_SIZE
+  }
+}
+
+export function pixelToGrid(pixelCoord) {
+  if (typeof pixelCoord === 'number') {
+    return Math.round(pixelCoord / GRID_SIZE)
+  }
+  return {
+    x: Math.round(pixelCoord.x / GRID_SIZE),
+    y: Math.round(pixelCoord.y / GRID_SIZE)
+  }
+}
+
 // Colors
 export const COLORS = {
   // Component colors

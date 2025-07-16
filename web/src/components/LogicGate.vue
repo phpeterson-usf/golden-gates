@@ -1,5 +1,5 @@
 <template>
-  <g :transform="`translate(${x}, ${y})`">
+  <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on output point -->
     <g :transform="`rotate(${rotation}, ${outputX}, ${outputY})`">
     <!-- Vertical extension line for additional inputs -->
@@ -130,7 +130,8 @@ export default defineComponent({
       strokeColor,
       strokeWidth,
       COLORS,
-      CONNECTION_DOT_RADIUS
+      CONNECTION_DOT_RADIUS,
+      GRID_SIZE
     }
   },
   computed: {
@@ -215,7 +216,8 @@ export default defineComponent({
       const definition = getGateDefinition(this.gateType)
       if (definition && definition.getInputPositions) {
         const positions = definition.getInputPositions(this.numInputs)
-        return positions[index]?.y || (index * GRID_SIZE * 2)
+        const gridY = positions[index]?.y || (index * 2)  // Get position in grid units
+        return gridY * GRID_SIZE  // Convert to pixels for SVG rendering
       }
       
       // For single input gates (like NOT), center the input vertically
@@ -239,9 +241,10 @@ export default defineComponent({
       const definition = getGateDefinition(this.gateType)
       if (definition && definition.getInputPositions) {
         const positions = definition.getInputPositions(this.numInputs)
-        const baseX = positions[index]?.x || 0
+        const baseX = positions[index]?.x || 0  // Get position in grid units
         // For inverted inputs, shift further left for the inversion circle
-        return this.isInputInverted(index) ? baseX - 15 : baseX
+        const gridX = this.isInputInverted(index) ? baseX - 1 : baseX  // Shift 1 grid unit left
+        return gridX * GRID_SIZE  // Convert to pixels for SVG rendering
       }
       
       // Default: For inverted inputs, connection point is at the left edge of the inversion circle
