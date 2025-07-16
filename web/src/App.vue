@@ -14,7 +14,7 @@
       <template #start>
         <Button 
           icon="pi pi-plus" 
-          label="Insert" 
+          :label="$t('app.insertButton')" 
           class="p-button-sm" 
           @click="toggleInsertMenu"
           ref="insertButton"

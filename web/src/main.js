@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config'
+import { createI18n } from 'vue-i18n'
 import App from './App.vue'
+import { messages, defaultLocale } from './locales'
 
 // PrimeVue CSS imports
 import 'primevue/resources/primevue.min.css'
@@ -21,9 +23,19 @@ import InputNumber from 'primevue/inputnumber'
 import Tooltip from 'primevue/tooltip'
 import Dialog from 'primevue/dialog'
 
+// Create i18n instance
+const i18n = createI18n({
+  locale: defaultLocale,
+  fallbackLocale: 'en',
+  messages,
+  legacy: false, // Use Composition API
+  globalInjection: true // Enable $t() in templates
+})
+
 const app = createApp(App)
 
 app.use(PrimeVue)
+app.use(i18n)
 
 // Register PrimeVue components globally
 app.component('Toolbar', Toolbar)

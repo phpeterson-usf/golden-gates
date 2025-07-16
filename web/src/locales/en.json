@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "Golden Gates Circuit Designer",
+    "loading": "Loading...",
+    "language": "Language",
+    "switchLanguage": "Switch Language",
+    "insertButton": "Insert"
+  },
+  "componentInspector": {
+    "emptyState": "Select a component or circuit to view properties",
+    "title": "Component Properties"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "tooltip": "Switch Language"
+  },
+  "bitRangeTable": {
+    "startBit": "Start Bit",
+    "endBit": "End Bit",
+    "addRange": "Add Range",
+    "removeRange": "Remove Range"
+  },
+  "componentTypes": {
+    "input": "Input",
+    "output": "Output",
+    "and": "AND",
+    "or": "OR", 
+    "not": "NOT",
+    "nand": "NAND",
+    "nor": "NOR",
+    "xor": "XOR",
+    "xnor": "XNOR",
+    "splitter": "Splitter",
+    "merger": "Merger",
+    "schematic": "Schematic"
+  },
+  "componentRegistry": {
+    "addInput": "Add Input",
+    "addOutput": "Add Output",
+    "addAnd": "Add AND",
+    "addOr": "Add OR",
+    "addNot": "Add NOT",
+    "addNand": "Add NAND",
+    "addNor": "Add NOR",
+    "addXor": "Add XOR",
+    "addXnor": "Add XNOR",
+    "addSplitter": "Add Splitter",
+    "addMerger": "Add Merger"
+  },
+  "commonFields": {
+    "label": "Label",
+    "bits": "Bits",
+    "inputBits": "Input Bits",
+    "outputBits": "Output Bits",
+    "value": "Value",
+    "base": "Base",
+    "rotation": "Rotation",
+    "ranges": "Bit Ranges"
+  },
+  "commonButtons": {
+    "save": "Save Circuit",
+    "load": "Load Circuit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "add": "Add",
+    "remove": "Remove",
+    "clear": "Clear",
+    "ok": "OK"
+  },
+  "fileOperations": {
+    "saveSuccess": "Circuit saved successfully",
+    "loadSuccess": "Circuit loaded successfully",
+    "loadError": "Error loading circuit: {error}",
+    "saveError": "Error saving circuit: {error}",
+    "fileNotSelected": "No file selected",
+    "invalidFormat": "Invalid file format"
+  },
+  "dialogs": {
+    "confirmDelete": "Are you sure you want to delete {name}?",
+    "confirmClear": "Are you sure you want to clear the circuit?",
+    "unsavedChanges": "You have unsaved changes. Do you want to save before closing?"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidNumber": "Please enter a valid number",
+    "invalidRange": "Invalid bit range",
+    "duplicateLabel": "Label already exists"
+  },
+  "tabManager": {
+    "mainCircuit": "Main Circuit",
+    "newTab": "New Tab",
+    "closeTab": "Close Tab"
+  },
+  "menu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "help": "Help",
+    "new": "New",
+    "open": "Open",
+    "saveAs": "Save As",
+    "export": "Export",
+    "logic": "Logic",
+    "io": "Input/Output",
+    "wiring": "Wiring"
+  }
+}

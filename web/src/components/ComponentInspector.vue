@@ -2,7 +2,7 @@
   <div class="component-inspector">
     <div v-if="!component && !circuit" class="empty-state">
       <i class="pi pi-info-circle"></i>
-      <p>Select a component or circuit to view properties</p>
+      <p>{{ $t('componentInspector.emptyState') }}</p>
     </div>
     
     <!-- Circuit properties -->
