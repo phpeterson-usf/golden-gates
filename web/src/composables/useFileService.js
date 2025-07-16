@@ -2,6 +2,18 @@ export function useFileService() {
 
   const saveCircuit = async (components, wires, wireJunctions, circuitMetadata = {}, schematicComponents = {}) => {
     try {
+      // Filter out runtime value attribute from output components
+      const sanitizedComponents = (components || []).map(component => {
+        if (component.type === 'output') {
+          const { value, ...propsWithoutValue } = component.props || {}
+          return {
+            ...component,
+            props: propsWithoutValue
+          }
+        }
+        return component
+      })
+
       // Create the circuit data object with consistent top-level structure
       const circuitData = {
         version: '1.2', // Grid unit coordinate system
@@ -11,7 +23,7 @@ export function useFileService() {
         label: circuitMetadata.label || circuitMetadata.name || 'Untitled Circuit',
         interface: circuitMetadata.interface,
         // Component instances and structure
-        components: components || [],
+        components: sanitizedComponents,
         wires: wires || [],
         wireJunctions: wireJunctions || [],
         // Schematic component definitions for hierarchical circuits
