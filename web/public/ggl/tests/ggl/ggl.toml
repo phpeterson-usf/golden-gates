@@ -122,6 +122,12 @@ expected = "10"
 rubric = 1
 
 [[tests]]
+name = "8bit-splitter-merger"
+input = ["python3", "$project_tests/8bit-splitter-merger.py"]
+expected = "182"
+rubric = 1
+
+[[tests]]
 name = "32bit-splitter-merger"
 input = ["python3", "$project_tests/32bit-splitter-merger.py"]
 expected = "305419896"
