@@ -29,6 +29,7 @@
         font-family="Arial, sans-serif"
         fill="#374151"
         :text-anchor="inputLabelPositions[index]?.anchor"
+        class="component-label"
       >
         {{ input.label }}
       </text>
@@ -43,6 +44,7 @@
         font-family="Arial, sans-serif"
         fill="#374151"
         :text-anchor="outputLabelPositions[index]?.anchor"
+        class="component-label"
       >
         {{ output.label }}
       </text>
