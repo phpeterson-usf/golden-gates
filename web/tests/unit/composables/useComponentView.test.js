@@ -82,8 +82,8 @@ describe('useComponentView', () => {
     it('should emit startDrag event with correct data', () => {
       const props = createMockProps({
         id: 'test-component',
-        x: 100,
-        y: 200
+        x: 10, // Grid units (10 * 15 = 150 pixels)
+        y: 16  // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
       
@@ -91,14 +91,14 @@ describe('useComponentView', () => {
       
       // Create a mock event with the necessary properties
       const mockEvent = {
-        clientX: 150,
-        clientY: 250,
+        clientX: 200,
+        clientY: 290,
         target: {
           closest: vi.fn(() => ({
             createSVGPoint: vi.fn(() => ({
               x: 0,
               y: 0,
-              matrixTransform: vi.fn(() => ({ x: 150, y: 250 }))
+              matrixTransform: vi.fn(() => ({ x: 200, y: 290 }))
             })),
             getScreenCTM: vi.fn(() => ({
               inverse: vi.fn()
@@ -112,8 +112,8 @@ describe('useComponentView', () => {
       
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
-        offsetX: 50, // 150 - 100
-        offsetY: 50, // 250 - 200
+        offsetX: 50, // 200 - (10 * 15) = 200 - 150 = 50
+        offsetY: 50, // 290 - (16 * 15) = 290 - 240 = 50
         event: mockEvent
       })
     })
@@ -121,8 +121,8 @@ describe('useComponentView', () => {
     it('should handle zoom scaling correctly', () => {
       const props = createMockProps({
         id: 'test-component',
-        x: 100,
-        y: 200
+        x: 10, // Grid units (10 * 15 = 150 pixels)
+        y: 16  // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
       
@@ -153,8 +153,8 @@ describe('useComponentView', () => {
       
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
-        offsetX: 50, // (300 / 2) - 100
-        offsetY: 50, // (500 / 2) - 200
+        offsetX: 0, // (300 / 2) - (10 * 15) = 150 - 150 = 0
+        offsetY: 10, // (500 / 2) - (16 * 15) = 250 - 240 = 10
         event: mockEvent
       })
     })
@@ -162,8 +162,8 @@ describe('useComponentView', () => {
     it('should handle missing zoom transform gracefully', () => {
       const props = createMockProps({
         id: 'test-component',
-        x: 100,
-        y: 200
+        x: 10, // Grid units (10 * 15 = 150 pixels)
+        y: 16  // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
       
@@ -171,14 +171,14 @@ describe('useComponentView', () => {
       
       // Create a mock event without zoom transform
       const mockEvent = {
-        clientX: 150,
-        clientY: 250,
+        clientX: 200,
+        clientY: 290,
         target: {
           closest: vi.fn(() => ({
             createSVGPoint: vi.fn(() => ({
               x: 0,
               y: 0,
-              matrixTransform: vi.fn(() => ({ x: 150, y: 250 }))
+              matrixTransform: vi.fn(() => ({ x: 200, y: 290 }))
             })),
             getScreenCTM: vi.fn(() => ({
               inverse: vi.fn()
@@ -192,8 +192,8 @@ describe('useComponentView', () => {
       
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
-        offsetX: 50,
-        offsetY: 50,
+        offsetX: 50, // 200 - (10 * 15) = 200 - 150 = 50
+        offsetY: 50, // 290 - (16 * 15) = 290 - 240 = 50
         event: mockEvent
       })
     })
