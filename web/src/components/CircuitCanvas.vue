@@ -366,15 +366,6 @@ export default {
     // Set up resize observer
     setupResizeObserver(container)
     
-    // Keyboard event handling
-    onMounted(() => {
-      window.addEventListener('keydown', handleInteractionKeyDown)
-    })
-    
-    onUnmounted(() => {
-      window.removeEventListener('keydown', handleInteractionKeyDown)
-    })
-    
     // Methods
     function getComponentType(type) {
       return componentRegistry[type]?.component

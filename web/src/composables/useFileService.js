@@ -115,7 +115,7 @@ export function useFileService() {
         input.accept = '.json,application/json'
         
         const filePromise = new Promise((resolve, reject) => {
-          input.addEventListener('change', async (e) => {
+          const handleChange = async (e) => {
             const file = e.target.files[0]
             if (file) {
               try {
@@ -127,7 +127,13 @@ export function useFileService() {
             } else {
               resolve(null)
             }
-          })
+            
+            // Clean up the input element and event listener
+            input.removeEventListener('change', handleChange)
+            input.remove()
+          }
+          
+          input.addEventListener('change', handleChange)
           
           // Simulate click
           input.click()

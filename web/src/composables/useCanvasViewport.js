@@ -92,6 +92,7 @@ export function useCanvasViewport() {
   // Set up resize observer
   function setupResizeObserver(containerRef) {
     let resizeObserver = null
+    let resizeHandler = null
     
     onMounted(() => {
       // Initial resize
@@ -105,15 +106,18 @@ export function useCanvasViewport() {
         resizeObserver.observe(containerRef.value)
       }
       
-      // Fallback to window resize
-      window.addEventListener('resize', () => resizeCanvas(containerRef.value))
+      // Fallback to window resize - store function reference for proper cleanup
+      resizeHandler = () => resizeCanvas(containerRef.value)
+      window.addEventListener('resize', resizeHandler)
     })
     
     onUnmounted(() => {
       if (resizeObserver && containerRef.value) {
         resizeObserver.unobserve(containerRef.value)
       }
-      window.removeEventListener('resize', () => resizeCanvas(containerRef.value))
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler)
+      }
     })
   }
 
