@@ -10,6 +10,7 @@ class WireNode(BitsNode):
     def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
         super().__init__(kind, num_inputs, num_outputs, label, bits)
     
+    
     def clone(self, instance_id):
         """Clone a WireNode - subclasses may override"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -26,7 +27,6 @@ class Splitter(WireNode):
     """
     kind = 'Splitter'
     # TODO: error checking if the splits don't add up to total input bits
-    # TODO: edit so that it can be customized to more than singular bit outputs (ex: 32 bits -> 8, 8, 8, 8 bit outputs)
     def __init__(self, label='', bits=1, splits=None):
         if splits is None:
             splits = [(i, i) for i in range(bits)]                      # default to 1-bit outputs
@@ -40,9 +40,11 @@ class Splitter(WireNode):
 
         new_work = []
         for i, (start, end) in enumerate(self.splits):
-            width = end - start + 1
-            mask = (1 << width) - 1                                     # mask bit at i to get bit_val, and then propagate to the output node
-            chunk = (input_value >> start) & mask
+            low = min(start, end)
+            high = max(start, end)
+            width = high - low + 1
+            mask = (1 << width) - 1
+            chunk = (input_value >> low) & mask                         # mask bit at i to get bit_val, and then propagate to the output node
 
             logger.info(f'{self.kind} {self.label} output {i} ({start}-{end}): {bin(chunk)}')
 
@@ -51,7 +53,7 @@ class Splitter(WireNode):
                 new_work += edge.get_dest_nodes()
 
         return new_work
-# TODO: list of tuples
+
 class Merger(WireNode):
     """
     Merges multiple 1 bit inputs into a single output
@@ -69,14 +71,17 @@ class Merger(WireNode):
         output_val = 0
 
         for i, (start, end) in enumerate(self.merge_inputs):
-            width = end - start + 1
+            low = min(start, end)
+            high = max(start, end)
+            width = high - low + 1
+
             edge = self.inputs.get_edge(str(i))
             input_val = edge.value if edge else 0                       # mask to width and shift into position
             masked = input_val & ((1 << width) - 1)                     # or all bits together to get an output value
 
-            output_val |= (masked << start)
+            output_val |= (masked << low)
 
-        logger.info(f'{self.kind} {self.label} combined value: {bin(output_val)}')
+        logger.info(f'{self.kind} {self.label} merged/ored value: {bin(output_val)}')
         return super().propagate(output_val)
     
 class Tunnel(WireNode):
