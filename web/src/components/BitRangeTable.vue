@@ -29,7 +29,7 @@
           <span class="range-separator">-</span>
           <InputNumber 
             v-model="range.end" 
-            :min="range.start" 
+            :min="0" 
             :max="maxBits - 1"
             @update:modelValue="updateRange(index)"
             placeholder="0"
@@ -87,7 +87,7 @@ watch(maxBits, (newBits) => {
   ranges.value.forEach(range => {
     if (range.start >= newBits) range.start = newBits - 1
     if (range.end >= newBits) range.end = newBits - 1
-    if (range.end < range.start) range.end = range.start
+    // Allow any order - no validation constraint
   })
   emitUpdate()
 })
@@ -96,7 +96,10 @@ function addRange() {
   // Find the next available bit range
   const usedBits = new Set()
   ranges.value.forEach(range => {
-    for (let i = range.start; i <= range.end; i++) {
+    // Handle both forward and reverse ranges
+    const minBit = Math.min(range.start, range.end)
+    const maxBit = Math.max(range.start, range.end)
+    for (let i = minBit; i <= maxBit; i++) {
       usedBits.add(i)
     }
   })
@@ -122,11 +125,7 @@ function removeRange(index) {
 }
 
 function updateRange(index) {
-  // Ensure end is not less than start
-  const range = ranges.value[index]
-  if (range.end < range.start) {
-    range.end = range.start
-  }
+  // Allow any order - no validation constraint
   emitUpdate()
 }
 
