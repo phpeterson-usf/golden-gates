@@ -156,4 +156,3 @@ src/
 5. **Factory Pattern**: Single entry point for creating generators based on component type
 6. **Data-Driven**: Generators work with component data rather than Vue instances
 
-This architecture eliminates the previous fragmented approach where generation logic was scattered across multiple files and provides a clean, maintainable foundation for circuit-to-code generation.
