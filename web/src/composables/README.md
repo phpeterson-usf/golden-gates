@@ -155,10 +155,24 @@ The old architecture mixed responsibilities and had unclear data flow. The new a
 - `circuits` → `allCircuits`
 - Component props changed from `hierarchy` to `circuitManager`
 
+## Known Architectural Limitations
+
+### Undo System Component Restoration
+
+The undo system has architectural limitations with component restoration:
+
+- **Wire undo**: Fully functional using circuit model methods
+- **Component undo**: Partially functional due to reactive reference issues
+- **Root cause**: During undo operations, `activeCircuit.value` is undefined in the reactive context
+- **Impact**: Components report successful addition but are not rendered correctly
+- **Workaround**: Component deletion undo is disabled in production code
+
+This limitation stems from the Vue 3 reactivity system and the timing of when reactive references are available during undo operations. The circuit model methods work correctly for wires but component restoration requires the full reactive context to be available.
+
 ## Future Improvements
 
 1. **Type Safety**: Add TypeScript interfaces for better type checking
 2. **Error Boundaries**: Implement error boundaries for better error handling
 3. **Performance**: Add virtualization for large circuits
-4. **Undo/Redo**: Implement command pattern for undo/redo functionality
+4. **Undo/Redo**: Fix component undo by restructuring reactive references
 5. **Persistence**: Add automatic save/restore functionality

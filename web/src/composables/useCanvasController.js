@@ -1,5 +1,7 @@
 import { ref, computed } from 'vue'
 import { useComponentController } from './useComponentController'
+import { useClipboard } from './useClipboard'
+import { useUndoController } from './useUndoController'
 import { GRID_SIZE, gridToPixel, pixelToGrid } from '../utils/constants'
 
 /**
@@ -13,9 +15,16 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   const { isDragging, updateDrag, endDrag } = dragAndDrop
   const { activeCircuit } = circuitManager
   
+  // Undo controller for undo/redo operations
+  const undoController = useUndoController()
+  const { DuplicateCommand, PasteCommand, RemoveComponentCommand, RemoveWireCommand } = undoController
+  
   // Component controller for component-related logic
-  const componentController = useComponentController(circuitManager, canvasOperations)
+  const componentController = useComponentController(circuitManager, canvasOperations, undoController)
   const { lastComponentPosition, addComponentAtSmartPosition, getComponentConnections, updateLastComponentPosition } = componentController
+  
+  // Clipboard controller for copy/paste operations
+  const clipboardController = useClipboard()
   
   // Junction mode tracking for Alt key feedback
   const isJunctionMode = ref(false)
@@ -24,6 +33,384 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   
   // Store the last hovered wire for re-evaluation when mode changes
   let lastHoveredWireIndex = null
+  
+  // Debounce mechanism to prevent duplicate operations
+  const OPERATION_DEBOUNCE_MS = 100
+  const lastOperationTimes = {
+    paste: 0,
+    duplicate: 0
+  }
+  
+  /**
+   * Check if operation should be debounced
+   */
+  function shouldDebounceOperation(operationType) {
+    const currentTime = Date.now()
+    if (currentTime - lastOperationTimes[operationType] < OPERATION_DEBOUNCE_MS) {
+      return true
+    }
+    lastOperationTimes[operationType] = currentTime
+    return false
+  }
+  
+  /**
+   * Select components and wires from given elements
+   */
+  function selectElements(elements) {
+    clearSelection()
+    
+    // Select components
+    elements.components.forEach(component => {
+      selection.selectedComponents.value.add(component.id)
+    })
+    
+    // Select wires
+    elements.wires.forEach(wire => {
+      const circuit = activeCircuit.value
+      if (circuit) {
+        const wireIndex = circuit.wires.findIndex(w => w.id === wire.id)
+        if (wireIndex !== -1) {
+          selection.selectedWires.value.add(wireIndex)
+        }
+      }
+    })
+  }
+
+  /**
+   * Get selected circuit elements for clipboard operations
+   */
+  function getSelectedElements() {
+    const circuit = activeCircuit.value
+    if (!circuit) return { components: [], wires: [], junctions: [] }
+    
+    // Get selected components
+    const selectedComponents = circuit.components.filter(comp => 
+      selection.selectedComponents.value.has(comp.id)
+    )
+    
+    // Get selected wires
+    const selectedWires = Array.from(selection.selectedWires.value).map(index => 
+      circuit.wires[index]
+    ).filter(wire => wire) // Filter out undefined wires
+    
+    // Get junctions associated with selected wires
+    const selectedWireIds = new Set(selectedWires.map(wire => wire.id))
+    const selectedJunctions = circuit.wireJunctions.filter(junction => 
+      selectedWireIds.has(junction.connectedWireId)
+    )
+    
+    return {
+      components: selectedComponents,
+      wires: selectedWires,
+      junctions: selectedJunctions
+    }
+  }
+  
+  /**
+   * Copy selected elements to clipboard
+   */
+  async function copySelected() {
+    const selectedElements = getSelectedElements()
+    
+    if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
+      console.warn('No elements selected for copy')
+      return false
+    }
+    
+    try {
+      clipboardController.copyToClipboard(selectedElements)
+      
+      // Also copy to OS clipboard as JSON
+      const osClipboardData = clipboardController.getClipboardDataForOS()
+      if (osClipboardData) {
+        await copyToOSClipboard(osClipboardData)
+      }
+      
+      // User feedback
+      const stats = clipboardController.getClipboardStats()
+      console.log(`Copied ${stats.components} components and ${stats.wires} wires to clipboard`)
+      
+      return true
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error)
+      return false
+    }
+  }
+  
+  /**
+   * Cut selected elements to clipboard
+   */
+  async function cutSelected() {
+    const selectedElements = getSelectedElements()
+    
+    if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
+      console.warn('No elements selected for cut')
+      return false
+    }
+    
+    try {
+      // Start command group for cut operation
+      undoController.startCommandGroup('Cut elements')
+      
+      // Copy to clipboard
+      clipboardController.cutToClipboard(selectedElements)
+      
+      // Remove selected elements (this will be undoable)
+      deleteSelected()
+      
+      // End command group
+      undoController.endCommandGroup()
+      
+      // Also copy to OS clipboard as JSON
+      const osClipboardData = clipboardController.getClipboardDataForOS()
+      if (osClipboardData) {
+        await copyToOSClipboard(osClipboardData)
+      }
+      
+      // User feedback
+      const stats = clipboardController.getClipboardStats()
+      console.log(`Cut ${stats.components} components and ${stats.wires} wires to clipboard`)
+      
+      return true
+    } catch (error) {
+      console.error('Failed to cut to clipboard:', error)
+      undoController.endCommandGroup()
+      return false
+    }
+  }
+  
+  /**
+   * Paste elements from clipboard
+   */
+  async function pasteFromClipboard() {
+    // Debounce to prevent duplicate paste operations
+    if (shouldDebounceOperation('paste')) {
+      return false
+    }
+    
+    if (!clipboardController.hasClipboardData.value) {
+      // Try to get data from OS clipboard
+      const osData = await getFromOSClipboard()
+      if (osData) {
+        if (!clipboardController.setClipboardDataFromOS(osData)) {
+          console.warn('No valid clipboard data available')
+          return false
+        }
+      } else {
+        console.warn('No clipboard data available')
+        return false
+      }
+    }
+    
+    try {
+      // Calculate paste position (vertically below selected components)
+      const pastePosition = calculateNewComponentPosition()
+      
+      // Paste elements
+      const pastedElements = clipboardController.pasteFromClipboard(pastePosition)
+      
+      if (!pastedElements) {
+        console.warn('Failed to paste from clipboard')
+        return false
+      }
+      
+      // Create paste command for undo
+      const pasteCommand = new PasteCommand(circuitManager, pastedElements)
+      undoController.executeCommand(pasteCommand)
+      
+      // Update selection to show pasted elements
+      selectElements(pastedElements)
+      
+      
+      return true
+    } catch (error) {
+      console.error('Failed to paste from clipboard:', error)
+      return false
+    }
+  }
+  
+  /**
+   * Duplicate selected elements
+   */
+  function duplicateSelected() {
+    // Debounce to prevent duplicate operations
+    if (shouldDebounceOperation('duplicate')) {
+      return false
+    }
+    
+    const selectedElements = getSelectedElements()
+    
+    if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
+      console.warn('No elements selected for duplicate')
+      return false
+    }
+    
+    try {
+      // Calculate duplicate position (vertically below selected components)
+      const duplicatePosition = calculateNewComponentPosition(selectedElements)
+      
+      // Serialize and deserialize to create copies
+      const serializedData = clipboardController.serializeElements(selectedElements)
+      const duplicatedElements = clipboardController.deserializeElements(serializedData, duplicatePosition)
+      
+      // Create duplicate command for undo
+      const duplicateCommand = new DuplicateCommand(circuitManager, duplicatedElements)
+      undoController.executeCommand(duplicateCommand)
+      
+      // Update selection to show duplicated elements
+      selectElements(duplicatedElements)
+      
+      
+      return true
+    } catch (error) {
+      console.error('Failed to duplicate selection:', error)
+      return false
+    }
+  }
+  
+  /**
+   * Delete selected elements with undo support for wires only
+   * NOTE: Component undo is not fully functional due to architectural limitations
+   */
+  function deleteSelectedWithUndo() {
+    const selectedElements = getSelectedElements()
+    
+    if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
+      return false
+    }
+    
+    try {
+      // Start command group for delete operation
+      undoController.startCommandGroup('Delete selected elements')
+      
+      // Delete selected components (undo not fully functional)
+      selectedElements.components.forEach(component => {
+        const removeCommand = new RemoveComponentCommand(circuitManager, component.id)
+        undoController.executeCommand(removeCommand)
+      })
+      
+      // Delete selected wires (undo functional)
+      selectedElements.wires.forEach(wire => {
+        if (wire && wire.id) {
+          const removeCommand = new RemoveWireCommand(circuitManager, wire.id)
+          undoController.executeCommand(removeCommand)
+        } else {
+          console.warn(`Wire has no ID:`, wire)
+        }
+      })
+      
+      // End command group
+      undoController.endCommandGroup()
+      
+      // Clear selection after deletion
+      clearSelection()
+      
+      return true
+    } catch (error) {
+      console.error('Failed to delete selection:', error)
+      undoController.endCommandGroup()
+      return false
+    }
+  }
+  
+  /**
+   * Calculate position for new components (paste/duplicate)
+   * Places components vertically below selected components with no horizontal offset
+   * Returns absolute coordinates where the top-left of the pasted selection should appear
+   */
+  function calculateNewComponentPosition(sourceElements = null) {
+    // If we have selected components, position relative to the selection
+    if (selection.selectedComponents.value.size > 0) {
+      const circuit = activeCircuit.value
+      if (circuit) {
+        const selectedComponents = circuit.components.filter(comp => 
+          selection.selectedComponents.value.has(comp.id)
+        )
+        
+        if (selectedComponents.length > 0) {
+          // Calculate bounds of selected components
+          const bounds = clipboardController.calculateBounds(selectedComponents, [])
+          
+          // Position directly below the selection with 3 grid units spacing
+          return { 
+            x: bounds.minX,  // Keep horizontal alignment with selection
+            y: bounds.maxY + 3  // Position below selection
+          }
+        }
+      }
+    }
+    
+    // If we have source elements (for duplicate), calculate offset based on their bounds
+    if (sourceElements) {
+      const bounds = clipboardController.calculateBounds(sourceElements.components, sourceElements.wires || [])
+      
+      // Position directly below the original elements with 3 grid units spacing
+      return { 
+        x: bounds.minX,  // Keep horizontal alignment
+        y: bounds.maxY + 3  // Position below
+      }
+    }
+    
+    // Fallback to using last component position
+    return { 
+      x: lastComponentPosition.value.x, 
+      y: lastComponentPosition.value.y + 3 
+    }
+  }
+  
+  /**
+   * Copy data to OS clipboard
+   */
+  async function copyToOSClipboard(data) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(data)
+        return true
+      } else {
+        // Fallback for older browsers
+        return copyToClipboardFallback(data)
+      }
+    } catch (error) {
+      console.warn('Failed to copy to OS clipboard:', error)
+      return copyToClipboardFallback(data)
+    }
+  }
+  
+  /**
+   * Get data from OS clipboard
+   */
+  async function getFromOSClipboard() {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        return await navigator.clipboard.readText()
+      }
+    } catch (error) {
+      console.warn('Failed to read from OS clipboard:', error)
+    }
+    return null
+  }
+  
+  /**
+   * Fallback clipboard copy using execCommand
+   */
+  function copyToClipboardFallback(data) {
+    const textarea = document.createElement('textarea')
+    textarea.value = data
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    
+    try {
+      const success = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      return success
+    } catch (error) {
+      console.error('Fallback clipboard copy failed:', error)
+      document.body.removeChild(textarea)
+      return false
+    }
+  }
   
   /**
    * Handle canvas click events
@@ -173,9 +560,61 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       activeElement.classList.contains('p-inputnumber-input')
     )
     
-    // Delete selected components and wires (only if not typing in an input)
-    if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
-      deleteSelected()
+    // Only handle keyboard shortcuts if not typing in an input
+    if (!isInputFocused) {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey
+      
+      // Clipboard operations
+      if (isCtrlOrCmd && event.key === 'c') {
+        event.preventDefault()
+        copySelected()
+        return
+      }
+      
+      if (isCtrlOrCmd && event.key === 'x') {
+        event.preventDefault()
+        cutSelected()
+        return
+      }
+      
+      if (isCtrlOrCmd && event.key === 'v') {
+        event.preventDefault()
+        pasteFromClipboard()
+        return
+      }
+      
+      if (isCtrlOrCmd && event.key === 'd') {
+        event.preventDefault()
+        duplicateSelected()
+        return
+      }
+      
+      // Undo/Redo operations
+      if (isCtrlOrCmd && event.key === 'z') {
+        event.preventDefault()
+        if (event.shiftKey) {
+          // Redo (Ctrl+Shift+Z)
+          undoController.redo()
+        } else {
+          // Undo (Ctrl+Z)
+          undoController.undo()
+        }
+        return
+      }
+      
+      if (isCtrlOrCmd && event.key === 'y') {
+        event.preventDefault()
+        // Redo (Ctrl+Y)
+        undoController.redo()
+        return
+      }
+      
+      // Delete selected components and wires
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault()
+        deleteSelectedWithUndo()
+        return
+      }
     }
     
     // Cancel wire drawing with Escape
@@ -377,6 +816,25 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     handleWireMouseDown,
     
     // Component operations
-    addComponentAtSmartPosition: addComponentAtSmartPositionWithSelection
+    addComponentAtSmartPosition: addComponentAtSmartPositionWithSelection,
+    
+    // Clipboard operations
+    copySelected,
+    cutSelected,
+    pasteFromClipboard,
+    duplicateSelected,
+    
+    // Delete operations
+    deleteSelectedWithUndo,
+    
+    // Undo/Redo operations
+    undo: undoController.undo,
+    redo: undoController.redo,
+    canUndo: undoController.canUndo,
+    canRedo: undoController.canRedo,
+    
+    // Controllers for external access
+    clipboardController,
+    undoController
   }
 }

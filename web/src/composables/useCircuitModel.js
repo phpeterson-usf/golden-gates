@@ -270,6 +270,40 @@ export function useCircuitModel() {
     return removeComponentFromCircuit(activeTabId.value, componentId)
   }
   
+  // Add a wire to a circuit
+  function addWireToCircuit(circuitId, wire) {
+    const circuit = allCircuits.value.get(circuitId)
+    if (circuit) {
+      circuit.wires.push(wire)
+      return true
+    }
+    return false
+  }
+  
+  // Add a wire to the current circuit
+  function addWire(wire) {
+    return addWireToCircuit(activeTabId.value, wire)
+  }
+  
+  // Remove a wire from a circuit
+  function removeWireFromCircuit(circuitId, wireId) {
+    const circuit = allCircuits.value.get(circuitId)
+    if (circuit) {
+      const index = circuit.wires.findIndex(w => w.id === wireId)
+      if (index !== -1) {
+        const removedWire = circuit.wires[index]
+        circuit.wires.splice(index, 1)
+        return removedWire
+      }
+    }
+    return null
+  }
+  
+  // Remove a wire from the current circuit
+  function removeWire(wireId) {
+    return removeWireFromCircuit(activeTabId.value, wireId)
+  }
+  
   // Update a component in a circuit
   function updateComponentInCircuit(circuitId, updatedComponent) {
     const circuit = allCircuits.value.get(circuitId)
@@ -488,6 +522,12 @@ export function useCircuitModel() {
     getComponentDefinition: (circuitId) => availableComponents.value.get(circuitId),
     updateComponent,
     updateComponentInCircuit,
+    
+    // Wire management
+    addWire,
+    addWireToCircuit,
+    removeWire,
+    removeWireFromCircuit,
     
     // Circuit operations
     clearCircuit,
