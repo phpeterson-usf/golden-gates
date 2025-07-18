@@ -173,15 +173,14 @@ export default {
     
     // Command handler for keyboard shortcuts
     const handleCommand = ({ action, params }) => {
-      // This will be bound to the component instance after mounting
-      // For now, we'll store the command and handle it in mounted
+      // Dispatch to mounted component methods via custom event
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('circuitCommand', { detail: { action, params } }))
       }
     }
     
-    // Set up keyboard shortcuts with command palette visibility check
-    useKeyboardShortcuts(handleCommand, commandPaletteVisible)
+    // Set up keyboard shortcuts
+    useKeyboardShortcuts(handleCommand)
     
     return { 
       // Circuit manager

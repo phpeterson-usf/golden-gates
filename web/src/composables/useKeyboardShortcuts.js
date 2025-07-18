@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { getAllCommands } from '../config/commands'
 
-export function useKeyboardShortcuts(handleCommand, commandPaletteVisible) {
+export function useKeyboardShortcuts(handleCommand) {
   // Detect platform
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
   
@@ -50,10 +50,6 @@ export function useKeyboardShortcuts(handleCommand, commandPaletteVisible) {
       return
     }
     
-    // Don't trigger shortcuts when command palette is open
-    if (commandPaletteVisible && commandPaletteVisible.value) {
-      return
-    }
     
     // Handle single-key shortcuts
     const key = event.key.toLowerCase()
