@@ -18,12 +18,12 @@
     <Toolbar class="app-toolbar">
       <template #start>
         <Button 
-          icon="pi pi-search" 
-          label="Commands" 
-          class="p-button-sm" 
+          class="p-button-sm golden-gate-button" 
           @click="commandPaletteVisible = true"
           v-tooltip.bottom="commandPaletteTooltip"
-        />
+        >
+          <GoldenGateLogo :width="48" :height="24" />
+        </Button>
         
         <!-- Circuit Tabs -->
         <div v-if="circuitTabs.length > 0" class="circuit-tabs">
@@ -53,7 +53,7 @@
           icon="pi pi-sliders-h" 
           class="p-button-text p-button-sm" 
           @click="inspectorVisible = !inspectorVisible"
-          v-tooltip.left="'Toggle Inspector'"
+          v-tooltip.left="$t('ui.toggleInspector')"
         />
       </template>
     </Toolbar>
@@ -62,6 +62,7 @@
       <div 
         class="circuit-container" 
         :class="{ 'inspector-open': inspectorVisible, 'drag-over': isDraggingOver }"
+        :data-drop-message="$t('ui.dropFileHere')"
         @dragover.prevent="handleDragOver"
         @drop.prevent="handleDrop"
         @dragenter.prevent="handleDragEnter"
@@ -109,6 +110,7 @@ import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CommandPalette from './components/CommandPalette.vue'
+import GoldenGateLogo from './components/GoldenGateLogo.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
@@ -123,7 +125,8 @@ export default {
     ComponentIcon,
     ComponentInspector,
     ConfirmationDialog,
-    CommandPalette
+    CommandPalette,
+    GoldenGateLogo
   },
   setup() {
     // Initialize circuit manager (model layer)
@@ -215,7 +218,8 @@ export default {
   computed: {
     commandPaletteTooltip() {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-      return isMac ? 'Open Command Palette (⌘K)' : 'Open Command Palette (Ctrl+K)'
+      const shortcut = isMac ? '⌘G' : 'Ctrl+G'
+      return `${this.$t('commands.commandPalette.title')} (${shortcut})`
     }
   },
   methods: {
@@ -244,7 +248,7 @@ export default {
           this.stopSimulation()
           break
         default:
-          console.warn('Unknown command action:', action)
+          console.warn(this.$t('ui.unknownCommand') + ':', action)
       }
     },
     
@@ -348,7 +352,7 @@ export default {
       )
       
       if (!jsonFile) {
-        alert('Please drop a JSON circuit file')
+        alert(this.$t('ui.dropFileAlert'))
         return
       }
       
@@ -455,7 +459,7 @@ body {
 }
 
 .circuit-container.drag-over::after {
-  content: 'Drop JSON circuit file here';
+  content: attr(data-drop-message);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -675,5 +679,50 @@ body {
 .circuit-tab .tab-close:hover {
   opacity: 1;
   color: #ef4444 !important;
+}
+
+/* Golden Gate button styling with USF colors */
+.golden-gate-button {
+  padding: 0.375rem 0.875rem !important;
+  min-width: auto !important;
+  background-color: #00543c !important; /* USF Green */
+  border-color: #00543c !important;
+  color: #ffcc02 !important; /* USF Gold */
+}
+
+.golden-gate-button:hover {
+  background-color: #004832 !important; /* Darker USF Green */
+  border-color: #004832 !important;
+  color: #ffd633 !important; /* Brighter USF Gold */
+}
+
+.golden-gate-button .golden-gate-logo {
+  color: #ffcc02; /* USF Gold */
+  transition: color 0.2s ease;
+}
+
+.golden-gate-button:hover .golden-gate-logo {
+  color: #ffd633; /* Brighter USF Gold */
+}
+
+.golden-gate-button .logo-tower-left,
+.golden-gate-button .logo-tower-right {
+  fill: #ffcc02; /* USF Gold towers */
+}
+
+.golden-gate-button:hover .logo-tower-left,
+.golden-gate-button:hover .logo-tower-right {
+  fill: #ffd633; /* Brighter USF Gold towers */
+}
+
+/* Dark mode support */
+.p-dark .golden-gate-button {
+  background-color: #006b4d !important; /* Lighter USF Green for dark mode */
+  border-color: #006b4d !important;
+}
+
+.p-dark .golden-gate-button:hover {
+  background-color: #007d58 !important;
+  border-color: #007d58 !important;
 }
 </style>

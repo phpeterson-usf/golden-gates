@@ -135,7 +135,14 @@
     "commandPalette": {
       "placeholder": "Type a command or search...",
       "noResults": "No matching commands",
-      "recentlyUsed": "Recently Used"
+      "recentlyUsed": "Recently Used",
+      "title": "Command Palette"
     }
+  },
+  "ui": {
+    "toggleInspector": "Toggle Inspector",
+    "dropFileHere": "Drop JSON circuit file here",
+    "dropFileAlert": "Please drop a JSON circuit file",
+    "unknownCommand": "Unknown command action"
   }
 }

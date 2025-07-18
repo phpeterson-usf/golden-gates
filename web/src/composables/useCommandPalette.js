@@ -20,8 +20,8 @@ export function useCommandPalette() {
   
   // Handle global keyboard shortcut
   function handleGlobalKeyDown(event) {
-    // Cmd+K (Mac) or Ctrl+K (Windows/Linux) to open command palette
-    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+    // Cmd+G (Mac) or Ctrl+G (Windows/Linux) to open command palette
+    if ((event.metaKey || event.ctrlKey) && event.key === 'g') {
       event.preventDefault()
       toggle()
     }
