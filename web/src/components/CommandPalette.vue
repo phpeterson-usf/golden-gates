@@ -1,0 +1,485 @@
+<template>
+  <Dialog 
+    v-model:visible="visible"
+    :modal="true"
+    :closable="true"
+    :showHeader="false"
+    :dismissableMask="true"
+    @hide="onHide"
+    :pt="{
+      root: 'command-palette-dialog',
+      content: 'command-palette-content'
+    }"
+  >
+    <div class="command-palette">
+      <div class="command-palette-search">
+        <i class="pi pi-search search-icon"></i>
+        <input
+          ref="searchInput"
+          v-model="searchQuery"
+          :placeholder="$t('commands.commandPalette.placeholder')"
+          class="command-palette-input"
+          @keydown="handleKeyDown"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+      </div>
+      
+      <div class="command-palette-results" ref="resultsContainer">
+        <div v-if="filteredCommands.length === 0" class="no-results">
+          {{ $t('commands.commandPalette.noResults') }}
+        </div>
+        
+        <template v-else>
+          <div v-if="recentCommands.length > 0" class="command-group">
+            <div class="command-group-header">{{ $t('commands.commandPalette.recentlyUsed') }}</div>
+            <div
+              v-for="(command, index) in recentCommands"
+              :key="`recent-${command.id}`"
+              :class="['command-item', { selected: selectedIndex === index }]"
+              @click="executeCommand(command)"
+              @mouseenter="selectedIndex = index"
+            >
+              <ComponentIcon 
+                v-if="command.componentType" 
+                :componentType="command.componentType" 
+                :size="16" 
+                class="command-icon"
+              />
+              <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
+              <span class="command-label">{{ getCommandLabel(command) }}</span>
+              <span v-if="command.shortcut" class="command-shortcut">{{ formatShortcut(command.shortcut) }}</span>
+            </div>
+          </div>
+          
+          <div 
+            v-for="[groupKey, commands] in groupedCommands" 
+            :key="groupKey"
+            class="command-group"
+          >
+            <div class="command-group-header">{{ $t(commands[0].groupLabelKey) }}</div>
+            <div
+              v-for="(command, index) in commands"
+              :key="command.id"
+              :class="['command-item', { selected: selectedIndex === getGlobalIndex(groupKey, index) }]"
+              @click="executeCommand(command)"
+              @mouseenter="selectedIndex = getGlobalIndex(groupKey, index)"
+            >
+              <ComponentIcon 
+                v-if="command.componentType" 
+                :componentType="command.componentType" 
+                :size="16" 
+                class="command-icon"
+              />
+              <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
+              <span class="command-label">{{ getCommandLabel(command) }}</span>
+              <span v-if="command.shortcut" class="command-shortcut">{{ formatShortcut(command.shortcut) }}</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </Dialog>
+</template>
+
+<script>
+import { ref, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+import ComponentIcon from './ComponentIcon.vue'
+import { commandGroups, getAllCommands, getDynamicComponentCommands } from '../config/commands'
+
+export default {
+  name: 'CommandPalette',
+  components: {
+    ComponentIcon
+  },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false
+    },
+    availableComponents: {
+      type: Array,
+      default: () => []
+    }
+  },
+  emits: ['update:modelValue', 'command'],
+  setup(props, { emit }) {
+    const { t } = useI18n()
+    const searchQuery = ref('')
+    const selectedIndex = ref(0)
+    const searchInput = ref(null)
+    const resultsContainer = ref(null)
+    const recentCommandIds = ref([])
+    
+    const visible = computed({
+      get: () => props.modelValue,
+      set: (value) => emit('update:modelValue', value)
+    })
+    
+    // Get all static commands plus dynamic component commands
+    const allCommands = computed(() => {
+      const staticCommands = getAllCommands()
+      const dynamicCommands = getDynamicComponentCommands(props.availableComponents)
+      return [...staticCommands, ...dynamicCommands]
+    })
+    
+    // Get recent commands
+    const recentCommands = computed(() => {
+      if (searchQuery.value) {
+        // When searching, filter recent commands too
+        const query = searchQuery.value.toLowerCase()
+        return recentCommandIds.value
+          .map(id => allCommands.value.find(cmd => cmd.id === id))
+          .filter(cmd => {
+            if (!cmd) return false
+            const label = getCommandLabel(cmd).toLowerCase()
+            return label.includes(query)
+          })
+          .slice(0, 5)
+      }
+      
+      // When not searching, show all recent
+      return recentCommandIds.value
+        .map(id => allCommands.value.find(cmd => cmd.id === id))
+        .filter(Boolean)
+        .slice(0, 5)
+    })
+    
+    // Filter commands based on search query
+    const filteredCommands = computed(() => {
+      if (!searchQuery.value) {
+        return allCommands.value
+      }
+      
+      const query = searchQuery.value.toLowerCase()
+      const filtered = allCommands.value.filter(command => {
+        const label = getCommandLabel(command).toLowerCase()
+        return label.includes(query)
+      })
+      
+      // Sort results: prioritize commands that start with the query
+      return filtered.sort((a, b) => {
+        const aLabel = getCommandLabel(a).toLowerCase()
+        const bLabel = getCommandLabel(b).toLowerCase()
+        const aStartsWith = aLabel.startsWith(query)
+        const bStartsWith = bLabel.startsWith(query)
+        
+        if (aStartsWith && !bStartsWith) return -1
+        if (!aStartsWith && bStartsWith) return 1
+        return 0
+      })
+    })
+    
+    // Group filtered commands by category
+    const groupedCommands = computed(() => {
+      const groups = new Map()
+      
+      filteredCommands.value.forEach(command => {
+        // When not searching, skip commands that are in recent
+        if (!searchQuery.value && recentCommandIds.value.includes(command.id)) {
+          return
+        }
+        
+        const groupKey = command.groupKey
+        if (!groups.has(groupKey)) {
+          groups.set(groupKey, [])
+        }
+        groups.get(groupKey).push(command)
+      })
+      
+      return groups
+    })
+    
+    // Get command label
+    function getCommandLabel(command) {
+      return command.labelKey ? t(command.labelKey) : command.label
+    }
+    
+    // Detect platform
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+    
+    // Format keyboard shortcut for display
+    function formatShortcut(shortcut) {
+      if (isMac) {
+        return shortcut
+          .replace(/Cmd/g, '⌘')
+          .replace(/Ctrl/g, '⌃')
+          .replace(/Alt/g, '⌥')
+          .replace(/Shift/g, '⇧')
+          .replace(/\+/g, '') // Remove plus signs for Mac, symbols are clear enough
+      } else {
+        // Windows/Linux formatting
+        return shortcut
+          .replace(/Cmd/g, 'Ctrl')
+          .replace(/Alt/g, 'Alt')
+          .replace(/Shift/g, 'Shift')
+          // Keep the + for Windows/Linux for clarity
+      }
+    }
+    
+    // Get global index for keyboard navigation
+    function getGlobalIndex(groupKey, localIndex) {
+      let globalIndex = recentCommands.value.length
+      
+      for (const [key, commands] of groupedCommands.value) {
+        if (key === groupKey) {
+          return globalIndex + localIndex
+        }
+        globalIndex += commands.length
+      }
+      
+      return globalIndex
+    }
+    
+    // Handle keyboard navigation
+    function handleKeyDown(event) {
+      const totalItems = recentCommands.value.length + 
+        Array.from(groupedCommands.value.values()).reduce((sum, cmds) => sum + cmds.length, 0)
+      
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault()
+          selectedIndex.value = (selectedIndex.value + 1) % totalItems
+          scrollToSelected()
+          break
+          
+        case 'ArrowUp':
+          event.preventDefault()
+          selectedIndex.value = (selectedIndex.value - 1 + totalItems) % totalItems
+          scrollToSelected()
+          break
+          
+        case 'Enter':
+          event.preventDefault()
+          executeSelectedCommand()
+          break
+          
+        case 'Escape':
+          event.preventDefault()
+          visible.value = false
+          break
+      }
+    }
+    
+    // Scroll to keep selected item visible
+    function scrollToSelected() {
+      nextTick(() => {
+        const selected = resultsContainer.value?.querySelector('.command-item.selected')
+        if (selected && resultsContainer.value) {
+          const containerRect = resultsContainer.value.getBoundingClientRect()
+          const selectedRect = selected.getBoundingClientRect()
+          
+          if (selectedRect.bottom > containerRect.bottom) {
+            selected.scrollIntoView({ block: 'end', behavior: 'smooth' })
+          } else if (selectedRect.top < containerRect.top) {
+            selected.scrollIntoView({ block: 'start', behavior: 'smooth' })
+          }
+        }
+      })
+    }
+    
+    // Execute selected command
+    function executeSelectedCommand() {
+      let currentIndex = 0
+      
+      // Check recent commands (only shown when not searching)
+      if (!searchQuery.value && selectedIndex.value < recentCommands.value.length) {
+        executeCommand(recentCommands.value[selectedIndex.value])
+        return
+      }
+      
+      currentIndex = searchQuery.value ? 0 : recentCommands.value.length
+      
+      // Check grouped commands
+      for (const commands of groupedCommands.value.values()) {
+        if (selectedIndex.value < currentIndex + commands.length) {
+          executeCommand(commands[selectedIndex.value - currentIndex])
+          return
+        }
+        currentIndex += commands.length
+      }
+    }
+    
+    // Execute a command
+    function executeCommand(command) {
+      // Add to recent commands
+      recentCommandIds.value = [
+        command.id,
+        ...recentCommandIds.value.filter(id => id !== command.id)
+      ].slice(0, 10)
+      
+      // Emit command event
+      emit('command', {
+        action: command.action,
+        params: command.params || []
+      })
+      
+      // Close palette
+      visible.value = false
+    }
+    
+    // Reset state when closing
+    function onHide() {
+      searchQuery.value = ''
+      selectedIndex.value = 0
+    }
+    
+    // Focus search input when opened
+    watch(visible, (newValue) => {
+      if (newValue) {
+        nextTick(() => {
+          searchInput.value?.focus()
+        })
+      }
+    })
+    
+    // Reset selected index when search changes
+    watch(searchQuery, () => {
+      selectedIndex.value = 0
+    })
+    
+    return {
+      visible,
+      searchQuery,
+      selectedIndex,
+      searchInput,
+      resultsContainer,
+      recentCommands,
+      filteredCommands,
+      groupedCommands,
+      getCommandLabel,
+      formatShortcut,
+      getGlobalIndex,
+      handleKeyDown,
+      executeCommand,
+      executeSelectedCommand,
+      onHide
+    }
+  }
+}
+</script>
+
+<style>
+.command-palette-dialog {
+  width: 90vw;
+  max-width: 600px;
+  margin-top: 10vh;
+}
+
+.command-palette-content {
+  padding: 0 !important;
+}
+
+.command-palette {
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+  overflow: hidden;
+}
+
+.command-palette-search {
+  position: relative;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+.command-palette-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  background: transparent;
+  color: var(--text-color);
+}
+
+.command-palette-input::placeholder {
+  color: var(--text-color-secondary);
+}
+
+.command-palette-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+.command-group {
+  margin-bottom: 0.5rem;
+}
+
+.command-group-header {
+  padding: 0.25rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.command-item:hover,
+.command-item.selected {
+  background-color: var(--highlight-bg);
+}
+
+.command-icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.command-label {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.command-shortcut {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  background-color: var(--surface-ground);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+.p-dark .command-palette-input {
+  background: transparent;
+}
+
+.p-dark .command-shortcut {
+  background-color: var(--surface-100);
+}
+</style>

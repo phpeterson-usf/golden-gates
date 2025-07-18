@@ -10,33 +10,20 @@
       @accept="confirmDialog.acceptCallback"
       @reject="confirmDialog.rejectCallback"
     />
+    <CommandPalette
+      v-model="commandPaletteVisible"
+      :availableComponents="availableComponentsArray"
+      @command="handleCommand"
+    />
     <Toolbar class="app-toolbar">
       <template #start>
         <Button 
-          icon="pi pi-plus" 
-          :label="$t('app.insertButton')" 
+          icon="pi pi-search" 
+          label="Commands" 
           class="p-button-sm" 
-          @click="toggleInsertMenu"
-          ref="insertButton"
+          @click="commandPaletteVisible = true"
+          v-tooltip.bottom="commandPaletteTooltip"
         />
-        <TieredMenu 
-          ref="insertMenu" 
-          :model="menuItems" 
-          :popup="true"
-        >
-          <template #item="{ item }">
-            <div class="menu-item-content">
-              <ComponentIcon 
-                v-if="item.componentType" 
-                :componentType="item.componentType" 
-                :size="16" 
-                class="component-icon-menu"
-              />
-              <i v-else-if="item.icon" :class="item.icon"></i>
-              <span class="menu-item-label">{{ item.label }}</span>
-            </div>
-          </template>
-        </TieredMenu>
         
         <!-- Circuit Tabs -->
         <div v-if="circuitTabs.length > 0" class="circuit-tabs">
@@ -63,27 +50,11 @@
       </template>
       <template #end>
         <Button 
-          icon="pi pi-folder-open" 
-          label="Open" 
-          class="p-button-sm" 
-          @click="openCircuitFile"
-          v-tooltip.bottom="'Open circuit from file'"
-        />
-        <Button 
-          icon="pi pi-save" 
-          label="Save" 
-          class="p-button-sm" 
-          @click="saveCircuitFile"
-          v-tooltip.bottom="'Save circuit to file'"
-        />
-        <Button 
           icon="pi pi-sliders-h" 
           class="p-button-text p-button-sm" 
           @click="inspectorVisible = !inspectorVisible"
           v-tooltip.left="'Toggle Inspector'"
         />
-        <Button icon="pi pi-play" label="Run" class="p-button-success p-button-sm" @click="runSimulation($refs.canvas)" :disabled="isRunning" />
-        <Button icon="pi pi-stop" label="Stop" class="p-button-danger p-button-sm" @click="stopSimulation" :disabled="!isRunning" />
       </template>
     </Toolbar>
     
@@ -137,10 +108,13 @@ import CircuitCanvas from './components/CircuitCanvas.vue'
 import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
+import CommandPalette from './components/CommandPalette.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
 import { useAppController } from './composables/useAppController'
+import { useCommandPalette } from './composables/useCommandPalette'
+import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
 
 export default {
   name: 'App',
@@ -148,7 +122,8 @@ export default {
     CircuitCanvas,
     ComponentIcon,
     ComponentInspector,
-    ConfirmationDialog
+    ConfirmationDialog,
+    CommandPalette
   },
   setup() {
     // Initialize circuit manager (model layer)
@@ -190,6 +165,9 @@ export default {
       confirmDialog
     } = circuitOperations
     
+    // Initialize command palette
+    const { isVisible: commandPaletteVisible } = useCommandPalette()
+    
     return { 
       // Circuit manager
       circuitManager,
@@ -220,7 +198,8 @@ export default {
       pyodideError,
       pyodide,
       showConfirmDialog,
-      confirmDialog
+      confirmDialog,
+      commandPaletteVisible
     }
   },
   data() {
@@ -234,117 +213,41 @@ export default {
     }
   },
   computed: {
-    menuItems() {
-      // Base menu items
-      const baseItems = [
-        {
-          label: 'Logic',
-          icon: 'pi pi-fw pi-sitemap',
-          items: [
-            {
-              label: 'And',
-              componentType: 'and',
-              command: () => this.addComponent('and-gate')
-            },
-            {
-              label: 'Or',
-              componentType: 'or',
-              command: () => this.addComponent('or-gate')
-            },
-            {
-              label: 'Xor',
-              componentType: 'xor',
-              command: () => this.addComponent('xor-gate')
-            },
-            {
-              label: 'Not',
-              componentType: 'not',
-              command: () => this.addComponent('not-gate')
-            },
-            {
-              label: 'Nand',
-              componentType: 'nand',
-              command: () => this.addComponent('nand-gate')
-            },
-            {
-              label: 'Nor',
-              componentType: 'nor',
-              command: () => this.addComponent('nor-gate')
-            },
-            {
-              label: 'Xnor',
-              componentType: 'xnor',
-              command: () => this.addComponent('xnor-gate')
-            }
-          ]
-        },
-        {
-          label: 'I/O',
-          icon: 'pi pi-fw pi-circle',
-          items: [
-            {
-              label: 'Input',
-              componentType: 'input',
-              command: () => this.addComponent('input')
-            },
-            {
-              label: 'Output',
-              componentType: 'output',
-              command: () => this.addComponent('output')
-            }
-          ]
-        },
-        {
-          label: 'Wires',
-          icon: 'pi pi-fw pi-share-alt',
-          items: [
-            {
-              label: 'Splitter',
-              componentType: 'splitter',
-              command: () => this.addComponent('splitter')
-            },
-            {
-              label: 'Merger',
-              componentType: 'merger',
-              command: () => this.addComponent('merger')
-            }
-          ]
-        },
-        {
-          label: 'Components',
-          icon: 'pi pi-fw pi-cube',
-          items: [
-            {
-              label: 'New Circuit',
-              icon: 'pi pi-fw pi-plus',
-              command: () => this.createNewCircuit()
-            },
-            {
-              separator: true
-            }
-          ]
-        }
-      ]
-      
-      // Add saved circuit components
-      const componentItems = baseItems.find(item => item.label === 'Components')
-      if (this.availableComponentsArray?.length > 0) {
-        this.availableComponentsArray.forEach(component => {
-          componentItems.items.push({
-            label: component.name,
-            icon: 'pi pi-fw pi-chip',
-            command: () => this.addCircuitComponent(component.id)
-          })
-        })
-      }
-      
-      return baseItems
+    commandPaletteTooltip() {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+      return isMac ? 'Open Command Palette (⌘K)' : 'Open Command Palette (Ctrl+K)'
     }
   },
   methods: {
-    toggleInsertMenu(event) {
-      this.$refs.insertMenu.toggle(event)
+    handleCommand({ action, params }) {
+      // Handle different command actions
+      switch (action) {
+        case 'addComponent':
+          this.addComponent(...params)
+          break
+        case 'addCircuitComponent':
+          this.addCircuitComponent(...params)
+          break
+        case 'createNewCircuit':
+          this.createNewCircuit()
+          break
+        case 'openCircuit':
+          this.openCircuitFile()
+          break
+        case 'saveCircuit':
+          this.saveCircuitFile()
+          break
+        case 'runSimulation':
+          this.runSimulation(this.$refs.canvas)
+          break
+        case 'stopSimulation':
+          this.stopSimulation()
+          break
+        default:
+          console.warn('Unknown command action:', action)
+      }
     },
+    
     addComponent(type) {
       if (this.$refs.canvas) {
         this.$refs.canvas.addComponentAtSmartPosition(type)
@@ -463,6 +366,9 @@ export default {
     if (!this.selectedComponent && this.activeCircuit) {
       this.selectedCircuit = this.activeCircuit
     }
+    
+    // Set up keyboard shortcuts
+    useKeyboardShortcuts(this.handleCommand)
   },
   
   watch: {

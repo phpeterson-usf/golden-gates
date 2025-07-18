@@ -103,5 +103,39 @@
     "logic": "Logic",
     "io": "Input/Output",
     "wiring": "Wiring"
+  },
+  "commands": {
+    "groups": {
+      "file": "File",
+      "simulation": "Simulation",
+      "insert": "Insert"
+    },
+    "file": {
+      "newCircuit": "New Circuit",
+      "openCircuit": "Open Circuit",
+      "saveCircuit": "Save Circuit"
+    },
+    "simulation": {
+      "run": "Run",
+      "stop": "Stop"
+    },
+    "insert": {
+      "andGate": "And Gate",
+      "orGate": "Or Gate",
+      "xorGate": "Xor Gate",
+      "notGate": "Not Gate",
+      "nandGate": "Nand Gate",
+      "norGate": "Nor Gate",
+      "xnorGate": "Xnor Gate",
+      "input": "Input",
+      "output": "Output",
+      "splitter": "Splitter",
+      "merger": "Merger"
+    },
+    "commandPalette": {
+      "placeholder": "Type a command or search...",
+      "noResults": "No matching commands",
+      "recentlyUsed": "Recently Used"
+    }
   }
 }
