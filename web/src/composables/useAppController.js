@@ -67,6 +67,7 @@ export function useAppController(circuitManager) {
               title: 'Error',
               message: 'Failed to save circuit as component. Please try again.',
               type: 'error',
+              showCancel: false,
               onAccept: () => {}
             })
           }

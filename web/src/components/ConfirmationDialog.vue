@@ -15,9 +15,6 @@
 
       <!-- Footer with buttons -->
       <div class="modal-footer">
-        <button v-if="showCancel" class="modal-button modal-button-cancel" @click="handleReject">
-          {{ cancelLabel }}
-        </button>
         <button
           class="modal-button modal-button-confirm"
           :class="confirmButtonClass"
@@ -25,12 +22,17 @@
         >
           {{ acceptLabel }}
         </button>
+        <button v-if="showCancel" ref="cancelButton" class="modal-button modal-button-cancel" @click="handleReject">
+          {{ cancelLabel }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { nextTick } from 'vue'
+
 export default {
   name: 'ConfirmationDialog',
   props: {
@@ -52,7 +54,7 @@ export default {
     },
     cancelLabel: {
       type: String,
-      default: 'No'
+      default: 'Cancel'
     },
     showCancel: {
       type: Boolean,
@@ -81,6 +83,16 @@ export default {
         info: 'modal-button-info'
       }
       return classes[this.type]
+    }
+  },
+  watch: {
+    visible(newVal) {
+      if (newVal && this.showCancel) {
+        // Focus the cancel button (safer option) when dialog opens
+        nextTick(() => {
+          this.$refs.cancelButton?.focus()
+        })
+      }
     }
   },
   methods: {

@@ -78,7 +78,8 @@
   "dialogs": {
     "confirmDelete": "Are you sure you want to delete {name}?",
     "confirmClear": "Are you sure you want to clear the circuit?",
-    "unsavedChanges": "You have unsaved changes. Do you want to save before closing?"
+    "unsavedChanges": "You have unsaved changes",
+    "unsavedChangesMessage": "If you close, your circuit will be lost"
   },
   "validation": {
     "required": "This field is required",
@@ -144,6 +145,7 @@
     "toggleInspector": "Toggle Inspector",
     "dropFileHere": "Drop JSON circuit file here",
     "dropFileAlert": "Please drop a JSON circuit file",
-    "unknownCommand": "Unknown command action"
+    "unknownCommand": "Unknown command action",
+    "closeWithoutSaving": "Close Without Saving"
   }
 }

@@ -40,7 +40,7 @@
               <span>{{ tab.name }}</span>
               <i
                 class="pi pi-times tab-close"
-                @click.stop="closeTab(tab.id)"
+                @click.stop="handleCloseTab(tab.id)"
                 v-if="circuitTabs.length > 1"
               ></i>
             </template>
@@ -276,6 +276,38 @@ export default {
           this.$refs.canvas.addComponentAtSmartPosition('schematic-component', component.props)
         }
       }
+    },
+
+    handleCloseTab(circuitId) {
+      // Check if the circuit has unsaved changes
+      if (this.hasCircuitUnsavedWork(circuitId)) {
+        this.showConfirmation({
+          title: this.$t('dialogs.unsavedChanges'),
+          message: this.$t('dialogs.unsavedChangesMessage'),
+          type: 'warning',
+          acceptLabel: this.$t('ui.closeWithoutSaving'),
+          onAccept: () => {
+            this.closeTab(circuitId)
+          },
+          onReject: () => {
+            // User cancelled, do nothing
+          }
+        })
+      } else {
+        // No unsaved changes, close immediately
+        this.closeTab(circuitId)
+      }
+    },
+
+    hasCircuitUnsavedWork(circuitId) {
+      const circuit = this.circuitManager.getCircuit(circuitId)
+      if (!circuit) return false
+      
+      // Check if circuit has any components or wires
+      const hasComponents = circuit.components && circuit.components.length > 0
+      const hasWires = circuit.wires && circuit.wires.length > 0
+      
+      return hasComponents || hasWires
     },
 
     handleSelectionChanged(selection) {
