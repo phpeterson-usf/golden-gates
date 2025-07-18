@@ -20,7 +20,7 @@
         <Button
           class="p-button-sm golden-gate-button"
           @click="commandPaletteVisible = true"
-          v-tooltip.bottom="commandPaletteTooltip"
+          v-tooltip.right="commandPaletteTooltip"
         >
           <GoldenGateLogo :width="48" :height="24" />
         </Button>
