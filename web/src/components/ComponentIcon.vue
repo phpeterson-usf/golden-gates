@@ -5,30 +5,46 @@
     :viewBox="iconViewBox" 
     class="gate-icon"
   >
-    <path 
-      :d="componentPath" 
-      :fill="fillColor" 
-      :stroke="color" 
-      :stroke-width="strokeWidth"
-    />
-    <!-- Add concave line for XOR and XNOR gates -->
-    <path 
-      v-if="(componentType === 'xor' || componentType === 'xnor') && xorConcaveLine"
-      :d="xorConcaveLine" 
-      fill="none"
-      :stroke="color" 
-      :stroke-width="strokeWidth"
-    />
-    <!-- Add a clear, prominent negation circle for small icons -->
-    <circle 
-      v-if="size <= 20 && (componentType === 'not' || componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
-      :cx="negationCircleX" 
-      :cy="15" 
-      :r="3" 
-      fill="white"
-      :stroke="color"
-      :stroke-width="2"
-    />
+    <!-- Render splitter/merger as multiple path elements -->
+    <template v-if="componentType === 'splitter' || componentType === 'merger'">
+      <path 
+        v-for="(pathSegment, index) in pathSegments" 
+        :key="index"
+        :d="pathSegment" 
+        fill="none"
+        :stroke="color" 
+        :stroke-width="strokeWidth"
+        stroke-linecap="round"
+      />
+    </template>
+    
+    <!-- Render other components as single path -->
+    <template v-else>
+      <path 
+        :d="componentPath" 
+        :fill="fillColor" 
+        :stroke="color" 
+        :stroke-width="strokeWidth"
+      />
+      <!-- Add concave line for XOR and XNOR gates -->
+      <path 
+        v-if="(componentType === 'xor' || componentType === 'xnor') && xorConcaveLine"
+        :d="xorConcaveLine" 
+        fill="none"
+        :stroke="color" 
+        :stroke-width="strokeWidth"
+      />
+      <!-- Add a clear, prominent negation circle for small icons -->
+      <circle 
+        v-if="size <= 20 && (componentType === 'not' || componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
+        :cx="negationCircleX" 
+        :cy="15" 
+        :r="3" 
+        fill="white"
+        :stroke="color"
+        :stroke-width="2"
+      />
+    </template>
   </svg>
 </template>
 
@@ -101,11 +117,43 @@ export default {
         return `M ${cx + radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy}`
       }
       
+      if (this.componentType === 'splitter') {
+        // Splitter: one input line to thick vertical body, multiple output lines
+        // Make it really large and prominent to match gate icons
+        // Thick vertical body line (like the actual component)
+        const body = `M 15 1 L 15 29`
+        // Input line from left - goes all the way to edge
+        const input = `M 1 15 L 15 15`
+        // Output lines to right - spread out wide, go to edge
+        const output1 = `M 15 6 L 29 6`
+        const output2 = `M 15 15 L 29 15`
+        const output3 = `M 15 24 L 29 24`
+        return `${body} ${input} ${output1} ${output2} ${output3}`
+      }
+      
+      if (this.componentType === 'merger') {
+        // Merger: multiple input lines to thick vertical body, one output line
+        // Make it really large and prominent to match gate icons
+        // Thick vertical body line (like the actual component)
+        const body = `M 15 1 L 15 29`
+        // Input lines from left - spread out wide, go to edge
+        const input1 = `M 1 6 L 15 6`
+        const input2 = `M 1 15 L 15 15`
+        const input3 = `M 1 24 L 15 24`
+        // Output line to right - goes all the way to edge
+        const output = `M 15 15 L 29 15`
+        return `${body} ${input1} ${input2} ${input3} ${output}`
+      }
+      
       return ''
     },
     
     strokeWidth() {
       // Use thicker strokes for small icons to improve visibility
+      // Make splitter and merger much thicker since they're line-based
+      if (this.componentType === 'splitter' || this.componentType === 'merger') {
+        return this.size <= 20 ? 5 : 4
+      }
       return this.size <= 20 ? 3 : 2
     },
     
@@ -129,6 +177,16 @@ export default {
         return this.color // Solid fill for output
       }
       return 'none' // No fill for gates and inputs
+    },
+    
+    pathSegments() {
+      // Split the componentPath into individual path segments for splitter/merger
+      if (this.componentType === 'splitter' || this.componentType === 'merger') {
+        return this.componentPath.split(' M ').map((segment, index) => {
+          return index === 0 ? segment : 'M ' + segment
+        }).filter(segment => segment.trim())
+      }
+      return []
     },
     
     xorConcaveLine() {
