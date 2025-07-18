@@ -2,8 +2,8 @@
   <div class="bit-range-table">
     <div class="section">
       <div class="section-header">
-        <Button 
-          icon="pi pi-plus" 
+        <Button
+          icon="pi pi-plus"
           severity="secondary"
           text
           size="small"
@@ -11,33 +11,29 @@
           class="add-button"
         />
       </div>
-      
+
       <div class="ranges-list">
-        <div 
-          v-for="(range, index) in ranges" 
-          :key="index"
-          class="range-row"
-        >
-          <InputNumber 
-            v-model="range.start" 
-            :min="0" 
+        <div v-for="(range, index) in ranges" :key="index" class="range-row">
+          <InputNumber
+            v-model="range.start"
+            :min="0"
             :max="maxBits - 1"
             @update:modelValue="updateRange(index)"
             placeholder="0"
             class="range-input"
           />
           <span class="range-separator">-</span>
-          <InputNumber 
-            v-model="range.end" 
-            :min="0" 
+          <InputNumber
+            v-model="range.end"
+            :min="0"
             :max="maxBits - 1"
             @update:modelValue="updateRange(index)"
             placeholder="0"
             class="range-input"
           />
-          <Button 
+          <Button
             v-if="ranges.length > 1"
-            icon="pi pi-minus" 
+            icon="pi pi-minus"
             severity="danger"
             text
             size="small"
@@ -58,7 +54,12 @@ import Button from 'primevue/button'
 const props = defineProps({
   modelValue: {
     type: Array,
-    default: () => [{ start: 0, end: 1 }, { start: 2, end: 3 }, { start: 4, end: 5 }, { start: 6, end: 7 }]
+    default: () => [
+      { start: 0, end: 1 },
+      { start: 2, end: 3 },
+      { start: 4, end: 5 },
+      { start: 6, end: 7 }
+    ]
   },
   inputBits: {
     type: Number,
@@ -78,12 +79,16 @@ const emit = defineEmits(['update:modelValue'])
 const ranges = ref([...props.modelValue])
 
 // Watch for external changes
-watch(() => props.modelValue, (newValue) => {
-  ranges.value = [...newValue]
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  newValue => {
+    ranges.value = [...newValue]
+  },
+  { deep: true }
+)
 
 // Watch for bit count changes to clamp ranges
-watch(maxBits, (newBits) => {
+watch(maxBits, newBits => {
   ranges.value.forEach(range => {
     if (range.start >= newBits) range.start = newBits - 1
     if (range.end >= newBits) range.end = newBits - 1
@@ -103,7 +108,7 @@ function addRange() {
       usedBits.add(i)
     }
   })
-  
+
   // Find first unused bit
   let startBit = 0
   for (let i = 0; i < maxBits.value; i++) {
@@ -112,7 +117,7 @@ function addRange() {
       break
     }
   }
-  
+
   ranges.value.push({ start: startBit, end: startBit })
   emitUpdate()
 }
@@ -130,7 +135,10 @@ function updateRange(index) {
 }
 
 function emitUpdate() {
-  emit('update:modelValue', ranges.value.map(r => ({ ...r })))
+  emit(
+    'update:modelValue',
+    ranges.value.map(r => ({ ...r }))
+  )
 }
 </script>
 

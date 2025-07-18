@@ -81,11 +81,13 @@ describe('useCanvasController - Clipboard Integration', () => {
   beforeEach(() => {
     // Create mock dependencies
     mockCircuitManager = {
-      activeCircuit: ref(mockCircuitModel.createMockCircuit({
-        components: [mockComponents.singleInput, mockComponents.andGate],
-        wires: [],
-        junctions: []
-      }))
+      activeCircuit: ref(
+        mockCircuitModel.createMockCircuit({
+          components: [mockComponents.singleInput, mockComponents.andGate],
+          wires: [],
+          junctions: []
+        })
+      )
     }
 
     mockCanvasOperations = {
@@ -147,7 +149,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     vi.spyOn(document, 'activeElement', 'get').mockReturnValue(null)
 
     vi.clearAllMocks()
-    
+
     // Reset event objects
     mockKeyboardEvents.copyEvent.preventDefault.mockClear()
     mockKeyboardEvents.pasteEvent.preventDefault.mockClear()
@@ -161,7 +163,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     describe('copySelected', () => {
       it('should copy selected components to clipboard', async () => {
         const result = await canvasController.copySelected()
-        
+
         expect(result).toBe(true)
         expect(canvasController.clipboardController.copyToClipboard).toHaveBeenCalled()
         expect(global.navigator.clipboard.writeText).toHaveBeenCalled()
@@ -170,9 +172,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       it('should warn when no components selected', async () => {
         mockSelection.selectedComponents.value = mockSelectionStates.empty
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        
+
         const result = await canvasController.copySelected()
-        
+
         expect(result).toBe(false)
         expect(consoleSpy).toHaveBeenCalledWith('No elements selected for copy')
         consoleSpy.mockRestore()
@@ -180,9 +182,9 @@ describe('useCanvasController - Clipboard Integration', () => {
 
       it('should handle clipboard API failures gracefully', async () => {
         global.navigator.clipboard.writeText.mockRejectedValue(new Error('Permission denied'))
-        
+
         const result = await canvasController.copySelected()
-        
+
         expect(result).toBe(true) // Should still succeed with internal clipboard
       })
     })
@@ -190,10 +192,12 @@ describe('useCanvasController - Clipboard Integration', () => {
     describe('cutSelected', () => {
       it('should cut selected components to clipboard', async () => {
         const result = await canvasController.cutSelected()
-        
+
         expect(result).toBe(true)
         expect(canvasController.clipboardController.cutToClipboard).toHaveBeenCalled()
-        expect(canvasController.undoController.startCommandGroup).toHaveBeenCalledWith('Cut elements')
+        expect(canvasController.undoController.startCommandGroup).toHaveBeenCalledWith(
+          'Cut elements'
+        )
         expect(mockSelection.deleteSelected).toHaveBeenCalled()
         expect(canvasController.undoController.endCommandGroup).toHaveBeenCalled()
       })
@@ -201,9 +205,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       it('should warn when no components selected', async () => {
         mockSelection.selectedComponents.value = mockSelectionStates.empty
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        
+
         const result = await canvasController.cutSelected()
-        
+
         expect(result).toBe(false)
         expect(consoleSpy).toHaveBeenCalledWith('No elements selected for cut')
         consoleSpy.mockRestore()
@@ -213,9 +217,9 @@ describe('useCanvasController - Clipboard Integration', () => {
     describe('pasteFromClipboard', () => {
       it('should paste components from clipboard', async () => {
         canvasController.clipboardController.hasClipboardData.value = true
-        
+
         const result = await canvasController.pasteFromClipboard()
-        
+
         expect(result).toBe(true)
         expect(canvasController.clipboardController.pasteFromClipboard).toHaveBeenCalled()
         expect(canvasController.undoController.executeCommand).toHaveBeenCalled()
@@ -225,9 +229,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       it('should try OS clipboard when internal clipboard is empty', async () => {
         canvasController.clipboardController.hasClipboardData.value = false
         global.navigator.clipboard.readText.mockResolvedValue('{"test": "data"}')
-        
+
         const result = await canvasController.pasteFromClipboard()
-        
+
         expect(result).toBe(true)
         expect(global.navigator.clipboard.readText).toHaveBeenCalled()
         expect(canvasController.clipboardController.setClipboardDataFromOS).toHaveBeenCalled()
@@ -237,9 +241,9 @@ describe('useCanvasController - Clipboard Integration', () => {
         canvasController.clipboardController.hasClipboardData.value = false
         global.navigator.clipboard.readText.mockResolvedValue(null)
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        
+
         const result = await canvasController.pasteFromClipboard()
-        
+
         expect(result).toBe(false)
         expect(consoleSpy).toHaveBeenCalledWith('No clipboard data available')
         consoleSpy.mockRestore()
@@ -249,7 +253,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     describe('duplicateSelected', () => {
       it('should duplicate selected components', () => {
         const result = canvasController.duplicateSelected()
-        
+
         expect(result).toBe(true)
         expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
         expect(canvasController.clipboardController.deserializeElements).toHaveBeenCalled()
@@ -260,9 +264,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       it('should warn when no components selected', () => {
         mockSelection.selectedComponents.value = mockSelectionStates.empty
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        
+
         const result = canvasController.duplicateSelected()
-        
+
         expect(result).toBe(false)
         expect(consoleSpy).toHaveBeenCalledWith('No elements selected for duplicate')
         consoleSpy.mockRestore()
@@ -274,7 +278,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should handle copy shortcut (Ctrl+C)', () => {
       // Test that preventDefault is called - indicating the shortcut was handled
       canvasController.handleKeyDown(mockKeyboardEvents.copyEvent)
-      
+
       expect(mockKeyboardEvents.copyEvent.preventDefault).toHaveBeenCalled()
       // The underlying clipboard controller should have been called
       expect(canvasController.clipboardController.copyToClipboard).toHaveBeenCalled()
@@ -283,7 +287,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should handle paste shortcut (Ctrl+V)', () => {
       // Test that preventDefault is called - indicating the shortcut was handled
       canvasController.handleKeyDown(mockKeyboardEvents.pasteEvent)
-      
+
       expect(mockKeyboardEvents.pasteEvent.preventDefault).toHaveBeenCalled()
       // The paste function should be called (this may be async, so we just check the event was handled)
     })
@@ -291,7 +295,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should handle cut shortcut (Ctrl+X)', () => {
       // Test that preventDefault is called - indicating the shortcut was handled
       canvasController.handleKeyDown(mockKeyboardEvents.cutEvent)
-      
+
       expect(mockKeyboardEvents.cutEvent.preventDefault).toHaveBeenCalled()
       // The underlying clipboard controller should have been called
       expect(canvasController.clipboardController.cutToClipboard).toHaveBeenCalled()
@@ -300,7 +304,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should handle duplicate shortcut (Ctrl+D)', () => {
       // Test that preventDefault is called - indicating the shortcut was handled
       canvasController.handleKeyDown(mockKeyboardEvents.duplicateEvent)
-      
+
       expect(mockKeyboardEvents.duplicateEvent.preventDefault).toHaveBeenCalled()
       // The underlying clipboard controller should have been called
       expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
@@ -308,14 +312,14 @@ describe('useCanvasController - Clipboard Integration', () => {
 
     it('should handle undo shortcut (Ctrl+Z)', () => {
       canvasController.handleKeyDown(mockKeyboardEvents.undoEvent)
-      
+
       expect(canvasController.undoController.undo).toHaveBeenCalled()
       expect(mockKeyboardEvents.undoEvent.defaultPrevented).toBe(true)
     })
 
     it('should handle redo shortcut (Ctrl+Y)', () => {
       canvasController.handleKeyDown(mockKeyboardEvents.redoEvent)
-      
+
       expect(canvasController.undoController.redo).toHaveBeenCalled()
       expect(mockKeyboardEvents.redoEvent.defaultPrevented).toBe(true)
     })
@@ -323,11 +327,11 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should not handle shortcuts when input is focused', () => {
       const mockInput = document.createElement('input')
       vi.spyOn(document, 'activeElement', 'get').mockReturnValue(mockInput)
-      
+
       const copySelectedSpy = vi.spyOn(canvasController, 'copySelected')
-      
+
       canvasController.handleKeyDown(mockKeyboardEvents.copyEvent)
-      
+
       expect(copySelectedSpy).not.toHaveBeenCalled()
       expect(mockKeyboardEvents.copyEvent.preventDefault).not.toHaveBeenCalled()
     })
@@ -336,11 +340,11 @@ describe('useCanvasController - Clipboard Integration', () => {
   describe('debounce mechanism', () => {
     it('should debounce rapid paste operations', async () => {
       canvasController.clipboardController.hasClipboardData.value = true
-      
+
       // First paste should succeed
       const result1 = await canvasController.pasteFromClipboard()
       expect(result1).toBe(true)
-      
+
       // Immediate second paste should be debounced
       const result2 = await canvasController.pasteFromClipboard()
       expect(result2).toBe(false)
@@ -350,7 +354,7 @@ describe('useCanvasController - Clipboard Integration', () => {
       // First duplicate should succeed
       const result1 = canvasController.duplicateSelected()
       expect(result1).toBe(true)
-      
+
       // Immediate second duplicate should be debounced
       const result2 = canvasController.duplicateSelected()
       expect(result2).toBe(false)
@@ -361,11 +365,11 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should calculate paste position relative to selected components', () => {
       // Mock selected components with bounds
       mockSelection.selectedComponents.value = mockSelectionStates.singleComponent
-      
+
       // Test positioning function through paste operation
       canvasController.clipboardController.hasClipboardData.value = true
       canvasController.pasteFromClipboard()
-      
+
       // Should call calculateBounds to determine position
       expect(canvasController.clipboardController.calculateBounds).toHaveBeenCalled()
     })
@@ -373,7 +377,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should calculate duplicate position relative to selected elements', () => {
       // Test positioning function through duplicate operation
       canvasController.duplicateSelected()
-      
+
       // Should call calculateBounds to determine position
       expect(canvasController.clipboardController.calculateBounds).toHaveBeenCalled()
     })
@@ -382,21 +386,21 @@ describe('useCanvasController - Clipboard Integration', () => {
   describe('element selection', () => {
     it('should get selected components correctly', () => {
       mockSelection.selectedComponents.value = mockSelectionStates.singleComponent
-      
+
       // This is tested indirectly through copy operation
       canvasController.copySelected()
-      
+
       expect(canvasController.clipboardController.copyToClipboard).toHaveBeenCalled()
     })
 
     it('should get selected wires correctly', () => {
       mockSelection.selectedComponents.value = mockSelectionStates.empty
       mockSelection.selectedWires.value = mockSelectionStates.singleWire
-      
+
       // This is tested indirectly through copy operation
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       canvasController.copySelected()
-      
+
       expect(consoleSpy).toHaveBeenCalledWith('No elements selected for copy')
       consoleSpy.mockRestore()
     })
@@ -404,10 +408,10 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should handle mixed selection (components and wires)', () => {
       mockSelection.selectedComponents.value = mockSelectionStates.mixed.components
       mockSelection.selectedWires.value = mockSelectionStates.mixed.wires
-      
+
       // This is tested indirectly through copy operation
       canvasController.copySelected()
-      
+
       expect(canvasController.clipboardController.copyToClipboard).toHaveBeenCalled()
     })
   })
@@ -418,9 +422,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       canvasController.clipboardController.copyToClipboard.mockImplementation(() => {
         throw new Error('Clipboard error')
       })
-      
+
       const result = await canvasController.copySelected()
-      
+
       expect(result).toBe(false)
       expect(consoleSpy).toHaveBeenCalledWith('Failed to copy to clipboard:', expect.any(Error))
       consoleSpy.mockRestore()
@@ -428,9 +432,9 @@ describe('useCanvasController - Clipboard Integration', () => {
 
     it('should handle OS clipboard failures gracefully', async () => {
       global.navigator.clipboard.writeText.mockRejectedValue(new Error('Permission denied'))
-      
+
       const result = await canvasController.copySelected()
-      
+
       // Should still succeed with internal clipboard
       expect(result).toBe(true)
     })
@@ -440,9 +444,9 @@ describe('useCanvasController - Clipboard Integration', () => {
       canvasController.clipboardController.pasteFromClipboard.mockImplementation(() => {
         throw new Error('Paste error')
       })
-      
+
       const result = await canvasController.pasteFromClipboard()
-      
+
       expect(result).toBe(false)
       expect(consoleSpy).toHaveBeenCalledWith('Failed to paste from clipboard:', expect.any(Error))
       consoleSpy.mockRestore()
@@ -453,7 +457,7 @@ describe('useCanvasController - Clipboard Integration', () => {
     it('should integrate with selection system', async () => {
       canvasController.clipboardController.hasClipboardData.value = true
       await canvasController.pasteFromClipboard()
-      
+
       expect(mockSelection.clearSelection).toHaveBeenCalled()
     })
 

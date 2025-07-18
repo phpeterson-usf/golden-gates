@@ -1,5 +1,5 @@
 <template>
-  <Dropdown 
+  <Dropdown
     :modelValue="modelValue"
     :options="options"
     @update:modelValue="handleChange"
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Dropdown from 'primevue/dropdown';
+import Dropdown from 'primevue/dropdown'
 
 export default {
   name: 'BaseSelector',
@@ -22,7 +22,7 @@ export default {
     modelValue: {
       type: Number,
       default: 10,
-      validator: (value) => [2, 10, 16].includes(value)
+      validator: value => [2, 10, 16].includes(value)
     }
   },
   emits: ['update:modelValue'],
@@ -32,15 +32,15 @@ export default {
         { label: 'Binary (2)', value: 2 },
         { label: 'Decimal (10)', value: 10 },
         { label: 'Hexadecimal (16)', value: 16 }
-      ];
+      ]
     }
   },
   methods: {
     handleChange(value) {
-      this.$emit('update:modelValue', value);
+      this.$emit('update:modelValue', value)
     }
   }
-};
+}
 </script>
 
 <style scoped>

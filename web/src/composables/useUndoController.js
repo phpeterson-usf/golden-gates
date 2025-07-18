@@ -10,15 +10,15 @@ export function useUndoController(maxUndoLevels = 50) {
   const redoStack = ref([])
   const currentCommandGroup = ref(null)
   const isExecutingCommand = ref(false)
-  
+
   // Computed properties
   const canUndo = computed(() => undoStack.value.length > 0)
   const canRedo = computed(() => redoStack.value.length > 0)
-  
+
   // Get current undo stack size
   const undoStackSize = computed(() => undoStack.value.length)
   const redoStackSize = computed(() => redoStack.value.length)
-  
+
   /**
    * Base command interface
    * All commands must implement execute() and undo() methods
@@ -28,16 +28,16 @@ export function useUndoController(maxUndoLevels = 50) {
       this.description = description
       this.timestamp = Date.now()
     }
-    
+
     execute() {
       throw new Error('Command must implement execute() method')
     }
-    
+
     undo() {
       throw new Error('Command must implement undo() method')
     }
   }
-  
+
   /**
    * Command group for batching multiple operations
    */
@@ -46,27 +46,27 @@ export function useUndoController(maxUndoLevels = 50) {
       super(description)
       this.commands = []
     }
-    
+
     addCommand(command) {
       this.commands.push(command)
     }
-    
+
     execute() {
       this.commands.forEach(command => command.execute())
     }
-    
+
     undo() {
       // Undo commands in reverse order
       for (let i = this.commands.length - 1; i >= 0; i--) {
         this.commands[i].undo()
       }
     }
-    
+
     isEmpty() {
       return this.commands.length === 0
     }
   }
-  
+
   /**
    * Add Component Command
    */
@@ -76,16 +76,16 @@ export function useUndoController(maxUndoLevels = 50) {
       this.circuitModel = circuitModel
       this.component = component
     }
-    
+
     execute() {
       this.circuitModel.addComponent(this.component)
     }
-    
+
     undo() {
       this.circuitModel.removeComponent(this.component.id)
     }
   }
-  
+
   /**
    * Remove Component Command
    */
@@ -96,7 +96,7 @@ export function useUndoController(maxUndoLevels = 50) {
       this.componentId = componentId
       this.component = null
     }
-    
+
     execute() {
       // Store component data before removal
       const circuit = this.circuitModel.activeCircuit.value
@@ -105,7 +105,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
       this.circuitModel.removeComponent(this.componentId)
     }
-    
+
     undo() {
       // NOTE: Component undo is not fully functional due to architectural limitations
       // The circuit model reactive references are not available during undo operations
@@ -115,7 +115,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Update Component Command
    */
@@ -127,7 +127,7 @@ export function useUndoController(maxUndoLevels = 50) {
       this.newProps = newProps
       this.oldProps = oldProps
     }
-    
+
     execute() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -137,7 +137,7 @@ export function useUndoController(maxUndoLevels = 50) {
         }
       }
     }
-    
+
     undo() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -148,7 +148,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Move Component Command
    */
@@ -160,7 +160,7 @@ export function useUndoController(maxUndoLevels = 50) {
       this.newPosition = newPosition
       this.oldPosition = oldPosition
     }
-    
+
     execute() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -171,7 +171,7 @@ export function useUndoController(maxUndoLevels = 50) {
         }
       }
     }
-    
+
     undo() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -183,7 +183,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Add Wire Command
    */
@@ -193,14 +193,14 @@ export function useUndoController(maxUndoLevels = 50) {
       this.circuitModel = circuitModel
       this.wire = wire
     }
-    
+
     execute() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
         circuit.wires.push(this.wire)
       }
     }
-    
+
     undo() {
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -211,7 +211,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Remove Wire Command
    */
@@ -222,12 +222,12 @@ export function useUndoController(maxUndoLevels = 50) {
       this.wireId = wireId
       this.wire = null
     }
-    
+
     execute() {
       // Store wire data before removal, then remove using circuitModel method
       this.wire = this.circuitModel.removeWire(this.wireId)
     }
-    
+
     undo() {
       // Restore wire using circuitModel method
       if (this.wire) {
@@ -235,7 +235,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Paste Command - for clipboard operations
    */
@@ -245,32 +245,32 @@ export function useUndoController(maxUndoLevels = 50) {
       this.circuitModel = circuitModel
       this.pastedElements = pastedElements
     }
-    
+
     execute() {
       // Add pasted components using circuitModel methods
       this.pastedElements.components.forEach(component => {
         this.circuitModel.addComponent(component)
       })
-      
+
       // Add pasted wires and junctions directly to the active circuit
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
         this.pastedElements.wires.forEach(wire => {
           circuit.wires.push(wire)
         })
-        
+
         this.pastedElements.junctions.forEach(junction => {
           circuit.wireJunctions.push(junction)
         })
       }
     }
-    
+
     undo() {
       // Remove pasted components using circuitModel methods
       this.pastedElements.components.forEach(component => {
         this.circuitModel.removeComponent(component.id)
       })
-      
+
       // Remove pasted wires and junctions directly from the active circuit
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -280,10 +280,10 @@ export function useUndoController(maxUndoLevels = 50) {
             circuit.wires.splice(index, 1)
           }
         })
-        
+
         this.pastedElements.junctions.forEach(junction => {
-          const index = circuit.wireJunctions.findIndex(j => 
-            j.pos.x === junction.pos.x && j.pos.y === junction.pos.y
+          const index = circuit.wireJunctions.findIndex(
+            j => j.pos.x === junction.pos.x && j.pos.y === junction.pos.y
           )
           if (index !== -1) {
             circuit.wireJunctions.splice(index, 1)
@@ -292,7 +292,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Duplicate Command - for duplicate operations
    */
@@ -302,32 +302,32 @@ export function useUndoController(maxUndoLevels = 50) {
       this.circuitModel = circuitModel
       this.duplicatedElements = duplicatedElements
     }
-    
+
     execute() {
       // Add duplicated components using circuitModel methods
       this.duplicatedElements.components.forEach(component => {
         this.circuitModel.addComponent(component)
       })
-      
+
       // Add duplicated wires and junctions directly to the active circuit
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
         this.duplicatedElements.wires.forEach(wire => {
           circuit.wires.push(wire)
         })
-        
+
         this.duplicatedElements.junctions.forEach(junction => {
           circuit.wireJunctions.push(junction)
         })
       }
     }
-    
+
     undo() {
       // Remove duplicated components using circuitModel methods
       this.duplicatedElements.components.forEach(component => {
         this.circuitModel.removeComponent(component.id)
       })
-      
+
       // Remove duplicated wires and junctions directly from the active circuit
       const circuit = this.circuitModel.activeCircuit.value
       if (circuit) {
@@ -337,10 +337,10 @@ export function useUndoController(maxUndoLevels = 50) {
             circuit.wires.splice(index, 1)
           }
         })
-        
+
         this.duplicatedElements.junctions.forEach(junction => {
-          const index = circuit.wireJunctions.findIndex(j => 
-            j.pos.x === junction.pos.x && j.pos.y === junction.pos.y
+          const index = circuit.wireJunctions.findIndex(
+            j => j.pos.x === junction.pos.x && j.pos.y === junction.pos.y
           )
           if (index !== -1) {
             circuit.wireJunctions.splice(index, 1)
@@ -349,7 +349,7 @@ export function useUndoController(maxUndoLevels = 50) {
       }
     }
   }
-  
+
   /**
    * Execute a command and add it to the undo stack
    * @param {Command} command - Command to execute
@@ -360,29 +360,29 @@ export function useUndoController(maxUndoLevels = 50) {
       command.execute()
       return
     }
-    
+
     // Clear redo stack when executing new command
     redoStack.value = []
-    
+
     // If we're in a command group, add to the group
     if (currentCommandGroup.value) {
       currentCommandGroup.value.addCommand(command)
       command.execute()
       return
     }
-    
+
     // Execute the command
     command.execute()
-    
+
     // Add to undo stack
     undoStack.value.push(command)
-    
+
     // Limit undo stack size
     if (undoStack.value.length > maxUndoLevels) {
       undoStack.value.shift()
     }
   }
-  
+
   /**
    * Start a command group for batching operations
    * @param {string} description - Description of the command group
@@ -392,10 +392,10 @@ export function useUndoController(maxUndoLevels = 50) {
       console.warn('Command group already started')
       return
     }
-    
+
     currentCommandGroup.value = new CommandGroup(description)
   }
-  
+
   /**
    * End the current command group and add to undo stack
    */
@@ -404,21 +404,21 @@ export function useUndoController(maxUndoLevels = 50) {
       console.warn('No command group to end')
       return
     }
-    
+
     const group = currentCommandGroup.value
     currentCommandGroup.value = null
-    
+
     // Only add non-empty groups to undo stack
     if (!group.isEmpty()) {
       undoStack.value.push(group)
-      
+
       // Limit undo stack size
       if (undoStack.value.length > maxUndoLevels) {
         undoStack.value.shift()
       }
     }
   }
-  
+
   /**
    * Undo the last command
    */
@@ -426,18 +426,18 @@ export function useUndoController(maxUndoLevels = 50) {
     if (undoStack.value.length === 0) {
       return false
     }
-    
+
     isExecutingCommand.value = true
-    
+
     const command = undoStack.value.pop()
     command.undo()
     redoStack.value.push(command)
-    
+
     isExecutingCommand.value = false
-    
+
     return true
   }
-  
+
   /**
    * Redo the last undone command
    */
@@ -445,18 +445,18 @@ export function useUndoController(maxUndoLevels = 50) {
     if (redoStack.value.length === 0) {
       return false
     }
-    
+
     isExecutingCommand.value = true
-    
+
     const command = redoStack.value.pop()
     command.execute()
     undoStack.value.push(command)
-    
+
     isExecutingCommand.value = false
-    
+
     return true
   }
-  
+
   /**
    * Clear all undo/redo history
    */
@@ -465,7 +465,7 @@ export function useUndoController(maxUndoLevels = 50) {
     redoStack.value = []
     currentCommandGroup.value = null
   }
-  
+
   /**
    * Get undo stack information for debugging
    */
@@ -480,24 +480,24 @@ export function useUndoController(maxUndoLevels = 50) {
       }))
     }
   }
-  
+
   return {
     // State
     canUndo,
     canRedo,
     undoStackSize,
     redoStackSize,
-    
+
     // Core operations
     executeCommand,
     undo,
     redo,
     clearHistory,
-    
+
     // Command grouping
     startCommandGroup,
     endCommandGroup,
-    
+
     // Command classes for external use
     Command,
     CommandGroup,
@@ -509,7 +509,7 @@ export function useUndoController(maxUndoLevels = 50) {
     RemoveWireCommand,
     PasteCommand,
     DuplicateCommand,
-    
+
     // Utility
     getUndoStackInfo
   }

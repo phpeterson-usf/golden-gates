@@ -1,6 +1,6 @@
 <template>
   <div class="language-switcher">
-    <Button 
+    <Button
       icon="pi pi-globe"
       :label="$t('languageSwitcher.label')"
       text

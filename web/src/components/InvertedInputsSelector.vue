@@ -10,7 +10,7 @@
         <span class="p-dropdown-trigger-icon pi pi-chevron-down"></span>
       </span>
     </button>
-    
+
     <div v-if="isOpen" class="p-dropdown-panel">
       <div class="p-dropdown-items-wrapper">
         <ul class="p-dropdown-items">
@@ -67,13 +67,13 @@ export default {
     toggleInput(index) {
       const newValue = [...this.modelValue]
       const existingIndex = newValue.indexOf(index)
-      
+
       if (existingIndex > -1) {
         newValue.splice(existingIndex, 1)
       } else {
         newValue.push(index)
       }
-      
+
       this.$emit('update:modelValue', newValue)
     },
     isInputInverted(index) {

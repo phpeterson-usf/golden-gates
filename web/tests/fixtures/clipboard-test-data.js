@@ -18,7 +18,7 @@ export const mockComponents = {
       value: 0
     }
   },
-  
+
   singleOutput: {
     id: 'output_1_1234567890',
     type: 'output',
@@ -29,7 +29,7 @@ export const mockComponents = {
       bits: 1
     }
   },
-  
+
   andGate: {
     id: 'and-gate_1_1234567890',
     type: 'and-gate',
@@ -40,7 +40,7 @@ export const mockComponents = {
       inputs: 2
     }
   },
-  
+
   splitter: {
     id: 'splitter_1_1234567890',
     type: 'splitter',
@@ -54,7 +54,7 @@ export const mockComponents = {
       ]
     }
   },
-  
+
   merger: {
     id: 'merger_1_1234567890',
     type: 'merger',
@@ -68,7 +68,7 @@ export const mockComponents = {
       ]
     }
   },
-  
+
   schematicComponent: {
     id: 'schematic-component_1_1234567890',
     type: 'schematic-component',
@@ -102,7 +102,7 @@ export const mockWires = {
       pos: { x: 18, y: 15 }
     }
   },
-  
+
   multiPointWire: {
     id: 'wire_2_1234567890',
     points: [
@@ -133,7 +133,7 @@ export const mockJunctions = {
     sourceWireIndex: 0,
     connectedWireId: 'wire_3_1234567890'
   },
-  
+
   multiJunction: {
     pos: { x: 30, y: 30 },
     sourceWireIndex: 1,
@@ -148,26 +148,19 @@ export const mockCircuitElements = {
     wires: [],
     junctions: []
   },
-  
+
   singleComponent: {
     components: [mockComponents.singleInput],
     wires: [],
     junctions: []
   },
-  
+
   simpleCircuit: {
-    components: [
-      mockComponents.singleInput,
-      mockComponents.andGate,
-      mockComponents.singleOutput
-    ],
-    wires: [
-      mockWires.simpleWire,
-      mockWires.multiPointWire
-    ],
+    components: [mockComponents.singleInput, mockComponents.andGate, mockComponents.singleOutput],
+    wires: [mockWires.simpleWire, mockWires.multiPointWire],
     junctions: []
   },
-  
+
   complexCircuit: {
     components: [
       mockComponents.singleInput,
@@ -176,14 +169,8 @@ export const mockCircuitElements = {
       mockComponents.merger,
       mockComponents.singleOutput
     ],
-    wires: [
-      mockWires.simpleWire,
-      mockWires.multiPointWire
-    ],
-    junctions: [
-      mockJunctions.simpleJunction,
-      mockJunctions.multiJunction
-    ]
+    wires: [mockWires.simpleWire, mockWires.multiPointWire],
+    junctions: [mockJunctions.simpleJunction, mockJunctions.multiJunction]
   }
 }
 
@@ -217,14 +204,14 @@ export const mockClipboardData = {
     timestamp: 1642723200000,
     operation: 'copy'
   },
-  
+
   invalidClipboard: {
     version: '1.0',
     elements: {
       components: 'invalid'
     }
   },
-  
+
   oldVersionClipboard: {
     version: '0.9',
     elements: {
@@ -236,19 +223,19 @@ export const mockClipboardData = {
 // Mock selection states for testing
 export const mockSelectionStates = {
   empty: new Set(),
-  
+
   singleComponent: new Set(['input_1_1234567890']),
-  
+
   multipleComponents: new Set([
     'input_1_1234567890',
     'and-gate_1_1234567890',
     'output_1_1234567890'
   ]),
-  
+
   singleWire: new Set([0]),
-  
+
   multipleWires: new Set([0, 1]),
-  
+
   mixed: {
     components: new Set(['input_1_1234567890', 'and-gate_1_1234567890']),
     wires: new Set([0])
@@ -274,17 +261,16 @@ export const mockCircuitModel = {
 export const mockClipboardAPI = {
   // Mock modern clipboard API
   createMockNavigatorClipboard: (shouldFail = false) => ({
-    writeText: shouldFail ? 
-      vi.fn().mockRejectedValue(new Error('Clipboard write failed')) :
-      vi.fn().mockResolvedValue(),
-    readText: shouldFail ?
-      vi.fn().mockRejectedValue(new Error('Clipboard read failed')) :
-      vi.fn().mockResolvedValue(JSON.stringify(mockClipboardData.validClipboard))
+    writeText: shouldFail
+      ? vi.fn().mockRejectedValue(new Error('Clipboard write failed'))
+      : vi.fn().mockResolvedValue(),
+    readText: shouldFail
+      ? vi.fn().mockRejectedValue(new Error('Clipboard read failed'))
+      : vi.fn().mockResolvedValue(JSON.stringify(mockClipboardData.validClipboard))
   }),
-  
+
   // Mock execCommand for fallback
-  createMockExecCommand: (shouldFail = false) => 
-    vi.fn().mockReturnValue(!shouldFail)
+  createMockExecCommand: (shouldFail = false) => vi.fn().mockReturnValue(!shouldFail)
 }
 
 // Test utilities for clipboard operations
@@ -293,14 +279,17 @@ export const testUtils = {
    * Create a mock bounds object
    */
   createMockBounds: (minX = 0, minY = 0, maxX = 10, maxY = 10) => ({
-    minX, minY, maxX, maxY
+    minX,
+    minY,
+    maxX,
+    maxY
   }),
-  
+
   /**
    * Create a mock paste position
    */
   createMockPastePosition: (x = 0, y = 0) => ({ x, y }),
-  
+
   /**
    * Create a mock component with specific properties
    */
@@ -312,18 +301,21 @@ export const testUtils = {
     props: {},
     ...overrides
   }),
-  
+
   /**
    * Create a mock wire with specific properties
    */
   createMockWire: (overrides = {}) => ({
     id: `wire_test_${Date.now()}`,
-    points: [{ x: 0, y: 0 }, { x: 10, y: 0 }],
+    points: [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 }
+    ],
     startConnection: null,
     endConnection: null,
     ...overrides
   }),
-  
+
   /**
    * Create a mock junction with specific properties
    */
@@ -347,9 +339,11 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   },
-  
+
   pasteEvent: {
     key: 'v',
     ctrlKey: true,
@@ -360,9 +354,11 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   },
-  
+
   cutEvent: {
     key: 'x',
     ctrlKey: true,
@@ -373,9 +369,11 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   },
-  
+
   duplicateEvent: {
     key: 'd',
     ctrlKey: true,
@@ -386,9 +384,11 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   },
-  
+
   undoEvent: {
     key: 'z',
     ctrlKey: true,
@@ -399,9 +399,11 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   },
-  
+
   redoEvent: {
     key: 'y',
     ctrlKey: true,
@@ -412,7 +414,9 @@ export const mockKeyboardEvents = {
     cancelable: true,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    get defaultPrevented() { return this.preventDefault.mock.calls.length > 0 }
+    get defaultPrevented() {
+      return this.preventDefault.mock.calls.length > 0
+    }
   }
 }
 

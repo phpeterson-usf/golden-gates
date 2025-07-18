@@ -83,9 +83,9 @@ describe('MultibaseNumberInput', () => {
     it('should accept valid decimal input', async () => {
       const wrapper = createWrapper({ base: 10 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('123')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 123, base: 10 })
     })
@@ -93,9 +93,9 @@ describe('MultibaseNumberInput', () => {
     it('should accept valid hexadecimal input', async () => {
       const wrapper = createWrapper({ base: 16 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0xff')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 255, base: 16 })
     })
@@ -103,9 +103,9 @@ describe('MultibaseNumberInput', () => {
     it('should accept valid binary input', async () => {
       const wrapper = createWrapper({ base: 2 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0b101')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 5, base: 2 })
     })
@@ -113,9 +113,9 @@ describe('MultibaseNumberInput', () => {
     it('should handle uppercase prefixes', async () => {
       const wrapper = createWrapper({ base: 16 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0XFF')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 255, base: 16 })
     })
@@ -123,9 +123,9 @@ describe('MultibaseNumberInput', () => {
     it('should reject invalid characters for decimal', async () => {
       const wrapper = createWrapper({ base: 10 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('12a')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(true)
       expect(wrapper.find('.error-tooltip').text()).toContain('not valid for base 10')
     })
@@ -133,9 +133,9 @@ describe('MultibaseNumberInput', () => {
     it('should reject invalid characters for hexadecimal', async () => {
       const wrapper = createWrapper({ base: 16 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0xgg')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(true)
       expect(wrapper.find('.error-tooltip').text()).toContain('not valid for base 16')
     })
@@ -143,9 +143,9 @@ describe('MultibaseNumberInput', () => {
     it('should reject invalid characters for binary', async () => {
       const wrapper = createWrapper({ base: 2 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0b102')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(true)
       expect(wrapper.find('.error-tooltip').text()).toContain('not valid for base 2')
     })
@@ -155,9 +155,9 @@ describe('MultibaseNumberInput', () => {
     it('should show overflow error when value exceeds max', async () => {
       const wrapper = createWrapper({ max: 7 }) // 3 bits max
       const input = wrapper.find('input')
-      
+
       await input.setValue('8')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(true)
       expect(wrapper.find('.error-tooltip').text()).toContain('Overflows 3 bits')
     })
@@ -165,18 +165,18 @@ describe('MultibaseNumberInput', () => {
     it('should not emit when value is out of range', async () => {
       const wrapper = createWrapper({ min: 10, max: 100 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('5') // Below min
-      
+
       expect(wrapper.emitted('update:both')).toBeFalsy()
     })
 
     it('should accept values within range', async () => {
       const wrapper = createWrapper({ min: 10, max: 100 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('50')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 50, base: 10 })
     })
@@ -186,9 +186,9 @@ describe('MultibaseNumberInput', () => {
     it('should detect decimal base from input', async () => {
       const wrapper = createWrapper({ base: 16 }) // Start with hex
       const input = wrapper.find('input')
-      
+
       await input.setValue('123') // No prefix = decimal
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 123, base: 10 })
     })
@@ -196,9 +196,9 @@ describe('MultibaseNumberInput', () => {
     it('should detect hexadecimal base from input', async () => {
       const wrapper = createWrapper({ base: 10 }) // Start with decimal
       const input = wrapper.find('input')
-      
+
       await input.setValue('0xff') // Hex prefix
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 255, base: 16 })
     })
@@ -206,9 +206,9 @@ describe('MultibaseNumberInput', () => {
     it('should detect binary base from input', async () => {
       const wrapper = createWrapper({ base: 10 }) // Start with decimal
       const input = wrapper.find('input')
-      
+
       await input.setValue('0b101') // Binary prefix
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 5, base: 2 })
     })
@@ -218,9 +218,9 @@ describe('MultibaseNumberInput', () => {
     it('should allow partial prefixes', async () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       await input.setValue('0x')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(false)
       expect(wrapper.emitted('update:both')).toBeFalsy()
     })
@@ -228,9 +228,9 @@ describe('MultibaseNumberInput', () => {
     it('should allow partial binary prefix', async () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       await input.setValue('0b')
-      
+
       expect(wrapper.find('.error-tooltip').exists()).toBe(false)
       expect(wrapper.emitted('update:both')).toBeFalsy()
     })
@@ -238,10 +238,10 @@ describe('MultibaseNumberInput', () => {
     it('should clear partial prefixes on blur', async () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       await input.setValue('0x')
       await input.trigger('blur')
-      
+
       // Component formats the value using the current modelValue (0) and base (10)
       expect(input.element.value).toBe('0')
     })
@@ -251,9 +251,9 @@ describe('MultibaseNumberInput', () => {
     it('should emit update:both when value and base change', async () => {
       const wrapper = createWrapper({ base: 10 })
       const input = wrapper.find('input')
-      
+
       await input.setValue('0xff')
-      
+
       expect(wrapper.emitted('update:both')).toBeTruthy()
       expect(wrapper.emitted('update:both')[0][0]).toEqual({ value: 255, base: 16 })
     })
@@ -261,9 +261,9 @@ describe('MultibaseNumberInput', () => {
     it('should not emit when input is invalid', async () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       await input.setValue('invalid')
-      
+
       expect(wrapper.emitted('update:both')).toBeFalsy()
     })
   })
@@ -272,7 +272,7 @@ describe('MultibaseNumberInput', () => {
     it('should have correct base CSS classes', () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       expect(input.classes()).toContain('p-inputtext')
       expect(input.classes()).toContain('p-component')
     })
@@ -280,16 +280,16 @@ describe('MultibaseNumberInput', () => {
     it('should have p-filled class when there is a value', () => {
       const wrapper = createWrapper({ modelValue: 42 })
       const input = wrapper.find('input')
-      
+
       expect(input.classes()).toContain('p-filled')
     })
 
     it('should have p-invalid class when there is an error', async () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       await input.setValue('invalid')
-      
+
       expect(input.classes()).toContain('p-invalid')
     })
   })
@@ -298,14 +298,14 @@ describe('MultibaseNumberInput', () => {
     it('should have correct placeholder text', () => {
       const wrapper = createWrapper({ placeholder: 'Enter a number' })
       const input = wrapper.find('input')
-      
+
       expect(input.attributes('placeholder')).toBe('Enter a number')
     })
 
     it('should have correct input type', () => {
       const wrapper = createWrapper()
       const input = wrapper.find('input')
-      
+
       expect(input.attributes('type')).toBe('text')
     })
   })
@@ -313,18 +313,18 @@ describe('MultibaseNumberInput', () => {
   describe('Value changes from parent', () => {
     it('should update display when modelValue changes', async () => {
       const wrapper = createWrapper({ modelValue: 42, base: 10 })
-      
+
       await wrapper.setProps({ modelValue: 100 })
-      
+
       const input = wrapper.find('input')
       expect(input.element.value).toBe('100')
     })
 
     it('should update display when base changes', async () => {
       const wrapper = createWrapper({ modelValue: 255, base: 10 })
-      
+
       await wrapper.setProps({ base: 16 })
-      
+
       const input = wrapper.find('input')
       expect(input.element.value).toBe('0xff')
     })

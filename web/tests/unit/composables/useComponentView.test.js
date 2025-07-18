@@ -21,18 +21,18 @@ describe('useComponentView', () => {
       it('should return normal fill color when not selected', () => {
         const props = createMockProps({ selected: false })
         const emit = createMockEmit()
-        
+
         const { fillColor } = useComponentView(props, emit)
-        
+
         expect(fillColor.value).toBe(COLORS.componentFill)
       })
 
       it('should return selected fill color when selected', () => {
         const props = createMockProps({ selected: true })
         const emit = createMockEmit()
-        
+
         const { fillColor } = useComponentView(props, emit)
-        
+
         expect(fillColor.value).toBe(COLORS.componentSelectedFill)
       })
     })
@@ -41,18 +41,18 @@ describe('useComponentView', () => {
       it('should return normal stroke color when not selected', () => {
         const props = createMockProps({ selected: false })
         const emit = createMockEmit()
-        
+
         const { strokeColor } = useComponentView(props, emit)
-        
+
         expect(strokeColor.value).toBe(COLORS.componentStroke)
       })
 
       it('should return selected stroke color when selected', () => {
         const props = createMockProps({ selected: true })
         const emit = createMockEmit()
-        
+
         const { strokeColor } = useComponentView(props, emit)
-        
+
         expect(strokeColor.value).toBe(COLORS.componentSelectedStroke)
       })
     })
@@ -61,18 +61,18 @@ describe('useComponentView', () => {
       it('should return normal stroke width when not selected', () => {
         const props = createMockProps({ selected: false })
         const emit = createMockEmit()
-        
+
         const { strokeWidth } = useComponentView(props, emit)
-        
+
         expect(strokeWidth.value).toBe(STROKE_WIDTHS.normal)
       })
 
       it('should return selected stroke width when selected', () => {
         const props = createMockProps({ selected: true })
         const emit = createMockEmit()
-        
+
         const { strokeWidth } = useComponentView(props, emit)
-        
+
         expect(strokeWidth.value).toBe(STROKE_WIDTHS.selected)
       })
     })
@@ -83,12 +83,12 @@ describe('useComponentView', () => {
       const props = createMockProps({
         id: 'test-component',
         x: 10, // Grid units (10 * 15 = 150 pixels)
-        y: 16  // Grid units (16 * 15 = 240 pixels)
+        y: 16 // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
-      
+
       const { handleMouseDown } = useComponentView(props, emit)
-      
+
       // Create a mock event with the necessary properties
       const mockEvent = {
         clientX: 200,
@@ -107,9 +107,9 @@ describe('useComponentView', () => {
           }))
         }
       }
-      
+
       handleMouseDown(mockEvent)
-      
+
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
         offsetX: 50, // 200 - (10 * 15) = 200 - 150 = 50
@@ -122,12 +122,12 @@ describe('useComponentView', () => {
       const props = createMockProps({
         id: 'test-component',
         x: 10, // Grid units (10 * 15 = 150 pixels)
-        y: 16  // Grid units (16 * 15 = 240 pixels)
+        y: 16 // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
-      
+
       const { handleMouseDown } = useComponentView(props, emit)
-      
+
       // Create a mock event with zoom scaling
       const mockEvent = {
         clientX: 150,
@@ -148,9 +148,9 @@ describe('useComponentView', () => {
           }))
         }
       }
-      
+
       handleMouseDown(mockEvent)
-      
+
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
         offsetX: 0, // (300 / 2) - (10 * 15) = 150 - 150 = 0
@@ -163,12 +163,12 @@ describe('useComponentView', () => {
       const props = createMockProps({
         id: 'test-component',
         x: 10, // Grid units (10 * 15 = 150 pixels)
-        y: 16  // Grid units (16 * 15 = 240 pixels)
+        y: 16 // Grid units (16 * 15 = 240 pixels)
       })
       const emit = createMockEmit()
-      
+
       const { handleMouseDown } = useComponentView(props, emit)
-      
+
       // Create a mock event without zoom transform
       const mockEvent = {
         clientX: 200,
@@ -187,9 +187,9 @@ describe('useComponentView', () => {
           }))
         }
       }
-      
+
       handleMouseDown(mockEvent)
-      
+
       expect(emit).toHaveBeenCalledWith('startDrag', {
         id: 'test-component',
         offsetX: 50, // 200 - (10 * 15) = 200 - 150 = 50
@@ -203,14 +203,14 @@ describe('useComponentView', () => {
     it('should return all expected properties', () => {
       const props = createMockProps()
       const emit = createMockEmit()
-      
+
       const result = useComponentView(props, emit)
-      
+
       expect(result).toHaveProperty('handleMouseDown')
       expect(result).toHaveProperty('fillColor')
       expect(result).toHaveProperty('strokeColor')
       expect(result).toHaveProperty('strokeWidth')
-      
+
       expect(typeof result.handleMouseDown).toBe('function')
       expect(result.fillColor).toBeDefined()
       expect(result.strokeColor).toBeDefined()
@@ -222,17 +222,17 @@ describe('useComponentView', () => {
     it('should update colors when selected prop changes', async () => {
       const props = reactive(createMockProps({ selected: false }))
       const emit = createMockEmit()
-      
+
       const { fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
-      
+
       // Initially not selected
       expect(fillColor.value).toBe(COLORS.componentFill)
       expect(strokeColor.value).toBe(COLORS.componentStroke)
       expect(strokeWidth.value).toBe(STROKE_WIDTHS.normal)
-      
+
       // Change to selected
       props.selected = true
-      
+
       // Should update reactively
       expect(fillColor.value).toBe(COLORS.componentSelectedFill)
       expect(strokeColor.value).toBe(COLORS.componentSelectedStroke)

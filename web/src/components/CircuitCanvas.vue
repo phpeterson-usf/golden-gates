@@ -1,23 +1,29 @@
 <template>
   <div class="circuit-canvas-container" ref="container">
     <!-- Grid background -->
-    <svg 
-      class="grid-canvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
-    >
+    <svg class="grid-canvas" :width="canvasWidth" :height="canvasHeight">
       <defs>
-        <pattern id="grid" :width="gridSize * zoom" :height="gridSize * zoom" patternUnits="userSpaceOnUse">
-          <circle :cx="gridSize * zoom" :cy="gridSize * zoom" :r="dotSize * zoom" :fill="COLORS.gridDot" />
+        <pattern
+          id="grid"
+          :width="gridSize * zoom"
+          :height="gridSize * zoom"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle
+            :cx="gridSize * zoom"
+            :cy="gridSize * zoom"
+            :r="dotSize * zoom"
+            :fill="COLORS.gridDot"
+          />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#grid)" />
     </svg>
-    
+
     <!-- Circuit elements -->
-    <svg 
+    <svg
       class="circuit-canvas"
-      :class="{ 
+      :class="{
         dragging: isDragging() || isSelecting,
         'wire-drawing': drawingWire,
         'junction-mode': isJunctionMode
@@ -43,14 +49,10 @@
           @click="handleWireClick(index, $event)"
           @mousedown="handleWireMouseDown(index, $event)"
         />
-        
+
         <!-- Wire preview during drawing -->
-        <Wire
-          v-if="drawingWire && wirePoints.length > 0"
-          :points="previewPoints"
-          :preview="true"
-        />
-        
+        <Wire v-if="drawingWire && wirePoints.length > 0" :points="previewPoints" :preview="true" />
+
         <!-- Junction points -->
         <circle
           v-for="(junction, index) in wireJunctions"
@@ -62,7 +64,7 @@
           class="wire-junction"
           pointer-events="none"
         />
-        
+
         <!-- Junction preview point when Alt is held -->
         <circle
           v-if="junctionPreview"
@@ -77,7 +79,7 @@
         >
           <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
         </circle>
-        
+
         <!-- Connection preview point when hovering during wire drawing -->
         <circle
           v-if="connectionPreview"
@@ -92,7 +94,7 @@
         >
           <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
         </circle>
-        
+
         <!-- Components -->
         <component
           v-for="comp in components"
@@ -108,7 +110,7 @@
           @startDrag="handleStartDrag"
           @editSubcircuit="handleEditSubcircuit"
         />
-        
+
         <!-- Rubber-band selection rectangle -->
         <rect
           v-if="isSelecting && selectionRect"
@@ -122,26 +124,15 @@
           stroke-dasharray="4 2"
           pointer-events="none"
         />
-        
       </g>
     </svg>
-    
+
     <!-- Zoom controls -->
     <div class="zoom-controls">
-      <button 
-        class="zoom-button"
-        @click="zoomIn"
-        :disabled="zoom >= maxZoom"
-        title="Zoom In"
-      >
+      <button class="zoom-button" @click="zoomIn" :disabled="zoom >= maxZoom" title="Zoom In">
         <i class="pi pi-plus"></i>
       </button>
-      <button 
-        class="zoom-button"
-        @click="zoomOut"
-        :disabled="zoom <= minZoom"
-        title="Zoom Out"
-      >
+      <button class="zoom-button" @click="zoomOut" :disabled="zoom <= minZoom" title="Zoom Out">
         <i class="pi pi-minus"></i>
       </button>
     </div>
@@ -177,8 +168,7 @@ export default {
   setup(props, { emit }) {
     const container = ref(null)
     const componentRefs = ref({})
-    
-    
+
     // Canvas operations
     const {
       canvasWidth,
@@ -193,7 +183,7 @@ export default {
       getMousePos,
       setupResizeObserver
     } = useCanvasViewport()
-    
+
     // Use the passed circuit manager instead of creating our own
     const {
       activeCircuit,
@@ -204,47 +194,52 @@ export default {
       navigateToCircuit,
       breadcrumbs
     } = props.circuitManager
-    
+
     // Use current circuit components and wires directly
     const components = computed(() => activeCircuit.value?.components || [])
     const wires = computed(() => activeCircuit.value?.wires || [])
     const wireJunctions = computed(() => activeCircuit.value?.wireJunctions || [])
-    
+
     // Circuit data management (from circuit model)
     const { getCircuitData: getCircuitDataBase } = props.circuitManager
-    
+
     // Circuit generation
     const { generateGglProgram } = useCodeGenController()
-    
+
     // Wire management - pass the shared model functions
-    const wireManagement = useWireController(components, gridSize.value, {
-      wires: wires,
-      wireJunctions: wireJunctions,
-      addWire: (wire) => {
-        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
-        if (circuit?.wires) {
-          circuit.wires.push(wire)
+    const wireManagement = useWireController(
+      components,
+      gridSize.value,
+      {
+        wires: wires,
+        wireJunctions: wireJunctions,
+        addWire: wire => {
+          const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+          if (circuit?.wires) {
+            circuit.wires.push(wire)
+          }
+        },
+        removeWire: index => {
+          const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+          if (circuit?.wires) {
+            circuit.wires.splice(index, 1)
+          }
+        },
+        addWireJunction: junction => {
+          const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+          if (circuit?.wireJunctions) {
+            circuit.wireJunctions.push(junction)
+          }
+        },
+        removeWireJunction: index => {
+          const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
+          if (circuit?.wireJunctions) {
+            circuit.wireJunctions.splice(index, 1)
+          }
         }
       },
-      removeWire: (index) => {
-        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
-        if (circuit?.wires) {
-          circuit.wires.splice(index, 1)
-        }
-      },
-      addWireJunction: (junction) => {
-        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
-        if (circuit?.wireJunctions) {
-          circuit.wireJunctions.push(junction)
-        }
-      },
-      removeWireJunction: (index) => {
-        const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
-        if (circuit?.wireJunctions) {
-          circuit.wireJunctions.splice(index, 1)
-        }
-      }
-    }, props.circuitManager)
+      props.circuitManager
+    )
     const {
       selectedWires,
       drawingWire,
@@ -260,17 +255,17 @@ export default {
       startWireFromJunction,
       completeWireAtJunction
     } = wireManagement
-    
+
     // Selection management
     const selection = useSelectionController(
-      components, 
-      wires, 
+      components,
+      wires,
       wireManagement.cleanupJunctionsForDeletedWires,
-      (componentIds) => {
+      componentIds => {
         // Delete components via circuit manager
         componentIds.forEach(id => removeComponent(id))
       },
-      (index) => {
+      index => {
         // Delete wires via circuit manager - access raw circuit data
         const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
         if (circuit?.wires) {
@@ -291,10 +286,10 @@ export default {
       deleteSelected,
       checkAndClearJustFinished
     } = selection
-    
+
     // Note: selectedWires is managed by both wireManagement and selection composables
     // We use selection.selectedWires for component selection logic
-    
+
     // Drag and drop
     const dragAndDrop = useDragController(
       components,
@@ -304,14 +299,7 @@ export default {
       snapToGrid,
       wireJunctions
     )
-    const {
-      dragging,
-      startDrag,
-      startWireDrag,
-      updateDrag,
-      endDrag,
-      isDragging
-    } = dragAndDrop
+    const { dragging, startDrag, startWireDrag, updateDrag, endDrag, isDragging } = dragAndDrop
 
     // Canvas interactions (controller layer) - must come after selection and dragAndDrop
     const canvasInteractions = useCanvasController(
@@ -321,7 +309,7 @@ export default {
       selection,
       dragAndDrop
     )
-    
+
     const {
       lastComponentPosition,
       isJunctionMode,
@@ -341,36 +329,36 @@ export default {
 
     // Global key handlers for when canvas doesn't have focus
     onMounted(() => {
-      const handleGlobalKeyDown = (event) => {
+      const handleGlobalKeyDown = event => {
         handleInteractionKeyDown(event)
       }
-      
-      const handleGlobalKeyUp = (event) => {
+
+      const handleGlobalKeyUp = event => {
         handleInteractionKeyUp(event)
       }
-      
+
       window.addEventListener('keydown', handleGlobalKeyDown)
       window.addEventListener('keyup', handleGlobalKeyUp)
       window.addEventListener('blur', handleWindowBlur)
-      
+
       onUnmounted(() => {
         window.removeEventListener('keydown', handleGlobalKeyDown)
         window.removeEventListener('keyup', handleGlobalKeyUp)
         window.removeEventListener('blur', handleWindowBlur)
       })
     })
-    
+
     // Constants
     const dotSize = ref(DOT_SIZE)
-    
+
     // Set up resize observer
     setupResizeObserver(container)
-    
+
     // Methods
     function getComponentType(type) {
       return componentRegistry[type]?.component
     }
-    
+
     function setComponentRef(id, el) {
       if (el) {
         componentRefs.value[id] = el
@@ -378,20 +366,15 @@ export default {
         delete componentRefs.value[id]
       }
     }
-    
-    
-    
-    
-    
+
     function handleStartDrag(dragInfo) {
       startDrag(dragInfo)
     }
-    
+
     function handleEditSubcircuit(circuitId) {
       navigateToCircuit(circuitId)
     }
-    
-    
+
     // Computed property to get component instances
     const componentInstances = computed(() => {
       const instances = {}
@@ -401,33 +384,43 @@ export default {
           instances[id] = ref
         }
       })
-      
+
       return instances
     })
-    
+
     function getCircuitData() {
-      return generateGglProgram(components.value, wires.value, wireJunctions.value, componentRefs.value, componentInstances.value, props.circuitManager)
+      return generateGglProgram(
+        components.value,
+        wires.value,
+        wireJunctions.value,
+        componentRefs.value,
+        componentInstances.value,
+        props.circuitManager
+      )
     }
-    
-    
+
     // Watch for selection changes and emit event
-    watch([selectedComponents, selection.selectedWires], () => {
-      emit('selectionChanged', {
-        components: selectedComponents.value,
-        wires: selection.selectedWires.value
-      })
-    }, { deep: true })
-    
+    watch(
+      [selectedComponents, selection.selectedWires],
+      () => {
+        emit('selectionChanged', {
+          components: selectedComponents.value,
+          wires: selection.selectedWires.value
+        })
+      },
+      { deep: true }
+    )
+
     // Add wire directly (for loading from file)
     function addWire(wireData) {
       activeCircuit.value?.wires.push(wireData)
     }
-    
+
     // Add wire junction directly (for loading from file)
     function addWireJunction(junctionData) {
       activeCircuit.value?.wireJunctions.push(junctionData)
     }
-    
+
     // Load component directly from saved data (preserves ID and props)
     function loadComponent(componentData) {
       // Directly add the component without calling onCreate or generating new ID
@@ -440,17 +433,17 @@ export default {
       }
       addComponent(component)
     }
-    
+
     // Clear current circuit
     function clearCircuit() {
       clearCurrentCircuit()
       clearSelection()
     }
-    
+
     return {
       // Template refs
       container,
-      
+
       // State
       canvasWidth,
       canvasHeight,
@@ -472,16 +465,16 @@ export default {
       isJunctionMode,
       junctionPreview,
       connectionPreview,
-      
+
       // Hierarchical circuit state
       activeCircuit,
       breadcrumbs,
-      
+
       // Constants
       COLORS,
       CONNECTION_DOT_RADIUS,
       gridToPixel,
-      
+
       // Methods
       getComponentType,
       setComponentRef,
@@ -506,7 +499,7 @@ export default {
       getMousePos,
       zoomIn,
       zoomOut,
-      
+
       // Circuit hierarchy methods
       navigateToCircuit
     }
@@ -523,7 +516,8 @@ export default {
   overflow: hidden;
 }
 
-.grid-canvas, .circuit-canvas {
+.grid-canvas,
+.circuit-canvas {
   position: absolute;
   top: 0;
   left: 0;

@@ -1,5 +1,5 @@
 <template>
-  <Dialog 
+  <Dialog
     v-model:visible="visible"
     :modal="true"
     :closable="true"
@@ -26,12 +26,12 @@
           spellcheck="false"
         />
       </div>
-      
+
       <div class="command-palette-results" ref="resultsContainer">
         <div v-if="filteredCommands.length === 0" class="no-results">
           {{ $t('commands.commandPalette.noResults') }}
         </div>
-        
+
         <template v-else>
           <div v-if="recentCommands.length > 0" class="command-group">
             <div class="command-group-header">
@@ -45,20 +45,22 @@
               @click="executeCommand(command)"
               @mouseenter="selectedIndex = index"
             >
-              <ComponentIcon 
-                v-if="command.componentType" 
-                :componentType="command.componentType" 
-                :size="16" 
+              <ComponentIcon
+                v-if="command.componentType"
+                :componentType="command.componentType"
+                :size="16"
                 class="command-icon"
               />
               <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
               <span class="command-label">{{ getCommandLabel(command) }}</span>
-              <span v-if="command.shortcut" class="command-shortcut">{{ formatShortcut(command.shortcut) }}</span>
+              <span v-if="command.shortcut" class="command-shortcut">{{
+                formatShortcut(command.shortcut)
+              }}</span>
             </div>
           </div>
-          
-          <div 
-            v-for="[groupKey, commands] in groupedCommands" 
+
+          <div
+            v-for="[groupKey, commands] in groupedCommands"
             :key="groupKey"
             class="command-group"
           >
@@ -66,19 +68,24 @@
             <div
               v-for="(command, index) in commands"
               :key="command.id"
-              :class="['command-item', { selected: selectedIndex === getGlobalIndex(groupKey, index) }]"
+              :class="[
+                'command-item',
+                { selected: selectedIndex === getGlobalIndex(groupKey, index) }
+              ]"
               @click="executeCommand(command)"
               @mouseenter="selectedIndex = getGlobalIndex(groupKey, index)"
             >
-              <ComponentIcon 
-                v-if="command.componentType" 
-                :componentType="command.componentType" 
-                :size="16" 
+              <ComponentIcon
+                v-if="command.componentType"
+                :componentType="command.componentType"
+                :size="16"
                 class="command-icon"
               />
               <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
               <span class="command-label">{{ getCommandLabel(command) }}</span>
-              <span v-if="command.shortcut" class="command-shortcut">{{ formatShortcut(command.shortcut) }}</span>
+              <span v-if="command.shortcut" class="command-shortcut">{{
+                formatShortcut(command.shortcut)
+              }}</span>
             </div>
           </div>
         </template>
@@ -116,19 +123,19 @@ export default {
     const searchInput = ref(null)
     const resultsContainer = ref(null)
     const recentCommandIds = ref(JSON.parse(localStorage.getItem('recentCommands') || '[]'))
-    
+
     const visible = computed({
       get: () => props.modelValue,
-      set: (value) => emit('update:modelValue', value)
+      set: value => emit('update:modelValue', value)
     })
-    
+
     // Get all static commands plus dynamic component commands
     const allCommands = computed(() => {
       const staticCommands = getAllCommands()
       const dynamicCommands = getDynamicComponentCommands(props.availableComponents)
       return [...staticCommands, ...dynamicCommands]
     })
-    
+
     // Get recent commands
     const recentCommands = computed(() => {
       if (searchQuery.value) {
@@ -143,74 +150,74 @@ export default {
           })
           .slice(0, 5)
       }
-      
+
       // When not searching, show all recent
       return recentCommandIds.value
         .map(id => allCommands.value.find(cmd => cmd.id === id))
         .filter(Boolean)
         .slice(0, 5)
     })
-    
+
     // Filter commands based on search query
     const filteredCommands = computed(() => {
       if (!searchQuery.value) {
         return allCommands.value
       }
-      
+
       const query = searchQuery.value.toLowerCase()
       const filtered = allCommands.value.filter(command => {
         const label = getCommandLabel(command).toLowerCase()
         return label.includes(query)
       })
-      
+
       // Sort results: prioritize commands that start with the query
       return filtered.sort((a, b) => {
         const aLabel = getCommandLabel(a).toLowerCase()
         const bLabel = getCommandLabel(b).toLowerCase()
         const aStartsWith = aLabel.startsWith(query)
         const bStartsWith = bLabel.startsWith(query)
-        
+
         if (aStartsWith && !bStartsWith) return -1
         if (!aStartsWith && bStartsWith) return 1
         return 0
       })
     })
-    
+
     // Group filtered commands by category
     const groupedCommands = computed(() => {
       const groups = new Map()
-      
+
       filteredCommands.value.forEach(command => {
         // When not searching, skip commands that are in recent
         if (!searchQuery.value && recentCommandIds.value.includes(command.id)) {
           return
         }
-        
+
         const groupKey = command.groupKey
         if (!groups.has(groupKey)) {
           groups.set(groupKey, [])
         }
         groups.get(groupKey).push(command)
       })
-      
+
       return groups
     })
-    
+
     // Get command label
     function getCommandLabel(command) {
       return command.labelKey ? t(command.labelKey) : command.label
     }
-    
+
     // Detect platform
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-    
+
     // Format keyboard shortcut for display
     function formatShortcut(shortcut) {
       // For single-key shortcuts, just return the key
       if (shortcut.length === 1) {
         return shortcut.toUpperCase()
       }
-      
+
       // Legacy formatting for any complex shortcuts
       if (isMac) {
         return shortcut
@@ -220,69 +227,67 @@ export default {
           .replace(/Shift/g, '⇧')
           .replace(/\+/g, '')
       } else {
-        return shortcut
-          .replace(/Cmd/g, 'Ctrl')
-          .replace(/Alt/g, 'Alt')
-          .replace(/Shift/g, 'Shift')
+        return shortcut.replace(/Cmd/g, 'Ctrl').replace(/Alt/g, 'Alt').replace(/Shift/g, 'Shift')
       }
     }
-    
+
     // Get global index for keyboard navigation
     function getGlobalIndex(groupKey, localIndex) {
       let globalIndex = recentCommands.value.length
-      
+
       for (const [key, commands] of groupedCommands.value) {
         if (key === groupKey) {
           return globalIndex + localIndex
         }
         globalIndex += commands.length
       }
-      
+
       return globalIndex
     }
-    
+
     // Handle keyboard navigation
     function handleKeyDown(event) {
-      const totalItems = recentCommands.value.length + 
+      const totalItems =
+        recentCommands.value.length +
         Array.from(groupedCommands.value.values()).reduce((sum, cmds) => sum + cmds.length, 0)
-      
+
       switch (event.key) {
         case 'ArrowDown':
           event.preventDefault()
           selectedIndex.value = (selectedIndex.value + 1) % totalItems
           scrollToSelected()
           break
-          
+
         case 'ArrowUp':
           event.preventDefault()
           selectedIndex.value = (selectedIndex.value - 1 + totalItems) % totalItems
           scrollToSelected()
           break
-          
+
         case 'Enter':
           event.preventDefault()
           executeSelectedCommand()
           break
-          
+
         case 'Escape':
           event.preventDefault()
           visible.value = false
           break
-          
+
         case 'a':
         case 'A':
           // Don't execute commands when typing - let the user type "AND" etc.
           // Just stop propagation to prevent global shortcuts
           event.stopPropagation()
           break
-        
+
         default:
           // For all other keys, stop propagation to prevent global shortcuts
           event.stopPropagation()
           break
       }
     }
-    
+
     // Scroll to keep selected item visible
     function scrollToSelected() {
       nextTick(() => {
@@ -290,7 +295,7 @@ export default {
         if (selected && resultsContainer.value) {
           const containerRect = resultsContainer.value.getBoundingClientRect()
           const selectedRect = selected.getBoundingClientRect()
-          
+
           if (selectedRect.bottom > containerRect.bottom) {
             selected.scrollIntoView({ block: 'end', behavior: 'smooth' })
           } else if (selectedRect.top < containerRect.top) {
@@ -299,19 +304,19 @@ export default {
         }
       })
     }
-    
+
     // Execute selected command
     function executeSelectedCommand() {
       let currentIndex = 0
-      
+
       // Check recent commands (only shown when not searching)
       if (!searchQuery.value && selectedIndex.value < recentCommands.value.length) {
         executeCommand(recentCommands.value[selectedIndex.value])
         return
       }
-      
+
       currentIndex = searchQuery.value ? 0 : recentCommands.value.length
-      
+
       // Check grouped commands
       for (const commands of groupedCommands.value.values()) {
         if (selectedIndex.value < currentIndex + commands.length) {
@@ -321,7 +326,7 @@ export default {
         currentIndex += commands.length
       }
     }
-    
+
     // Execute a command
     function executeCommand(command) {
       // Add to recent commands
@@ -329,40 +334,40 @@ export default {
         command.id,
         ...recentCommandIds.value.filter(id => id !== command.id)
       ].slice(0, 10)
-      
+
       // Persist to localStorage
       localStorage.setItem('recentCommands', JSON.stringify(recentCommandIds.value))
-      
+
       // Emit command event
       emit('command', {
         action: command.action,
         params: command.params || []
       })
-      
+
       // Close palette
       visible.value = false
     }
-    
+
     // Reset state when closing
     function onHide() {
       searchQuery.value = ''
       selectedIndex.value = 0
     }
-    
+
     // Focus search input when opened
-    watch(visible, (newValue) => {
+    watch(visible, newValue => {
       if (newValue) {
         nextTick(() => {
           searchInput.value?.focus()
         })
       }
     })
-    
+
     // Reset selected index when search changes
     watch(searchQuery, () => {
       selectedIndex.value = 0
     })
-    
+
     return {
       visible,
       searchQuery,
@@ -502,7 +507,8 @@ export default {
   background-color: var(--surface-ground);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   letter-spacing: 0.05em;
   font-weight: 500;
 }

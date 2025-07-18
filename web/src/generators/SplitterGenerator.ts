@@ -16,7 +16,7 @@ export class SplitterGenerator extends WireComponentGenerator {
   generate(): GeneratedStatement {
     const varName = this.generateVarName('splitter')
     const splits = this.formatRanges()
-    
+
     return {
       varName,
       code: `${varName} = wires.Splitter(label="${this.label || 'splitter'}", bits=${this.inputBits}, splits=${splits})`

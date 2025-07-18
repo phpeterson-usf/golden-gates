@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
 
 export default {
   name: 'PythonIdentifierInput',
@@ -56,110 +56,141 @@ export default {
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-    const isValid = ref(true);
-    const errorMessage = ref('');
-    
+    const isValid = ref(true)
+    const errorMessage = ref('')
+
     // Python identifier regex: letter or underscore followed by letters, digits, or underscores
-    const pythonIdentifierRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-    
+    const pythonIdentifierRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+
     // Reserved Python keywords
     const pythonKeywords = new Set([
-      'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await',
-      'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except',
-      'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is',
-      'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try',
-      'while', 'with', 'yield'
-    ]);
-    
-    const validateIdentifier = (value) => {
+      'False',
+      'None',
+      'True',
+      'and',
+      'as',
+      'assert',
+      'async',
+      'await',
+      'break',
+      'class',
+      'continue',
+      'def',
+      'del',
+      'elif',
+      'else',
+      'except',
+      'finally',
+      'for',
+      'from',
+      'global',
+      'if',
+      'import',
+      'in',
+      'is',
+      'lambda',
+      'nonlocal',
+      'not',
+      'or',
+      'pass',
+      'raise',
+      'return',
+      'try',
+      'while',
+      'with',
+      'yield'
+    ])
+
+    const validateIdentifier = value => {
       // Allow empty if not required
       if (!value && !props.required) {
-        return { valid: true, error: '' };
+        return { valid: true, error: '' }
       }
-      
+
       // Check if empty but required
       if (!value && props.required) {
-        return { valid: false, error: 'Name is required' };
+        return { valid: false, error: 'Name is required' }
       }
-      
+
       // Check for invalid characters by finding the first invalid one
       for (let i = 0; i < value.length; i++) {
-        const char = value[i];
-        const validChar = (i === 0) ? 
-          /[a-zA-Z_]/.test(char) : 
-          /[a-zA-Z0-9_]/.test(char);
-          
+        const char = value[i]
+        const validChar = i === 0 ? /[a-zA-Z_]/.test(char) : /[a-zA-Z0-9_]/.test(char)
+
         if (!validChar) {
           if (i === 0 && /[0-9]/.test(char)) {
-            return { valid: false, error: `Cannot start with digit '${char}'` };
+            return { valid: false, error: `Cannot start with digit '${char}'` }
           }
-          return { valid: false, error: `'${char}' is not valid` };
+          return { valid: false, error: `'${char}' is not valid` }
         }
       }
-      
+
       // Check if it's a reserved keyword
       if (pythonKeywords.has(value)) {
-        return { valid: false, error: `'${value}' is a reserved keyword` };
+        return { valid: false, error: `'${value}' is a reserved keyword` }
       }
-      
+
       // Final regex check
       if (!pythonIdentifierRegex.test(value)) {
-        return { valid: false, error: 'Invalid identifier' };
+        return { valid: false, error: 'Invalid identifier' }
       }
-      
-      return { valid: true, error: '' };
-    };
-    
-    const handleInput = (event) => {
-      const newValue = event.target.value;
-      
+
+      return { valid: true, error: '' }
+    }
+
+    const handleInput = event => {
+      const newValue = event.target.value
+
       // Always emit the new value to keep the input responsive
-      emit('update:modelValue', newValue);
-      
+      emit('update:modelValue', newValue)
+
       // Validate the new value
-      const validation = validateIdentifier(newValue);
-      isValid.value = validation.valid;
-      errorMessage.value = validation.error;
-    };
-    
-    const handleBlur = (event) => {
+      const validation = validateIdentifier(newValue)
+      isValid.value = validation.valid
+      errorMessage.value = validation.error
+    }
+
+    const handleBlur = event => {
       // Re-validate on blur to ensure error state is correct
-      const validation = validateIdentifier(props.modelValue);
-      isValid.value = validation.valid;
-      errorMessage.value = validation.error;
-      
+      const validation = validateIdentifier(props.modelValue)
+      isValid.value = validation.valid
+      errorMessage.value = validation.error
+
       // IMPORTANT: Re-enable readonly to prevent macOS autocomplete from showing
       // This is part of the readonly trick - see template comment for details
-      event.target.readOnly = true;
-    };
-    
-    const makeEditable = (event) => {
+      event.target.readOnly = true
+    }
+
+    const makeEditable = event => {
       // IMPORTANT: Remove readonly when user focuses so they can type
       // This is part of the readonly trick - see template comment for details
-      event.target.readOnly = false;
-    };
-    
+      event.target.readOnly = false
+    }
+
     // Watch for external changes to modelValue
-    watch(() => props.modelValue, (newValue) => {
-      const validation = validateIdentifier(newValue);
-      isValid.value = validation.valid;
-      errorMessage.value = validation.error;
-    });
-    
+    watch(
+      () => props.modelValue,
+      newValue => {
+        const validation = validateIdentifier(newValue)
+        isValid.value = validation.valid
+        errorMessage.value = validation.error
+      }
+    )
+
     // Initial validation
-    const initialValidation = validateIdentifier(props.modelValue);
-    isValid.value = initialValidation.valid;
-    errorMessage.value = initialValidation.error;
-    
+    const initialValidation = validateIdentifier(props.modelValue)
+    isValid.value = initialValidation.valid
+    errorMessage.value = initialValidation.error
+
     return {
       isValid,
       errorMessage,
       handleInput,
       handleBlur,
       makeEditable
-    };
+    }
   }
-};
+}
 </script>
 
 <style scoped>

@@ -4,7 +4,7 @@
 import { GRID_SIZE } from '../utils/constants'
 
 export const gateDefinitions = {
-  'and': {
+  and: {
     label: 'AND Gate',
     logicClass: 'And',
     pythonModule: 'logic',
@@ -12,13 +12,13 @@ export const gateDefinitions = {
     getSvgPath: (h, padding) => {
       // Fixed-size AND gate: rectangle left half + semicircle right half
       // Width: 3 grid units, Height: 2 grid units
-      const radius = GRID_SIZE  // Half of the height for the semicircle
+      const radius = GRID_SIZE // Half of the height for the semicircle
       return `M 0 ${-padding} L ${GRID_SIZE * 2} ${-padding} A ${radius} ${radius} 0 0 1 ${GRID_SIZE * 2} ${h + padding} L 0 ${h + padding} L 0 ${-padding} Z`
     },
-    outputOffset: -10  // Move output 10px to the right to align with stroke
+    outputOffset: -10 // Move output 10px to the right to align with stroke
   },
-  
-  'or': {
+
+  or: {
     label: 'OR Gate',
     logicClass: 'Or',
     pythonModule: 'logic',
@@ -37,11 +37,11 @@ export const gateDefinitions = {
         Z
       `
     },
-    outputOffset: -GRID_SIZE  // Move output one grid unit to the right (60px total) to match the gate's point
+    outputOffset: -GRID_SIZE // Move output one grid unit to the right (60px total) to match the gate's point
   },
-  
+
   // Future gates can be added here
-  'xor': {
+  xor: {
     label: 'XOR Gate',
     logicClass: 'Xor',
     pythonModule: 'logic',
@@ -60,40 +60,40 @@ export const gateDefinitions = {
         Q 10 ${centerY}, 5 ${h + padding}
       `
     },
-    outputOffset: -GRID_SIZE * 2,  // Move output further right
+    outputOffset: -GRID_SIZE * 2, // Move output further right
     // Override input connection positions for XOR gate
-    getInputPositions: (numInputs) => {
+    getInputPositions: numInputs => {
       const positions = []
-      
+
       // Handle single input case
       if (numInputs === 1) {
-        positions.push({ x: 0, y: 1 })  // Single input centered at 1 grid unit
+        positions.push({ x: 0, y: 1 }) // Single input centered at 1 grid unit
         return positions
       }
-      
+
       // Calculate total height in grid units (2 grid units per input spacing)
       const totalHeight = (numInputs - 1) * 2
       const spacing = totalHeight / (numInputs - 1)
-      
+
       for (let i = 0; i < numInputs; i++) {
         positions.push({
-          x: 0,  // Inputs at x=0, before the concave line (in grid units)
-          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight (in grid units)
+          x: 0, // Inputs at x=0, before the concave line (in grid units)
+          y: i * spacing // Distribute inputs evenly from 0 to totalHeight (in grid units)
         })
       }
-      
+
       return positions
     }
   },
 
-  'not': {
+  not: {
     label: 'NOT Gate',
     logicClass: 'Not',
     pythonModule: 'logic',
     getSvgPath: (h, padding) => {
       // NOT gate: Triangle with negation circle (MIL-STD-806B)
       const centerY = h / 2
-      const triangleWidth = GRID_SIZE * 2  // 30px triangle width
+      const triangleWidth = GRID_SIZE * 2 // 30px triangle width
       return `
         M 0 ${-padding}
         L ${triangleWidth} ${centerY}
@@ -105,22 +105,22 @@ export const gateDefinitions = {
         A 5 5 0 1 1 ${triangleWidth + 10} ${centerY}
       `
     },
-    outputOffset: 5,  // Move output to right edge of negation circle (triangle is 30px + circle is 10px + 5px to edge)
+    outputOffset: 5, // Move output to right edge of negation circle (triangle is 30px + circle is 10px + 5px to edge)
     // NOT gate has only one input
-    getInputPositions: (numInputs) => {
+    getInputPositions: numInputs => {
       // For NOT gate, always return single centered input
-      return [{ x: 0, y: 1 }]  // Single input at center (1 grid unit from top)
+      return [{ x: 0, y: 1 }] // Single input at center (1 grid unit from top)
     },
     // NOT gate dimensions
     dimensions: {
-      width: GRID_SIZE * 3,  // 45px total width (triangle + circle)
-      height: GRID_SIZE * 2  // Standard height
+      width: GRID_SIZE * 3, // 45px total width (triangle + circle)
+      height: GRID_SIZE * 2 // Standard height
     },
     // NOT gate specific properties
-    defaultNumInputs: 1  // Specify that NOT gate has only 1 input
+    defaultNumInputs: 1 // Specify that NOT gate has only 1 input
   },
 
-  'xnor': {
+  xnor: {
     label: 'XNOR Gate',
     logicClass: 'Xnor',
     pythonModule: 'logic',
@@ -142,33 +142,33 @@ export const gateDefinitions = {
         A 5 5 0 1 1 ${GRID_SIZE * 6} ${centerY}
       `
     },
-    outputOffset: -GRID_SIZE * 3,  // Move output further right to account for negation circle
+    outputOffset: -GRID_SIZE * 3, // Move output further right to account for negation circle
     // Override input connection positions for XNOR gate (same as XOR)
-    getInputPositions: (numInputs) => {
+    getInputPositions: numInputs => {
       const positions = []
-      
+
       // Handle single input case
       if (numInputs === 1) {
-        positions.push({ x: 0, y: 1 })  // Single input centered at 1 grid unit
+        positions.push({ x: 0, y: 1 }) // Single input centered at 1 grid unit
         return positions
       }
-      
+
       // Calculate total height in grid units (2 grid units per input spacing)
       const totalHeight = (numInputs - 1) * 2
       const spacing = totalHeight / (numInputs - 1)
-      
+
       for (let i = 0; i < numInputs; i++) {
         positions.push({
-          x: 0,  // Inputs at x=0, before the concave line (in grid units)
-          y: i * spacing  // Distribute inputs evenly from 0 to totalHeight (in grid units)
+          x: 0, // Inputs at x=0, before the concave line (in grid units)
+          y: i * spacing // Distribute inputs evenly from 0 to totalHeight (in grid units)
         })
       }
-      
+
       return positions
     }
   },
-  
-  'nand': {
+
+  nand: {
     label: 'NAND Gate',
     logicClass: 'Nand',
     pythonModule: 'logic',
@@ -176,7 +176,7 @@ export const gateDefinitions = {
     getSvgPath: (h, padding) => {
       // NAND gate: standard AND gate + separate negation circle
       // AND gate: rectangle + semicircle (same as regular AND gate)
-      const radius = GRID_SIZE  // Half of the height for the semicircle
+      const radius = GRID_SIZE // Half of the height for the semicircle
       const centerY = h / 2
       return `
         M 0 ${-padding} 
@@ -190,10 +190,10 @@ export const gateDefinitions = {
         A 5 5 0 1 1 ${GRID_SIZE * 5} ${centerY}
       `
     },
-    outputOffset: -GRID_SIZE * 2  // Move output to 5 grid units (75px) to align with grid vertex
+    outputOffset: -GRID_SIZE * 2 // Move output to 5 grid units (75px) to align with grid vertex
   },
-  
-  'nor': {
+
+  nor: {
     label: 'NOR Gate',
     logicClass: 'Nor',
     pythonModule: 'logic',
@@ -215,7 +215,7 @@ export const gateDefinitions = {
         A 5 5 0 1 1 ${GRID_SIZE * 5} ${centerY}
       `
     },
-    outputOffset: -GRID_SIZE * 2  // Move output to 5 grid units (75px) to align with right edge of negation circle
+    outputOffset: -GRID_SIZE * 2 // Move output to 5 grid units (75px) to align with right edge of negation circle
   }
 }
 
@@ -228,29 +228,29 @@ export function getGateDefinition(gateType) {
 export function generateGateCode(gateType, varName, props) {
   const definition = gateDefinitions[gateType]
   if (!definition) return null
-  
+
   const params = []
-  
+
   // Add num_inputs parameter if not default
   if (props.numInputs && props.numInputs !== 2) {
     params.push(`num_inputs=${props.numInputs}`)
   }
-  
+
   // Add bits parameter if specified and not default
   if (props.bits && props.bits !== 1) {
     params.push(`bits=${props.bits}`)
   }
-  
+
   // Add inverted_inputs parameter if specified and not empty
   if (props.invertedInputs && props.invertedInputs.length > 0) {
     params.push(`inverted_inputs=[${props.invertedInputs.join(', ')}]`)
   }
-  
+
   // Add label parameter if specified
   if (props.label && props.label !== definition.label) {
     params.push(`label="${props.label}"`)
   }
-  
+
   const paramsStr = params.length > 0 ? params.join(', ') : ''
   return `${varName} = ${definition.pythonModule}.${definition.logicClass}(${paramsStr})`
 }

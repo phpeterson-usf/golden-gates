@@ -8,39 +8,56 @@ import { GRID_SIZE, gridToPixel, pixelToGrid } from '../utils/constants'
  * Canvas Interactions - UI interaction logic for circuit canvas
  * Provides controller layer functionality for canvas user interactions
  */
-export function useCanvasController(circuitManager, canvasOperations, wireManagement, selection, dragAndDrop) {
+export function useCanvasController(
+  circuitManager,
+  canvasOperations,
+  wireManagement,
+  selection,
+  dragAndDrop
+) {
   const { getMousePos, snapToGrid, gridSize } = canvasOperations
   const { clearSelection, selectComponent, deleteSelected, checkAndClearJustFinished } = selection
-  const { startWireDrawing, completeWire, addWireWaypoint, cancelWireDrawing, drawingWire } = wireManagement
+  const { startWireDrawing, completeWire, addWireWaypoint, cancelWireDrawing, drawingWire } =
+    wireManagement
   const { isDragging, updateDrag, endDrag } = dragAndDrop
   const { activeCircuit } = circuitManager
-  
+
   // Undo controller for undo/redo operations
   const undoController = useUndoController()
-  const { DuplicateCommand, PasteCommand, RemoveComponentCommand, RemoveWireCommand } = undoController
-  
+  const { DuplicateCommand, PasteCommand, RemoveComponentCommand, RemoveWireCommand } =
+    undoController
+
   // Component controller for component-related logic
-  const componentController = useComponentController(circuitManager, canvasOperations, undoController)
-  const { lastComponentPosition, addComponentAtSmartPosition, getComponentConnections, updateLastComponentPosition } = componentController
-  
+  const componentController = useComponentController(
+    circuitManager,
+    canvasOperations,
+    undoController
+  )
+  const {
+    lastComponentPosition,
+    addComponentAtSmartPosition,
+    getComponentConnections,
+    updateLastComponentPosition
+  } = componentController
+
   // Clipboard controller for copy/paste operations
   const clipboardController = useClipboard()
-  
+
   // Junction mode tracking for Alt key feedback
   const isJunctionMode = ref(false)
   const junctionPreview = ref(null)
   const connectionPreview = ref(null)
-  
+
   // Store the last hovered wire for re-evaluation when mode changes
   let lastHoveredWireIndex = null
-  
+
   // Debounce mechanism to prevent duplicate operations
   const OPERATION_DEBOUNCE_MS = 100
   const lastOperationTimes = {
     paste: 0,
     duplicate: 0
   }
-  
+
   /**
    * Check if operation should be debounced
    */
@@ -52,18 +69,18 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     lastOperationTimes[operationType] = currentTime
     return false
   }
-  
+
   /**
    * Select components and wires from given elements
    */
   function selectElements(elements) {
     clearSelection()
-    
+
     // Select components
     elements.components.forEach(component => {
       selection.selectedComponents.value.add(component.id)
     })
-    
+
     // Select wires
     elements.wires.forEach(wire => {
       const circuit = activeCircuit.value
@@ -82,95 +99,95 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
   function getSelectedElements() {
     const circuit = activeCircuit.value
     if (!circuit) return { components: [], wires: [], junctions: [] }
-    
+
     // Get selected components
-    const selectedComponents = circuit.components.filter(comp => 
+    const selectedComponents = circuit.components.filter(comp =>
       selection.selectedComponents.value.has(comp.id)
     )
-    
+
     // Get selected wires
-    const selectedWires = Array.from(selection.selectedWires.value).map(index => 
-      circuit.wires[index]
-    ).filter(wire => wire) // Filter out undefined wires
-    
+    const selectedWires = Array.from(selection.selectedWires.value)
+      .map(index => circuit.wires[index])
+      .filter(wire => wire) // Filter out undefined wires
+
     // Get junctions associated with selected wires
     const selectedWireIds = new Set(selectedWires.map(wire => wire.id))
-    const selectedJunctions = circuit.wireJunctions.filter(junction => 
+    const selectedJunctions = circuit.wireJunctions.filter(junction =>
       selectedWireIds.has(junction.connectedWireId)
     )
-    
+
     return {
       components: selectedComponents,
       wires: selectedWires,
       junctions: selectedJunctions
     }
   }
-  
+
   /**
    * Copy selected elements to clipboard
    */
   async function copySelected() {
     const selectedElements = getSelectedElements()
-    
+
     if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
       console.warn('No elements selected for copy')
       return false
     }
-    
+
     try {
       clipboardController.copyToClipboard(selectedElements)
-      
+
       // Also copy to OS clipboard as JSON
       const osClipboardData = clipboardController.getClipboardDataForOS()
       if (osClipboardData) {
         await copyToOSClipboard(osClipboardData)
       }
-      
+
       // User feedback
       const stats = clipboardController.getClipboardStats()
       console.log(`Copied ${stats.components} components and ${stats.wires} wires to clipboard`)
-      
+
       return true
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)
       return false
     }
   }
-  
+
   /**
    * Cut selected elements to clipboard
    */
   async function cutSelected() {
     const selectedElements = getSelectedElements()
-    
+
     if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
       console.warn('No elements selected for cut')
       return false
     }
-    
+
     try {
       // Start command group for cut operation
       undoController.startCommandGroup('Cut elements')
-      
+
       // Copy to clipboard
       clipboardController.cutToClipboard(selectedElements)
-      
+
       // Remove selected elements (this will be undoable)
       deleteSelected()
-      
+
       // End command group
       undoController.endCommandGroup()
-      
+
       // Also copy to OS clipboard as JSON
       const osClipboardData = clipboardController.getClipboardDataForOS()
       if (osClipboardData) {
         await copyToOSClipboard(osClipboardData)
       }
-      
+
       // User feedback
       const stats = clipboardController.getClipboardStats()
       console.log(`Cut ${stats.components} components and ${stats.wires} wires to clipboard`)
-      
+
       return true
     } catch (error) {
       console.error('Failed to cut to clipboard:', error)
@@ -178,7 +195,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       return false
     }
   }
-  
+
   /**
    * Paste elements from clipboard
    */
@@ -187,7 +204,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     if (shouldDebounceOperation('paste')) {
       return false
     }
-    
+
     if (!clipboardController.hasClipboardData.value) {
       // Try to get data from OS clipboard
       const osData = await getFromOSClipboard()
@@ -201,34 +218,33 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         return false
       }
     }
-    
+
     try {
       // Calculate paste position (vertically below selected components)
       const pastePosition = calculateNewComponentPosition()
-      
+
       // Paste elements
       const pastedElements = clipboardController.pasteFromClipboard(pastePosition)
-      
+
       if (!pastedElements) {
         console.warn('Failed to paste from clipboard')
         return false
       }
-      
+
       // Create paste command for undo
       const pasteCommand = new PasteCommand(circuitManager, pastedElements)
       undoController.executeCommand(pasteCommand)
-      
+
       // Update selection to show pasted elements
       selectElements(pastedElements)
-      
-      
+
       return true
     } catch (error) {
       console.error('Failed to paste from clipboard:', error)
       return false
     }
   }
-  
+
   /**
    * Duplicate selected elements
    */
@@ -237,58 +253,60 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     if (shouldDebounceOperation('duplicate')) {
       return false
     }
-    
+
     const selectedElements = getSelectedElements()
-    
+
     if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
       console.warn('No elements selected for duplicate')
       return false
     }
-    
+
     try {
       // Calculate duplicate position (vertically below selected components)
       const duplicatePosition = calculateNewComponentPosition(selectedElements)
-      
+
       // Serialize and deserialize to create copies
       const serializedData = clipboardController.serializeElements(selectedElements)
-      const duplicatedElements = clipboardController.deserializeElements(serializedData, duplicatePosition)
-      
+      const duplicatedElements = clipboardController.deserializeElements(
+        serializedData,
+        duplicatePosition
+      )
+
       // Create duplicate command for undo
       const duplicateCommand = new DuplicateCommand(circuitManager, duplicatedElements)
       undoController.executeCommand(duplicateCommand)
-      
+
       // Update selection to show duplicated elements
       selectElements(duplicatedElements)
-      
-      
+
       return true
     } catch (error) {
       console.error('Failed to duplicate selection:', error)
       return false
     }
   }
-  
+
   /**
    * Delete selected elements with undo support for wires only
    * NOTE: Component undo is not fully functional due to architectural limitations
    */
   function deleteSelectedWithUndo() {
     const selectedElements = getSelectedElements()
-    
+
     if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
       return false
     }
-    
+
     try {
       // Start command group for delete operation
       undoController.startCommandGroup('Delete selected elements')
-      
+
       // Delete selected components (undo not fully functional)
       selectedElements.components.forEach(component => {
         const removeCommand = new RemoveComponentCommand(circuitManager, component.id)
         undoController.executeCommand(removeCommand)
       })
-      
+
       // Delete selected wires (undo functional)
       selectedElements.wires.forEach(wire => {
         if (wire && wire.id) {
@@ -298,13 +316,13 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
           console.warn(`Wire has no ID:`, wire)
         }
       })
-      
+
       // End command group
       undoController.endCommandGroup()
-      
+
       // Clear selection after deletion
       clearSelection()
-      
+
       return true
     } catch (error) {
       console.error('Failed to delete selection:', error)
@@ -312,7 +330,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       return false
     }
   }
-  
+
   /**
    * Calculate position for new components (paste/duplicate)
    * Places components vertically below selected components with no horizontal offset
@@ -323,41 +341,44 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     if (selection.selectedComponents.value.size > 0) {
       const circuit = activeCircuit.value
       if (circuit) {
-        const selectedComponents = circuit.components.filter(comp => 
+        const selectedComponents = circuit.components.filter(comp =>
           selection.selectedComponents.value.has(comp.id)
         )
-        
+
         if (selectedComponents.length > 0) {
           // Calculate bounds of selected components
           const bounds = clipboardController.calculateBounds(selectedComponents, [])
-          
+
           // Position directly below the selection with 3 grid units spacing
-          return { 
-            x: bounds.minX,  // Keep horizontal alignment with selection
-            y: bounds.maxY + 3  // Position below selection
+          return {
+            x: bounds.minX, // Keep horizontal alignment with selection
+            y: bounds.maxY + 3 // Position below selection
           }
         }
       }
     }
-    
+
     // If we have source elements (for duplicate), calculate offset based on their bounds
     if (sourceElements) {
-      const bounds = clipboardController.calculateBounds(sourceElements.components, sourceElements.wires || [])
-      
+      const bounds = clipboardController.calculateBounds(
+        sourceElements.components,
+        sourceElements.wires || []
+      )
+
       // Position directly below the original elements with 3 grid units spacing
-      return { 
-        x: bounds.minX,  // Keep horizontal alignment
-        y: bounds.maxY + 3  // Position below
+      return {
+        x: bounds.minX, // Keep horizontal alignment
+        y: bounds.maxY + 3 // Position below
       }
     }
-    
+
     // Fallback to using last component position
-    return { 
-      x: lastComponentPosition.value.x, 
-      y: lastComponentPosition.value.y + 3 
+    return {
+      x: lastComponentPosition.value.x,
+      y: lastComponentPosition.value.y + 3
     }
   }
-  
+
   /**
    * Copy data to OS clipboard
    */
@@ -375,7 +396,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       return copyToClipboardFallback(data)
     }
   }
-  
+
   /**
    * Get data from OS clipboard
    */
@@ -389,7 +410,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     }
     return null
   }
-  
+
   /**
    * Fallback clipboard copy using execCommand
    */
@@ -400,7 +421,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     textarea.style.opacity = '0'
     document.body.appendChild(textarea)
     textarea.select()
-    
+
     try {
       const success = document.execCommand('copy')
       document.body.removeChild(textarea)
@@ -411,7 +432,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       return false
     }
   }
-  
+
   /**
    * Handle canvas click events
    */
@@ -420,16 +441,16 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     if (checkAndClearJustFinished()) {
       return
     }
-    
+
     const target = event.target
-    
+
     // Check if we clicked on a connection point
     if (target.classList.contains('connection-point')) {
       const componentId = target.dataset.componentId
       const portIndex = parseInt(target.dataset.port)
       const portType = target.dataset.type // 'input' or 'output'
       const pos = getMousePos(event)
-      
+
       if (!drawingWire.value) {
         // Clear selection when starting to draw a wire
         clearSelection()
@@ -441,20 +462,20 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       }
       return
     }
-    
+
     // If drawing a wire and clicked elsewhere, add a waypoint
     if (drawingWire.value) {
-      const pos = getMousePos(event)  // Use pixel coordinates for waypoint calculation
+      const pos = getMousePos(event) // Use pixel coordinates for waypoint calculation
       addWireWaypoint(pos)
       return
     }
-    
+
     // Otherwise, clicking on canvas deselects all
     if (target === event.currentTarget) {
       clearSelection()
     }
   }
-  
+
   /**
    * Handle canvas mouse down events
    */
@@ -467,15 +488,15 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       event.preventDefault()
     }
   }
-  
+
   /**
    * Handle mouse move events
    */
   function handleMouseMove(event) {
     // Always update current mouse position for wire preview
     const pos = getMousePos(event)
-    wireManagement.currentMousePos.value = pixelToGrid(pos)  // Convert to grid units for wire system
-    
+    wireManagement.currentMousePos.value = pixelToGrid(pos) // Convert to grid units for wire system
+
     // Track which wire is being hovered for junction mode
     const target = event.target
     if (target && target.classList.contains('wire-segment')) {
@@ -486,34 +507,34 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     } else {
       lastHoveredWireIndex = null
     }
-    
+
     // Handle junction preview when Alt is held
     if (isJunctionMode.value) {
-      updateJunctionPreview(event, pos)  // Use pixel coordinates for junction finding
+      updateJunctionPreview(event, pos) // Use pixel coordinates for junction finding
       connectionPreview.value = null // Clear connection preview in junction mode
     } else {
       junctionPreview.value = null
-      
+
       // Handle connection preview when drawing a wire
       if (drawingWire.value) {
-        updateConnectionPreview(event, pos)  // Use pixel coordinates for connection finding
+        updateConnectionPreview(event, pos) // Use pixel coordinates for connection finding
       } else {
         connectionPreview.value = null
       }
     }
-    
+
     // Handle rubber-band selection
     if (selection.isSelecting.value) {
       selection.updateSelectionEnd(pos)
       return
     }
-    
+
     // Handle dragging
     if (isDragging()) {
       updateDrag(pos)
     }
   }
-  
+
   /**
    * Handle mouse up events
    */
@@ -522,7 +543,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     if (isDragging()) {
       const wasComponentDrag = !dragAndDrop.dragging.value?.isWireDrag
       endDrag(snapToGrid)
-      
+
       // Update last component position if we were dragging components
       if (wasComponentDrag && selection.selectedComponents.value.size > 0) {
         // Use the position of any selected component as the new reference
@@ -533,13 +554,13 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         }
       }
     }
-    
+
     // End rubber-band selection
     if (selection.isSelecting.value) {
       selection.endSelection()
     }
   }
-  
+
   /**
    * Handle key down events
    */
@@ -549,46 +570,46 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       isJunctionMode.value = true
       updatePreviewsOnModeChange()
     }
-    
+
     // Check if an input field is focused
     const activeElement = document.activeElement
-    const isInputFocused = activeElement && (
-      activeElement.tagName === 'INPUT' || 
-      activeElement.tagName === 'TEXTAREA' ||
-      activeElement.contentEditable === 'true' ||
-      activeElement.classList.contains('p-inputtext') ||
-      activeElement.classList.contains('p-inputnumber-input')
-    )
-    
+    const isInputFocused =
+      activeElement &&
+      (activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.contentEditable === 'true' ||
+        activeElement.classList.contains('p-inputtext') ||
+        activeElement.classList.contains('p-inputnumber-input'))
+
     // Only handle keyboard shortcuts if not typing in an input
     if (!isInputFocused) {
       const isCtrlOrCmd = event.ctrlKey || event.metaKey
-      
+
       // Clipboard operations
       if (isCtrlOrCmd && event.key === 'c') {
         event.preventDefault()
         copySelected()
         return
       }
-      
+
       if (isCtrlOrCmd && event.key === 'x') {
         event.preventDefault()
         cutSelected()
         return
       }
-      
+
       if (isCtrlOrCmd && event.key === 'v') {
         event.preventDefault()
         pasteFromClipboard()
         return
       }
-      
+
       if (isCtrlOrCmd && event.key === 'd') {
         event.preventDefault()
         duplicateSelected()
         return
       }
-      
+
       // Undo/Redo operations
       if (isCtrlOrCmd && event.key === 'z') {
         event.preventDefault()
@@ -601,14 +622,14 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         }
         return
       }
-      
+
       if (isCtrlOrCmd && event.key === 'y') {
         event.preventDefault()
         // Redo (Ctrl+Y)
         undoController.redo()
         return
       }
-      
+
       // Delete selected components and wires
       if (event.key === 'Delete' || event.key === 'Backspace') {
         event.preventDefault()
@@ -616,13 +637,13 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         return
       }
     }
-    
+
     // Cancel wire drawing with Escape
     if (event.key === 'Escape' && drawingWire.value) {
       cancelWireDrawing()
     }
   }
-  
+
   /**
    * Handle key up events
    */
@@ -641,7 +662,7 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       updatePreviewsOnModeChange()
     }
   }
-  
+
   /**
    * Update junction preview
    */
@@ -655,16 +676,16 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         const wireIndex = parseInt(wireElement.dataset.wireIndex)
         const junctionPos = wireManagement.findClosestGridPointOnWire(wireIndex, mousePos)
         if (junctionPos) {
-          junctionPreview.value = junctionPos  // Already in grid units
+          junctionPreview.value = junctionPos // Already in grid units
           return
         }
       }
     }
-    
+
     // If not hovering over a wire, clear preview
     junctionPreview.value = null
   }
-  
+
   /**
    * Update connection preview
    */
@@ -675,18 +696,22 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       const componentId = target.dataset.componentId
       const portIndex = parseInt(target.dataset.port)
       const portType = target.dataset.type
-      
+
       // Check if this is a valid connection (different port type than what we started with)
-      if (wireManagement.startConnection.value && wireManagement.startConnection.value.portType !== portType) {
+      if (
+        wireManagement.startConnection.value &&
+        wireManagement.startConnection.value.portType !== portType
+      ) {
         // Find the component to get the connection position
         const component = activeCircuit.value?.components.find(c => c.id === componentId)
         if (component) {
           const connections = getComponentConnections(component)
-          
-          const connectionPoint = portType === 'output' ? 
-            connections.outputs?.[portIndex] : 
-            connections.inputs?.[portIndex]
-            
+
+          const connectionPoint =
+            portType === 'output'
+              ? connections.outputs?.[portIndex]
+              : connections.inputs?.[portIndex]
+
           if (connectionPoint) {
             // Convert grid coordinates to pixels for rendering
             const gridPosition = {
@@ -699,11 +724,11 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
         }
       }
     }
-    
+
     // If not hovering over a valid connection point, clear preview
     connectionPreview.value = null
   }
-  
+
   /**
    * Update previews when junction mode changes while mouse is stationary
    */
@@ -712,9 +737,12 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       if (isJunctionMode.value && lastHoveredWireIndex !== null) {
         // Convert grid coordinates back to pixels for junction finding
         const pixelPos = gridToPixel(wireManagement.currentMousePos.value)
-        const junctionPos = wireManagement.findClosestGridPointOnWire(lastHoveredWireIndex, pixelPos)
+        const junctionPos = wireManagement.findClosestGridPointOnWire(
+          lastHoveredWireIndex,
+          pixelPos
+        )
         if (junctionPos) {
-          junctionPreview.value = junctionPos  // Already in grid units
+          junctionPreview.value = junctionPos // Already in grid units
         }
         connectionPreview.value = null
       } else {
@@ -723,26 +751,26 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
       }
     }
   }
-  
+
   /**
    * Handle wire click events
    */
   function handleWireClick(index, event) {
     // If we're drawing a wire and Alt is held, complete it with a junction
     if (drawingWire.value && event.altKey) {
-      const pos = getMousePos(event)  // Use pixel coordinates for junction finding
+      const pos = getMousePos(event) // Use pixel coordinates for junction finding
       const junctionPos = wireManagement.findClosestGridPointOnWire(index, pos)
-      
+
       if (junctionPos) {
         // Complete the wire at this junction
         wireManagement.completeWireAtJunction(index, junctionPos)
       }
-    } 
+    }
     // If not drawing and Alt is held, start from junction
     else if (!drawingWire.value && event.altKey) {
-      const pos = getMousePos(event)  // Use pixel coordinates for junction finding
+      const pos = getMousePos(event) // Use pixel coordinates for junction finding
       const junctionPos = wireManagement.findClosestGridPointOnWire(index, pos)
-      
+
       if (junctionPos) {
         // Start drawing a new wire from this junction
         wireManagement.startWireFromJunction(index, junctionPos)
@@ -755,55 +783,55 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     // Stop propagation to prevent canvas click handler
     event.stopPropagation()
   }
-  
+
   /**
    * Handle wire mouse down events
    */
   function handleWireMouseDown(wireIndex, event) {
     // Skip drag behavior if Alt is held (junction mode)
     if (event.altKey || isJunctionMode.value) {
-      return  // Let the click handler deal with junction creation
+      return // Let the click handler deal with junction creation
     }
-    
+
     // Only start drag if the wire is selected
     if (!selection.selectedWires.value.has(wireIndex)) return
-    
+
     event.stopPropagation()
-    
+
     // Get mouse position
     const pos = getMousePos(event)
     const wire = activeCircuit.value?.wires[wireIndex]
     if (!wire || wire.points.length === 0) return
-    
+
     dragAndDrop.startWireDrag(wireIndex, {
       id: `wire_drag_${wireIndex}`,
-      offsetX: pos.x - (wire.points[0].x * GRID_SIZE),
-      offsetY: pos.y - (wire.points[0].y * GRID_SIZE)
+      offsetX: pos.x - wire.points[0].x * GRID_SIZE,
+      offsetY: pos.y - wire.points[0].y * GRID_SIZE
     })
   }
-  
+
   /**
    * Add component at smart position with selection handling
    */
   function addComponentAtSmartPositionWithSelection(type, customProps = {}) {
     const newComponent = addComponentAtSmartPosition(type, customProps)
-    
+
     if (newComponent) {
       // Clear existing selection and select the new component
       clearSelection()
       selectComponent(newComponent.id)
     }
-    
+
     return newComponent
   }
-  
+
   return {
     // State
     lastComponentPosition,
     isJunctionMode,
     junctionPreview,
     connectionPreview,
-    
+
     // Event handlers
     handleCanvasClick,
     handleCanvasMouseDown,
@@ -814,25 +842,25 @@ export function useCanvasController(circuitManager, canvasOperations, wireManage
     handleWindowBlur,
     handleWireClick,
     handleWireMouseDown,
-    
+
     // Component operations
     addComponentAtSmartPosition: addComponentAtSmartPositionWithSelection,
-    
+
     // Clipboard operations
     copySelected,
     cutSelected,
     pasteFromClipboard,
     duplicateSelected,
-    
+
     // Delete operations
     deleteSelectedWithUndo,
-    
+
     // Undo/Redo operations
     undo: undoController.undo,
     redo: undoController.redo,
     canUndo: undoController.canUndo,
     canRedo: undoController.canRedo,
-    
+
     // Controllers for external access
     clipboardController,
     undoController

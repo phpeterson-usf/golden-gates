@@ -1,17 +1,24 @@
 import { ref } from 'vue'
 import { GRID_SIZE } from '../utils/constants'
 
-export function useDragController(components, wires, selectedComponents, selectedWires, snapToGrid, wireJunctions) {
+export function useDragController(
+  components,
+  wires,
+  selectedComponents,
+  selectedWires,
+  snapToGrid,
+  wireJunctions
+) {
   // Dragging state
   const dragging = ref(null)
 
   // Start dragging components or wires
   function startDrag(dragInfo) {
     const { id, offsetX, offsetY, event } = dragInfo
-    
+
     // Check if Command key is held for multi-select
     const isMultiSelect = event?.metaKey || event?.ctrlKey
-    
+
     // If multi-selecting, toggle the component's selection
     if (isMultiSelect) {
       if (selectedComponents.value.has(id)) {
@@ -32,11 +39,11 @@ export function useDragController(components, wires, selectedComponents, selecte
       // Add the clicked component to selection
       selectedComponents.value.add(id)
     }
-    
+
     // Find the component
     const component = components.value.find(c => c.id === id)
     if (!component) return
-    
+
     // Store initial positions of all selected components
     const draggedComponents = []
     for (const compId of selectedComponents.value) {
@@ -49,7 +56,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         })
       }
     }
-    
+
     // Store initial positions of all selected wires
     const draggedWires = []
     for (const wireIndex of selectedWires.value) {
@@ -61,7 +68,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         })
       }
     }
-    
+
     // Track wires that have endpoints connected to selected components
     // but only move the specific endpoints, not the entire wire
     const connectedWires = []
@@ -69,7 +76,7 @@ export function useDragController(components, wires, selectedComponents, selecte
       if (!selectedWires.value.has(index)) {
         const startSelected = selectedComponents.value.has(wire.startConnection.componentId)
         const endSelected = selectedComponents.value.has(wire.endConnection.componentId)
-        
+
         if (startSelected || endSelected) {
           connectedWires.push({
             index: index,
@@ -78,18 +85,23 @@ export function useDragController(components, wires, selectedComponents, selecte
             initialStartPos: { x: wire.startConnection.pos.x, y: wire.startConnection.pos.y },
             initialEndPos: { x: wire.endConnection.pos.x, y: wire.endConnection.pos.y },
             initialFirstPoint: { x: wire.points[0].x, y: wire.points[0].y },
-            initialLastPoint: { x: wire.points[wire.points.length - 1].x, y: wire.points[wire.points.length - 1].y }
+            initialLastPoint: {
+              x: wire.points[wire.points.length - 1].x,
+              y: wire.points[wire.points.length - 1].y
+            }
           })
         }
       }
     })
-    
+
     // Store initial positions of junctions that need to move with selected wires
     const draggedJunctions = []
     if (wireJunctions && wireJunctions.value) {
       wireJunctions.value.forEach((junction, junctionIndex) => {
         // Check if this junction's source wire is being dragged
-        const sourceWireDragged = draggedWires.some(wireInfo => wireInfo.index === junction.sourceWireIndex)
+        const sourceWireDragged = draggedWires.some(
+          wireInfo => wireInfo.index === junction.sourceWireIndex
+        )
         if (sourceWireDragged) {
           draggedJunctions.push({
             index: junctionIndex,
@@ -98,11 +110,11 @@ export function useDragController(components, wires, selectedComponents, selecte
         }
       })
     }
-    
+
     dragging.value = {
       id,
-      offsetX: offsetX,  // Keep offset in pixels
-      offsetY: offsetY,  // Keep offset in pixels
+      offsetX: offsetX, // Keep offset in pixels
+      offsetY: offsetY, // Keep offset in pixels
       hasMoved: false,
       components: draggedComponents,
       wires: draggedWires,
@@ -115,9 +127,9 @@ export function useDragController(components, wires, selectedComponents, selecte
   function startWireDrag(wireIndex, dragInfo) {
     // Only start drag if the wire is selected
     if (!selectedWires.value.has(wireIndex)) return
-    
+
     const { offsetX, offsetY } = dragInfo
-    
+
     // Store initial positions of all selected wires
     const draggedWires = []
     for (const index of selectedWires.value) {
@@ -129,7 +141,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         })
       }
     }
-    
+
     // Store initial positions of junctions that need to move with selected wires
     const draggedJunctions = []
     if (wireJunctions && wireJunctions.value) {
@@ -144,7 +156,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         }
       })
     }
-    
+
     dragging.value = {
       id: dragInfo.id,
       offsetX,
@@ -161,17 +173,17 @@ export function useDragController(components, wires, selectedComponents, selecte
   // Update positions during drag
   function updateDrag(mousePos) {
     if (!dragging.value) return
-    
+
     // Convert mouse position to grid units and apply offset (offset is in pixels)
     const newX = (mousePos.x - dragging.value.offsetX) / GRID_SIZE
     const newY = (mousePos.y - dragging.value.offsetY) / GRID_SIZE
-    
+
     // Mark that we've moved
     dragging.value.hasMoved = true
-    
+
     // Calculate the delta
     let deltaX, deltaY
-    
+
     if (dragging.value.isWireDrag) {
       // For wire dragging, use the first wire's first point as reference
       const firstWire = wires.value[dragging.value.wires[0].index]
@@ -187,7 +199,7 @@ export function useDragController(components, wires, selectedComponents, selecte
       deltaX = newX - draggedComp.initialX
       deltaY = newY - draggedComp.initialY
     }
-    
+
     // Update all selected components by the same delta
     for (const dragInfo of dragging.value.components) {
       const component = components.value.find(c => c.id === dragInfo.id)
@@ -197,7 +209,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         component.y = dragInfo.initialY + deltaY
       }
     }
-    
+
     // Update all affected wires
     for (const wireInfo of dragging.value.wires) {
       const wire = wires.value[wireInfo.index]
@@ -209,15 +221,17 @@ export function useDragController(components, wires, selectedComponents, selecte
             y: wireInfo.initialPoints[i].y + deltaY
           }
         }
-        
+
         // Update connection positions
         wire.startConnection.pos.x = wireInfo.initialPoints[0].x + deltaX
         wire.startConnection.pos.y = wireInfo.initialPoints[0].y + deltaY
-        wire.endConnection.pos.x = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + deltaX
-        wire.endConnection.pos.y = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + deltaY
+        wire.endConnection.pos.x =
+          wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + deltaX
+        wire.endConnection.pos.y =
+          wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + deltaY
       }
     }
-    
+
     // Update connected wire endpoints (only the endpoints connected to selected components)
     if (dragging.value.connectedWires) {
       for (const wireInfo of dragging.value.connectedWires) {
@@ -231,7 +245,7 @@ export function useDragController(components, wires, selectedComponents, selecte
             wire.points[0].x = wireInfo.initialFirstPoint.x + deltaX
             wire.points[0].y = wireInfo.initialFirstPoint.y + deltaY
           }
-          
+
           // Only update end connection if its component is selected
           if (wireInfo.endSelected) {
             wire.endConnection.pos.x = wireInfo.initialEndPos.x + deltaX
@@ -243,7 +257,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         }
       }
     }
-    
+
     // Update junction positions
     if (wireJunctions && wireJunctions.value && dragging.value.junctions) {
       for (const junctionInfo of dragging.value.junctions) {
@@ -259,21 +273,24 @@ export function useDragController(components, wires, selectedComponents, selecte
   // End dragging with snap to grid
   function endDrag(snapToGrid) {
     if (!dragging.value) return
-    
+
     // Only snap if we actually moved
     if (dragging.value.hasMoved) {
       let snappedDeltaX = 0
       let snappedDeltaY = 0
-      
+
       if (dragging.value.isWireDrag) {
         // For wire dragging, snap the first point of the first wire
         const firstWire = wires.value[dragging.value.wires[0].index]
         if (firstWire) {
           // Wire points are in grid units, convert to pixels for snapping
-          const snapped = snapToGrid({ x: firstWire.points[0].x * GRID_SIZE, y: firstWire.points[0].y * GRID_SIZE })
+          const snapped = snapToGrid({
+            x: firstWire.points[0].x * GRID_SIZE,
+            y: firstWire.points[0].y * GRID_SIZE
+          })
           // Calculate delta in grid units (both snapped and initialPoints are in grid units)
-          snappedDeltaX = (snapped.x / GRID_SIZE) - dragging.value.wires[0].initialPoints[0].x
-          snappedDeltaY = (snapped.y / GRID_SIZE) - dragging.value.wires[0].initialPoints[0].y
+          snappedDeltaX = snapped.x / GRID_SIZE - dragging.value.wires[0].initialPoints[0].x
+          snappedDeltaY = snapped.y / GRID_SIZE - dragging.value.wires[0].initialPoints[0].y
         }
       } else {
         // For component dragging, find the current position of the dragged component
@@ -284,12 +301,12 @@ export function useDragController(components, wires, selectedComponents, selecte
           const initialComp = dragging.value.components.find(c => c.id === dragging.value.id)
           if (initialComp) {
             // Calculate delta in grid units (snapped is now in pixels, so convert back)
-            snappedDeltaX = (snapped.x / GRID_SIZE) - initialComp.initialX
-            snappedDeltaY = (snapped.y / GRID_SIZE) - initialComp.initialY
+            snappedDeltaX = snapped.x / GRID_SIZE - initialComp.initialX
+            snappedDeltaY = snapped.y / GRID_SIZE - initialComp.initialY
           }
         }
       }
-      
+
       // Apply the snapped delta to all selected components
       for (const dragInfo of dragging.value.components) {
         const component = components.value.find(c => c.id === dragInfo.id)
@@ -299,7 +316,7 @@ export function useDragController(components, wires, selectedComponents, selecte
           component.y = dragInfo.initialY + snappedDeltaY
         }
       }
-      
+
       // Apply the snapped delta to all affected wires
       for (const wireInfo of dragging.value.wires) {
         const wire = wires.value[wireInfo.index]
@@ -311,15 +328,17 @@ export function useDragController(components, wires, selectedComponents, selecte
               y: wireInfo.initialPoints[i].y + snappedDeltaY
             }
           }
-          
+
           // Update connection positions
           wire.startConnection.pos.x = wireInfo.initialPoints[0].x + snappedDeltaX
           wire.startConnection.pos.y = wireInfo.initialPoints[0].y + snappedDeltaY
-          wire.endConnection.pos.x = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + snappedDeltaX
-          wire.endConnection.pos.y = wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + snappedDeltaY
+          wire.endConnection.pos.x =
+            wireInfo.initialPoints[wireInfo.initialPoints.length - 1].x + snappedDeltaX
+          wire.endConnection.pos.y =
+            wireInfo.initialPoints[wireInfo.initialPoints.length - 1].y + snappedDeltaY
         }
       }
-      
+
       // Apply the snapped delta to connected wire endpoints
       if (dragging.value.connectedWires) {
         for (const wireInfo of dragging.value.connectedWires) {
@@ -333,7 +352,7 @@ export function useDragController(components, wires, selectedComponents, selecte
               wire.points[0].x = wireInfo.initialFirstPoint.x + snappedDeltaX
               wire.points[0].y = wireInfo.initialFirstPoint.y + snappedDeltaY
             }
-            
+
             // Only update end connection if its component is selected
             if (wireInfo.endSelected) {
               wire.endConnection.pos.x = wireInfo.initialEndPos.x + snappedDeltaX
@@ -345,7 +364,7 @@ export function useDragController(components, wires, selectedComponents, selecte
           }
         }
       }
-      
+
       // Apply the snapped delta to all affected junctions
       if (wireJunctions && wireJunctions.value && dragging.value.junctions) {
         for (const junctionInfo of dragging.value.junctions) {
@@ -357,7 +376,7 @@ export function useDragController(components, wires, selectedComponents, selecte
         }
       }
     }
-    
+
     dragging.value = null
   }
 
@@ -369,7 +388,7 @@ export function useDragController(components, wires, selectedComponents, selecte
   return {
     // State
     dragging,
-    
+
     // Methods
     startDrag,
     startWireDrag,

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { 
-  GRID_SIZE, 
-  DOT_SIZE, 
-  CONNECTION_DOT_RADIUS, 
-  COLORS, 
-  STROKE_WIDTHS, 
-  COMPONENT_DIMENSIONS 
+import {
+  GRID_SIZE,
+  DOT_SIZE,
+  CONNECTION_DOT_RADIUS,
+  COLORS,
+  STROKE_WIDTHS,
+  COMPONENT_DIMENSIONS
 } from '@/utils/constants'
 
 describe('Constants', () => {
@@ -33,7 +33,7 @@ describe('Constants', () => {
       expect(COLORS).toHaveProperty('componentSelectedFill')
       expect(COLORS).toHaveProperty('componentSelectedStroke')
       expect(COLORS).toHaveProperty('componentHoverFill')
-      
+
       // Verify they are strings (color values)
       expect(typeof COLORS.componentFill).toBe('string')
       expect(typeof COLORS.componentStroke).toBe('string')
@@ -45,7 +45,7 @@ describe('Constants', () => {
     it('should have all required connection colors', () => {
       expect(COLORS).toHaveProperty('connectionFill')
       expect(COLORS).toHaveProperty('connectionHoverFill')
-      
+
       expect(typeof COLORS.connectionFill).toBe('string')
       expect(typeof COLORS.connectionHoverFill).toBe('string')
     })
@@ -53,7 +53,7 @@ describe('Constants', () => {
     it('should have all required grid colors', () => {
       expect(COLORS).toHaveProperty('gridDot')
       expect(COLORS).toHaveProperty('canvasBackground')
-      
+
       expect(typeof COLORS.gridDot).toBe('string')
       expect(typeof COLORS.canvasBackground).toBe('string')
     })
@@ -62,7 +62,7 @@ describe('Constants', () => {
       expect(COLORS).toHaveProperty('wire')
       expect(COLORS).toHaveProperty('wireSelected')
       expect(COLORS).toHaveProperty('wirePreview')
-      
+
       expect(typeof COLORS.wire).toBe('string')
       expect(typeof COLORS.wireSelected).toBe('string')
       expect(typeof COLORS.wirePreview).toBe('string')
@@ -70,7 +70,7 @@ describe('Constants', () => {
 
     it('should have valid hex color values', () => {
       const hexColorRegex = /^#[0-9a-fA-F]{6}$/
-      
+
       // Test some key colors that should be hex values
       expect(COLORS.componentStroke).toMatch(hexColorRegex)
       expect(COLORS.componentSelectedFill).toMatch(hexColorRegex)
@@ -101,7 +101,7 @@ describe('Constants', () => {
       expect(STROKE_WIDTHS).toHaveProperty('selected')
       expect(STROKE_WIDTHS).toHaveProperty('wire')
       expect(STROKE_WIDTHS).toHaveProperty('wireSelected')
-      
+
       // Verify they are numbers
       expect(typeof STROKE_WIDTHS.normal).toBe('number')
       expect(typeof STROKE_WIDTHS.selected).toBe('number')
@@ -127,7 +127,7 @@ describe('Constants', () => {
       expect(COMPONENT_DIMENSIONS).toHaveProperty('input')
       expect(COMPONENT_DIMENSIONS.input).toHaveProperty('width')
       expect(COMPONENT_DIMENSIONS.input).toHaveProperty('height')
-      
+
       expect(typeof COMPONENT_DIMENSIONS.input.width).toBe('number')
       expect(typeof COMPONENT_DIMENSIONS.input.height).toBe('number')
     })
@@ -137,7 +137,7 @@ describe('Constants', () => {
       expect(COMPONENT_DIMENSIONS.andGate).toHaveProperty('width')
       expect(COMPONENT_DIMENSIONS.andGate).toHaveProperty('height')
       expect(COMPONENT_DIMENSIONS.andGate).toHaveProperty('arcRadius')
-      
+
       expect(typeof COMPONENT_DIMENSIONS.andGate.width).toBe('number')
       expect(typeof COMPONENT_DIMENSIONS.andGate.height).toBe('number')
       expect(typeof COMPONENT_DIMENSIONS.andGate.arcRadius).toBe('number')
@@ -172,7 +172,7 @@ describe('Constants', () => {
       // Selected strokes should be thicker than normal
       expect(STROKE_WIDTHS.selected).toBeGreaterThan(STROKE_WIDTHS.normal)
       expect(STROKE_WIDTHS.wireSelected).toBeGreaterThan(STROKE_WIDTHS.wire)
-      
+
       // But not too much thicker
       expect(STROKE_WIDTHS.selected - STROKE_WIDTHS.normal).toBeLessThanOrEqual(2)
       expect(STROKE_WIDTHS.wireSelected - STROKE_WIDTHS.wire).toBeLessThanOrEqual(2)

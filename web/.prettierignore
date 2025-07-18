@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+public/ggl/
+*.min.js
+*.bundle.js
+package-lock.json
+README.md

@@ -43,14 +43,14 @@ export interface LogicGateComponentData extends ComponentData {
 export interface WireComponentData extends ComponentData {
   props: {
     label?: string
-    ranges?: Array<{start: number, end: number}>
+    ranges?: Array<{ start: number; end: number }>
   }
 }
 
 export interface SplitterComponentData extends WireComponentData {
   props: {
     label?: string
-    ranges?: Array<{start: number, end: number}>
+    ranges?: Array<{ start: number; end: number }>
     inputBits?: number
   }
 }
@@ -58,7 +58,7 @@ export interface SplitterComponentData extends WireComponentData {
 export interface MergerComponentData extends WireComponentData {
   props: {
     label?: string
-    ranges?: Array<{start: number, end: number}>
+    ranges?: Array<{ start: number; end: number }>
     outputBits?: number
   }
 }

@@ -1,4 +1,8 @@
-import type { ComponentGenerator, ComponentData, GeneratedStatement } from '../types/ComponentGenerator'
+import type {
+  ComponentGenerator,
+  ComponentData,
+  GeneratedStatement
+} from '../types/ComponentGenerator'
 
 // Extend Window interface to include our global registry
 declare global {
@@ -37,29 +41,29 @@ export abstract class BaseComponentGenerator implements ComponentGenerator {
     if (!window.__gglNameRegistry) {
       window.__gglNameRegistry = {}
     }
-    
+
     const registry = window.__gglNameRegistry
-    
+
     // Check if we already have a name for this component ID
     if (registry[this.id] && typeof registry[this.id] === 'string') {
       return registry[this.id] as string
     }
-    
+
     // Extract the base type for naming
     let baseType = type.replace('-gate', '')
-    
+
     // Initialize counter for this type if it doesn't exist
     if (typeof registry[`${baseType}_counter`] !== 'number') {
       registry[`${baseType}_counter`] = 0
     }
-    
+
     // Generate the next sequential name
     const varName = `${baseType}${registry[`${baseType}_counter`]}`
     registry[`${baseType}_counter`]++
-    
+
     // Store the mapping for this component
     registry[this.id] = varName
-    
+
     return varName
   }
 }

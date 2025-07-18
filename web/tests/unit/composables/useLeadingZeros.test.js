@@ -29,8 +29,8 @@ describe('useLeadingZeros', () => {
       })
 
       it('should calculate correct hex digits for bit width', () => {
-        expect(formatWithLeadingZeros(1, 16, 4)).toBe('0x1')   // 4 bits = 1 hex digit
-        expect(formatWithLeadingZeros(1, 16, 8)).toBe('0x01')  // 8 bits = 2 hex digits
+        expect(formatWithLeadingZeros(1, 16, 4)).toBe('0x1') // 4 bits = 1 hex digit
+        expect(formatWithLeadingZeros(1, 16, 8)).toBe('0x01') // 8 bits = 2 hex digits
         expect(formatWithLeadingZeros(1, 16, 12)).toBe('0x001') // 12 bits = 3 hex digits
         expect(formatWithLeadingZeros(1, 16, 16)).toBe('0x0001') // 16 bits = 4 hex digits
       })
@@ -59,23 +59,23 @@ describe('useLeadingZeros', () => {
     it('should provide formatValue function', () => {
       const props = { value: 5, base: 2, bits: 8 }
       const { formatValue } = useLeadingZeros(props)
-      
+
       expect(formatValue()).toBe('0b00000101')
     })
 
     it('should provide formatWithLeadingZeros function', () => {
       const props = { value: 255, base: 16, bits: 8 }
       const { formatWithLeadingZeros: fn } = useLeadingZeros(props)
-      
+
       expect(fn(15, 16, 8)).toBe('0x0f')
     })
 
     it('should react to prop changes', () => {
       const props = { value: 10, base: 16, bits: 8 }
       const { formatValue } = useLeadingZeros(props)
-      
+
       expect(formatValue()).toBe('0x0a')
-      
+
       // Change props
       props.value = 255
       expect(formatValue()).toBe('0xff')

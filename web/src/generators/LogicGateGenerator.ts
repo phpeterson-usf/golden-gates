@@ -24,23 +24,37 @@ export class LogicGateGenerator extends BaseComponentGenerator {
   /**
    * Extract gate type from component type (e.g., 'and-gate' -> 'and')
    */
-  private extractGateTypeFromComponentType(): 'and' | 'or' | 'xor' | 'not' | 'nand' | 'nor' | 'xnor' {
-    const gateType = this.type.replace('-gate', '') as 'and' | 'or' | 'xor' | 'not' | 'nand' | 'nor' | 'xnor'
+  private extractGateTypeFromComponentType():
+    | 'and'
+    | 'or'
+    | 'xor'
+    | 'not'
+    | 'nand'
+    | 'nor'
+    | 'xnor' {
+    const gateType = this.type.replace('-gate', '') as
+      | 'and'
+      | 'or'
+      | 'xor'
+      | 'not'
+      | 'nand'
+      | 'nor'
+      | 'xnor'
     return gateType
   }
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName(this.gateType)
     const gateClass = this.gateType.charAt(0).toUpperCase() + this.gateType.slice(1)
-    
+
     // Build parameters
     const params = []
     if (this.bits > 1) params.push(`bits=${this.bits}`)
     if (this.label) params.push(`label="${this.label}"`)
     if (this.numInputs !== 2) params.push(`num_inputs=${this.numInputs}`)
-    
+
     const paramStr = params.length > 0 ? params.join(', ') : ''
-    
+
     return {
       varName,
       code: `${varName} = logic.${gateClass}(${paramStr})`

@@ -5,6 +5,4 @@ export const messages = {
 }
 
 export const defaultLocale = 'en'
-export const availableLocales = [
-  { code: 'en', name: 'English' }
-]
+export const availableLocales = [{ code: 'en', name: 'English' }]

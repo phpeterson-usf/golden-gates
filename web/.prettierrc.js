@@ -1,0 +1,11 @@
+export default {
+  semi: false,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'none',
+  printWidth: 100,
+  endOfLine: 'lf',
+  bracketSpacing: true,
+  arrowParens: 'avoid',
+  vueIndentScriptAndStyle: false
+}

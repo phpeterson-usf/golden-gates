@@ -5,7 +5,7 @@ import CommandPalette from '@/components/CommandPalette.vue'
 import { commandGroups } from '@/config/commands'
 
 // Mock vue-i18n
-const mockT = vi.fn((key) => key)
+const mockT = vi.fn(key => key)
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: mockT
@@ -95,14 +95,14 @@ describe('CommandPalette', () => {
 
     it('should emit update:modelValue when hiding', async () => {
       wrapper = createWrapper({ modelValue: true })
-      
+
       // Test the onHide method directly, which should emit the update
       wrapper.vm.onHide()
-      
+
       // Also test setting visible to false
       wrapper.vm.visible = false
       await wrapper.vm.$nextTick()
-      
+
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
       expect(wrapper.emitted('update:modelValue')[0]).toEqual([false])
     })
@@ -122,13 +122,13 @@ describe('CommandPalette', () => {
     it('should filter commands based on search query', async () => {
       const searchInput = wrapper.find('.command-palette-input')
       await searchInput.setValue('save')
-      
+
       // Should show save-related commands
       const commandItems = wrapper.findAll('.command-item')
       expect(commandItems.length).toBeGreaterThan(0)
-      
+
       // Check that visible commands contain 'save' in their text
-      const visibleCommands = commandItems.filter(item => 
+      const visibleCommands = commandItems.filter(item =>
         item.text().toLowerCase().includes('save')
       )
       expect(visibleCommands.length).toBeGreaterThan(0)
@@ -137,7 +137,7 @@ describe('CommandPalette', () => {
     it('should show no results message when no commands match', async () => {
       const searchInput = wrapper.find('.command-palette-input')
       await searchInput.setValue('nonexistent-command-xyz')
-      
+
       expect(wrapper.find('.no-results').exists()).toBe(true)
       expect(wrapper.find('.no-results').text()).toBe('commands.commandPalette.noResults')
     })
@@ -145,10 +145,10 @@ describe('CommandPalette', () => {
     it('should clear search and reset selection when showing', async () => {
       const searchInput = wrapper.find('.command-palette-input')
       await searchInput.setValue('test query')
-      
+
       // Manually call the onHide method which should reset state
       wrapper.vm.onHide()
-      
+
       expect(wrapper.vm.searchQuery).toBe('')
       expect(wrapper.vm.selectedIndex).toBe(0)
     })
@@ -165,14 +165,16 @@ describe('CommandPalette', () => {
         action: 'testAction',
         params: ['param1', 'param2']
       }
-      
+
       await wrapper.vm.executeCommand(mockCommand)
-      
+
       expect(wrapper.emitted('command')).toBeTruthy()
-      expect(wrapper.emitted('command')[0]).toEqual([{
-        action: 'testAction',
-        params: ['param1', 'param2']
-      }])
+      expect(wrapper.emitted('command')[0]).toEqual([
+        {
+          action: 'testAction',
+          params: ['param1', 'param2']
+        }
+      ])
     })
 
     it('should hide palette after executing command', async () => {
@@ -180,9 +182,9 @@ describe('CommandPalette', () => {
         id: 'test-command',
         action: 'testAction'
       }
-      
+
       await wrapper.vm.executeCommand(mockCommand)
-      
+
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
       expect(wrapper.emitted('update:modelValue')[0]).toEqual([false])
     })
@@ -192,11 +194,11 @@ describe('CommandPalette', () => {
         id: 'test-command',
         action: 'testAction'
       }
-      
+
       await wrapper.vm.executeCommand(mockCommand)
-      
+
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'recentCommands', 
+        'recentCommands',
         JSON.stringify(['test-command'])
       )
     })
@@ -210,9 +212,9 @@ describe('CommandPalette', () => {
     it('should handle arrow down key', async () => {
       const searchInput = wrapper.find('.command-palette-input')
       const initialIndex = wrapper.vm.selectedIndex
-      
+
       await searchInput.trigger('keydown', { key: 'ArrowDown' })
-      
+
       expect(wrapper.vm.selectedIndex).toBe(initialIndex + 1)
     })
 
@@ -220,27 +222,27 @@ describe('CommandPalette', () => {
       // First set a non-zero index
       wrapper.vm.selectedIndex = 2
       const searchInput = wrapper.find('.command-palette-input')
-      
+
       await searchInput.trigger('keydown', { key: 'ArrowUp' })
-      
+
       expect(wrapper.vm.selectedIndex).toBe(1)
     })
 
     it('should handle enter key to execute selected command', async () => {
       const searchInput = wrapper.find('.command-palette-input')
-      
+
       // Test the handleKeyDown method directly
       const event = { key: 'Enter', preventDefault: vi.fn() }
       wrapper.vm.handleKeyDown(event)
-      
+
       expect(event.preventDefault).toHaveBeenCalled()
     })
 
     it('should handle escape key to close palette', async () => {
       const searchInput = wrapper.find('.command-palette-input')
-      
+
       await searchInput.trigger('keydown', { key: 'Escape' })
-      
+
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
       expect(wrapper.emitted('update:modelValue')[0]).toEqual([false])
     })
@@ -249,9 +251,9 @@ describe('CommandPalette', () => {
       const searchInput = wrapper.find('.command-palette-input')
       const event = new KeyboardEvent('keydown', { key: 'a' })
       const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
-      
+
       await searchInput.element.dispatchEvent(event)
-      
+
       expect(stopPropagationSpy).toHaveBeenCalled()
     })
 
@@ -259,9 +261,9 @@ describe('CommandPalette', () => {
       const searchInput = wrapper.find('.command-palette-input')
       const event = new KeyboardEvent('keydown', { key: 'x' })
       const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
-      
+
       await searchInput.element.dispatchEvent(event)
-      
+
       expect(stopPropagationSpy).toHaveBeenCalled()
     })
   })
@@ -270,9 +272,9 @@ describe('CommandPalette', () => {
     it('should load recent commands from localStorage', () => {
       const recentCommands = ['save-circuit', 'run-simulation']
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(recentCommands))
-      
+
       wrapper = createWrapper({ modelValue: true })
-      
+
       // Check that recent commands are loaded and processed
       expect(wrapper.vm.recentCommands.length).toBeGreaterThan(0)
     })
@@ -280,19 +282,27 @@ describe('CommandPalette', () => {
     it('should display recent commands section when available', () => {
       const recentCommands = ['save-circuit', 'run-simulation']
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(recentCommands))
-      
+
       wrapper = createWrapper({ modelValue: true })
-      
+
       // Check that recent commands are processed and available
       expect(wrapper.vm.recentCommands.length).toBeGreaterThan(0)
     })
 
     it('should limit recent commands to 5 items', async () => {
-      const manyCommands = ['save-circuit', 'run-simulation', 'stop-simulation', 'open-circuit', 'new-circuit', 'extra1', 'extra2']
+      const manyCommands = [
+        'save-circuit',
+        'run-simulation',
+        'stop-simulation',
+        'open-circuit',
+        'new-circuit',
+        'extra1',
+        'extra2'
+      ]
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(manyCommands))
-      
+
       wrapper = createWrapper({ modelValue: true })
-      
+
       expect(wrapper.vm.recentCommands.length).toBeLessThanOrEqual(5)
     })
   })
@@ -303,12 +313,12 @@ describe('CommandPalette', () => {
         { id: 'comp1', name: 'Component 1' },
         { id: 'comp2', name: 'Component 2' }
       ]
-      
-      wrapper = createWrapper({ 
+
+      wrapper = createWrapper({
         modelValue: true,
-        availableComponents 
+        availableComponents
       })
-      
+
       // Check that filtered commands include some commands (component setup might be complex)
       expect(wrapper.vm.filteredCommands.length).toBeGreaterThan(0)
     })
@@ -317,10 +327,10 @@ describe('CommandPalette', () => {
   describe('Focus management', () => {
     it('should focus search input when palette becomes visible', async () => {
       wrapper = createWrapper({ modelValue: true })
-      
+
       // Test that the searchInput ref is set up correctly
       expect(wrapper.vm.searchInput).toBeDefined()
-      
+
       // Test that the input element exists in the DOM
       expect(wrapper.find('.command-palette-input').exists()).toBe(true)
     })
@@ -333,7 +343,7 @@ describe('CommandPalette', () => {
 
     it('should group commands by category', () => {
       const groups = wrapper.vm.groupedCommands
-      
+
       // Should have groups for file, simulation, insert, etc.
       expect(groups.has('file')).toBe(true)
       expect(groups.has('simulation')).toBe(true)

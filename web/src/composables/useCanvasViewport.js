@@ -5,10 +5,10 @@ export function useCanvasViewport() {
   // Canvas dimensions
   const canvasWidth = ref(800)
   const canvasHeight = ref(600)
-  
+
   // Grid settings
   const gridSize = ref(GRID_SIZE)
-  
+
   // Zoom settings
   const zoom = ref(1)
   const minZoom = ref(0.5)
@@ -18,12 +18,12 @@ export function useCanvasViewport() {
   // Resize canvas to fit container
   function resizeCanvas(containerRef) {
     if (!containerRef) return
-    
+
     const container = containerRef
     if (container) {
       const newWidth = container.clientWidth
       const newHeight = container.clientHeight
-      
+
       // Only update if dimensions actually changed
       if (newWidth !== canvasWidth.value || newHeight !== canvasHeight.value) {
         canvasWidth.value = newWidth
@@ -66,21 +66,21 @@ export function useCanvasViewport() {
     while (svg && svg.tagName !== 'svg') {
       svg = svg.parentElement
     }
-    
+
     if (!svg || !svg.createSVGPoint) {
       // Fallback: find the nearest SVG element
       svg = event.target.closest('svg')
     }
-    
+
     if (!svg || !svg.createSVGPoint) {
       console.error('Could not find SVG element')
       return { x: 0, y: 0 }
     }
-    
+
     const pt = svg.createSVGPoint()
     pt.x = event.clientX
     pt.y = event.clientY
-    
+
     // Transform to SVG coordinates and account for zoom
     const svgP = pt.matrixTransform(svg.getScreenCTM().inverse())
     return {
@@ -93,11 +93,11 @@ export function useCanvasViewport() {
   function setupResizeObserver(containerRef) {
     let resizeObserver = null
     let resizeHandler = null
-    
+
     onMounted(() => {
       // Initial resize
       resizeCanvas(containerRef.value)
-      
+
       // Set up resize observer
       if (window.ResizeObserver && containerRef.value) {
         resizeObserver = new ResizeObserver(() => {
@@ -105,12 +105,12 @@ export function useCanvasViewport() {
         })
         resizeObserver.observe(containerRef.value)
       }
-      
+
       // Fallback to window resize - store function reference for proper cleanup
       resizeHandler = () => resizeCanvas(containerRef.value)
       window.addEventListener('resize', resizeHandler)
     })
-    
+
     onUnmounted(() => {
       if (resizeObserver && containerRef.value) {
         resizeObserver.unobserve(containerRef.value)
@@ -130,7 +130,7 @@ export function useCanvasViewport() {
     minZoom,
     maxZoom,
     zoomStep,
-    
+
     // Methods
     resizeCanvas,
     zoomIn,

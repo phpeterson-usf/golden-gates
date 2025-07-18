@@ -12,7 +12,7 @@ export class OutputGenerator extends IOComponentGenerator {
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('output')
-    
+
     return {
       varName,
       code: `${varName} = io.Output(${this.getGglBaseParams()}, js_id="${this.id}")`

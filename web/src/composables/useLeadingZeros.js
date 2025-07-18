@@ -29,7 +29,7 @@ export function useLeadingZeros(props) {
   const formatValue = () => {
     return formatWithLeadingZeros(props.value, props.base, props.bits)
   }
-  
+
   return {
     formatValue,
     formatWithLeadingZeros

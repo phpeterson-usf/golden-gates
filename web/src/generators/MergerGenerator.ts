@@ -16,7 +16,7 @@ export class MergerGenerator extends WireComponentGenerator {
   generate(): GeneratedStatement {
     const varName = this.generateVarName('merger')
     const mergeInputs = this.formatRanges()
-    
+
     return {
       varName,
       code: `${varName} = wires.Merger(label="${this.label || 'merger'}", bits=${this.outputBits}, merge_inputs=${mergeInputs})`

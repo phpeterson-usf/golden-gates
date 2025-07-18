@@ -1,5 +1,5 @@
 <template>
-  <g 
+  <g
     :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`"
     :class="['base-circuit-component', componentClass]"
     @dblclick="handleDoubleClick"
@@ -20,7 +20,7 @@
         @mousedown="handleMouseDown"
       />
     </slot>
-    
+
     <!-- Component label -->
     <slot name="label">
       <text
@@ -35,7 +35,7 @@
         {{ displayLabel }}
       </text>
     </slot>
-    
+
     <!-- Connection points -->
     <slot name="connections">
       <!-- Input connections -->
@@ -53,7 +53,7 @@
         :data-port="index"
         :data-component-id="id"
       />
-      
+
       <!-- Output connections -->
       <circle
         v-for="(output, index) in outputConnections"
@@ -70,7 +70,7 @@
         :data-component-id="id"
       />
     </slot>
-    
+
     <!-- Custom content slot for child components -->
     <slot name="content"></slot>
   </g>
@@ -85,7 +85,7 @@ export default {
   name: 'BaseCircuitComponent',
   props: {
     ...draggableProps,
-    
+
     // Component appearance
     componentClass: {
       type: String,
@@ -95,7 +95,7 @@ export default {
       type: String,
       default: ''
     },
-    
+
     // Body styling
     bodyBounds: {
       type: Object,
@@ -105,7 +105,7 @@ export default {
       type: Number,
       default: 4
     },
-    
+
     // Label styling
     labelPosition: {
       type: Object,
@@ -119,7 +119,7 @@ export default {
       type: String,
       default: '#333'
     },
-    
+
     // Connection points
     inputConnections: {
       type: Array,
@@ -145,7 +145,7 @@ export default {
       type: Number,
       default: 1
     },
-    
+
     // Behavior
     enableDoubleClick: {
       type: Boolean,
@@ -155,18 +155,18 @@ export default {
   emits: ['startDrag', 'doubleClick'],
   setup(props, { emit }) {
     const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
-    
+
     const displayLabel = computed(() => {
       return props.label || 'Component'
     })
-    
-    const handleDoubleClick = (event) => {
+
+    const handleDoubleClick = event => {
       if (props.enableDoubleClick) {
         event.stopPropagation()
         emit('doubleClick', event)
       }
     }
-    
+
     return {
       handleMouseDown,
       handleDoubleClick,
@@ -199,7 +199,10 @@ export default {
 }
 
 .connection-point {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
+      12 12,
+    crosshair;
   transition: fill 0.2s ease;
 }
 
@@ -213,11 +216,17 @@ export default {
 }
 
 .base-circuit-component .connection-point {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair; /* Custom target cursor */
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
+      12 12,
+    crosshair; /* Custom target cursor */
 }
 
 /* Connection mode cursor */
 .base-circuit-component.connection-mode .connection-point {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair; /* Custom target cursor */
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
+      12 12,
+    crosshair; /* Custom target cursor */
 }
 </style>

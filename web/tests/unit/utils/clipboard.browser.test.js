@@ -19,14 +19,16 @@ describe('Clipboard Browser Compatibility', () => {
 
     // Create mock dependencies
     mockCircuitManager = {
-      activeCircuit: { value: { 
-        components: [mockComponents.singleInput],
-        wires: [],
-        wireJunctions: []
-      } }
+      activeCircuit: {
+        value: {
+          components: [mockComponents.singleInput],
+          wires: [],
+          wireJunctions: []
+        }
+      }
     }
     mockCanvasOperations = { getMousePos: vi.fn(), snapToGrid: vi.fn(), gridSize: 15 }
-    mockWireManagement = { 
+    mockWireManagement = {
       drawingWire: { value: false },
       currentMousePos: { value: { x: 0, y: 0 } },
       startConnection: { value: null }
@@ -40,7 +42,7 @@ describe('Clipboard Browser Compatibility', () => {
       isSelecting: { value: false },
       justFinishedSelecting: { value: false }
     }
-    mockDragAndDrop = { 
+    mockDragAndDrop = {
       isDragging: vi.fn().mockReturnValue(false),
       dragging: { value: null }
     }
@@ -156,7 +158,7 @@ describe('Clipboard Browser Compatibility', () => {
       global.navigator = {}
       global.document.execCommand = mockClipboardAPI.createMockExecCommand()
       global.document.queryCommandSupported = vi.fn().mockReturnValue(true)
-      
+
       // Mock DOM methods
       const mockTextarea = {
         select: vi.fn(),
@@ -292,7 +294,7 @@ describe('Clipboard Browser Compatibility', () => {
         ...mockComponents.singleInput,
         id: `input_${i}_test`
       }))
-      
+
       mockCircuitManager.activeCircuit.value.components = largeComponents
       mockSelection.selectedComponents.value = new Set(largeComponents.map(c => c.id))
 
@@ -325,7 +327,11 @@ describe('Clipboard Browser Compatibility', () => {
       global.navigator = {
         clipboard: {
           writeText: vi.fn().mockResolvedValue(),
-          readText: vi.fn().mockResolvedValue('{"version": "1.0", "elements": {"components": [], "wires": [], "junctions": []}}')
+          readText: vi
+            .fn()
+            .mockResolvedValue(
+              '{"version": "1.0", "elements": {"components": [], "wires": [], "junctions": []}}'
+            )
         },
         permissions: {
           query: vi.fn().mockResolvedValue({ state: 'granted' })
@@ -396,7 +402,7 @@ describe('Clipboard Browser Compatibility', () => {
   describe('Error Recovery', () => {
     it('should recover from clipboard API errors', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       global.navigator = {
         clipboard: {
           writeText: vi.fn().mockRejectedValue(new Error('Clipboard error'))
@@ -406,16 +412,13 @@ describe('Clipboard Browser Compatibility', () => {
       const result = await canvasController.copySelected()
 
       expect(result).toBe(true) // Should still succeed with internal clipboard
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to copy to OS clipboard:',
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to copy to OS clipboard:', expect.any(Error))
       consoleSpy.mockRestore()
     })
 
     it('should recover from execCommand errors', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       global.navigator = {}
       global.document.execCommand = vi.fn().mockImplementation(() => {
         throw new Error('execCommand error')

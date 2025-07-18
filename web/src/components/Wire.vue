@@ -48,33 +48,35 @@ export default {
   emits: ['click', 'mousedown'],
   setup(props, { emit }) {
     const pointsString = computed(() => {
-      return props.points.map(p => {
-        const pixelPoint = gridToPixel(p)
-        return `${pixelPoint.x},${pixelPoint.y}`
-      }).join(' ')
+      return props.points
+        .map(p => {
+          const pixelPoint = gridToPixel(p)
+          return `${pixelPoint.x},${pixelPoint.y}`
+        })
+        .join(' ')
     })
-    
+
     const strokeColor = computed(() => {
       if (props.preview) return COLORS.wirePreview
       return props.selected ? COLORS.wireSelected : COLORS.wire
     })
-    
+
     const strokeWidth = computed(() => {
       return props.selected ? STROKE_WIDTHS.wireSelected : STROKE_WIDTHS.wire
     })
-    
-    const handleClick = (event) => {
+
+    const handleClick = event => {
       if (!props.preview) {
         emit('click', event)
       }
     }
-    
-    const handleMouseDown = (event) => {
+
+    const handleMouseDown = event => {
       if (!props.preview) {
         emit('mousedown', event)
       }
     }
-    
+
     return {
       pointsString,
       strokeColor,

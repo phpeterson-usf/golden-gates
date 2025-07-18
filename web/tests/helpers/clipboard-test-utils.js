@@ -48,9 +48,12 @@ export function createMockClipboardController(options = {}) {
       idMappings: { components: new Map(), wires: new Map() }
     }),
     calculateBounds: vi.fn().mockReturnValue({
-      minX: 0, minY: 0, maxX: 10, maxY: 10
+      minX: 0,
+      minY: 0,
+      maxX: 10,
+      maxY: 10
     }),
-    generateUniqueId: vi.fn().mockImplementation((type) => `${type}_test_${Date.now()}`),
+    generateUniqueId: vi.fn().mockImplementation(type => `${type}_test_${Date.now()}`),
     generateUniqueWireId: vi.fn().mockImplementation(() => `wire_test_${Date.now()}`),
     isCutOperation: vi.fn().mockReturnValue(false)
   }
@@ -60,12 +63,7 @@ export function createMockClipboardController(options = {}) {
  * Creates a mock undo controller with configurable behavior
  */
 export function createMockUndoController(options = {}) {
-  const {
-    canUndo = false,
-    canRedo = false,
-    undoStackSize = 0,
-    redoStackSize = 0
-  } = options
+  const { canUndo = false, canRedo = false, undoStackSize = 0, redoStackSize = 0 } = options
 
   return {
     canUndo: ref(canUndo),
@@ -97,11 +95,7 @@ export function createMockUndoController(options = {}) {
  * Creates a mock circuit manager for testing
  */
 export function createMockCircuitManager(options = {}) {
-  const {
-    components = [],
-    wires = [],
-    junctions = []
-  } = options
+  const { components = [], wires = [], junctions = [] } = options
 
   return {
     activeCircuit: ref({
@@ -125,11 +119,7 @@ export function createMockCircuitManager(options = {}) {
  * Creates a mock selection controller for testing
  */
 export function createMockSelectionController(options = {}) {
-  const {
-    selectedComponents = new Set(),
-    selectedWires = new Set(),
-    isSelecting = false
-  } = options
+  const { selectedComponents = new Set(), selectedWires = new Set(), isSelecting = false } = options
 
   return {
     selectedComponents: ref(selectedComponents),
@@ -185,12 +175,12 @@ export function createMockBrowserClipboard(options = {}) {
   } = options
 
   const mockClipboard = {
-    writeText: writeTextSuccess ? 
-      vi.fn().mockResolvedValue() : 
-      vi.fn().mockRejectedValue(new Error('Write failed')),
-    readText: readTextSuccess ? 
-      vi.fn().mockResolvedValue(readTextData) : 
-      vi.fn().mockRejectedValue(new Error('Read failed'))
+    writeText: writeTextSuccess
+      ? vi.fn().mockResolvedValue()
+      : vi.fn().mockRejectedValue(new Error('Write failed')),
+    readText: readTextSuccess
+      ? vi.fn().mockResolvedValue(readTextData)
+      : vi.fn().mockRejectedValue(new Error('Read failed'))
   }
 
   const mockExecCommand = vi.fn().mockReturnValue(execCommandSuccess)
@@ -255,16 +245,16 @@ export function createClipboardTestScenario(name, setup = {}) {
     name,
     circuitManager: createMockCircuitManager({ components, wires, junctions }),
     selection: createMockSelectionController({ selectedComponents, selectedWires }),
-    clipboardController: createMockClipboardController({ 
+    clipboardController: createMockClipboardController({
       hasData: !!clipboardData,
-      pasteData: clipboardData 
+      pasteData: clipboardData
     }),
     undoController: createMockUndoController({ undoStackSize }),
     browserClipboard: createMockBrowserClipboard(),
-    setup: function() {
+    setup: function () {
       this.browserClipboard.install()
     },
-    teardown: function() {
+    teardown: function () {
       this.browserClipboard.uninstall()
       vi.clearAllMocks()
     }
@@ -281,7 +271,7 @@ export function simulateClipboardWorkflow(scenario, workflow) {
     'copy-paste': async () => {
       // Select elements
       const selectedElements = {
-        components: circuitManager.activeCircuit.value.components.filter(c => 
+        components: circuitManager.activeCircuit.value.components.filter(c =>
           selection.selectedComponents.value.has(c.id)
         ),
         wires: [],
@@ -305,7 +295,7 @@ export function simulateClipboardWorkflow(scenario, workflow) {
     'cut-paste': async () => {
       // Select elements
       const selectedElements = {
-        components: circuitManager.activeCircuit.value.components.filter(c => 
+        components: circuitManager.activeCircuit.value.components.filter(c =>
           selection.selectedComponents.value.has(c.id)
         ),
         wires: [],
@@ -315,12 +305,15 @@ export function simulateClipboardWorkflow(scenario, workflow) {
       // Cut (copy + remove)
       undoController.startCommandGroup('Cut operation')
       clipboardController.cutToClipboard(selectedElements)
-      
+
       selectedElements.components.forEach(component => {
-        const removeCommand = new undoController.RemoveComponentCommand(circuitManager, component.id)
+        const removeCommand = new undoController.RemoveComponentCommand(
+          circuitManager,
+          component.id
+        )
         undoController.executeCommand(removeCommand)
       })
-      
+
       undoController.endCommandGroup()
 
       // Paste
@@ -333,10 +326,10 @@ export function simulateClipboardWorkflow(scenario, workflow) {
       return { pastedElements, pasteCommand }
     },
 
-    'duplicate': () => {
+    duplicate: () => {
       // Select elements
       const selectedElements = {
-        components: circuitManager.activeCircuit.value.components.filter(c => 
+        components: circuitManager.activeCircuit.value.components.filter(c =>
           selection.selectedComponents.value.has(c.id)
         ),
         wires: [],
@@ -346,7 +339,10 @@ export function simulateClipboardWorkflow(scenario, workflow) {
       // Duplicate
       const serialized = clipboardController.serializeElements(selectedElements)
       const duplicatePosition = { x: 0, y: 15 }
-      const duplicatedElements = clipboardController.deserializeElements(serialized, duplicatePosition)
+      const duplicatedElements = clipboardController.deserializeElements(
+        serialized,
+        duplicatePosition
+      )
 
       const duplicateCommand = new undoController.PasteCommand(circuitManager, duplicatedElements)
       undoController.executeCommand(duplicateCommand)
@@ -372,7 +368,9 @@ export function validateClipboardOperation(result, expectations) {
   } = expectations
 
   if (expectComponentCount !== undefined) {
-    expect(result.components || result.pastedElements?.components || []).toHaveLength(expectComponentCount)
+    expect(result.components || result.pastedElements?.components || []).toHaveLength(
+      expectComponentCount
+    )
   }
 
   if (expectWireCount !== undefined) {
@@ -380,7 +378,9 @@ export function validateClipboardOperation(result, expectations) {
   }
 
   if (expectJunctionCount !== undefined) {
-    expect(result.junctions || result.pastedElements?.junctions || []).toHaveLength(expectJunctionCount)
+    expect(result.junctions || result.pastedElements?.junctions || []).toHaveLength(
+      expectJunctionCount
+    )
   }
 
   if (expectUndoStackSize !== undefined) {
@@ -406,15 +406,15 @@ export function validateClipboardOperation(result, expectations) {
  */
 export function measureClipboardPerformance(operation, iterations = 100) {
   const startTime = performance.now()
-  
+
   for (let i = 0; i < iterations; i++) {
     operation()
   }
-  
+
   const endTime = performance.now()
   const totalTime = endTime - startTime
   const averageTime = totalTime / iterations
-  
+
   return {
     totalTime,
     averageTime,
@@ -429,7 +429,7 @@ export function measureMemoryUsage(operation) {
   const before = performance.memory?.usedJSHeapSize || 0
   operation()
   const after = performance.memory?.usedJSHeapSize || 0
-  
+
   return {
     before,
     after,

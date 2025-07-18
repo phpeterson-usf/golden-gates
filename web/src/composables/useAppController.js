@@ -7,12 +7,24 @@ import { usePythonEngine } from './usePythonEngine'
  * Provides controller layer functionality for circuit operations
  */
 export function useAppController(circuitManager) {
-  const { saveCircuit: saveCircuitFile, openCircuit: openCircuitFile, parseAndValidateJSON } = useFileService()
-  const { initialize: initializePyodide, runPython, isLoading: isPyodideLoading, isReady: isPyodideReady, error: pyodideError, pyodide, executeHierarchicalCircuit } = usePythonEngine()
-  
+  const {
+    saveCircuit: saveCircuitFile,
+    openCircuit: openCircuitFile,
+    parseAndValidateJSON
+  } = useFileService()
+  const {
+    initialize: initializePyodide,
+    runPython,
+    isLoading: isPyodideLoading,
+    isReady: isPyodideReady,
+    error: pyodideError,
+    pyodide,
+    executeHierarchicalCircuit
+  } = usePythonEngine()
+
   // Simulation state
   const isRunning = ref(false)
-  
+
   // Confirmation dialog state
   const showConfirmDialog = ref(false)
   const confirmDialog = ref({
@@ -22,7 +34,7 @@ export function useAppController(circuitManager) {
     acceptCallback: null,
     rejectCallback: null
   })
-  
+
   /**
    * Create a new circuit with auto-generated name
    */
@@ -30,13 +42,13 @@ export function useAppController(circuitManager) {
     const circuitCount = circuitManager.allCircuits.value.size + 1
     circuitManager.createCircuit(`Circuit${circuitCount}`)
   }
-  
+
   /**
    * Handle inspector actions (like Save Component button)
    */
   function handleInspectorAction(actionData) {
     const { action, circuit, component } = actionData
-    
+
     switch (action) {
       case 'saveAsComponent':
         if (circuit) {
@@ -64,38 +76,36 @@ export function useAppController(circuitManager) {
         console.warn(`Unknown action: ${action}`)
     }
   }
-  
+
   /**
    * Run simulation on the current circuit with support for hierarchical circuits
    */
   async function runCircuitSimulationWithHierarchy(canvasRef) {
     isRunning.value = true
-    
+
     try {
       // Initialize Pyodide if not already initialized
       if (!isPyodideReady.value) {
         await initializePyodide()
       }
-      
+
       // Generate GGL program for the current circuit
       const mainCircuitGglProgram = generateGglProgramForCurrentCircuit(canvasRef)
-      
+
       if (!mainCircuitGglProgram || mainCircuitGglProgram.trim() === '') {
         return
       }
-      
+
       // Log the generated GGL program for debugging and verification
       console.log('\n=== Main Circuit GGL Program ===')
       console.log(mainCircuitGglProgram)
       console.log('=== End of Main Circuit ===\n')
-      
+
       // Set up callback for Python to update Vue components
       setupPythonVueUpdateCallback(canvasRef)
-      
+
       // Execute the complete hierarchical circuit program
       await executeHierarchicalCircuit(circuitManager, mainCircuitGglProgram)
-      
-      
     } catch (err) {
       console.error('Hierarchical circuit simulation error:', err)
       // TODO: Show error to user with more specific error handling
@@ -103,7 +113,7 @@ export function useAppController(circuitManager) {
       isRunning.value = false
     }
   }
-  
+
   /**
    * Generate GGL program for the current circuit (with hierarchical support)
    */
@@ -112,15 +122,15 @@ export function useAppController(circuitManager) {
       console.error('No canvas reference provided to generateGglProgramForCurrentCircuit')
       return ''
     }
-    
+
     if (typeof canvasRef.getCircuitData !== 'function') {
       console.error('Canvas reference does not have getCircuitData method')
       return ''
     }
-    
+
     return canvasRef.getCircuitData()
   }
-  
+
   /**
    * Set up the callback for Python to update Vue components
    */
@@ -143,14 +153,14 @@ export function useAppController(circuitManager) {
       }
     }
   }
-  
+
   /**
    * Legacy simulation function for backwards compatibility
    */
   async function runSimulation(canvasRef) {
     return await runCircuitSimulationWithHierarchy(canvasRef)
   }
-  
+
   /**
    * Stop simulation
    */
@@ -158,7 +168,7 @@ export function useAppController(circuitManager) {
     isRunning.value = false
     // TODO: Implement actual stop logic if needed
   }
-  
+
   /**
    * Save current circuit to file
    */
@@ -167,16 +177,18 @@ export function useAppController(circuitManager) {
       const components = canvasRef?.components || []
       const wires = canvasRef?.wires || []
       const wireJunctions = canvasRef?.wireJunctions || []
-      
+
       // Get circuit metadata from the current active circuit
       const activeCircuit = circuitManager.activeCircuit.value
-      const circuitMetadata = activeCircuit ? {
-        name: activeCircuit.name,
-        label: activeCircuit.label,
-        // Only include interface from properties, not duplicate name/label
-        interface: activeCircuit.properties?.interface
-      } : {}
-      
+      const circuitMetadata = activeCircuit
+        ? {
+            name: activeCircuit.name,
+            label: activeCircuit.label,
+            // Only include interface from properties, not duplicate name/label
+            interface: activeCircuit.properties?.interface
+          }
+        : {}
+
       // Collect all schematic component definitions used in this circuit
       const usedSchematicComponents = {}
       components.forEach(component => {
@@ -195,14 +207,20 @@ export function useAppController(circuitManager) {
           }
         }
       })
-      
-      await saveCircuitFile(components, wires, wireJunctions, circuitMetadata, usedSchematicComponents)
+
+      await saveCircuitFile(
+        components,
+        wires,
+        wireJunctions,
+        circuitMetadata,
+        usedSchematicComponents
+      )
     } catch (error) {
       console.error('Error saving circuit:', error)
       alert('Error saving circuit: ' + error.message)
     }
   }
-  
+
   /**
    * Open circuit from file
    */
@@ -210,13 +228,12 @@ export function useAppController(circuitManager) {
     try {
       const fileContent = await openCircuitFile()
       if (!fileContent) return
-      
+
       const circuitData = parseAndValidateJSON(fileContent)
-      
+
       // Check if current circuit has any components
-      const hasExistingCircuit = canvasRef?.components?.length > 0 || 
-                                canvasRef?.wires?.length > 0
-      
+      const hasExistingCircuit = canvasRef?.components?.length > 0 || canvasRef?.wires?.length > 0
+
       if (hasExistingCircuit) {
         showConfirmation({
           title: 'Replace Circuit?',
@@ -232,19 +249,21 @@ export function useAppController(circuitManager) {
       alert('Error opening circuit: ' + error.message)
     }
   }
-  
+
   /**
    * Load circuit data into canvas
    */
   function loadCircuitData(canvasRef, circuitData) {
     if (!canvasRef) return
-    
+
     // Clear existing circuit
     canvasRef.clearCircuit()
-    
+
     // For v1.1+ format, restore schematic component definitions first
-    if (circuitData.schematicComponents && Object.keys(circuitData.schematicComponents).length > 0) {
-      
+    if (
+      circuitData.schematicComponents &&
+      Object.keys(circuitData.schematicComponents).length > 0
+    ) {
       Object.entries(circuitData.schematicComponents).forEach(([circuitId, data]) => {
         try {
           // Restore the circuit definition
@@ -256,7 +275,7 @@ export function useAppController(circuitManager) {
             }
             circuitManager.allCircuits.value.set(circuitId, circuit)
           }
-          
+
           // Restore the component definition
           if (data.definition) {
             circuitManager.availableComponents.value.set(circuitId, data.definition)
@@ -266,12 +285,12 @@ export function useAppController(circuitManager) {
         }
       })
     }
-    
+
     // Ensure we're loading into the correct circuit context
     // Create a new circuit or use the active circuit appropriately
     let targetCircuit = circuitManager.activeCircuit.value
-    
-    // If the loaded circuit has a different name than the active circuit, 
+
+    // If the loaded circuit has a different name than the active circuit,
     // we should create a new circuit or rename the active circuit
     if (targetCircuit && circuitData.name && circuitData.name !== targetCircuit.name) {
       // Check if any of the schematic components reference the current active circuit
@@ -282,7 +301,7 @@ export function useAppController(circuitManager) {
         }
         return false
       })
-      
+
       if (hasConflict) {
         // Create a new circuit for the loaded data to avoid conflicts
         const newCircuitName = circuitData.name || `Circuit${Date.now()}`
@@ -291,7 +310,7 @@ export function useAppController(circuitManager) {
         })
       }
     }
-    
+
     // Apply circuit properties to the target circuit
     if (targetCircuit) {
       if (circuitData.name) {
@@ -305,30 +324,29 @@ export function useAppController(circuitManager) {
         targetCircuit.properties.interface = circuitData.interface
       }
     }
-    
+
     // Load components
     if (circuitData.components) {
       circuitData.components.forEach(component => {
         canvasRef.loadComponent(component)
       })
     }
-    
+
     // Load wires
     if (circuitData.wires) {
       circuitData.wires.forEach(wire => {
         canvasRef.addWire(wire)
       })
     }
-    
+
     // Load wire junctions
     if (circuitData.wireJunctions) {
       circuitData.wireJunctions.forEach(junction => {
         canvasRef.addWireJunction(junction)
       })
     }
-    
   }
-  
+
   /**
    * Handle drag and drop of circuit files
    */
@@ -336,11 +354,10 @@ export function useAppController(circuitManager) {
     try {
       const fileContent = await file.text()
       const circuitData = parseAndValidateJSON(fileContent)
-      
+
       // Check if current circuit has any components
-      const hasExistingCircuit = canvasRef?.components?.length > 0 || 
-                                canvasRef?.wires?.length > 0
-      
+      const hasExistingCircuit = canvasRef?.components?.length > 0 || canvasRef?.wires?.length > 0
+
       if (hasExistingCircuit) {
         showConfirmation({
           title: 'Replace Circuit?',
@@ -356,11 +373,19 @@ export function useAppController(circuitManager) {
       alert('Error loading circuit: ' + error.message)
     }
   }
-  
+
   /**
    * Show confirmation dialog
    */
-  function showConfirmation({ title, message, type = 'warning', acceptLabel, showCancel, onAccept, onReject }) {
+  function showConfirmation({
+    title,
+    message,
+    type = 'warning',
+    acceptLabel,
+    showCancel,
+    onAccept,
+    onReject
+  }) {
     confirmDialog.value = {
       title,
       message,
@@ -372,7 +397,7 @@ export function useAppController(circuitManager) {
     }
     showConfirmDialog.value = true
   }
-  
+
   /**
    * Check if there's unsaved work
    */
@@ -382,7 +407,7 @@ export function useAppController(circuitManager) {
     const wires = canvasRef?.wires || []
     return components.length > 0 || wires.length > 0
   }
-  
+
   /**
    * Handle before unload event
    */
@@ -395,7 +420,7 @@ export function useAppController(circuitManager) {
       return '' // Some browsers need this
     }
   }
-  
+
   return {
     // Simulation state
     isRunning,
@@ -403,11 +428,11 @@ export function useAppController(circuitManager) {
     isPyodideReady,
     pyodideError,
     pyodide,
-    
+
     // Confirmation dialog
     showConfirmDialog,
     confirmDialog,
-    
+
     // Circuit operations
     createNewCircuit,
     runSimulation,
@@ -418,7 +443,7 @@ export function useAppController(circuitManager) {
     loadCircuitData,
     handleDroppedFile,
     handleInspectorAction,
-    
+
     // Utility functions
     showConfirmation,
     hasUnsavedWork,

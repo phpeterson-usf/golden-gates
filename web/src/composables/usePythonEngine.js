@@ -28,7 +28,7 @@ export function usePythonEngine() {
       pyodideInstance.value = await loadPyodide({
         indexURL: '/pyodide/'
       })
-      
+
       // Set up ggl module loading for Pyodide
       await pyodideInstance.value.runPythonAsync(`
 import sys
@@ -102,9 +102,9 @@ try:
 except ImportError as e:
     print(f"Warning: Could not import ggl: {e}")
       `)
-      
+
       isReady.value = true
-      
+
       return pyodideInstance.value
     } catch (err) {
       error.value = err
@@ -174,33 +174,37 @@ except ImportError as e:
 
     // Clean up any existing component files first
     await removeExistingComponentFilesFromMemfs()
-    
+
     // Import circuit generation functions
     const { useCodeGenController } = await import('./useCodeGenController.js')
-    const { generateGglProgramForCircuitComponent, wrapGglProgramAsComponentModule, findRequiredComponentImports } = useCodeGenController()
-    
+    const {
+      generateGglProgramForCircuitComponent,
+      wrapGglProgramAsComponentModule,
+      findRequiredComponentImports
+    } = useCodeGenController()
+
     // Write ALL saved components as Python modules to MEMFS
     for (const [id, component] of circuitManager.availableComponents.value) {
       if (component.type === 'circuit-component') {
         const circuit = circuitManager.getCircuit(component.circuitId)
         if (!circuit) continue
-        
+
         // Generate GGL program for this component's circuit
         const gglProgramCode = generateGglProgramForCircuitComponent(circuit, circuitManager)
-        
+
         // Wrap as importable Python module
         const pythonModuleCode = wrapGglProgramAsComponentModule(
           component.name,
           gglProgramCode,
           findRequiredComponentImports(circuit.components, circuitManager, component.name)
         )
-        
+
         // Log the generated component module for debugging and verification
         const fileName = `${component.name}.py`
         console.log(`\n=== Writing ${fileName} to MEMFS ===`)
         console.log(pythonModuleCode)
         console.log(`=== End of ${fileName} ===\n`)
-        
+
         // Write to Pyodide's MEMFS
         pyodideInstance.value.FS.writeFile(fileName, pythonModuleCode)
       }
@@ -212,7 +216,7 @@ except ImportError as e:
    */
   async function removeExistingComponentFilesFromMemfs() {
     if (!pyodideInstance.value) return
-    
+
     try {
       const files = pyodideInstance.value.FS.readdir('.')
       files.forEach(file => {
@@ -224,7 +228,7 @@ except ImportError as e:
           }
         }
       })
-      
+
       // Clear Python's import cache for our modules
       try {
         pyodideInstance.value.runPython(`
@@ -241,7 +245,6 @@ if hasattr(sys, 'modules'):
       } catch (e) {
         console.warn('Could not clear Python import cache:', e)
       }
-      
     } catch (e) {
       console.warn('Error cleaning up MEMFS:', e)
     }
@@ -252,8 +255,8 @@ if hasattr(sys, 'modules'):
    */
   function configurePythonImportPath() {
     if (!pyodideInstance.value) return
-    
-    // Since Pyodide already sets up sys.path in initialization, 
+
+    // Since Pyodide already sets up sys.path in initialization,
     // and MEMFS files are written to the current directory ('.'),
     // we just need to ensure '.' is in the path if it's not already there
     try {
@@ -293,7 +296,7 @@ exec(${JSON.stringify(gglProgram)})
 
 "Simulation completed successfully"
 `
-    
+
     return await pyodideInstance.value.runPythonAsync(pythonExecutionCode)
   }
 
@@ -307,14 +310,14 @@ exec(${JSON.stringify(gglProgram)})
 
     // Step 1: Write all saved circuit components as Python modules to MEMFS
     await writeAllCircuitComponentsToMemfs(circuitManager)
-    
+
     // Step 2: Configure Python import path for MEMFS (optional - MEMFS might already be in path)
     try {
       configurePythonImportPath()
     } catch (e) {
       console.warn('Could not configure Python import path, continuing anyway:', e)
     }
-    
+
     // Step 3: Execute the complete hierarchical circuit program
     return await executePythonProgram(gglProgram)
   }
@@ -325,18 +328,18 @@ exec(${JSON.stringify(gglProgram)})
     isLoading,
     isReady,
     error,
-    
+
     // Core Pyodide operations
     initialize,
     runPython,
     runPythonSync,
     loadPackage,
-    
+
     // MEMFS operations
     writeAllCircuitComponentsToMemfs,
     removeExistingComponentFilesFromMemfs,
     configurePythonImportPath,
-    
+
     // Python execution
     executePythonProgram,
     executeHierarchicalCircuit

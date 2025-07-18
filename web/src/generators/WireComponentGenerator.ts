@@ -6,7 +6,7 @@ import type { WireComponentData } from '../types/ComponentGenerator'
  * Provides common functionality for wire components
  */
 export abstract class WireComponentGenerator extends BaseComponentGenerator {
-  protected ranges: Array<{start: number, end: number}>
+  protected ranges: Array<{ start: number; end: number }>
 
   constructor(componentData: WireComponentData) {
     super(componentData)

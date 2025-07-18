@@ -13,12 +13,12 @@ export class InputGenerator extends IOComponentGenerator {
   generate(): GeneratedStatement {
     const varName = this.generateVarName('input')
     const valueStr = this.formatValue()
-    
+
     const lines = [
       `${varName} = io.Input(${this.getGglBaseParams()})`,
       `${varName}.value = ${valueStr}`
     ]
-    
+
     return {
       varName,
       code: lines.join('\n')

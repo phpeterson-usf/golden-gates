@@ -12,7 +12,7 @@ export function createWrapper(component, options = {}) {
       // Add global plugins, mocks, etc. here if needed
     }
   }
-  
+
   return mount(component, {
     ...defaultOptions,
     ...options
@@ -31,7 +31,7 @@ export function createShallowWrapper(component, options = {}) {
       // Add global plugins, mocks, etc. here if needed
     }
   }
-  
+
   return shallowMount(component, {
     ...defaultOptions,
     ...options

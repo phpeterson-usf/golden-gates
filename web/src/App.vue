@@ -17,50 +17,49 @@
     />
     <Toolbar class="app-toolbar">
       <template #start>
-        <Button 
-          class="p-button-sm golden-gate-button" 
+        <Button
+          class="p-button-sm golden-gate-button"
           @click="commandPaletteVisible = true"
           v-tooltip.bottom="commandPaletteTooltip"
         >
           <GoldenGateLogo :width="48" :height="24" />
         </Button>
-        
+
         <!-- Circuit Tabs -->
         <div v-if="circuitTabs.length > 0" class="circuit-tabs">
           <Button
             v-for="tab in circuitTabs"
             :key="tab.id"
             :label="tab.name"
-            :class="['circuit-tab', { 'active': tab.id === activeTabId }]"
+            :class="['circuit-tab', { active: tab.id === activeTabId }]"
             @click="switchToTab(tab.id)"
             text
             size="small"
           >
             <template #default>
               <span>{{ tab.name }}</span>
-              <i 
-                class="pi pi-times tab-close" 
+              <i
+                class="pi pi-times tab-close"
                 @click.stop="closeTab(tab.id)"
                 v-if="circuitTabs.length > 1"
               ></i>
             </template>
           </Button>
         </div>
-        
       </template>
       <template #end>
-        <Button 
-          icon="pi pi-sliders-h" 
-          class="p-button-text p-button-sm" 
+        <Button
+          icon="pi pi-sliders-h"
+          class="p-button-text p-button-sm"
           @click="inspectorVisible = !inspectorVisible"
           v-tooltip.left="$t('ui.toggleInspector')"
         />
       </template>
     </Toolbar>
-    
+
     <div class="main-content">
-      <div 
-        class="circuit-container" 
+      <div
+        class="circuit-container"
         :class="{ 'inspector-open': inspectorVisible, 'drag-over': isDraggingOver }"
         :data-drop-message="$t('ui.dropFileHere')"
         @dragover.prevent="handleDragOver"
@@ -68,31 +67,34 @@
         @dragenter.prevent="handleDragEnter"
         @dragleave.prevent="handleDragLeave"
       >
-        <CircuitCanvas 
-          ref="canvas" 
+        <CircuitCanvas
+          ref="canvas"
           :circuitManager="circuitManager"
           @selectionChanged="handleSelectionChanged"
         />
-        
+
         <!-- Circuit Navigation Breadcrumbs -->
         <div v-if="$refs.canvas?.breadcrumbs?.length > 1" class="circuit-breadcrumbs">
           <template v-for="(crumb, index) in $refs.canvas?.breadcrumbs" :key="crumb.id">
             <i v-if="index > 0" class="pi pi-angle-right breadcrumb-separator"></i>
-            <Button 
+            <Button
               :label="crumb.name"
-              :class="['breadcrumb-button', { active: index === $refs.canvas?.breadcrumbs.length - 1 }]"
+              :class="[
+                'breadcrumb-button',
+                { active: index === $refs.canvas?.breadcrumbs.length - 1 }
+              ]"
               @click="$refs.canvas?.navigateToCircuit(crumb.id)"
               text
             />
           </template>
         </div>
       </div>
-      
+
       <div v-if="inspectorVisible" class="inspector-panel">
         <button class="inspector-close" @click="inspectorVisible = false">
           <i class="pi pi-times"></i>
         </button>
-        <ComponentInspector 
+        <ComponentInspector
           :component="selectedComponent"
           :circuit="selectedCircuit"
           @update:component="updateComponent"
@@ -131,22 +133,22 @@ export default {
   setup() {
     // Initialize circuit manager (model layer)
     const circuitManager = useCircuitModel()
-    
+
     // Initialize circuit operations (controller layer)
     const circuitOperations = useAppController(circuitManager)
-    
+
     // Extract needed properties for template
-    const { 
-      tabs: circuitTabs, 
-      activeTabId, 
+    const {
+      tabs: circuitTabs,
+      activeTabId,
       activeCircuit,
       allCircuits,
       availableComponentsArray,
-      createCircuit, 
-      switchToTab, 
-      closeTab 
+      createCircuit,
+      switchToTab,
+      closeTab
     } = circuitManager
-    
+
     const {
       createNewCircuit,
       runSimulation,
@@ -167,10 +169,10 @@ export default {
       showConfirmDialog,
       confirmDialog
     } = circuitOperations
-    
+
     // Initialize command palette
     const { isVisible: commandPaletteVisible } = useCommandPalette()
-    
+
     // Command handler for keyboard shortcuts
     const handleCommand = ({ action, params }) => {
       // Dispatch to mounted component methods via custom event
@@ -178,11 +180,11 @@ export default {
         window.dispatchEvent(new CustomEvent('circuitCommand', { detail: { action, params } }))
       }
     }
-    
+
     // Set up keyboard shortcuts
     useKeyboardShortcuts(handleCommand)
-    
-    return { 
+
+    return {
       // Circuit manager
       circuitManager,
       circuitTabs,
@@ -193,7 +195,7 @@ export default {
       createCircuit,
       switchToTab,
       closeTab,
-      
+
       // Circuit operations
       createNewCircuit,
       runSimulation,
@@ -260,13 +262,13 @@ export default {
           console.warn(this.$t('ui.unknownCommand') + ':', action)
       }
     },
-    
+
     addComponent(type) {
       if (this.$refs.canvas) {
         this.$refs.canvas.addComponentAtSmartPosition(type)
       }
     },
-    
+
     addCircuitComponent(circuitId) {
       if (this.$refs.canvas) {
         const component = this.circuitManager.createSchematicComponent(circuitId)
@@ -275,14 +277,13 @@ export default {
         }
       }
     },
-    
-    
-    
+
     handleSelectionChanged(selection) {
       // Handle single component selection
       if (selection.components.size === 1) {
         const componentId = Array.from(selection.components)[0]
-        this.selectedComponent = this.$refs.canvas?.components.find(c => c.id === componentId) || null
+        this.selectedComponent =
+          this.$refs.canvas?.components.find(c => c.id === componentId) || null
         this.selectedCircuit = null // Clear circuit selection when component is selected
       } else {
         this.selectedComponent = null
@@ -290,17 +291,19 @@ export default {
         this.selectedCircuit = this.activeCircuit
       }
     },
-    
+
     updateComponent(updatedComponent) {
       if (this.$refs.canvas) {
         this.$refs.canvas.updateComponent(updatedComponent)
         // Refresh the selected component reference to maintain sync
         if (this.selectedComponent && this.selectedComponent.id === updatedComponent.id) {
-          this.selectedComponent = this.$refs.canvas.components.find(c => c.id === updatedComponent.id)
+          this.selectedComponent = this.$refs.canvas.components.find(
+            c => c.id === updatedComponent.id
+          )
         }
       }
     },
-    
+
     updateCircuit(updatedCircuit) {
       // Update circuit properties in the circuit manager
       const circuit = this.circuitManager.getCircuit(updatedCircuit.id)
@@ -312,27 +315,27 @@ export default {
           ...circuit.properties,
           ...updatedCircuit.properties
         }
-        
+
         // Update selectedCircuit to reflect changes
         this.selectedCircuit = circuit
       }
     },
-    
+
     async saveCircuitFile() {
       await this.saveCircuit(this.$refs.canvas)
     },
-    
+
     async openCircuitFile() {
       await this.openCircuit(this.$refs.canvas)
     },
-    
+
     handleDragEnter(event) {
       this.dragCounter++
       if (event.dataTransfer.types.includes('Files')) {
         this.isDraggingOver = true
       }
     },
-    
+
     handleDragLeave(event) {
       this.dragCounter--
       if (this.dragCounter <= 0) {
@@ -340,51 +343,49 @@ export default {
         this.dragCounter = 0
       }
     },
-    
+
     handleDragOver(event) {
       // Check if the drag contains files
       if (event.dataTransfer.types.includes('Files')) {
         event.dataTransfer.dropEffect = 'copy'
       }
     },
-    
+
     async handleDrop(event) {
       this.isDraggingOver = false
       this.dragCounter = 0
-      
+
       const files = Array.from(event.dataTransfer.files)
-      
+
       // Find the first JSON file
-      const jsonFile = files.find(file => 
-        file.type === 'application/json' || 
-        file.name.toLowerCase().endsWith('.json')
+      const jsonFile = files.find(
+        file => file.type === 'application/json' || file.name.toLowerCase().endsWith('.json')
       )
-      
+
       if (!jsonFile) {
         alert(this.$t('ui.dropFileAlert'))
         return
       }
-      
+
       await this.handleDroppedFile(this.$refs.canvas, jsonFile)
-    },
-    
+    }
   },
-  
+
   mounted() {
     // Set up the beforeunload handler
-    this.beforeUnloadHandler = (event) => this.handleBeforeUnload(this.$refs.canvas, event)
+    this.beforeUnloadHandler = event => this.handleBeforeUnload(this.$refs.canvas, event)
     window.addEventListener('beforeunload', this.beforeUnloadHandler)
-    
+
     // Initialize selectedCircuit with the current circuit if no component is selected
     if (!this.selectedComponent && this.activeCircuit) {
       this.selectedCircuit = this.activeCircuit
     }
-    
+
     // Set up command event listener for keyboard shortcuts
-    this.commandEventHandler = (event) => this.handleCommand(event.detail)
+    this.commandEventHandler = event => this.handleCommand(event.detail)
     window.addEventListener('circuitCommand', this.commandEventHandler)
   },
-  
+
   watch: {
     // Watch for activeCircuit changes (tab switching) and update selectedCircuit if no component is selected
     activeCircuit(newCircuit) {
@@ -393,13 +394,13 @@ export default {
       }
     }
   },
-  
+
   beforeUnmount() {
     // Clean up the beforeunload handler
     if (this.beforeUnloadHandler) {
       window.removeEventListener('beforeunload', this.beforeUnloadHandler)
     }
-    
+
     // Clean up the command event handler
     if (this.commandEventHandler) {
       window.removeEventListener('circuitCommand', this.commandEventHandler)
@@ -433,7 +434,8 @@ export default {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background-color: #f5f5f5;
 }
 
@@ -494,7 +496,9 @@ body {
 .p-tieredmenu {
   min-width: 160px;
   border-radius: 6px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Improve TieredMenu item spacing */

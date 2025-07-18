@@ -1,45 +1,41 @@
 <template>
-  <svg 
-    :width="size" 
-    :height="size" 
-    :viewBox="iconViewBox" 
-    class="gate-icon"
-  >
+  <svg :width="size" :height="size" :viewBox="iconViewBox" class="gate-icon">
     <!-- Render splitter/merger as multiple path elements -->
     <template v-if="componentType === 'splitter' || componentType === 'merger'">
-      <path 
-        v-for="(pathSegment, index) in pathSegments" 
+      <path
+        v-for="(pathSegment, index) in pathSegments"
         :key="index"
-        :d="pathSegment" 
+        :d="pathSegment"
         fill="none"
-        :stroke="color" 
+        :stroke="color"
         :stroke-width="strokeWidth"
         stroke-linecap="round"
       />
     </template>
-    
+
     <!-- Render other components as single path -->
     <template v-else>
-      <path 
-        :d="componentPath" 
-        :fill="fillColor" 
-        :stroke="color" 
-        :stroke-width="strokeWidth"
-      />
+      <path :d="componentPath" :fill="fillColor" :stroke="color" :stroke-width="strokeWidth" />
       <!-- Add concave line for XOR and XNOR gates -->
-      <path 
+      <path
         v-if="(componentType === 'xor' || componentType === 'xnor') && xorConcaveLine"
-        :d="xorConcaveLine" 
+        :d="xorConcaveLine"
         fill="none"
-        :stroke="color" 
+        :stroke="color"
         :stroke-width="strokeWidth"
       />
       <!-- Add a clear, prominent negation circle for small icons -->
-      <circle 
-        v-if="size <= 20 && (componentType === 'not' || componentType === 'nand' || componentType === 'nor' || componentType === 'xnor')" 
-        :cx="negationCircleX" 
-        :cy="15" 
-        :r="3" 
+      <circle
+        v-if="
+          size <= 20 &&
+          (componentType === 'not' ||
+            componentType === 'nand' ||
+            componentType === 'nor' ||
+            componentType === 'xnor')
+        "
+        :cx="negationCircleX"
+        :cy="15"
+        :r="3"
         fill="white"
         :stroke="color"
         :stroke-width="2"
@@ -73,19 +69,25 @@ export default {
       if (['and', 'or', 'xor', 'not', 'nand', 'nor', 'xnor'].includes(this.componentType)) {
         const definition = getGateDefinition(this.componentType)
         if (!definition) return ''
-        
+
         // Use a standard height for icon rendering
         const iconHeight = 30
         const padding = 5
-        
+
         let path = definition.getSvgPath(iconHeight, padding)
-        
+
         // For small icons, remove the negation circles from the path (we'll add them as separate elements)
-        if (this.size <= 20 && (this.componentType === 'not' || this.componentType === 'nand' || this.componentType === 'nor' || this.componentType === 'xnor')) {
+        if (
+          this.size <= 20 &&
+          (this.componentType === 'not' ||
+            this.componentType === 'nand' ||
+            this.componentType === 'nor' ||
+            this.componentType === 'xnor')
+        ) {
           // Remove the negation circle arcs from the path entirely
           path = path.replace(/M [0-9\.\s\*\+\-]+A 5 5[^Z]+A 5 5[^Z]+/g, '')
         }
-        
+
         // For XOR and XNOR gates, also need to handle the additional concave line
         if (this.componentType === 'xor' || this.componentType === 'xnor') {
           // Split the path into main body and concave line
@@ -95,20 +97,20 @@ export default {
             return pathParts[0].trim()
           }
         }
-        
+
         return path
       }
-      
+
       // Handle I/O components
       if (this.componentType === 'input') {
         // Rectangle for input - much larger to match gate icon prominence
         const width = 35
         const height = 22
         const x = 4
-        const y = 15 - height/2
+        const y = 15 - height / 2
         return `M ${x} ${y} L ${x + width} ${y} L ${x + width} ${y + height} L ${x} ${y + height} Z`
       }
-      
+
       if (this.componentType === 'output') {
         // Circle for output - much larger radius to match gate icon prominence
         const radius = 14
@@ -116,7 +118,7 @@ export default {
         const cy = 15
         return `M ${cx + radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy}`
       }
-      
+
       if (this.componentType === 'splitter') {
         // Splitter: one input line to thick vertical body, multiple output lines
         // Make it really large and prominent to match gate icons
@@ -130,7 +132,7 @@ export default {
         const output3 = `M 15 24 L 29 24`
         return `${body} ${input} ${output1} ${output2} ${output3}`
       }
-      
+
       if (this.componentType === 'merger') {
         // Merger: multiple input lines to thick vertical body, one output line
         // Make it really large and prominent to match gate icons
@@ -144,10 +146,10 @@ export default {
         const output = `M 15 15 L 29 15`
         return `${body} ${input1} ${input2} ${input3} ${output}`
       }
-      
+
       return ''
     },
-    
+
     strokeWidth() {
       // Use thicker strokes for small icons to improve visibility
       // Make splitter and merger much thicker since they're line-based
@@ -156,7 +158,7 @@ export default {
       }
       return this.size <= 20 ? 3 : 2
     },
-    
+
     negationCircleX() {
       // Position the negation circle at the right edge of the gate
       if (this.componentType === 'not') {
@@ -170,7 +172,7 @@ export default {
       }
       return 0
     },
-    
+
     fillColor() {
       // Different fill for different component types
       if (this.componentType === 'output') {
@@ -178,17 +180,20 @@ export default {
       }
       return 'none' // No fill for gates and inputs
     },
-    
+
     pathSegments() {
       // Split the componentPath into individual path segments for splitter/merger
       if (this.componentType === 'splitter' || this.componentType === 'merger') {
-        return this.componentPath.split(' M ').map((segment, index) => {
-          return index === 0 ? segment : 'M ' + segment
-        }).filter(segment => segment.trim())
+        return this.componentPath
+          .split(' M ')
+          .map((segment, index) => {
+            return index === 0 ? segment : 'M ' + segment
+          })
+          .filter(segment => segment.trim())
       }
       return []
     },
-    
+
     xorConcaveLine() {
       // Generate the concave line path for XOR and XNOR gates
       if (this.componentType === 'xor' || this.componentType === 'xnor') {
@@ -197,7 +202,7 @@ export default {
           const iconHeight = 30
           const padding = 5
           const fullPath = definition.getSvgPath(iconHeight, padding)
-          
+
           // Extract the concave line part (after "M 5")
           const pathParts = fullPath.split('M 5')
           if (pathParts.length > 1) {
@@ -216,15 +221,15 @@ export default {
       }
       return null
     },
-    
+
     iconViewBox() {
       // Adjust viewBox based on gate type to ensure all elements are visible
       if (this.componentType === 'xnor') {
-        return "0 0 95 30"  // Wider to accommodate negation circle
+        return '0 0 95 30' // Wider to accommodate negation circle
       } else if (this.componentType === 'xor') {
-        return "0 0 75 30"  // Standard XOR width
+        return '0 0 75 30' // Standard XOR width
       }
-      return "0 0 60 30"  // Standard width for other gates
+      return '0 0 60 30' // Standard width for other gates
     }
   }
 }

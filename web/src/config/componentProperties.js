@@ -24,13 +24,13 @@ const commonProperties = {
     default: 0
   },
   numInputs: {
-        name: 'numInputs',
-        type: 'number',
-        label: 'Number of Inputs',
-        default: 2,
-        min: 2,
-        max: 8,
-        showButtons: true
+    name: 'numInputs',
+    type: 'number',
+    label: 'Number of Inputs',
+    default: 2,
+    min: 2,
+    max: 8,
+    showButtons: true
   },
   invertedInputs: {
     name: 'invertedInputs',
@@ -42,7 +42,7 @@ const commonProperties = {
 
 export const componentPropertySchema = {
   // Input node properties
-  'input': {
+  input: {
     title: 'Input Properties',
     properties: [
       { ...commonProperties.label, default: 'IN' },
@@ -51,7 +51,7 @@ export const componentPropertySchema = {
         type: 'number',
         label: 'Base',
         default: 10,
-        hidden: true  // Hidden from inspector, managed internally
+        hidden: true // Hidden from inspector, managed internally
       },
       commonProperties.bits,
       {
@@ -60,15 +60,15 @@ export const componentPropertySchema = {
         label: 'Value',
         default: 0,
         min: 0,
-        maxFormula: (props) => Math.pow(2, props.bits || 1) - 1,
+        maxFormula: props => Math.pow(2, props.bits || 1) - 1,
         showButtons: true
       },
       commonProperties.rotation
     ]
   },
-  
+
   // Output node properties
-  'output': {
+  output: {
     title: 'Output Properties',
     properties: [
       { ...commonProperties.label, default: 'OUT' },
@@ -82,7 +82,7 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
-  
+
   // AND gate properties
   'and-gate': {
     title: 'AND Gate Properties',
@@ -94,7 +94,7 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
-  
+
   // OR gate properties
   'or-gate': {
     title: 'OR Gate Properties',
@@ -128,7 +128,7 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
-  
+
   // NAND gate properties
   'nand-gate': {
     title: 'NAND Gate Properties',
@@ -140,7 +140,7 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
-  
+
   // NOR gate properties
   'nor-gate': {
     title: 'NOR Gate Properties',
@@ -166,7 +166,7 @@ export const componentPropertySchema = {
   },
 
   // Splitter properties
-  'splitter': {
+  splitter: {
     title: 'Splitter Properties',
     properties: [
       {
@@ -188,7 +188,7 @@ export const componentPropertySchema = {
   },
 
   // Merger properties
-  'merger': {
+  merger: {
     title: 'Merger Properties',
     properties: [
       {
@@ -210,7 +210,7 @@ export const componentPropertySchema = {
   },
 
   // Circuit properties
-  'circuit': {
+  circuit: {
     title: 'Circuit Properties',
     properties: [
       {
@@ -252,7 +252,7 @@ export function getCircuitProperties() {
 export function getDefaultProps(type) {
   const schema = componentPropertySchema[type]
   if (!schema) return {}
-  
+
   const defaults = {}
   schema.properties.forEach(prop => {
     defaults[prop.name] = prop.default
@@ -264,15 +264,15 @@ export function getDefaultProps(type) {
 export function validatePropertyValue(type, propName, value, allProps) {
   const schema = componentPropertySchema[type]
   if (!schema) return true
-  
+
   const propDef = schema.properties.find(p => p.name === propName)
   if (!propDef) return true
-  
+
   if (propDef.type === 'number') {
     const min = propDef.min || -Infinity
-    const max = propDef.maxFormula ? propDef.maxFormula(allProps) : (propDef.max || Infinity)
+    const max = propDef.maxFormula ? propDef.maxFormula(allProps) : propDef.max || Infinity
     return value >= min && value <= max
   }
-  
+
   return true
 }

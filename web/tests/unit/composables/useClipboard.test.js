@@ -32,7 +32,7 @@ describe('useClipboard', () => {
   describe('serializeElements', () => {
     it('should serialize empty elements', () => {
       const result = clipboard.serializeElements(mockCircuitElements.empty)
-      
+
       expect(result).toMatchObject({
         version: '1.0',
         elements: {
@@ -50,7 +50,7 @@ describe('useClipboard', () => {
 
     it('should serialize single component with relative positioning', () => {
       const result = clipboard.serializeElements(mockCircuitElements.singleComponent)
-      
+
       expect(result.elements.components).toHaveLength(1)
       expect(result.elements.components[0]).toMatchObject({
         id: 'input_1_1234567890',
@@ -68,7 +68,7 @@ describe('useClipboard', () => {
 
     it('should serialize complex circuit with all elements', () => {
       const result = clipboard.serializeElements(mockCircuitElements.complexCircuit)
-      
+
       expect(result.elements.components).toHaveLength(5)
       expect(result.elements.wires).toHaveLength(2)
       expect(result.elements.junctions).toHaveLength(2)
@@ -82,14 +82,17 @@ describe('useClipboard', () => {
         ],
         wires: [
           testUtils.createMockWire({
-            points: [{ x: 5, y: 15 }, { x: 35, y: 45 }]
+            points: [
+              { x: 5, y: 15 },
+              { x: 35, y: 45 }
+            ]
           })
         ],
         junctions: []
       }
 
       const result = clipboard.serializeElements(elements)
-      
+
       expect(result.bounds.originalBounds).toEqual({
         minX: 5,
         minY: 15,
@@ -104,16 +107,16 @@ describe('useClipboard', () => {
           splits: [{ low: 0, high: 3 }]
         }
       })
-      
+
       const result = clipboard.serializeElements({
         components: [component],
         wires: [],
         junctions: []
       })
-      
+
       // Modify original props
       component.props.splits[0].low = 999
-      
+
       // Serialized props should be unchanged
       expect(result.elements.components[0].props.splits[0].low).toBe(0)
     })
@@ -125,9 +128,9 @@ describe('useClipboard', () => {
         version: '1.0',
         elements: { components: [], wires: [], junctions: [] }
       }
-      
+
       const result = clipboard.deserializeElements(clipboardData)
-      
+
       expect(result).toEqual({
         components: [],
         wires: [],
@@ -157,9 +160,9 @@ describe('useClipboard', () => {
           junctions: []
         }
       }
-      
+
       const result = clipboard.deserializeElements(clipboardData)
-      
+
       expect(result.components).toHaveLength(1)
       expect(result.components[0].id).not.toBe(originalId)
       expect(result.components[0].id).toMatch(/^input_\d+_[a-z0-9]+$/)
@@ -184,9 +187,9 @@ describe('useClipboard', () => {
           junctions: []
         }
       }
-      
+
       const result = clipboard.deserializeElements(clipboardData, pastePosition)
-      
+
       expect(result.components[0].x).toBe(15) // 5 + 10
       expect(result.components[0].y).toBe(27) // 7 + 20
     })
@@ -208,7 +211,10 @@ describe('useClipboard', () => {
           wires: [
             {
               id: 'wire_1_1234567890',
-              points: [{ x: 0, y: 0 }, { x: 10, y: 0 }],
+              points: [
+                { x: 0, y: 0 },
+                { x: 10, y: 0 }
+              ],
               startConnection: {
                 componentId: oldComponentId,
                 portIndex: 0,
@@ -220,9 +226,9 @@ describe('useClipboard', () => {
           junctions: []
         }
       }
-      
+
       const result = clipboard.deserializeElements(clipboardData)
-      
+
       const newComponentId = result.components[0].id
       expect(result.wires[0].startConnection.componentId).toBe(newComponentId)
       expect(result.wires[0].startConnection.componentId).not.toBe(oldComponentId)
@@ -230,7 +236,7 @@ describe('useClipboard', () => {
 
     it('should handle invalid clipboard data gracefully', () => {
       const result = clipboard.deserializeElements(null)
-      
+
       expect(result).toEqual({
         components: [],
         wires: [],
@@ -242,9 +248,9 @@ describe('useClipboard', () => {
   describe('copyToClipboard', () => {
     it('should copy elements to internal clipboard', () => {
       const elements = mockCircuitElements.singleComponent
-      
+
       const result = clipboard.copyToClipboard(elements)
-      
+
       expect(clipboard.hasClipboardData.value).toBe(true)
       expect(result.operation).toBe('copy')
       expect(result.elements.components).toHaveLength(1)
@@ -252,7 +258,7 @@ describe('useClipboard', () => {
 
     it('should update clipboard stats', () => {
       clipboard.copyToClipboard(mockCircuitElements.simpleCircuit)
-      
+
       const stats = clipboard.getClipboardStats()
       expect(stats.components).toBe(3)
       expect(stats.wires).toBe(2)
@@ -264,9 +270,9 @@ describe('useClipboard', () => {
   describe('cutToClipboard', () => {
     it('should cut elements to internal clipboard', () => {
       const elements = mockCircuitElements.singleComponent
-      
+
       const result = clipboard.cutToClipboard(elements)
-      
+
       expect(clipboard.hasClipboardData.value).toBe(true)
       expect(result.operation).toBe('cut')
       expect(clipboard.isCutOperation()).toBe(true)
@@ -277,10 +283,10 @@ describe('useClipboard', () => {
     it('should paste from internal clipboard', () => {
       // First copy something
       clipboard.copyToClipboard(mockCircuitElements.singleComponent)
-      
+
       const pastePosition = { x: 5, y: 10 }
       const result = clipboard.pasteFromClipboard(pastePosition)
-      
+
       expect(result.components).toHaveLength(1)
       expect(result.components[0].x).toBe(5) // 0 + 5
       expect(result.components[0].y).toBe(10) // 0 + 10
@@ -289,7 +295,7 @@ describe('useClipboard', () => {
 
     it('should return null when clipboard is empty', () => {
       const result = clipboard.pasteFromClipboard()
-      
+
       expect(result).toBe(null)
     })
   })
@@ -297,9 +303,9 @@ describe('useClipboard', () => {
   describe('OS clipboard integration', () => {
     it('should get clipboard data for OS clipboard', () => {
       clipboard.copyToClipboard(mockCircuitElements.singleComponent)
-      
+
       const osData = clipboard.getClipboardDataForOS()
-      
+
       expect(osData).toBeTypeOf('string')
       expect(JSON.parse(osData)).toMatchObject({
         version: '1.0',
@@ -313,9 +319,9 @@ describe('useClipboard', () => {
 
     it('should set clipboard data from OS clipboard', () => {
       const jsonData = JSON.stringify(mockClipboardData.validClipboard)
-      
+
       const result = clipboard.setClipboardDataFromOS(jsonData)
-      
+
       expect(result).toBe(true)
       expect(clipboard.hasClipboardData.value).toBe(true)
     })
@@ -323,7 +329,7 @@ describe('useClipboard', () => {
     it('should handle invalid OS clipboard data', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const result = clipboard.setClipboardDataFromOS('invalid json')
-      
+
       expect(result).toBe(false)
       expect(clipboard.hasClipboardData.value).toBe(false)
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -341,9 +347,9 @@ describe('useClipboard', () => {
           testUtils.createMockComponent('input', { x: 10, y: 20 }),
           testUtils.createMockComponent('output', { x: 30, y: 5 })
         ]
-        
+
         const bounds = clipboard.calculateBounds(components, [])
-        
+
         expect(bounds).toEqual({
           minX: 10,
           minY: 5,
@@ -355,12 +361,15 @@ describe('useClipboard', () => {
       it('should calculate bounds for wires only', () => {
         const wires = [
           testUtils.createMockWire({
-            points: [{ x: 5, y: 15 }, { x: 25, y: 35 }]
+            points: [
+              { x: 5, y: 15 },
+              { x: 25, y: 35 }
+            ]
           })
         ]
-        
+
         const bounds = clipboard.calculateBounds([], wires)
-        
+
         expect(bounds).toEqual({
           minX: 5,
           minY: 15,
@@ -371,7 +380,7 @@ describe('useClipboard', () => {
 
       it('should handle empty elements', () => {
         const bounds = clipboard.calculateBounds([], [])
-        
+
         expect(bounds).toEqual({
           minX: 0,
           minY: 0,
@@ -385,7 +394,7 @@ describe('useClipboard', () => {
       it('should generate unique component IDs', () => {
         const id1 = clipboard.generateUniqueId('input')
         const id2 = clipboard.generateUniqueId('input')
-        
+
         expect(id1).not.toBe(id2)
         expect(id1).toMatch(/^input_\d+_[a-z0-9]+$/)
         expect(id2).toMatch(/^input_\d+_[a-z0-9]+$/)
@@ -394,7 +403,7 @@ describe('useClipboard', () => {
       it('should generate unique wire IDs', () => {
         const id1 = clipboard.generateUniqueWireId()
         const id2 = clipboard.generateUniqueWireId()
-        
+
         expect(id1).not.toBe(id2)
         expect(id1).toMatch(/^wire_\d+_[a-z0-9]+$/)
         expect(id2).toMatch(/^wire_\d+_[a-z0-9]+$/)
@@ -406,9 +415,9 @@ describe('useClipboard', () => {
     it('should clear clipboard', () => {
       clipboard.copyToClipboard(mockCircuitElements.singleComponent)
       expect(clipboard.hasClipboardData.value).toBe(true)
-      
+
       clipboard.clearClipboard()
-      
+
       expect(clipboard.hasClipboardData.value).toBe(false)
       expect(clipboard.getClipboardStats().components).toBe(0)
     })
@@ -416,14 +425,14 @@ describe('useClipboard', () => {
     it('should track operation type', () => {
       clipboard.copyToClipboard(mockCircuitElements.singleComponent)
       expect(clipboard.isCutOperation()).toBe(false)
-      
+
       clipboard.cutToClipboard(mockCircuitElements.singleComponent)
       expect(clipboard.isCutOperation()).toBe(true)
     })
 
     it('should provide clipboard statistics', () => {
       clipboard.copyToClipboard(mockCircuitElements.complexCircuit)
-      
+
       const stats = clipboard.getClipboardStats()
       expect(stats).toMatchObject({
         components: 5,
@@ -450,9 +459,9 @@ describe('useClipboard', () => {
         wires: [],
         junctions: []
       }
-      
+
       const result = clipboard.serializeElements(elements)
-      
+
       expect(result.elements.components[0].props).toEqual({})
     })
 
@@ -462,30 +471,31 @@ describe('useClipboard', () => {
         wires: [
           {
             id: 'test_wire',
-            points: [{ x: 0, y: 0 }, { x: 10, y: 0 }]
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 0 }
+            ]
             // No startConnection or endConnection
           }
         ],
         junctions: []
       }
-      
+
       const result = clipboard.serializeElements(elements)
-      
+
       expect(result.elements.wires[0].startConnection).toBe(null)
       expect(result.elements.wires[0].endConnection).toBe(null)
     })
 
     it('should handle large coordinates', () => {
       const elements = {
-        components: [
-          testUtils.createMockComponent('input', { x: 1000000, y: 2000000 })
-        ],
+        components: [testUtils.createMockComponent('input', { x: 1000000, y: 2000000 })],
         wires: [],
         junctions: []
       }
-      
+
       const result = clipboard.serializeElements(elements)
-      
+
       expect(result.elements.components[0].x).toBe(0) // Relative to bounds
       expect(result.elements.components[0].y).toBe(0)
     })

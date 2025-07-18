@@ -4,20 +4,20 @@
       <i class="pi pi-info-circle"></i>
       <p>{{ $t('componentInspector.emptyState') }}</p>
     </div>
-    
+
     <!-- Circuit properties -->
     <div v-else-if="circuit && !component" class="inspector-content">
       <div class="property-section" v-if="circuitSchema">
         <h4>{{ circuitSchema.title }}</h4>
-        <div 
-          v-for="prop in circuitSchema.properties.filter(p => !p.hidden)" 
+        <div
+          v-for="prop in circuitSchema.properties.filter(p => !p.hidden)"
           :key="prop.name"
           class="property-group"
         >
           <label>{{ prop.label }}</label>
-          
+
           <!-- Python identifier input for circuit name -->
-          <PythonIdentifierInput 
+          <PythonIdentifierInput
             v-if="prop.type === 'text' && prop.name === 'name'"
             :modelValue="getCircuitValue(prop.name)"
             @update:modelValue="updateCircuitValue(prop.name, $event)"
@@ -25,18 +25,18 @@
             :required="true"
             class="property-input"
           />
-          
+
           <!-- Regular text input for other circuit properties -->
-          <InputText 
+          <InputText
             v-else-if="prop.type === 'text'"
             :modelValue="getCircuitValue(prop.name)"
             @update:modelValue="updateCircuitValue(prop.name, $event)"
             :placeholder="prop.placeholder"
             class="property-input"
           />
-          
+
           <!-- Textarea for description -->
-          <Textarea 
+          <Textarea
             v-else-if="prop.type === 'textarea'"
             :modelValue="getCircuitValue(prop.name)"
             @update:modelValue="updateCircuitValue(prop.name, $event)"
@@ -44,18 +44,14 @@
             :rows="3"
             class="property-input"
           />
-          
+
           <small v-if="prop.help" class="property-help">{{ prop.help }}</small>
         </div>
-        
+
         <!-- Circuit Actions -->
         <div v-if="circuitSchema.actions" class="actions-section">
-          <div 
-            v-for="action in circuitSchema.actions" 
-            :key="action.name"
-            class="action-group"
-          >
-            <Button 
+          <div v-for="action in circuitSchema.actions" :key="action.name" class="action-group">
+            <Button
               :label="action.label"
               :title="action.help"
               class="p-button-sm action-button"
@@ -66,58 +62,60 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Component properties -->
     <div v-else-if="component" class="inspector-content">
       <!-- Component properties based on configuration -->
       <div class="property-section" v-if="componentSchema">
         <h4>{{ componentSchema.title }}</h4>
-        <div 
-          v-for="prop in componentSchema.properties.filter(p => !p.hidden)" 
+        <div
+          v-for="prop in componentSchema.properties.filter(p => !p.hidden)"
           :key="prop.name"
           class="property-group"
         >
           <label>{{ prop.label }}</label>
-          
+
           <!-- Text input -->
-          <InputText 
+          <InputText
             v-if="prop.type === 'text'"
-            :modelValue="getPropValue(prop.name, prop.default)" 
+            :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
-          
+
           <!-- Number input -->
           <MultibaseNumberInput
-            v-else-if="prop.type === 'number' && component.type === 'input' && prop.name === 'value'"
-            :modelValue="getPropValue(prop.name, prop.default)" 
+            v-else-if="
+              prop.type === 'number' && component.type === 'input' && prop.name === 'value'
+            "
+            :modelValue="getPropValue(prop.name, prop.default)"
             :base="getPropValue('base', 10)"
             @update:both="updateMultipleProps($event)"
             :min="prop.min || 0"
             :max="getMaxValue(prop)"
           />
-          <InputNumber 
+          <InputNumber
             v-else-if="prop.type === 'number'"
-            :modelValue="getPropValue(prop.name, prop.default)" 
+            :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
             :min="prop.min || 0"
             :max="getMaxValue(prop)"
             :showButtons="prop.showButtons !== false"
           />
-          
+
           <!-- Base selector -->
           <BaseSelector
             v-else-if="prop.type === 'base-selector'"
             :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
-          
+
           <!-- Rotation selector -->
           <RotationSelector
             v-else-if="prop.type === 'rotation-selector'"
             :modelValue="getPropValue(prop.name, prop.default)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
-          
+
           <!-- Inverted inputs selector -->
           <InvertedInputsSelector
             v-else-if="prop.type === 'inverted-inputs-selector'"
@@ -125,7 +123,7 @@
             :numInputs="getPropValue('numInputs', 2)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
-          
+
           <!-- Bit range table for splitter -->
           <BitRangeTable
             v-else-if="prop.type === 'bit-range-table'"
@@ -135,7 +133,7 @@
           />
         </div>
       </div>
-      
+
       <!-- Fallback for unknown component types -->
       <div v-else class="property-section">
         <h4>{{ getComponentTitle(component.type) }}</h4>
@@ -196,31 +194,31 @@ export default {
       // Only use default if value is null or undefined
       return value !== null && value !== undefined ? value : defaultValue
     },
-    
+
     getMaxValue(prop) {
       if (prop.maxFormula && this.component) {
         return prop.maxFormula(this.component.props || {})
       }
       return prop.max || 999999
     },
-    
+
     getComponentTitle(type) {
       const schema = getComponentProperties(type)
       return schema?.title || 'Component'
     },
-    
+
     updatePosition(axis, value) {
       if (value === null || value === undefined || !this.component) return
-      
+
       this.$emit('update:component', {
         ...this.component,
         [axis]: value
       })
     },
-    
+
     updateProp(propName, value) {
-      if (!this.component) return;
-      
+      if (!this.component) return
+
       this.$emit('update:component', {
         ...this.component,
         props: {
@@ -229,10 +227,10 @@ export default {
         }
       })
     },
-    
+
     updateMultipleProps(updates) {
-      if (!this.component) return;
-      
+      if (!this.component) return
+
       this.$emit('update:component', {
         ...this.component,
         props: {
@@ -241,17 +239,17 @@ export default {
         }
       })
     },
-    
+
     // Circuit value methods
     getCircuitValue(propName) {
       if (propName === 'name') return this.circuit?.name || ''
       if (propName === 'label') return this.circuit?.label || ''
       return this.circuit?.properties?.[propName] || ''
     },
-    
+
     updateCircuitValue(propName, value) {
       if (!this.circuit) return
-      
+
       const updatedCircuit = {
         ...this.circuit,
         [propName]: value,
@@ -260,10 +258,10 @@ export default {
           [propName]: value
         }
       }
-      
+
       this.$emit('update:circuit', updatedCircuit)
     },
-    
+
     // Handle action button clicks
     handleAction(actionName) {
       this.$emit('action', {

@@ -14,7 +14,11 @@
   position: relative;
   background: #ffffff;
   border: 1px solid #d1d5db;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   border-radius: 6px;
   font-size: 0.75rem;
   padding: 0.375rem 0.625rem;

@@ -30,12 +30,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     coverage: {
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'tests/',
-        'dist/',
-        '**/*.test.js'
-      ]
+      exclude: ['node_modules/', 'tests/', 'dist/', '**/*.test.js']
     },
     reporter: process.env.CI ? 'verbose' : 'default'
   },

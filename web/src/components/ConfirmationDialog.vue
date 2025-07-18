@@ -7,19 +7,15 @@
         <i :class="iconClass" class="modal-icon"></i>
         <h3 class="modal-title">{{ title }}</h3>
       </div>
-      
+
       <!-- Content -->
       <div class="modal-content">
         <p class="modal-message">{{ message }}</p>
       </div>
-      
+
       <!-- Footer with buttons -->
       <div class="modal-footer">
-        <button
-          v-if="showCancel"
-          class="modal-button modal-button-cancel"
-          @click="handleReject"
-        >
+        <button v-if="showCancel" class="modal-button modal-button-cancel" @click="handleReject">
           {{ cancelLabel }}
         </button>
         <button
@@ -65,7 +61,7 @@ export default {
     type: {
       type: String,
       default: 'warning', // warning, danger, info
-      validator: (value) => ['warning', 'danger', 'info'].includes(value)
+      validator: value => ['warning', 'danger', 'info'].includes(value)
     }
   },
   emits: ['accept', 'reject', 'update:visible'],
@@ -127,7 +123,9 @@ export default {
 .modal-dialog {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   max-width: 400px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

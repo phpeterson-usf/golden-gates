@@ -8,10 +8,10 @@ import { componentRegistry } from '../utils/componentRegistry'
 export function useComponentController(circuitManager, canvasOperations, undoController = null) {
   const { snapToGrid, gridSize } = canvasOperations
   const { activeCircuit, addComponent } = circuitManager
-  
+
   // Track last component position for intelligent placement (in grid units)
   const lastComponentPosition = ref({ x: 7, y: 7 })
-  
+
   /**
    * Add component at smart position with auto-naming and unique ID generation
    */
@@ -21,20 +21,20 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
       console.warn('No current circuit available for component insertion')
       return null
     }
-    
+
     // Use last component position with offset (5 grid units down)
     const x = lastComponentPosition.value.x
     const y = lastComponentPosition.value.y + 5
-    const snapped = { x, y }  // Already in grid units
-    
+    const snapped = { x, y } // Already in grid units
+
     // Get component configuration
     const config = componentRegistry[type]
     if (!config) return null
-    
+
     // Count existing components of this type to generate unique ID
     const existingOfType = activeCircuit.value.components.filter(c => c.type === type).length
     const componentId = `${type}_${existingOfType + 1}_${Date.now()}`
-    
+
     // Create new component
     const newComponent = {
       id: componentId,
@@ -43,7 +43,7 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
       y: snapped.y,
       props: { ...config.defaultProps, ...customProps }
     }
-    
+
     // Handle special component types with onCreate
     if (config.onCreate) {
       if (type === 'input') {
@@ -54,7 +54,7 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
         config.onCreate(newComponent, outputCount)
       }
     }
-    
+
     // Add to circuit with undo support
     if (undoController) {
       const addCommand = new undoController.AddComponentCommand(circuitManager, newComponent)
@@ -62,55 +62,55 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
     } else {
       addComponent(newComponent)
     }
-    
+
     // Update last component position
     lastComponentPosition.value = { x: snapped.x, y: snapped.y }
-    
+
     return newComponent
   }
-  
+
   /**
    * Get component configuration from registry
    */
   function getComponentConfig(type) {
     return componentRegistry[type]
   }
-  
+
   /**
    * Get component connections (handles dynamic connections)
    */
   function getComponentConnections(component) {
     const config = componentRegistry[component.type]
     if (!config) return { inputs: [], outputs: [] }
-    
+
     if (config.getConnections) {
       return config.getConnections(component.props, circuitManager)
     } else {
       return config.connections || { inputs: [], outputs: [] }
     }
   }
-  
+
   /**
    * Get component dimensions (handles dynamic dimensions)
    */
   function getComponentDimensions(component) {
     const config = componentRegistry[component.type]
     if (!config) return { width: 0, height: 0 }
-    
+
     if (config.getDimensions) {
       return config.getDimensions(component.props)
     } else {
       return config.dimensions || { width: 0, height: 0 }
     }
   }
-  
+
   /**
    * Find component at a specific connection point
    */
   function findComponentAtConnection(components, connection) {
     for (const component of components) {
       const connections = getComponentConnections(component)
-      
+
       // Check if this connection matches an output
       if (connection.portType === 'output' && connections.outputs) {
         const output = connections.outputs[connection.portIndex]
@@ -121,7 +121,7 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
           }
         }
       }
-      
+
       // Check if this connection matches an input
       if (connection.portType === 'input' && connections.inputs) {
         const input = connections.inputs[connection.portIndex]
@@ -135,14 +135,14 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
     }
     return null
   }
-  
+
   /**
    * Update last component position (for smart positioning)
    */
   function updateLastComponentPosition(x, y) {
     lastComponentPosition.value = { x, y }
   }
-  
+
   /**
    * Generate unique component ID
    */
@@ -150,16 +150,16 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
     const existingOfType = existingComponents.filter(c => c.type === type).length
     return `${type}_${existingOfType + 1}_${Date.now()}`
   }
-  
+
   /**
    * Create component instance with default properties
    */
   function createComponent(type, x, y, customProps = {}) {
     const config = componentRegistry[type]
     if (!config) return null
-    
+
     const componentId = generateComponentId(type, activeCircuit.value?.components || [])
-    
+
     const component = {
       id: componentId,
       type,
@@ -167,31 +167,33 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
       y,
       props: { ...config.defaultProps, ...customProps }
     }
-    
+
     // Handle special component types with onCreate
     if (config.onCreate) {
       if (type === 'input') {
-        const inputCount = activeCircuit.value?.components.filter(c => c.type === 'input').length || 0
+        const inputCount =
+          activeCircuit.value?.components.filter(c => c.type === 'input').length || 0
         config.onCreate(component, inputCount)
       } else if (type === 'output') {
-        const outputCount = activeCircuit.value?.components.filter(c => c.type === 'output').length || 0
+        const outputCount =
+          activeCircuit.value?.components.filter(c => c.type === 'output').length || 0
         config.onCreate(component, outputCount)
       }
     }
-    
+
     return component
   }
-  
+
   return {
     // State
     lastComponentPosition,
-    
+
     // Component creation and management
     addComponentAtSmartPosition,
     createComponent,
     generateComponentId,
     updateLastComponentPosition,
-    
+
     // Component utilities
     getComponentConfig,
     getComponentConnections,

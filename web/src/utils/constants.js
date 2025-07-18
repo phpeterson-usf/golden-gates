@@ -32,15 +32,15 @@ export const COLORS = {
   componentSelectedFill: '#dbeafe',
   componentSelectedStroke: '#3b82f6',
   componentHoverFill: '#f1f5f9',
-  
+
   // Connection point colors
   connectionFill: 'black',
   connectionHoverFill: '#0066cc',
-  
+
   // Grid colors
   gridDot: '#cbd5e1',
   canvasBackground: '#ffffff',
-  
+
   // Wire colors
   wire: '#374151',
   wireSelected: '#3b82f6',

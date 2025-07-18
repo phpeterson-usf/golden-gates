@@ -1,5 +1,5 @@
 <template>
-  <Dropdown 
+  <Dropdown
     :modelValue="modelValue"
     :options="options"
     @update:modelValue="handleChange"
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Dropdown from 'primevue/dropdown';
+import Dropdown from 'primevue/dropdown'
 
 export default {
   name: 'RotationSelector',
@@ -22,7 +22,7 @@ export default {
     modelValue: {
       type: Number,
       default: 0,
-      validator: (value) => [0, 90, 180, 270].includes(value)
+      validator: value => [0, 90, 180, 270].includes(value)
     }
   },
   emits: ['update:modelValue'],
@@ -33,15 +33,15 @@ export default {
         { label: '90°', value: 90 },
         { label: '180°', value: 180 },
         { label: '270°', value: 270 }
-      ];
+      ]
     }
   },
   methods: {
     handleChange(value) {
-      this.$emit('update:modelValue', value);
+      this.$emit('update:modelValue', value)
     }
   }
-};
+}
 </script>
 
 <style scoped>
