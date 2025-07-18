@@ -160,22 +160,123 @@ describe('useSelectionController - Rubber-band Selection Fix', () => {
     })
   })
 
-  describe('Wire selection', () => {
-    it('should deselect wires when they are no longer in the rubber-band area', () => {
-      // Start selection to include both wires
+  describe('Wire selection - Visual Center Based', () => {
+    it('should select wires based on their visual center (midpoint)', () => {
+      // Wire 1: from (1,1) to (3,1) - center at (2,1) = (40,20) pixels
+      // Wire 2: from (5,5) to (7,5) - center at (6,5) = (120,100) pixels
+      
+      // Start selection that includes wire 1's center but not wire 2's center
+      selectionController.startSelection({ x: 20, y: 10 }, true)
+      selectionController.updateSelectionEnd({ x: 60, y: 30 })
+      
+      // Only wire 1 should be selected (its center at (40,20) is in rectangle 20,10 to 60,30)
+      expect(selectionController.selectedWires.value.size).toBe(1)
+      expect(selectionController.selectedWires.value.has(0)).toBe(true)
+      expect(selectionController.selectedWires.value.has(1)).toBe(false)
+    })
+
+    it('should deselect wires when their center leaves the rubber-band area', () => {
+      // Start selection to include both wire centers
       selectionController.startSelection({ x: 0, y: 0 }, true)
       selectionController.updateSelectionEnd({ x: 200, y: 200 })
       
       // Both wires should be selected
       expect(selectionController.selectedWires.value.size).toBe(2)
 
-      // Shrink to only include the first wire
+      // Shrink to only include wire 1's center (40,20) but not wire 2's center (120,100)
       selectionController.updateSelectionEnd({ x: 80, y: 80 })
 
       // Only first wire should be selected
       expect(selectionController.selectedWires.value.size).toBe(1)
       expect(selectionController.selectedWires.value.has(0)).toBe(true)
       expect(selectionController.selectedWires.value.has(1)).toBe(false)
+    })
+
+    it('should select wire when rubber-band crosses its center, not just endpoints', () => {
+      // Wire 1: from (1,1) to (3,1) - center at (2,1) = (40,20) pixels
+      // Create a small selection rectangle that covers the center but not the endpoints
+      
+      selectionController.startSelection({ x: 35, y: 15 }, true)
+      selectionController.updateSelectionEnd({ x: 45, y: 25 })
+      
+      // Wire should be selected because its center (40,20) is within the rectangle
+      expect(selectionController.selectedWires.value.size).toBe(1)
+      expect(selectionController.selectedWires.value.has(0)).toBe(true)
+    })
+
+    it('should not select wire when rubber-band misses its center', () => {
+      // Wire 1: from (1,1) to (3,1) - center at (2,1) = (40,20) pixels
+      // Create selection that covers the endpoints but misses the center
+      
+      selectionController.startSelection({ x: 10, y: 10 }, true)
+      selectionController.updateSelectionEnd({ x: 35, y: 30 })
+      
+      // Wire should NOT be selected because center (40,20) is outside rectangle
+      expect(selectionController.selectedWires.value.size).toBe(0)
+    })
+
+    it('should handle diagonal wires correctly', () => {
+      // Add a diagonal wire for testing
+      const diagonalWires = ref([
+        { id: 'wire1', points: [{ x: 0, y: 0 }, { x: 4, y: 4 }] } // Center at (2,2) = (40,40)
+      ])
+      
+      const diagonalController = useSelectionController(components, diagonalWires)
+      
+      // Select around the center of the diagonal wire
+      diagonalController.startSelection({ x: 30, y: 30 }, true)
+      diagonalController.updateSelectionEnd({ x: 50, y: 50 })
+      
+      // Diagonal wire should be selected
+      expect(diagonalController.selectedWires.value.size).toBe(1)
+      expect(diagonalController.selectedWires.value.has(0)).toBe(true)
+    })
+
+    it('should work with multi-segment wires (using first and last points)', () => {
+      // Wire with multiple segments - selection is based on first and last points only
+      const multiSegmentWires = ref([
+        { 
+          id: 'wire1', 
+          points: [
+            { x: 0, y: 0 },   // First point
+            { x: 2, y: 0 },   // Middle point (not used for center calculation)
+            { x: 2, y: 2 },   // Middle point (not used for center calculation)
+            { x: 4, y: 2 }    // Last point
+          ] 
+        }
+      ])
+      // Center between first (0,0) and last (4,2) = (2,1) = (40,20) pixels
+      
+      const multiController = useSelectionController(components, multiSegmentWires)
+      
+      // Select around the calculated center
+      multiController.startSelection({ x: 30, y: 10 }, true)
+      multiController.updateSelectionEnd({ x: 50, y: 30 })
+      
+      // Wire should be selected based on center of first and last points
+      expect(multiController.selectedWires.value.size).toBe(1)
+      expect(multiController.selectedWires.value.has(0)).toBe(true)
+    })
+
+    it('should be consistent with component selection behavior', () => {
+      // Test that both components and wires use center-based selection
+      
+      // Position elements so their centers are close together:
+      // Component at (2,2) with center at (40,40)
+      // Wire from (1,1) to (3,3) with center at (2,2) = (40,40)
+      const mixedWires = ref([
+        { id: 'wire1', points: [{ x: 1, y: 1 }, { x: 3, y: 3 }] }
+      ])
+      
+      const mixedController = useSelectionController(components, mixedWires)
+      
+      // Select a small area around (40,40)
+      mixedController.startSelection({ x: 35, y: 35 }, true)
+      mixedController.updateSelectionEnd({ x: 45, y: 45 })
+      
+      // Both the component at (2,2) and wire with center at (2,2) should be selected
+      expect(mixedController.selectedComponents.value.has('comp1')).toBe(true) // comp1 is at (2,2)
+      expect(mixedController.selectedWires.value.has(0)).toBe(true)
     })
   })
 

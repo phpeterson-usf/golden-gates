@@ -125,19 +125,19 @@ export function useSelectionController(
       const firstPoint = wire.points[0]
       const lastPoint = wire.points[wire.points.length - 1]
 
-      // Convert wire points from grid units to pixels for comparison with selection rectangle
-      const firstPointPixels = { x: firstPoint.x * GRID_SIZE, y: firstPoint.y * GRID_SIZE }
-      const lastPointPixels = { x: lastPoint.x * GRID_SIZE, y: lastPoint.y * GRID_SIZE }
+      // Calculate the visual center (midpoint) of the wire
+      const centerX = (firstPoint.x + lastPoint.x) / 2
+      const centerY = (firstPoint.y + lastPoint.y) / 2
 
+      // Convert wire center from grid units to pixels for comparison with selection rectangle
+      const centerPixels = { x: centerX * GRID_SIZE, y: centerY * GRID_SIZE }
+
+      // Check if the wire's visual center is within the selection rectangle
       if (
-        firstPointPixels.x >= rect.x &&
-        firstPointPixels.x <= rect.x + rect.width &&
-        firstPointPixels.y >= rect.y &&
-        firstPointPixels.y <= rect.y + rect.height &&
-        lastPointPixels.x >= rect.x &&
-        lastPointPixels.x <= rect.x + rect.width &&
-        lastPointPixels.y >= rect.y &&
-        lastPointPixels.y <= rect.y + rect.height
+        centerPixels.x >= rect.x &&
+        centerPixels.x <= rect.x + rect.width &&
+        centerPixels.y >= rect.y &&
+        centerPixels.y <= rect.y + rect.height
       ) {
         wiresInRect.add(index)
       }
