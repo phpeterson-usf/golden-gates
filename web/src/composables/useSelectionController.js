@@ -18,6 +18,8 @@ export function useSelectionController(
   const selectionStart = ref(null)
   const selectionEnd = ref(null)
   const justFinishedSelecting = ref(false)
+  const isMultiSelectMode = ref(false)
+  const selectionSnapshot = ref(null)
 
   // Computed selection rectangle
   const selectionRect = computed(() => {
@@ -41,10 +43,18 @@ export function useSelectionController(
     isSelecting.value = true
     selectionStart.value = pos
     selectionEnd.value = pos
+    isMultiSelectMode.value = !clearExisting
 
     if (clearExisting) {
       selectedComponents.value.clear()
       selectedWires.value.clear()
+      selectionSnapshot.value = null
+    } else {
+      // In multi-select mode, capture current selection as snapshot
+      selectionSnapshot.value = {
+        components: new Set(selectedComponents.value),
+        wires: new Set(selectedWires.value)
+      }
     }
   }
 
@@ -62,8 +72,12 @@ export function useSelectionController(
     isSelecting.value = false
     justFinishedSelecting.value = true
     updateSelection()
+    
+    // Clean up selection state
     selectionStart.value = null
     selectionEnd.value = null
+    isMultiSelectMode.value = false
+    selectionSnapshot.value = null
   }
 
   // Update which components/wires are selected based on selection rectangle
@@ -75,7 +89,8 @@ export function useSelectionController(
     // Don't update if the rectangle is too small
     if (rect.width < 5 && rect.height < 5) return
 
-    // Select components within the rectangle
+    // Find components currently within the selection rectangle
+    const componentsInRect = new Set()
     components.value.forEach(comp => {
       const config = componentRegistry[comp.type]
       if (!config) return
@@ -100,11 +115,12 @@ export function useSelectionController(
         checkY >= rect.y &&
         checkY <= rect.y + rect.height
       ) {
-        selectedComponents.value.add(comp.id)
+        componentsInRect.add(comp.id)
       }
     })
 
-    // Select wires that have both endpoints within the selection rectangle
+    // Find wires currently within the selection rectangle
+    const wiresInRect = new Set()
     wires.value.forEach((wire, index) => {
       const firstPoint = wire.points[0]
       const lastPoint = wire.points[wire.points.length - 1]
@@ -123,9 +139,26 @@ export function useSelectionController(
         lastPointPixels.y >= rect.y &&
         lastPointPixels.y <= rect.y + rect.height
       ) {
-        selectedWires.value.add(index)
+        wiresInRect.add(index)
       }
     })
+
+    if (isMultiSelectMode.value && selectionSnapshot.value) {
+      // Multi-select mode: combine previous selection with current rectangle selection
+      const newSelectedComponents = new Set(selectionSnapshot.value.components)
+      const newSelectedWires = new Set(selectionSnapshot.value.wires)
+
+      // Add items that are in the current rectangle
+      componentsInRect.forEach(id => newSelectedComponents.add(id))
+      wiresInRect.forEach(index => newSelectedWires.add(index))
+
+      selectedComponents.value = newSelectedComponents
+      selectedWires.value = newSelectedWires
+    } else {
+      // Single-select mode: selection is exactly what's in the rectangle
+      selectedComponents.value = componentsInRect
+      selectedWires.value = wiresInRect
+    }
   }
 
   // Select/deselect a single component
