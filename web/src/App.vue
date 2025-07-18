@@ -171,6 +171,18 @@ export default {
     // Initialize command palette
     const { isVisible: commandPaletteVisible } = useCommandPalette()
     
+    // Command handler for keyboard shortcuts
+    const handleCommand = ({ action, params }) => {
+      // This will be bound to the component instance after mounting
+      // For now, we'll store the command and handle it in mounted
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('circuitCommand', { detail: { action, params } }))
+      }
+    }
+    
+    // Set up keyboard shortcuts with command palette visibility check
+    useKeyboardShortcuts(handleCommand, commandPaletteVisible)
+    
     return { 
       // Circuit manager
       circuitManager,
@@ -217,9 +229,7 @@ export default {
   },
   computed: {
     commandPaletteTooltip() {
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-      const shortcut = isMac ? '⌘G' : 'Ctrl+G'
-      return `${this.$t('commands.commandPalette.title')} (${shortcut})`
+      return `${this.$t('commands.commandPalette.title')} (G)`
     }
   },
   methods: {
@@ -371,8 +381,9 @@ export default {
       this.selectedCircuit = this.activeCircuit
     }
     
-    // Set up keyboard shortcuts
-    useKeyboardShortcuts(this.handleCommand)
+    // Set up command event listener for keyboard shortcuts
+    this.commandEventHandler = (event) => this.handleCommand(event.detail)
+    window.addEventListener('circuitCommand', this.commandEventHandler)
   },
   
   watch: {
@@ -388,6 +399,11 @@ export default {
     // Clean up the beforeunload handler
     if (this.beforeUnloadHandler) {
       window.removeEventListener('beforeunload', this.beforeUnloadHandler)
+    }
+    
+    // Clean up the command event handler
+    if (this.commandEventHandler) {
+      window.removeEventListener('circuitCommand', this.commandEventHandler)
     }
   }
 }

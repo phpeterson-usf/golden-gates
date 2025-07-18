@@ -14,14 +14,14 @@ export const commandGroups = {
         labelKey: "commands.file.openCircuit",
         icon: "pi pi-folder-open",
         action: "openCircuit",
-        shortcut: "Cmd+Shift+O"
+        shortcut: "O"
       },
       {
         id: "save-circuit", 
         labelKey: "commands.file.saveCircuit",
         icon: "pi pi-save",
         action: "saveCircuit",
-        shortcut: "Cmd+Shift+S"
+        shortcut: "S"
       }
     ]
   },
@@ -33,13 +33,14 @@ export const commandGroups = {
         labelKey: "commands.simulation.run",
         icon: "pi pi-play",
         action: "runSimulation",
-        shortcut: "Cmd+Enter"
+        shortcut: "R"
       },
       {
         id: "stop-simulation",
         labelKey: "commands.simulation.stop",
         icon: "pi pi-stop",
-        action: "stopSimulation"
+        action: "stopSimulation",
+        shortcut: "T"
       }
     ]
   },

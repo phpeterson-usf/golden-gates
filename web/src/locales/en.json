@@ -136,7 +136,8 @@
       "placeholder": "Type a command or search...",
       "noResults": "No matching commands",
       "recentlyUsed": "Recently Used",
-      "title": "Command Palette"
+      "title": "Command Palette",
+      "againHint": "Press A to repeat"
     }
   },
   "ui": {

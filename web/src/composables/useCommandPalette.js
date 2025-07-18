@@ -20,8 +20,20 @@ export function useCommandPalette() {
   
   // Handle global keyboard shortcut
   function handleGlobalKeyDown(event) {
-    // Cmd+G (Mac) or Ctrl+G (Windows/Linux) to open command palette
-    if ((event.metaKey || event.ctrlKey) && event.key === 'g') {
+    // Don't trigger shortcuts when typing in input fields
+    const target = event.target
+    if (target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.contentEditable === 'true' ||
+        target.isContentEditable ||
+        target.closest('.p-inputtext') ||
+        target.closest('.p-inputnumber') ||
+        target.closest('input')) {
+      return
+    }
+    
+    // Only G to open command palette
+    if (event.key === 'g' || event.key === 'G') {
       event.preventDefault()
       toggle()
     }

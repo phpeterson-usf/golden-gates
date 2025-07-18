@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { getAllCommands } from '../config/commands'
 
-export function useKeyboardShortcuts(handleCommand) {
+export function useKeyboardShortcuts(handleCommand, commandPaletteVisible) {
   // Detect platform
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
   
@@ -12,9 +12,9 @@ export function useKeyboardShortcuts(handleCommand) {
     
     return {
       key,
-      // On Mac, use metaKey (Cmd), on Windows/Linux use ctrlKey
-      metaKey: isMac && (parts.includes('Cmd') || parts.includes('Ctrl')),
-      ctrlKey: !isMac && (parts.includes('Cmd') || parts.includes('Ctrl')),
+      // Use ctrlKey on all platforms to avoid browser conflicts
+      metaKey: false,
+      ctrlKey: parts.includes('Cmd') || parts.includes('Ctrl'),
       shiftKey: parts.includes('Shift'),
       altKey: parts.includes('Alt')
     }
@@ -40,16 +40,48 @@ export function useKeyboardShortcuts(handleCommand) {
   function handleGlobalKeyDown(event) {
     // Don't trigger shortcuts when typing in input fields
     const target = event.target
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+    if (target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.contentEditable === 'true' ||
+        target.isContentEditable ||
+        target.closest('.p-inputtext') ||
+        target.closest('.p-inputnumber') ||
+        target.closest('input')) {
+      return
+    }
+    
+    // Don't trigger shortcuts when command palette is open
+    if (commandPaletteVisible && commandPaletteVisible.value) {
+      return
+    }
+    
+    // Handle single-key shortcuts
+    const key = event.key.toLowerCase()
+    
+    // Handle "A" for "Again" - execute top recently used command
+    if (key === 'a') {
+      event.preventDefault()
+      // Get recent commands from localStorage or a global store
+      const recentCommandIds = JSON.parse(localStorage.getItem('recentCommands') || '[]')
+      if (recentCommandIds.length > 0) {
+        const allCommands = getAllCommands()
+        const topRecentCommand = allCommands.find(cmd => cmd.id === recentCommandIds[0])
+        if (topRecentCommand) {
+          handleCommand({
+            action: topRecentCommand.action,
+            params: topRecentCommand.params || []
+          })
+        }
+      }
       return
     }
     
     // Get all commands with shortcuts
     const commands = getAllCommands().filter(cmd => cmd.shortcut)
     
-    // Check if any command matches
+    // Check if any command matches (now just single keys)
     for (const command of commands) {
-      if (matchesShortcut(event, command.shortcut)) {
+      if (key === command.shortcut.toLowerCase()) {
         event.preventDefault()
         handleCommand({
           action: command.action,

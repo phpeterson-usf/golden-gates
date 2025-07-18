@@ -34,7 +34,10 @@
         
         <template v-else>
           <div v-if="recentCommands.length > 0" class="command-group">
-            <div class="command-group-header">{{ $t('commands.commandPalette.recentlyUsed') }}</div>
+            <div class="command-group-header">
+              {{ $t('commands.commandPalette.recentlyUsed') }}
+              <span class="command-group-hint">{{ $t('commands.commandPalette.againHint') }}</span>
+            </div>
             <div
               v-for="(command, index) in recentCommands"
               :key="`recent-${command.id}`"
@@ -112,7 +115,7 @@ export default {
     const selectedIndex = ref(0)
     const searchInput = ref(null)
     const resultsContainer = ref(null)
-    const recentCommandIds = ref([])
+    const recentCommandIds = ref(JSON.parse(localStorage.getItem('recentCommands') || '[]'))
     
     const visible = computed({
       get: () => props.modelValue,
@@ -203,20 +206,24 @@ export default {
     
     // Format keyboard shortcut for display
     function formatShortcut(shortcut) {
+      // For single-key shortcuts, just return the key
+      if (shortcut.length === 1) {
+        return shortcut.toUpperCase()
+      }
+      
+      // Legacy formatting for any complex shortcuts
       if (isMac) {
         return shortcut
-          .replace(/Cmd/g, '⌘')
+          .replace(/Cmd/g, '⌃')
           .replace(/Ctrl/g, '⌃')
           .replace(/Alt/g, '⌥')
           .replace(/Shift/g, '⇧')
-          .replace(/\+/g, '') // Remove plus signs for Mac, symbols are clear enough
+          .replace(/\+/g, '')
       } else {
-        // Windows/Linux formatting
         return shortcut
           .replace(/Cmd/g, 'Ctrl')
           .replace(/Alt/g, 'Alt')
           .replace(/Shift/g, 'Shift')
-          // Keep the + for Windows/Linux for clarity
       }
     }
     
@@ -260,6 +267,18 @@ export default {
         case 'Escape':
           event.preventDefault()
           visible.value = false
+          break
+          
+        case 'a':
+        case 'A':
+          // Don't execute commands when typing - let the user type "AND" etc.
+          // Just stop propagation to prevent global shortcuts
+          event.stopPropagation()
+          break
+        
+        default:
+          // For all other keys, stop propagation to prevent global shortcuts
+          event.stopPropagation()
           break
       }
     }
@@ -310,6 +329,9 @@ export default {
         command.id,
         ...recentCommandIds.value.filter(id => id !== command.id)
       ].slice(0, 10)
+      
+      // Persist to localStorage
+      localStorage.setItem('recentCommands', JSON.stringify(recentCommandIds.value))
       
       // Emit command event
       emit('command', {
@@ -432,6 +454,17 @@ export default {
   color: var(--text-color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.command-group-hint {
+  font-size: 0.625rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: 0.7;
 }
 
 .command-item {
