@@ -296,3 +296,7 @@ describe('useSelectionController - Rubber-band Selection Fix', () => {
     })
   })
 })
+
+// Additional tests for mixed component/wire selection would go here
+// These tests would verify that the selection controller properly handles 
+// both components and wires together in the same selection.

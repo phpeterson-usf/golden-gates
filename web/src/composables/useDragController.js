@@ -130,6 +130,19 @@ export function useDragController(
 
     const { offsetX, offsetY } = dragInfo
 
+    // Store initial positions of all selected components (if any)
+    const draggedComponents = []
+    for (const compId of selectedComponents.value) {
+      const comp = components.value.find(c => c.id === compId)
+      if (comp) {
+        draggedComponents.push({
+          id: comp.id,
+          initialX: comp.x,
+          initialY: comp.y
+        })
+      }
+    }
+
     // Store initial positions of all selected wires
     const draggedWires = []
     for (const index of selectedWires.value) {
@@ -141,6 +154,31 @@ export function useDragController(
         })
       }
     }
+
+    // Track wires that have endpoints connected to selected components
+    // but only move the specific endpoints, not the entire wire
+    const connectedWires = []
+    wires.value.forEach((wire, index) => {
+      if (!selectedWires.value.has(index)) {
+        const startSelected = selectedComponents.value.has(wire.startConnection.componentId)
+        const endSelected = selectedComponents.value.has(wire.endConnection.componentId)
+
+        if (startSelected || endSelected) {
+          connectedWires.push({
+            index: index,
+            startSelected,
+            endSelected,
+            initialStartPos: { x: wire.startConnection.pos.x, y: wire.startConnection.pos.y },
+            initialEndPos: { x: wire.endConnection.pos.x, y: wire.endConnection.pos.y },
+            initialFirstPoint: { x: wire.points[0].x, y: wire.points[0].y },
+            initialLastPoint: {
+              x: wire.points[wire.points.length - 1].x,
+              y: wire.points[wire.points.length - 1].y
+            }
+          })
+        }
+      }
+    })
 
     // Store initial positions of junctions that need to move with selected wires
     const draggedJunctions = []
@@ -162,9 +200,9 @@ export function useDragController(
       offsetX,
       offsetY,
       hasMoved: false,
-      components: [], // No components when dragging wires
+      components: draggedComponents, // Include selected components when dragging wires
       wires: draggedWires,
-      connectedWires: [], // No connected wires when dragging wires directly
+      connectedWires: connectedWires, // Include connected wires when dragging from wire
       junctions: draggedJunctions,
       isWireDrag: true
     }
