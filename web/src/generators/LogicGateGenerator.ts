@@ -52,6 +52,7 @@ export class LogicGateGenerator extends BaseComponentGenerator {
     if (this.bits > 1) params.push(`bits=${this.bits}`)
     if (this.label) params.push(`label="${this.label}"`)
     if (this.numInputs !== 2) params.push(`num_inputs=${this.numInputs}`)
+    if (this.invertedInputs.length > 0) params.push(`inverted_inputs=[${this.invertedInputs}]`)
 
     const paramStr = params.length > 0 ? params.join(', ') : ''
 
