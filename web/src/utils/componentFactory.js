@@ -2,6 +2,51 @@ import { defineAsyncComponent } from 'vue'
 import { GRID_SIZE } from './constants'
 import { getGateDefinition } from '../config/gateDefinitions'
 
+/**
+ * Apply rotation transformation to a connection point around a center
+ * @param {Object} point - The point to rotate {x, y}
+ * @param {number} rotation - Rotation in degrees (0, 90, 180, 270)
+ * @param {Object} center - Center point for rotation {x, y}
+ * @returns {Object} Rotated point {x, y}
+ */
+function rotatePoint(point, rotation, center) {
+  if (!rotation || rotation === 0) {
+    return point
+  }
+
+  // Translate point to origin (relative to center)
+  const translatedX = point.x - center.x
+  const translatedY = point.y - center.y
+
+  let rotatedX, rotatedY
+
+  // Apply rotation using discrete angle mapping (avoiding floating point issues)
+  switch (rotation) {
+    case 90:
+      rotatedX = -translatedY
+      rotatedY = translatedX
+      break
+    case 180:
+      rotatedX = -translatedX
+      rotatedY = -translatedY
+      break
+    case 270:
+      rotatedX = translatedY
+      rotatedY = -translatedX
+      break
+    default:
+      rotatedX = translatedX
+      rotatedY = translatedY
+      break
+  }
+
+  // Translate back from origin
+  return {
+    x: rotatedX + center.x,
+    y: rotatedY + center.y
+  }
+}
+
 // Shared functions for standard gate bounds and connections
 function standardGateBounds(props) {
   const numInputs = props?.numInputs || 2
@@ -31,6 +76,7 @@ function standardGateCenter(props) {
 function standardGateConnections(props) {
   const numInputs = props?.numInputs || 2
   const invertedInputs = props?.invertedInputs || []
+  const rotation = props?.rotation || 0
   const gateType = props?.gateType
   const definition = gateType ? getGateDefinition(gateType) : null
   const inputs = []
@@ -69,12 +115,39 @@ function standardGateConnections(props) {
     outputY = totalHeight / 2
   }
 
-  // All gates output at 3 grid units horizontally
+  // Define the output connection point before rotation
+  const outputConnection = { name: '0', x: 3 - outputOffset, y: outputY }
+
+  // Apply rotation transformation if needed
+  if (rotation && rotation !== 0) {
+    // Use the output point as the rotation center (matches LogicGate.vue visual rotation)
+    const rotationCenter = { x: outputConnection.x, y: outputConnection.y }
+
+    // Rotate all input connection points around the output center
+    const rotatedInputs = inputs.map(input => {
+      const rotatedPoint = rotatePoint(
+        { x: input.x, y: input.y },
+        rotation,
+        rotationCenter
+      )
+      return {
+        ...input,
+        x: rotatedPoint.x,
+        y: rotatedPoint.y
+      }
+    })
+
+    // Output point doesn't need rotation since it's the rotation center
+    return {
+      inputs: rotatedInputs,
+      outputs: [outputConnection]
+    }
+  }
+
+  // No rotation - return original positions
   return {
     inputs,
-    outputs: [
-      { name: '0', x: 3 - outputOffset, y: outputY } // 3 grid units right minus any offset
-    ]
+    outputs: [outputConnection]
   }
 }
 
