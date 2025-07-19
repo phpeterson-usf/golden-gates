@@ -404,6 +404,7 @@ export function useAppController(circuitManager) {
    */
   function hasUnsavedWork(canvasRef) {
     // Check if there are any components or wires in the circuit
+    // components and wires are direct reactive properties, not computed refs
     const components = canvasRef?.components || []
     const wires = canvasRef?.wires || []
     return components.length > 0 || wires.length > 0

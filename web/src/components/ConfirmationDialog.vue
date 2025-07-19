@@ -15,15 +15,15 @@
 
       <!-- Footer with buttons -->
       <div class="modal-footer">
+        <button v-if="showCancel" ref="cancelButton" class="modal-button modal-button-cancel" @click="handleReject">
+          {{ cancelLabel }}
+        </button>
         <button
           class="modal-button modal-button-confirm"
           :class="confirmButtonClass"
           @click="handleAccept"
         >
           {{ acceptLabel }}
-        </button>
-        <button v-if="showCancel" ref="cancelButton" class="modal-button modal-button-cancel" @click="handleReject">
-          {{ cancelLabel }}
         </button>
       </div>
     </div>

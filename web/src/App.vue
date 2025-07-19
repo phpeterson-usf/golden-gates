@@ -15,6 +15,12 @@
       :availableComponents="availableComponentsArray"
       @command="handleCommand"
     />
+    <AutosaveSelectionDialog
+      v-model:visible="showAutosaveDialog"
+      :autosaves="availableAutosaves"
+      @restore="handleAutosaveRestore"
+      @cancel="showAutosaveDialog = false"
+    />
     <Toolbar class="app-toolbar">
       <template #start>
         <Button
@@ -112,11 +118,13 @@ import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CommandPalette from './components/CommandPalette.vue'
+import AutosaveSelectionDialog from './components/AutosaveSelectionDialog.vue'
 import GoldenGateLogo from './components/GoldenGateLogo.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
 import { useAppController } from './composables/useAppController'
+import { useAutosave } from './composables/useAutosave'
 import { useCommandPalette } from './composables/useCommandPalette'
 import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
 
@@ -128,6 +136,7 @@ export default {
     ComponentInspector,
     ConfirmationDialog,
     CommandPalette,
+    AutosaveSelectionDialog,
     GoldenGateLogo
   },
   setup() {
@@ -136,6 +145,9 @@ export default {
 
     // Initialize circuit operations (controller layer)
     const circuitOperations = useAppController(circuitManager)
+
+    // Initialize autosave system
+    const autosave = useAutosave(circuitManager)
 
     // Extract needed properties for template
     const {
@@ -196,6 +208,9 @@ export default {
       switchToTab,
       closeTab,
 
+      // Autosave system
+      autosave,
+
       // Circuit operations
       createNewCircuit,
       runSimulation,
@@ -225,7 +240,9 @@ export default {
       selectedCircuit: null,
       isDraggingOver: false,
       dragCounter: 0,
-      beforeUnloadHandler: null
+      beforeUnloadHandler: null,
+      showAutosaveDialog: false,
+      availableAutosaves: []
     }
   },
   computed: {
@@ -400,6 +417,61 @@ export default {
       }
 
       await this.handleDroppedFile(this.$refs.canvas, jsonFile)
+    },
+
+    /**
+     * Check for available autosaves and prompt user for restoration
+     */
+    checkForAutosaveRestoration() {
+      // Only check if there's no meaningful user data to avoid overwriting current work
+      // Don't count empty default circuits as "existing data"
+      let hasExistingUserData = false
+      
+      // Check if any circuit has actual user content (components or wires)
+      for (const [circuitId, circuit] of this.allCircuits) {
+        if (circuit.components?.length > 0 || circuit.wires?.length > 0) {
+          hasExistingUserData = true
+          break
+        }
+      }
+
+      if (hasExistingUserData) {
+        // Skipping autosave restoration - existing user data found
+        return
+      }
+
+      // No existing user data found - checking for autosaves
+
+      const availableRestores = this.autosave.getAvailableRestores()
+      
+      if (availableRestores.length === 0) {
+        // No autosaves available for restoration
+        return
+      }
+
+      // Show the autosave selection dialog
+      this.availableAutosaves = availableRestores
+      this.showAutosaveDialog = true
+    },
+
+    /**
+     * Handle autosave restoration from selection dialog
+     */
+    handleAutosaveRestore(selectedAutosave) {
+      this.showAutosaveDialog = false
+      
+      if (this.autosave.restoreFromAutosave(selectedAutosave.key)) {
+        // Autosave restoration successful
+        // Force a re-render by updating reactive properties if needed
+        this.$nextTick(() => {
+          // Navigate to the restored active circuit if it exists
+          if (this.activeTabId && this.allCircuits.has(this.activeTabId)) {
+            this.switchToTab(this.activeTabId)
+          }
+        })
+      } else {
+        alert(this.$t('autosave.restoreError'))
+      }
     }
   },
 
@@ -407,6 +479,12 @@ export default {
     // Set up the beforeunload handler
     this.beforeUnloadHandler = event => this.handleBeforeUnload(this.$refs.canvas, event)
     window.addEventListener('beforeunload', this.beforeUnloadHandler)
+
+    // Initialize autosave system
+    this.autosave.initializeAutosave()
+
+    // Check for available autosaves and prompt for restoration
+    this.checkForAutosaveRestoration()
 
     // Initialize selectedCircuit with the current circuit if no component is selected
     if (!this.selectedComponent && this.activeCircuit) {

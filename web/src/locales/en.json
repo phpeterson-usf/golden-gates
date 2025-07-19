@@ -81,6 +81,21 @@
     "unsavedChanges": "You have unsaved changes",
     "unsavedChangesMessage": "If you close, your circuit will be lost"
   },
+  "autosave": {
+    "restoreTitle": "Restore Previous Work?",
+    "foundVersions": "Found {count} saved version{plural}:",
+    "timeAgo": {
+      "lessThanMinute": "less than 1 minute ago",
+      "minutes": "{count} minute{plural} ago",
+      "hoursAndMinutes": "{hours} hour{hoursPlural} and {minutes} minute{minutesPlural} ago"
+    },
+    "circuitCount": "{count} circuit{plural}",
+    "componentCount": "{count} component{plural}",
+    "activeCircuit": "Active: {name}",
+    "restoreSelected": "Restore Selected",
+    "cancel": "Cancel",
+    "restoreError": "Failed to restore autosaved data. Please try again or start a new circuit."
+  },
   "validation": {
     "required": "This field is required",
     "invalidNumber": "Please enter a valid number",
