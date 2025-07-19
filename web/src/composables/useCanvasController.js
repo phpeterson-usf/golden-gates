@@ -281,14 +281,48 @@ export function useCanvasController(
         circuitManager.removeComponent(component.id)
       })
 
-      // Delete selected wires
+      // Get the indices and IDs of wires to be deleted
+      const circuit = activeCircuit.value
+      const deletedWireIds = []
+      const deletedWireIndices = []
+      
       selectedElements.wires.forEach(wire => {
         if (wire && wire.id) {
-          circuitManager.removeWire(wire.id)
+          deletedWireIds.push(wire.id)
+          const index = circuit.wires.findIndex(w => w.id === wire.id)
+          if (index !== -1) {
+            deletedWireIndices.push(index)
+          }
         } else {
           console.warn(`Wire has no ID:`, wire)
         }
       })
+
+      // Delete selected wires
+      deletedWireIds.forEach(wireId => {
+        circuitManager.removeWire(wireId)
+      })
+
+      // Clean up junctions associated with deleted wires
+      if (circuit && circuit.wireJunctions && deletedWireIds.length > 0) {
+        const junctionsToRemove = []
+        
+        circuit.wireJunctions.forEach((junction, index) => {
+          // Remove junctions that were created from deleted wires
+          const isSourceDeleted = deletedWireIndices.includes(junction.sourceWireIndex)
+          // Remove junctions that connect to deleted wires
+          const isConnectedDeleted = deletedWireIds.includes(junction.connectedWireId)
+          
+          if (isSourceDeleted || isConnectedDeleted) {
+            junctionsToRemove.push(index)
+          }
+        })
+        
+        // Remove junctions in reverse order to avoid index shifting
+        junctionsToRemove.sort((a, b) => b - a).forEach(index => {
+          circuit.wireJunctions.splice(index, 1)
+        })
+      }
 
       // Clear selection after deletion
       clearSelection()
