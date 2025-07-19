@@ -298,7 +298,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
   })
 
   describe('Button Order (Safety)', () => {
-    it('should render dangerous action button first (left), safe action button second (right)', () => {
+    it('should render safe action button first (left), dangerous action button second (right)', () => {
       const wrapper = createWrapper({ 
         visible: true,
         showCancel: true
@@ -306,10 +306,10 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
       const buttons = wrapper.findAll('.modal-button')
       
-      // First button should be the confirm (dangerous) button
-      expect(buttons[0].classes()).toContain('modal-button-confirm')
-      // Second button should be the cancel (safe) button
-      expect(buttons[1].classes()).toContain('modal-button-cancel')
+      // First button should be the cancel (safe) button - safer UX pattern
+      expect(buttons[0].classes()).toContain('modal-button-cancel')
+      // Second button should be the confirm (dangerous) button
+      expect(buttons[1].classes()).toContain('modal-button-confirm')
     })
   })
 })

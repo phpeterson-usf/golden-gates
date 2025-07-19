@@ -13,13 +13,15 @@ import ConfirmationDialog from '../../src/components/ConfirmationDialog.vue'
  * 3. Warning messages for data loss scenarios
  */
 
-// Mock the composables for App tests
+// Mock the composables for App tests  
 const mockCircuitManager = {
   tabs: [{ id: 'circuit_1', name: 'Test Circuit' }],
-  activeTabId: 'circuit_1',
+  activeTabId: 'circuit_1', // Destructured value (not reactive wrapper)
   activeCircuit: { id: 'circuit_1', name: 'Test Circuit', components: [], wires: [] },
-  allCircuits: new Map(),
+  allCircuits: new Map(), // Destructured value (not reactive wrapper)
+  openTabs: [{ id: 'circuit_1', name: 'Test Circuit' }], // Destructured value
   availableComponentsArray: [],
+  availableComponents: { value: new Map() }, // Reactive property for autosave watcher
   createCircuit: vi.fn(),
   switchToTab: vi.fn(),
   closeTab: vi.fn(),
