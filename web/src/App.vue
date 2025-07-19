@@ -275,6 +275,9 @@ export default {
         case 'stopSimulation':
           this.stopSimulation()
           break
+        case 'restoreAutosave':
+          this.showManualRestoreDialog()
+          break
         default:
           console.warn(this.$t('ui.unknownCommand') + ':', action)
       }
@@ -420,7 +423,7 @@ export default {
     },
 
     /**
-     * Check for available autosaves and prompt user for restoration
+     * Check for available autosaves and automatically restore the newest one
      */
     checkForAutosaveRestoration() {
       // Only check if there's no meaningful user data to avoid overwriting current work
@@ -449,7 +452,32 @@ export default {
         return
       }
 
-      // Show the autosave selection dialog
+      // Automatically restore the newest autosave (first in the sorted array)
+      const newestAutosave = availableRestores[0]
+      
+      if (this.autosave.restoreFromAutosave(newestAutosave.key)) {
+        // Autosave restoration successful
+        // Force a re-render by updating reactive properties if needed
+        this.$nextTick(() => {
+          // Navigate to the restored active circuit if it exists
+          if (this.activeTabId && this.allCircuits.has(this.activeTabId)) {
+            this.switchToTab(this.activeTabId)
+          }
+        })
+      }
+    },
+
+    /**
+     * Show manual restore dialog with all available autosaves
+     */
+    showManualRestoreDialog() {
+      const availableRestores = this.autosave.getAvailableRestores()
+      
+      if (availableRestores.length === 0) {
+        // No autosaves available - could show a message or do nothing
+        return
+      }
+
       this.availableAutosaves = availableRestores
       this.showAutosaveDialog = true
     },

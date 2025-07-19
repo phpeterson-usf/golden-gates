@@ -423,4 +423,50 @@ describe('AutosaveSelectionDialog', () => {
       })
     })
   })
+
+  describe('usage context (manual restore only)', () => {
+    it('should work correctly when shown via command palette', () => {
+      // This dialog is now only shown for manual restore via command palette
+      const wrapper = createWrapper({ 
+        visible: true, 
+        autosaves: mockAutosaves 
+      })
+      
+      // All functionality should work the same as before
+      expect(wrapper.find('.modal-overlay').exists()).toBe(true)
+      expect(wrapper.find('.modal-title').text()).toBe('Restore Previous Work?')
+      expect(wrapper.vm.selectedIndex).toBe(0) // Default to newest
+    })
+
+    it('should handle empty autosaves list gracefully for manual restore', async () => {
+      const wrapper = createWrapper({ 
+        visible: false, 
+        autosaves: [] 
+      })
+      
+      // Trigger the dialog to become visible
+      await wrapper.setProps({ visible: true })
+      await wrapper.vm.$nextTick()
+      
+      expect(wrapper.find('.modal-message').text()).toBe('Found 0 saved versions:')
+      expect(wrapper.findAll('.autosave-item')).toHaveLength(0)
+      expect(wrapper.vm.selectedIndex).toBe(null)
+    })
+
+    it('should work with all 5 autosaves from command palette', () => {
+      const fiveAutosaves = Array.from({ length: 5 }, (_, i) => ({
+        ...mockAutosaves[0],
+        key: `autosave-${i}`,
+        timestamp: Date.now() - (i * 60000) // 1 minute apart
+      }))
+      
+      const wrapper = createWrapper({ 
+        visible: true, 
+        autosaves: fiveAutosaves 
+      })
+      
+      expect(wrapper.findAll('.autosave-item')).toHaveLength(5)
+      expect(wrapper.find('.modal-message').text()).toBe('Found 5 saved versions:')
+    })
+  })
 })

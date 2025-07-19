@@ -22,6 +22,15 @@ export const commandGroups = {
         icon: 'pi pi-save',
         action: 'saveCircuit',
         shortcut: 'S'
+      },
+      {
+        separator: true
+      },
+      {
+        id: 'restore-autosave',
+        labelKey: 'commands.file.restoreAutosave',
+        icon: 'pi pi-history',
+        action: 'restoreAutosave'
       }
     ]
   },

@@ -129,7 +129,8 @@
     "file": {
       "newCircuit": "New Circuit",
       "openCircuit": "Open Circuit",
-      "saveCircuit": "Save Circuit"
+      "saveCircuit": "Save Circuit",
+      "restoreAutosave": "Restore Previous Work"
     },
     "simulation": {
       "run": "Run",

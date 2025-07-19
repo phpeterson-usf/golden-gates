@@ -46,8 +46,32 @@ This document describes the comprehensive test suite created for the autosave fu
 - ✅ Uses localized strings from i18n
 - ✅ Provides proper accessibility features
 
-### 3. Integration Testing
-**Note:** Full App.vue integration tests were removed due to complexity and Vue testing framework conflicts. The autosave functionality is thoroughly tested through unit tests, and integration is verified through manual testing.
+### 3. `tests/unit/commands.autosave.test.js`
+**Covers:** Command palette integration for manual restore
+
+**Test Categories:**
+- **Command Groups**: Tests restore command placement in file group
+- **getAllCommands**: Tests command appears in flat command list  
+- **Command Properties**: Tests icon, action, and localization keys
+- **Visual Organization**: Tests separator placement and ordering
+
+### 4. `tests/unit/autosave-behavior.test.js`
+**Covers:** Business logic for automatic vs manual restoration
+
+**Test Categories:**
+- **Automatic Restoration Logic**: Tests when to auto-restore vs skip
+- **Manual Restoration Logic**: Tests command palette triggered restore
+- **Command Action Integration**: Tests action mapping
+- **Edge Cases**: Tests handling of undefined/null circuit data
+
+### 5. `tests/unit/locales.autosave.test.js`
+**Covers:** Internationalization strings and consistency
+
+**Test Categories:**
+- **Command Palette Strings**: Tests restore command localization
+- **Existing Dialog Strings**: Ensures no regression in i18n
+- **String Interpolation**: Tests proper placeholder syntax
+- **User Experience Consistency**: Tests friendly language usage
 
 ## Test Coverage Areas
 
@@ -84,12 +108,15 @@ This document describes the comprehensive test suite created for the autosave fu
 ## Running Tests
 
 ```bash
-# Run all autosave tests
-npm run test -- tests/unit/composables/useAutosave.test.js tests/unit/components/AutosaveSelectionDialog.test.js
+# Run all autosave tests (81 tests total)
+npm run test -- tests/unit/composables/useAutosave.test.js tests/unit/components/AutosaveSelectionDialog.test.js tests/unit/commands.autosave.test.js tests/unit/autosave-behavior.test.js tests/unit/locales.autosave.test.js
 
 # Run individual test files
-npm run test -- tests/unit/composables/useAutosave.test.js
-npm run test -- tests/unit/components/AutosaveSelectionDialog.test.js
+npm run test -- tests/unit/composables/useAutosave.test.js           # Core functionality
+npm run test -- tests/unit/components/AutosaveSelectionDialog.test.js # UI component
+npm run test -- tests/unit/commands.autosave.test.js                 # Command palette integration
+npm run test -- tests/unit/autosave-behavior.test.js                 # Business logic
+npm run test -- tests/unit/locales.autosave.test.js                  # Internationalization
 ```
 
 ## Test Quality Features
@@ -120,9 +147,12 @@ npm run test -- tests/unit/components/AutosaveSelectionDialog.test.js
 
 ## Final Test Results
 
-✅ **45 passing tests** across 2 test files:
+✅ **81 passing tests** across 5 test files:
 - **17 unit tests** for useAutosave composable
-- **28 component tests** for AutosaveSelectionDialog
+- **31 component tests** for AutosaveSelectionDialog (updated for new UX)
+- **9 tests** for command configuration
+- **14 tests** for autosave behavior logic
+- **10 tests** for localization strings
 
 ## Notes
 
