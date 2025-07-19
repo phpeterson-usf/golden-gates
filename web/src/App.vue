@@ -346,6 +346,17 @@ export default {
 
     updateComponent(updatedComponent) {
       if (this.$refs.canvas) {
+        // Get the old component before updating
+        const oldComponent = this.$refs.canvas.components.find(
+          c => c.id === updatedComponent.id
+        )
+
+        // Check if properties affecting connections have changed
+        if (oldComponent && this.hasConnectionPropertiesChanged(oldComponent, updatedComponent)) {
+          // Update wire endpoints to maintain connections
+          this.$refs.canvas.updateWireEndpointsForPropertyChange(oldComponent, updatedComponent)
+        }
+
         this.$refs.canvas.updateComponent(updatedComponent)
         // Refresh the selected component reference to maintain sync
         if (this.selectedComponent && this.selectedComponent.id === updatedComponent.id) {
@@ -354,6 +365,36 @@ export default {
           )
         }
       }
+    },
+
+    /**
+     * Check if properties that affect connection points have changed
+     */
+    hasConnectionPropertiesChanged(oldComponent, newComponent) {
+      // Check invertedInputs array changes
+      const oldInvertedInputs = oldComponent.props?.invertedInputs || []
+      const newInvertedInputs = newComponent.props?.invertedInputs || []
+      
+      if (oldInvertedInputs.length !== newInvertedInputs.length) {
+        return true
+      }
+      
+      // Check if any inverted input indices changed
+      for (let i = 0; i < oldInvertedInputs.length; i++) {
+        if (!newInvertedInputs.includes(oldInvertedInputs[i])) {
+          return true
+        }
+      }
+      for (let i = 0; i < newInvertedInputs.length; i++) {
+        if (!oldInvertedInputs.includes(newInvertedInputs[i])) {
+          return true
+        }
+      }
+
+      // Could add other connection-affecting properties here in the future
+      // (e.g., rotation, numInputs for dynamic components)
+      
+      return false
     },
 
     updateCircuit(updatedCircuit) {

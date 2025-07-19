@@ -492,6 +492,7 @@ export default {
       clearCircuit,
       getCircuitData,
       updateComponent,
+      updateWireEndpointsForPropertyChange: wireManagement.updateWireEndpointsForPropertyChange,
       loadComponent,
       addWire,
       addWireJunction,

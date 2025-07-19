@@ -472,6 +472,84 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     })
   }
 
+  // Update wire endpoints when component properties change (e.g., invertedInputs)
+  function updateWireEndpointsForPropertyChange(oldComponent, newComponent) {
+    const config = componentRegistry[newComponent.type]
+    if (!config) return
+
+    // Get old and new connection points
+    let oldConnections, newConnections
+    if (config.getConnections) {
+      oldConnections = config.getConnections(oldComponent.props, circuitManager)
+      newConnections = config.getConnections(newComponent.props, circuitManager)
+    } else {
+      oldConnections = config.connections
+      newConnections = config.connections
+    }
+
+    if (!oldConnections || !newConnections) return
+
+    // Calculate absolute positions for old and new connection points
+    const oldOutputPositions = (oldConnections.outputs || []).map(conn => ({
+      x: oldComponent.x + conn.x,
+      y: oldComponent.y + conn.y
+    }))
+
+    const oldInputPositions = (oldConnections.inputs || []).map(conn => ({
+      x: oldComponent.x + conn.x,
+      y: oldComponent.y + conn.y
+    }))
+
+    const newOutputPositions = (newConnections.outputs || []).map(conn => ({
+      x: newComponent.x + conn.x,
+      y: newComponent.y + conn.y
+    }))
+
+    const newInputPositions = (newConnections.inputs || []).map(conn => ({
+      x: newComponent.x + conn.x,
+      y: newComponent.y + conn.y
+    }))
+
+    // Update wire endpoints that match the changed connection points
+    wires.value.forEach(wire => {
+      // Check if start connection (output) matches any old output position
+      const oldStartMatchIndex = oldOutputPositions.findIndex(
+        pos => pos.x === wire.startConnection.pos.x && pos.y === wire.startConnection.pos.y
+      )
+
+      if (oldStartMatchIndex !== -1 && wire.startConnection.portIndex === oldStartMatchIndex) {
+        // Update to new position
+        const newPos = newOutputPositions[oldStartMatchIndex]
+        if (newPos) {
+          wire.startConnection.pos.x = newPos.x
+          wire.startConnection.pos.y = newPos.y
+          if (wire.points.length > 0) {
+            wire.points[0].x = newPos.x
+            wire.points[0].y = newPos.y
+          }
+        }
+      }
+
+      // Check if end connection (input) matches any old input position
+      const oldEndMatchIndex = oldInputPositions.findIndex(
+        pos => pos.x === wire.endConnection.pos.x && pos.y === wire.endConnection.pos.y
+      )
+
+      if (oldEndMatchIndex !== -1 && wire.endConnection.portIndex === oldEndMatchIndex) {
+        // Update to new position
+        const newPos = newInputPositions[oldEndMatchIndex]
+        if (newPos) {
+          wire.endConnection.pos.x = newPos.x
+          wire.endConnection.pos.y = newPos.y
+          if (wire.points.length > 0) {
+            wire.points[wire.points.length - 1].x = newPos.x
+            wire.points[wire.points.length - 1].y = newPos.y
+          }
+        }
+      }
+    })
+  }
+
   // Computed preview points for wire being drawn
   const previewPoints = computed(() => {
     if (!drawingWire.value || wirePoints.value.length === 0) return []
@@ -502,6 +580,7 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     addPointToWire,
     deleteSelectedWires,
     updateWireEndpoints,
+    updateWireEndpointsForPropertyChange,
     findClosestGridPointOnWire,
     startWireFromJunction,
     completeWireAtJunction,
