@@ -44,21 +44,6 @@ vi.mock('@/composables/useClipboard', () => ({
   })
 }))
 
-vi.mock('@/composables/useUndoController', () => ({
-  useUndoController: () => ({
-    canUndo: ref(false),
-    canRedo: ref(false),
-    executeCommand: vi.fn(),
-    undo: vi.fn(),
-    redo: vi.fn(),
-    startCommandGroup: vi.fn(),
-    endCommandGroup: vi.fn(),
-    PasteCommand: vi.fn(),
-    DuplicateCommand: vi.fn(),
-    RemoveComponentCommand: vi.fn(),
-    RemoveWireCommand: vi.fn()
-  })
-}))
 
 // Mock useComponentController
 vi.mock('@/composables/useComponentController', () => ({
@@ -87,7 +72,9 @@ describe('useCanvasController - Clipboard Integration', () => {
           wires: [],
           junctions: []
         })
-      )
+      ),
+      removeComponent: vi.fn(),
+      removeWire: vi.fn()
     }
 
     mockCanvasOperations = {
@@ -120,7 +107,6 @@ describe('useCanvasController - Clipboard Integration', () => {
       selectComponent: vi.fn(),
       selectWire: vi.fn(),
       clearSelection: vi.fn(),
-      deleteSelected: vi.fn(),
       checkAndClearJustFinished: vi.fn().mockReturnValue(false),
       justFinishedSelecting: ref(false)
     }
@@ -195,11 +181,6 @@ describe('useCanvasController - Clipboard Integration', () => {
 
         expect(result).toBe(true)
         expect(canvasController.clipboardController.cutToClipboard).toHaveBeenCalled()
-        expect(canvasController.undoController.startCommandGroup).toHaveBeenCalledWith(
-          'Cut elements'
-        )
-        expect(mockSelection.deleteSelected).toHaveBeenCalled()
-        expect(canvasController.undoController.endCommandGroup).toHaveBeenCalled()
       })
 
       it('should warn when no components selected', async () => {
@@ -222,7 +203,6 @@ describe('useCanvasController - Clipboard Integration', () => {
 
         expect(result).toBe(true)
         expect(canvasController.clipboardController.pasteFromClipboard).toHaveBeenCalled()
-        expect(canvasController.undoController.executeCommand).toHaveBeenCalled()
         expect(mockSelection.clearSelection).toHaveBeenCalled()
       })
 
@@ -257,7 +237,6 @@ describe('useCanvasController - Clipboard Integration', () => {
         expect(result).toBe(true)
         expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
         expect(canvasController.clipboardController.deserializeElements).toHaveBeenCalled()
-        expect(canvasController.undoController.executeCommand).toHaveBeenCalled()
         expect(mockSelection.clearSelection).toHaveBeenCalled()
       })
 
@@ -310,19 +289,6 @@ describe('useCanvasController - Clipboard Integration', () => {
       expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
     })
 
-    it('should handle undo shortcut (Ctrl+Z)', () => {
-      canvasController.handleKeyDown(mockKeyboardEvents.undoEvent)
-
-      expect(canvasController.undoController.undo).toHaveBeenCalled()
-      expect(mockKeyboardEvents.undoEvent.defaultPrevented).toBe(true)
-    })
-
-    it('should handle redo shortcut (Ctrl+Y)', () => {
-      canvasController.handleKeyDown(mockKeyboardEvents.redoEvent)
-
-      expect(canvasController.undoController.redo).toHaveBeenCalled()
-      expect(mockKeyboardEvents.redoEvent.defaultPrevented).toBe(true)
-    })
 
     it('should not handle shortcuts when input is focused', () => {
       const mockInput = document.createElement('input')

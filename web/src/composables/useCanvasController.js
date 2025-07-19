@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue'
 import { useComponentController } from './useComponentController'
 import { useClipboard } from './useClipboard'
-import { useUndoController } from './useUndoController'
 import { GRID_SIZE, gridToPixel, pixelToGrid } from '../utils/constants'
 
 /**
@@ -22,16 +21,11 @@ export function useCanvasController(
   const { isDragging, updateDrag, endDrag } = dragAndDrop
   const { activeCircuit } = circuitManager
 
-  // Undo controller for undo/redo operations
-  const undoController = useUndoController()
-  const { DuplicateCommand, PasteCommand, RemoveComponentCommand, RemoveWireCommand } =
-    undoController
 
   // Component controller for component-related logic
   const componentController = useComponentController(
     circuitManager,
-    canvasOperations,
-    undoController
+    canvasOperations
   )
   const {
     lastComponentPosition,
@@ -166,17 +160,11 @@ export function useCanvasController(
     }
 
     try {
-      // Start command group for cut operation
-      undoController.startCommandGroup('Cut elements')
-
       // Copy to clipboard
       clipboardController.cutToClipboard(selectedElements)
 
-      // Remove selected elements (this will be undoable)
-      deleteSelected()
-
-      // End command group
-      undoController.endCommandGroup()
+      // Remove selected elements
+      deleteSelectedElements()
 
       // Also copy to OS clipboard as JSON
       const osClipboardData = clipboardController.getClipboardDataForOS()
@@ -191,7 +179,6 @@ export function useCanvasController(
       return true
     } catch (error) {
       console.error('Failed to cut to clipboard:', error)
-      undoController.endCommandGroup()
       return false
     }
   }
@@ -231,10 +218,6 @@ export function useCanvasController(
         return false
       }
 
-      // Create paste command for undo
-      const pasteCommand = new PasteCommand(circuitManager, pastedElements)
-      undoController.executeCommand(pasteCommand)
-
       // Update selection to show pasted elements
       selectElements(pastedElements)
 
@@ -272,10 +255,6 @@ export function useCanvasController(
         duplicatePosition
       )
 
-      // Create duplicate command for undo
-      const duplicateCommand = new DuplicateCommand(circuitManager, duplicatedElements)
-      undoController.executeCommand(duplicateCommand)
-
       // Update selection to show duplicated elements
       selectElements(duplicatedElements)
 
@@ -287,10 +266,9 @@ export function useCanvasController(
   }
 
   /**
-   * Delete selected elements with undo support for wires only
-   * NOTE: Component undo is not fully functional due to architectural limitations
+   * Delete selected elements
    */
-  function deleteSelectedWithUndo() {
+  function deleteSelectedElements() {
     const selectedElements = getSelectedElements()
 
     if (selectedElements.components.length === 0 && selectedElements.wires.length === 0) {
@@ -298,27 +276,19 @@ export function useCanvasController(
     }
 
     try {
-      // Start command group for delete operation
-      undoController.startCommandGroup('Delete selected elements')
-
-      // Delete selected components (undo not fully functional)
+      // Delete selected components
       selectedElements.components.forEach(component => {
-        const removeCommand = new RemoveComponentCommand(circuitManager, component.id)
-        undoController.executeCommand(removeCommand)
+        circuitManager.removeComponent(component.id)
       })
 
-      // Delete selected wires (undo functional)
+      // Delete selected wires
       selectedElements.wires.forEach(wire => {
         if (wire && wire.id) {
-          const removeCommand = new RemoveWireCommand(circuitManager, wire.id)
-          undoController.executeCommand(removeCommand)
+          circuitManager.removeWire(wire.id)
         } else {
           console.warn(`Wire has no ID:`, wire)
         }
       })
-
-      // End command group
-      undoController.endCommandGroup()
 
       // Clear selection after deletion
       clearSelection()
@@ -326,7 +296,6 @@ export function useCanvasController(
       return true
     } catch (error) {
       console.error('Failed to delete selection:', error)
-      undoController.endCommandGroup()
       return false
     }
   }
@@ -610,30 +579,11 @@ export function useCanvasController(
         return
       }
 
-      // Undo/Redo operations
-      if (isCtrlOrCmd && event.key === 'z') {
-        event.preventDefault()
-        if (event.shiftKey) {
-          // Redo (Ctrl+Shift+Z)
-          undoController.redo()
-        } else {
-          // Undo (Ctrl+Z)
-          undoController.undo()
-        }
-        return
-      }
-
-      if (isCtrlOrCmd && event.key === 'y') {
-        event.preventDefault()
-        // Redo (Ctrl+Y)
-        undoController.redo()
-        return
-      }
 
       // Delete selected components and wires
       if (event.key === 'Delete' || event.key === 'Backspace') {
         event.preventDefault()
-        deleteSelectedWithUndo()
+        deleteSelectedElements()
         return
       }
     }
@@ -853,16 +803,9 @@ export function useCanvasController(
     duplicateSelected,
 
     // Delete operations
-    deleteSelectedWithUndo,
-
-    // Undo/Redo operations
-    undo: undoController.undo,
-    redo: undoController.redo,
-    canUndo: undoController.canUndo,
-    canRedo: undoController.canRedo,
+    deleteSelectedElements,
 
     // Controllers for external access
-    clipboardController,
-    undoController
+    clipboardController
   }
 }

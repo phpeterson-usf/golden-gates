@@ -5,7 +5,7 @@ import { componentRegistry } from '../utils/componentRegistry'
  * Component Controller - Business logic for component operations
  * Handles component creation, smart positioning, and component-related utilities
  */
-export function useComponentController(circuitManager, canvasOperations, undoController = null) {
+export function useComponentController(circuitManager, canvasOperations) {
   const { snapToGrid, gridSize } = canvasOperations
   const { activeCircuit, addComponent } = circuitManager
 
@@ -55,13 +55,8 @@ export function useComponentController(circuitManager, canvasOperations, undoCon
       }
     }
 
-    // Add to circuit with undo support
-    if (undoController) {
-      const addCommand = new undoController.AddComponentCommand(circuitManager, newComponent)
-      undoController.executeCommand(addCommand)
-    } else {
-      addComponent(newComponent)
-    }
+    // Add to circuit
+    addComponent(newComponent)
 
     // Update last component position
     lastComponentPosition.value = { x: snapped.x, y: snapped.y }
