@@ -391,10 +391,13 @@ export default {
   width: 90vw;
   max-width: 600px;
   margin-top: 10vh;
+  border-radius: 0.5rem !important;
 }
 
 .command-palette-content {
   padding: 0 !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
 }
 
 .command-palette {
@@ -407,6 +410,7 @@ export default {
 .command-palette-search {
   position: relative;
   border-bottom: 1px solid var(--surface-border);
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .search-icon {
