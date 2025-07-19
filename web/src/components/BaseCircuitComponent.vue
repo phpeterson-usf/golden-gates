@@ -181,10 +181,9 @@ export default {
 </script>
 
 <style scoped>
-.base-circuit-component {
-  cursor: move;
-}
+@import '../styles/components.css';
 
+/* Component-specific styles only - NO cursor rules */
 .component-body {
   transition: fill 0.2s ease;
 }
@@ -199,34 +198,10 @@ export default {
 }
 
 .connection-point {
-  cursor:
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
-      12 12,
-    crosshair;
   transition: fill 0.2s ease;
 }
 
 .connection-point:hover {
   fill: #3b82f6;
-}
-
-/* Centralized cursor styles */
-.base-circuit-component .component-body {
-  cursor: move; /* 4-arrow move cursor */
-}
-
-.base-circuit-component .connection-point {
-  cursor:
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
-      12 12,
-    crosshair; /* Custom target cursor */
-}
-
-/* Connection mode cursor */
-.base-circuit-component.connection-mode .connection-point {
-  cursor:
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="black" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="black" stroke-width="2"/></svg>')
-      12 12,
-    crosshair; /* Custom target cursor */
 }
 </style>

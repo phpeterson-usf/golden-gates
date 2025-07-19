@@ -60,6 +60,7 @@
       :data-port="index"
       data-type="output"
     />
+    
   </g>
 </template>
 
@@ -141,6 +142,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '../styles/components.css';
+
 .splitter-component {
   pointer-events: all;
 }

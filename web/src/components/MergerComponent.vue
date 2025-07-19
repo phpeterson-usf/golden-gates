@@ -54,6 +54,7 @@
       :data-port="index"
       data-type="input"
     />
+    
   </g>
 </template>
 
@@ -135,6 +136,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '../styles/components.css';
+
 .merger-component {
   pointer-events: all;
 }
