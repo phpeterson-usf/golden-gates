@@ -26,6 +26,24 @@ class Gate(BitsNode):
     def logic(self, v1, v2):
         logger.error(f'Gate logic() must be implemented for {self.kind}')
 
+    def get_inverted_edge_values(self):
+        """
+        get_inverted_edge_values() loops over the edges by index, comparing
+        the index with the inverted inputs, and inverting if necessary
+        """
+        values = []
+        edges = self.inputs.get_edges()
+        for i in range(len(edges)):
+            v = edges[i].value
+            if i in self.inverted_inputs:
+                v = ~v
+            values.append(v)
+        return values
+
+    def mask(self):
+        """Builds the bit mask for the number of data bits for this gate"""
+        return (1 << self.bits) - 1
+
     def propagate(self, value=0):
         """
         Gate.propagate() loops over the Edges which are connected to
@@ -33,20 +51,21 @@ class Gate(BitsNode):
         the logic() method which is implemented for Gate subclasses
         """
         rv = 0
-        # Get a list of edges from the inpoints for this Gate
-        # TODO: error handle for not gate since it only has one input
-        edges = self.inputs.get_edges()
+        values = self.get_inverted_edge_values()
+
         # Get the first value, then loop from the second...end
-        
-        rv = edges[0].value
-        for e in edges[1:]:
+        rv = values[0]
+        for v in values[1:]:
             # Perform the Gate-specific logic (AND, OR, ...)
-            rv = self.logic(rv, e.value)
-        rv = self.invert(rv)
+            rv = self.logic(rv, v)
+
+        # Invert if needed, and truncate the output to self.bits wide
+        rv = self.invert(rv) & self.mask()
         logger.info(f'{self.kind} propagates: {rv}')
         return super().propagate(rv)
     
-    def invert(self, rv):            
+    def invert(self, rv):
+        # No inversion in the base class
         return rv
 
 class And(Gate):
@@ -78,7 +97,7 @@ class Nor(Gate):
         return v1 | v2
 
     def invert(self, rv):
-        return ~rv & ((1 << self.bits) - 1)
+        return ~rv
     
 
 class Xor(Gate):
@@ -100,7 +119,7 @@ class Xnor(Gate):
         return v1 ^ v2
 
     def invert(self, rv):
-        return ~rv & ((1 << self.bits) - 1)
+        return ~rv
 
 class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
@@ -112,7 +131,7 @@ class Nand(Gate):
         return v1 & v2
 
     def invert(self, rv):
-        return ~rv & ((1 << self.bits) - 1)
+        return ~rv
     
 class Not(Gate):
     """Not Gates perform bitwise NOT"""
@@ -120,12 +139,6 @@ class Not(Gate):
     def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(Not.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
 
-    def logic(self, v1):
-        return ~v1 & ((1 << self.bits) - 1)
-
-    def propagate(self, value=0):
-        edges = self.inputs.get_edges()
-        rv = self.logic(edges[0].value)
-        logger.info(f'{self.kind} propagates: {rv}')
-        return super(Gate, self).propagate(rv)
+    def invert(self, rv):
+        return ~rv
     
