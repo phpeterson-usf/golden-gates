@@ -188,11 +188,8 @@ export default {
       const groups = new Map()
 
       filteredCommands.value.forEach(command => {
-        // When not searching, skip commands that are in recent
-        if (!searchQuery.value && recentCommandIds.value.includes(command.id)) {
-          return
-        }
-
+        // Always show commands in their static groups to maintain visual/muscle memory
+        // Commands can appear in both Recent and static groups simultaneously
         const groupKey = command.groupKey
         if (!groups.has(groupKey)) {
           groups.set(groupKey, [])

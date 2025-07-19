@@ -354,5 +354,29 @@ describe('CommandPalette', () => {
       const groupHeaders = wrapper.findAll('.command-group-header')
       expect(groupHeaders.length).toBeGreaterThan(0)
     })
+
+    it('should show items in both Recent and static groups to maintain muscle memory', () => {
+      // Mock recent commands including a 'save-circuit' command
+      const recentCommands = ['save-circuit', 'run-simulation']
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(recentCommands))
+
+      wrapper = createWrapper({ modelValue: true })
+
+      // Check that recent commands are available
+      expect(wrapper.vm.recentCommands.length).toBeGreaterThan(0)
+      
+      // Check that the same commands also appear in their static groups
+      const groups = wrapper.vm.groupedCommands
+      
+      // The 'save-circuit' command should appear in the file group even if it's recent
+      expect(groups.has('file')).toBe(true)
+      const fileCommands = groups.get('file')
+      const saveCommand = fileCommands.find(cmd => cmd.id === 'save-circuit')
+      expect(saveCommand).toBeDefined()
+
+      // The command should also be in recent commands
+      const recentSaveCommand = wrapper.vm.recentCommands.find(cmd => cmd.id === 'save-circuit')
+      expect(recentSaveCommand).toBeDefined()
+    })
   })
 })
