@@ -7,23 +7,29 @@ vi.mock('@/utils/componentRegistry', () => ({
   componentRegistry: {
     'and-gate': {
       connections: {
-        inputs: [{ x: 0, y: 1 }, { x: 0, y: 2 }],
+        inputs: [
+          { x: 0, y: 1 },
+          { x: 0, y: 2 }
+        ],
         outputs: [{ x: 3, y: 1.5 }]
       }
     },
     'or-gate': {
       connections: {
-        inputs: [{ x: 0, y: 1 }, { x: 0, y: 2 }],
+        inputs: [
+          { x: 0, y: 1 },
+          { x: 0, y: 2 }
+        ],
         outputs: [{ x: 3, y: 1.5 }]
       }
     },
-    'input': {
+    input: {
       connections: {
         inputs: [],
         outputs: [{ x: 2, y: 1 }]
       }
     },
-    'output': {
+    output: {
       connections: {
         inputs: [{ x: 0, y: 1 }],
         outputs: []
@@ -130,7 +136,7 @@ describe('useWireController', () => {
 
     it('should not add waypoint if not drawing', () => {
       wireController.cancelWireDrawing()
-      
+
       wireController.addWireWaypoint({ x: 135, y: 120 })
 
       expect(wireController.wirePoints.value).toHaveLength(0)
@@ -157,9 +163,9 @@ describe('useWireController', () => {
       expect(mockCallbacks.addWire).toHaveBeenCalledWith({
         id: expect.stringMatching(/^wire_\d+$/),
         points: [
-          { x: 7, y: 6 },  // start point
-          { x: 10, y: 6 }, // intermediate orthogonal point  
-          { x: 10, y: 6 }  // end point
+          { x: 7, y: 6 }, // start point
+          { x: 10, y: 6 }, // intermediate orthogonal point
+          { x: 10, y: 6 } // end point
         ],
         startConnection: {
           portIndex: 0,
@@ -193,7 +199,7 @@ describe('useWireController', () => {
       wireController.cancelWireDrawing()
       wireController.startWireDrawing('and1', 0, 'input', { x: 150, y: 90 })
       wireController.addWireWaypoint({ x: 120, y: 90 })
-      
+
       wireController.completeWire('input1', 0, 'output')
 
       const call = mockCallbacks.addWire.mock.calls[0][0]
@@ -225,7 +231,7 @@ describe('useWireController', () => {
       expect(wireController.previewPoints.value).toEqual([
         { x: 7, y: 6 }, // current point
         { x: 9, y: 6 }, // horizontal first
-        { x: 9, y: 8 }  // then vertical
+        { x: 9, y: 8 } // then vertical
       ])
     })
 
@@ -236,7 +242,7 @@ describe('useWireController', () => {
       expect(wireController.previewPoints.value).toEqual([
         { x: 7, y: 6 }, // current point
         { x: 7, y: 8 }, // vertical first
-        { x: 9, y: 8 }  // then horizontal
+        { x: 9, y: 8 } // then horizontal
       ])
     })
 
@@ -250,7 +256,7 @@ describe('useWireController', () => {
 
     it('should provide empty preview when not drawing', () => {
       wireController.cancelWireDrawing()
-      
+
       expect(wireController.previewPoints.value).toEqual([])
     })
   })
@@ -260,7 +266,11 @@ describe('useWireController', () => {
       // Add a wire to test junctions on
       wireController.wires.value.push({
         id: 'wire1',
-        points: [{ x: 5, y: 5 }, { x: 10, y: 5 }, { x: 10, y: 10 }],
+        points: [
+          { x: 5, y: 5 },
+          { x: 10, y: 5 },
+          { x: 10, y: 10 }
+        ],
         startConnection: { portType: 'output' },
         endConnection: { portType: 'input' }
       })
@@ -318,7 +328,7 @@ describe('useWireController', () => {
 
     it('should not connect junction to same source wire', () => {
       wireController.startWireFromJunction(0, { x: 8, y: 5 })
-      
+
       wireController.completeWireAtJunction(0, { x: 9, y: 5 })
 
       expect(mockCallbacks.addWire).not.toHaveBeenCalled()
@@ -330,8 +340,20 @@ describe('useWireController', () => {
     beforeEach(() => {
       // Setup wires and junctions
       wireController.wires.value = [
-        { id: 'wire1', points: [{ x: 5, y: 5 }, { x: 10, y: 5 }] },
-        { id: 'wire2', points: [{ x: 10, y: 5 }, { x: 15, y: 5 }] }
+        {
+          id: 'wire1',
+          points: [
+            { x: 5, y: 5 },
+            { x: 10, y: 5 }
+          ]
+        },
+        {
+          id: 'wire2',
+          points: [
+            { x: 10, y: 5 },
+            { x: 15, y: 5 }
+          ]
+        }
       ]
       wireController.wireJunctions.value = [
         { pos: { x: 8, y: 5 }, sourceWireIndex: 0, connectedWireId: 'wire2' },
@@ -369,12 +391,17 @@ describe('useWireController', () => {
   describe('wire endpoint updates', () => {
     beforeEach(() => {
       // Setup a wire connected to components - matches expected positions from input1 output
-      wireController.wires.value = [{
-        id: 'wire1',
-        points: [{ x: 7, y: 6 }, { x: 10, y: 6 }],
-        startConnection: { pos: { x: 7, y: 6 }, portIndex: 0 },
-        endConnection: { pos: { x: 10, y: 6 }, portIndex: 0 }
-      }]
+      wireController.wires.value = [
+        {
+          id: 'wire1',
+          points: [
+            { x: 7, y: 6 },
+            { x: 10, y: 6 }
+          ],
+          startConnection: { pos: { x: 7, y: 6 }, portIndex: 0 },
+          endConnection: { pos: { x: 10, y: 6 }, portIndex: 0 }
+        }
+      ]
     })
 
     it('should update wire endpoints when component moves', () => {
@@ -419,16 +446,16 @@ describe('useWireController', () => {
 
     it('should handle empty wire points for junction operations', () => {
       wireController.wires.value = [{ id: 'empty', points: [] }]
-      
+
       const result = wireController.findClosestGridPointOnWire(0, { x: 0, y: 0 })
       expect(result).toBe(null)
     })
 
     it('should handle missing component during wire start', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       wireController.startWireDrawing('missing', 0, 'output', { x: 0, y: 0 })
-      
+
       expect(wireController.drawingWire.value).toBe(false)
       consoleSpy.mockRestore()
     })

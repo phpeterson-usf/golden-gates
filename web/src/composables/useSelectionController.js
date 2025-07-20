@@ -72,7 +72,7 @@ export function useSelectionController(
     isSelecting.value = false
     justFinishedSelecting.value = true
     updateSelection()
-    
+
     // Clean up selection state
     selectionStart.value = null
     selectionEnd.value = null

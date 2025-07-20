@@ -125,11 +125,7 @@ function standardGateConnections(props) {
 
     // Rotate all input connection points around the output center
     const rotatedInputs = inputs.map(input => {
-      const rotatedPoint = rotatePoint(
-        { x: input.x, y: input.y },
-        rotation,
-        rotationCenter
-      )
+      const rotatedPoint = rotatePoint({ x: input.x, y: input.y }, rotation, rotationCenter)
       return {
         ...input,
         x: rotatedPoint.x,

@@ -104,9 +104,11 @@ export function useAutosave(circuitManager) {
   function checkStorageLimit() {
     const usageBytes = getAutosaveStorageUsage()
     const usageMB = usageBytes / (1024 * 1024)
-    
+
     if (usageMB > STORAGE_LIMIT_MB) {
-      console.warn(`Autosave storage usage (${usageMB.toFixed(2)}MB) exceeds limit (${STORAGE_LIMIT_MB}MB)`)
+      console.warn(
+        `Autosave storage usage (${usageMB.toFixed(2)}MB) exceeds limit (${STORAGE_LIMIT_MB}MB)`
+      )
       return false
     }
     return true
@@ -128,7 +130,6 @@ export function useAutosave(circuitManager) {
         return false
       }
 
-
       // Prepare complete workspace state
       const autosaveData = {
         version: '1.1', // Bumped version for new openTabs field
@@ -141,8 +142,10 @@ export function useAutosave(circuitManager) {
           userAgent: navigator.userAgent,
           url: window.location.href,
           circuitCount: circuitManager.allCircuits.value.size,
-          componentCount: Array.from(circuitManager.allCircuits.value.values()).reduce((total, circuit) => 
-            total + (circuit.components?.length || 0), 0),
+          componentCount: Array.from(circuitManager.allCircuits.value.values()).reduce(
+            (total, circuit) => total + (circuit.components?.length || 0),
+            0
+          ),
           openTabCount: circuitManager.openTabs.value.length
         }
       }
@@ -150,14 +153,13 @@ export function useAutosave(circuitManager) {
       // Save to localStorage
       const key = generateAutosaveKey()
       localStorage.setItem(key, JSON.stringify(autosaveData))
-      
+
       lastSaveTime.value = autosaveData.timestamp
       // Autosaved workspace successfully
       return true
-
     } catch (error) {
       console.error('Autosave failed:', error)
-      
+
       // If storage is full, try aggressive cleanup and retry once
       if (error.name === 'QuotaExceededError') {
         console.warn('Storage quota exceeded, attempting cleanup...')
@@ -192,7 +194,7 @@ export function useAutosave(circuitManager) {
     if (debounceTimer) {
       clearTimeout(debounceTimer)
     }
-    
+
     debounceTimer = setTimeout(() => {
       performAutosave()
       debounceTimer = null
@@ -223,8 +225,10 @@ export function useAutosave(circuitManager) {
             timestamp,
             date: new Date(timestamp),
             circuitCount: Object.keys(data.allCircuits || {}).length,
-            componentCount: Object.values(data.allCircuits || {}).reduce((total, circuit) => 
-              total + (circuit.components?.length || 0), 0),
+            componentCount: Object.values(data.allCircuits || {}).reduce(
+              (total, circuit) => total + (circuit.components?.length || 0),
+              0
+            ),
             activeCircuit: data.activeTabId,
             version: data.version || 'legacy',
             allCircuits: data.allCircuits || {}, // Include circuit data for preview
@@ -251,7 +255,6 @@ export function useAutosave(circuitManager) {
       if (!data) {
         throw new Error('Autosave data not found')
       }
-
 
       // Restore circuit manager state
       circuitManager.allCircuits.value.clear()
@@ -293,7 +296,6 @@ export function useAutosave(circuitManager) {
 
       // Restored workspace successfully
       return true
-
     } catch (error) {
       console.error('Failed to restore autosave:', error)
       return false
@@ -367,6 +369,8 @@ export function useAutosave(circuitManager) {
     getAutosaveStorageUsage,
 
     // Configuration
-    setAutosaveEnabled: (enabled) => { isAutosaveEnabled.value = enabled }
+    setAutosaveEnabled: enabled => {
+      isAutosaveEnabled.value = enabled
+    }
   }
 }

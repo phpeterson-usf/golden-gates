@@ -6,17 +6,17 @@ import { useWireController } from '@/composables/useWireController'
 vi.mock('@/utils/componentRegistry', () => ({
   componentRegistry: {
     'and-gate': {
-      getConnections: (props) => {
+      getConnections: props => {
         const numInputs = props?.numInputs || 2
         const invertedInputs = props?.invertedInputs || []
-        
+
         const inputs = []
         for (let i = 0; i < numInputs; i++) {
           const isInverted = invertedInputs.includes(i)
           const x = isInverted ? -1 : 0 // Move left 1 grid unit for inverted inputs
           inputs.push({ name: String(i), x, y: i * 2 })
         }
-        
+
         return {
           inputs,
           outputs: [{ name: '0', x: 3, y: 1 }]
@@ -24,24 +24,24 @@ vi.mock('@/utils/componentRegistry', () => ({
       }
     },
     'or-gate': {
-      getConnections: (props) => {
+      getConnections: props => {
         const numInputs = props?.numInputs || 2
         const invertedInputs = props?.invertedInputs || []
-        
+
         const inputs = []
         for (let i = 0; i < numInputs; i++) {
           const isInverted = invertedInputs.includes(i)
           const x = isInverted ? -1 : 0
           inputs.push({ name: String(i), x, y: i * 2 })
         }
-        
+
         return {
           inputs,
           outputs: [{ name: '0', x: 3, y: 1 }]
         }
       }
     },
-    'input': {
+    input: {
       connections: {
         inputs: [],
         outputs: [{ x: 2, y: 1 }]
@@ -59,10 +59,10 @@ describe('useWireController - Input Inversion', () => {
   beforeEach(() => {
     mockComponents = ref([
       { id: 'input1', type: 'input', x: 5, y: 5 },
-      { 
-        id: 'and1', 
-        type: 'and-gate', 
-        x: 10, 
+      {
+        id: 'and1',
+        type: 'and-gate',
+        x: 10,
         y: 5,
         props: { numInputs: 2, invertedInputs: [] } // Initially no inverted inputs
       }
@@ -93,12 +93,17 @@ describe('useWireController - Input Inversion', () => {
     )
 
     // Set up initial wire connection from input1 to and1 input 0
-    wireController.wires.value = [{
-      id: 'wire1',
-      points: [{ x: 7, y: 6 }, { x: 10, y: 5 }], // input1 output to and1 input 0
-      startConnection: { portIndex: 0, portType: 'output', pos: { x: 7, y: 6 } },
-      endConnection: { portIndex: 0, portType: 'input', pos: { x: 10, y: 5 } }
-    }]
+    wireController.wires.value = [
+      {
+        id: 'wire1',
+        points: [
+          { x: 7, y: 6 },
+          { x: 10, y: 5 }
+        ], // input1 output to and1 input 0
+        startConnection: { portIndex: 0, portType: 'output', pos: { x: 7, y: 6 } },
+        endConnection: { portIndex: 0, portType: 'input', pos: { x: 10, y: 5 } }
+      }
+    ]
   })
 
   describe('updateWireEndpointsForPropertyChange', () => {
@@ -164,7 +169,10 @@ describe('useWireController - Input Inversion', () => {
       // Add second wire to input 1
       wireController.wires.value.push({
         id: 'wire2',
-        points: [{ x: 7, y: 8 }, { x: 10, y: 7 }], // to input 1
+        points: [
+          { x: 7, y: 8 },
+          { x: 10, y: 7 }
+        ], // to input 1
         startConnection: { portIndex: 0, portType: 'output', pos: { x: 7, y: 8 } },
         endConnection: { portIndex: 1, portType: 'input', pos: { x: 10, y: 7 } }
       })
@@ -196,7 +204,10 @@ describe('useWireController - Input Inversion', () => {
       // Add second wire to input 1
       wireController.wires.value.push({
         id: 'wire2',
-        points: [{ x: 7, y: 8 }, { x: 10, y: 7 }],
+        points: [
+          { x: 7, y: 8 },
+          { x: 10, y: 7 }
+        ],
         startConnection: { portIndex: 0, portType: 'output', pos: { x: 7, y: 8 } },
         endConnection: { portIndex: 1, portType: 'input', pos: { x: 10, y: 7 } }
       })
@@ -233,7 +244,10 @@ describe('useWireController - Input Inversion', () => {
       // Add wire from and1 output
       wireController.wires.value.push({
         id: 'wire_output',
-        points: [{ x: 13, y: 6 }, { x: 16, y: 6 }],
+        points: [
+          { x: 13, y: 6 },
+          { x: 16, y: 6 }
+        ],
         startConnection: { portIndex: 0, portType: 'output', pos: { x: 13, y: 6 } },
         endConnection: { portIndex: 0, portType: 'input', pos: { x: 16, y: 6 } }
       })
@@ -288,7 +302,10 @@ describe('useWireController - Input Inversion', () => {
       // Add wire to wrong position (should not be affected)
       wireController.wires.value.push({
         id: 'wire_wrong_pos',
-        points: [{ x: 7, y: 8 }, { x: 11, y: 5 }], // Wrong X position
+        points: [
+          { x: 7, y: 8 },
+          { x: 11, y: 5 }
+        ], // Wrong X position
         startConnection: { portIndex: 0, portType: 'output', pos: { x: 7, y: 8 } },
         endConnection: { portIndex: 0, portType: 'input', pos: { x: 11, y: 5 } } // Wrong pos
       })

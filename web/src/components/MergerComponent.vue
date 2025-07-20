@@ -54,7 +54,6 @@
       :data-port="index"
       data-type="input"
     />
-    
   </g>
 </template>
 

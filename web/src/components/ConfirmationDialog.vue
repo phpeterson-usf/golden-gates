@@ -15,7 +15,12 @@
 
       <!-- Footer with buttons -->
       <div class="modal-footer">
-        <button v-if="showCancel" ref="cancelButton" class="modal-button modal-button-cancel" @click="handleReject">
+        <button
+          v-if="showCancel"
+          ref="cancelButton"
+          class="modal-button modal-button-cancel"
+          @click="handleReject"
+        >
           {{ cancelLabel }}
         </button>
         <button

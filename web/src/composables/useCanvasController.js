@@ -21,12 +21,8 @@ export function useCanvasController(
   const { isDragging, updateDrag, endDrag } = dragAndDrop
   const { activeCircuit } = circuitManager
 
-
   // Component controller for component-related logic
-  const componentController = useComponentController(
-    circuitManager,
-    canvasOperations
-  )
+  const componentController = useComponentController(circuitManager, canvasOperations)
   const {
     lastComponentPosition,
     addComponentAtSmartPosition,
@@ -285,7 +281,7 @@ export function useCanvasController(
       const circuit = activeCircuit.value
       const deletedWireIds = []
       const deletedWireIndices = []
-      
+
       selectedElements.wires.forEach(wire => {
         if (wire && wire.id) {
           deletedWireIds.push(wire.id)
@@ -306,22 +302,24 @@ export function useCanvasController(
       // Clean up junctions associated with deleted wires
       if (circuit && circuit.wireJunctions && deletedWireIds.length > 0) {
         const junctionsToRemove = []
-        
+
         circuit.wireJunctions.forEach((junction, index) => {
           // Remove junctions that were created from deleted wires
           const isSourceDeleted = deletedWireIndices.includes(junction.sourceWireIndex)
           // Remove junctions that connect to deleted wires
           const isConnectedDeleted = deletedWireIds.includes(junction.connectedWireId)
-          
+
           if (isSourceDeleted || isConnectedDeleted) {
             junctionsToRemove.push(index)
           }
         })
-        
+
         // Remove junctions in reverse order to avoid index shifting
-        junctionsToRemove.sort((a, b) => b - a).forEach(index => {
-          circuit.wireJunctions.splice(index, 1)
-        })
+        junctionsToRemove
+          .sort((a, b) => b - a)
+          .forEach(index => {
+            circuit.wireJunctions.splice(index, 1)
+          })
       }
 
       // Clear selection after deletion
@@ -612,7 +610,6 @@ export function useCanvasController(
         duplicateSelected()
         return
       }
-
 
       // Delete selected components and wires
       if (event.key === 'Delete' || event.key === 'Backspace') {

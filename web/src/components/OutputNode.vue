@@ -35,7 +35,6 @@
       <text :x="GRID_SIZE + 10" y="5" text-anchor="start" font-size="14" class="component-label">
         {{ label }}
       </text>
-      
     </g>
   </g>
 </template>

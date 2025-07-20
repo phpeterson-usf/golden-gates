@@ -346,11 +346,11 @@ export default {
     hasCircuitUnsavedWork(circuitId) {
       const circuit = this.circuitManager.getCircuit(circuitId)
       if (!circuit) return false
-      
+
       // Check if circuit has any components or wires
       const hasComponents = circuit.components && circuit.components.length > 0
       const hasWires = circuit.wires && circuit.wires.length > 0
-      
+
       return hasComponents || hasWires
     },
 
@@ -371,9 +371,7 @@ export default {
     updateComponent(updatedComponent) {
       if (this.$refs.canvas) {
         // Get the old component before updating
-        const oldComponent = this.$refs.canvas.components.find(
-          c => c.id === updatedComponent.id
-        )
+        const oldComponent = this.$refs.canvas.components.find(c => c.id === updatedComponent.id)
 
         // Check if properties affecting connections have changed
         if (oldComponent && this.hasConnectionPropertiesChanged(oldComponent, updatedComponent)) {
@@ -398,11 +396,11 @@ export default {
       // Check invertedInputs array changes
       const oldInvertedInputs = oldComponent.props?.invertedInputs || []
       const newInvertedInputs = newComponent.props?.invertedInputs || []
-      
+
       if (oldInvertedInputs.length !== newInvertedInputs.length) {
         return true
       }
-      
+
       // Check if any inverted input indices changed
       for (let i = 0; i < oldInvertedInputs.length; i++) {
         if (!newInvertedInputs.includes(oldInvertedInputs[i])) {
@@ -417,7 +415,7 @@ export default {
 
       // Could add other connection-affecting properties here in the future
       // (e.g., rotation, numInputs for dynamic components)
-      
+
       return false
     },
 
@@ -494,7 +492,7 @@ export default {
       // Only check if there's no meaningful user data to avoid overwriting current work
       // Don't count empty default circuits as "existing data"
       let hasExistingUserData = false
-      
+
       // Check if any circuit has actual user content (components or wires)
       for (const [circuitId, circuit] of this.allCircuits) {
         if (circuit.components?.length > 0 || circuit.wires?.length > 0) {
@@ -511,7 +509,7 @@ export default {
       // No existing user data found - checking for autosaves
 
       const availableRestores = this.autosave.getAvailableRestores()
-      
+
       if (availableRestores.length === 0) {
         // No autosaves available for restoration
         return
@@ -519,7 +517,7 @@ export default {
 
       // Automatically restore the newest autosave (first in the sorted array)
       const newestAutosave = availableRestores[0]
-      
+
       if (this.autosave.restoreFromAutosave(newestAutosave.key)) {
         // Autosave restoration successful
         // Force a re-render by updating reactive properties if needed
@@ -537,7 +535,7 @@ export default {
      */
     showManualRestoreDialog() {
       const availableRestores = this.autosave.getAvailableRestores()
-      
+
       if (availableRestores.length === 0) {
         // No autosaves available - could show a message or do nothing
         return
@@ -552,7 +550,7 @@ export default {
      */
     handleAutosaveRestore(selectedAutosave) {
       this.showAutosaveDialog = false
-      
+
       if (this.autosave.restoreFromAutosave(selectedAutosave.key)) {
         // Autosave restoration successful
         // Force a re-render by updating reactive properties if needed
@@ -574,7 +572,7 @@ export default {
 
       const scrollAmount = 120 // pixels to scroll
       const currentScroll = container.scrollLeft
-      
+
       if (direction === 'left') {
         container.scrollTo({
           left: Math.max(0, currentScroll - scrollAmount),
@@ -586,7 +584,7 @@ export default {
           behavior: 'smooth'
         })
       }
-      
+
       // Update scroll button states after a brief delay
       setTimeout(() => this.updateScrollButtonStates(), 100)
     },
@@ -599,13 +597,13 @@ export default {
       }
 
       const { scrollLeft, scrollWidth, clientWidth } = container
-      
+
       // Show scroll buttons if content is wider than container
       this.showScrollButtons = scrollWidth > clientWidth
-      
+
       // Update individual button states
       this.canScrollLeft = scrollLeft > 0
-      this.canScrollRight = scrollLeft < (scrollWidth - clientWidth - 1) // -1 for rounding
+      this.canScrollRight = scrollLeft < scrollWidth - clientWidth - 1 // -1 for rounding
     },
 
     checkTabOverflow() {
@@ -638,7 +636,7 @@ export default {
 
     // Set up tab scrolling event listeners
     window.addEventListener('resize', this.updateScrollButtonStates)
-    
+
     // Check tab overflow on initial load
     this.checkTabOverflow()
   },

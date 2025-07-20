@@ -60,7 +60,6 @@
       :data-port="index"
       data-type="output"
     />
-    
   </g>
 </template>
 

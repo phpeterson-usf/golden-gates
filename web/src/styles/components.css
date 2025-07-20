@@ -15,7 +15,6 @@
   transition: fill 0.2s ease;
 }
 
-
 /* Keep decorative text elements non-interactive */
 .component-label,
 .component-value,

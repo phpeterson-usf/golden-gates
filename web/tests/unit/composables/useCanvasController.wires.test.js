@@ -49,20 +49,24 @@ describe('useCanvasController - Wire Operations', () => {
         wires: [
           {
             id: 'wire1',
-            points: [{ x: 7, y: 6 }, { x: 10, y: 6 }],
+            points: [
+              { x: 7, y: 6 },
+              { x: 10, y: 6 }
+            ],
             startConnection: { portIndex: 0, portType: 'output' },
             endConnection: { portIndex: 0, portType: 'input' }
           },
           {
             id: 'wire2',
-            points: [{ x: 12, y: 6 }, { x: 15, y: 6 }],
+            points: [
+              { x: 12, y: 6 },
+              { x: 15, y: 6 }
+            ],
             startConnection: { portIndex: 0, portType: 'output' },
             endConnection: { portIndex: 0, portType: 'input' }
           }
         ],
-        wireJunctions: [
-          { pos: { x: 8, y: 6 }, sourceWireIndex: 0, connectedWireId: 'wire2' }
-        ]
+        wireJunctions: [{ pos: { x: 8, y: 6 }, sourceWireIndex: 0, connectedWireId: 'wire2' }]
       }),
       removeComponent: vi.fn(),
       removeWire: vi.fn()
@@ -214,7 +218,10 @@ describe('useCanvasController - Wire Operations', () => {
       canvasController.handleWireClick(0, mockEvent)
 
       expect(mockCanvasOperations.getMousePos).toHaveBeenCalledWith(mockEvent)
-      expect(mockWireManagement.findClosestGridPointOnWire).toHaveBeenCalledWith(0, { x: 120, y: 90 })
+      expect(mockWireManagement.findClosestGridPointOnWire).toHaveBeenCalledWith(0, {
+        x: 120,
+        y: 90
+      })
       expect(mockWireManagement.completeWireAtJunction).toHaveBeenCalledWith(0, { x: 8, y: 6 })
     })
 
@@ -236,7 +243,10 @@ describe('useCanvasController - Wire Operations', () => {
   describe('wire dragging', () => {
     beforeEach(() => {
       mockSelection.selectedWires.value = new Set([0])
-      mockCircuitManager.activeCircuit.value.wires[0].points = [{ x: 7, y: 6 }, { x: 10, y: 6 }]
+      mockCircuitManager.activeCircuit.value.wires[0].points = [
+        { x: 7, y: 6 },
+        { x: 10, y: 6 }
+      ]
     })
 
     it('should start wire drag when wire is selected', () => {
@@ -251,7 +261,7 @@ describe('useCanvasController - Wire Operations', () => {
       expect(mockDragAndDrop.startWireDrag).toHaveBeenCalledWith(0, {
         id: 'wire_drag_0',
         offsetX: 15, // 120 - 7*15
-        offsetY: 0   // 90 - 6*15
+        offsetY: 0 // 90 - 6*15
       })
     })
 
@@ -365,7 +375,7 @@ describe('useCanvasController - Wire Operations', () => {
     })
 
     it('should handle junction cleanup when connectedWireId matches deleted wire', () => {
-      // Set up junction that connects to a wire being deleted  
+      // Set up junction that connects to a wire being deleted
       mockCircuitManager.activeCircuit.value.wireJunctions = [
         { pos: { x: 8, y: 6 }, sourceWireIndex: 5, connectedWireId: 'wire1' }
       ]
@@ -388,9 +398,7 @@ describe('useCanvasController - Wire Operations', () => {
           expect.objectContaining({ id: 'wire1' }),
           expect.objectContaining({ id: 'wire2' })
         ]),
-        junctions: expect.arrayContaining([
-          expect.objectContaining({ connectedWireId: 'wire2' })
-        ])
+        junctions: expect.arrayContaining([expect.objectContaining({ connectedWireId: 'wire2' })])
       })
     })
 

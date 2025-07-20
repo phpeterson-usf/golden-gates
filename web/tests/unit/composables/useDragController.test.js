@@ -22,13 +22,19 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
     wires = ref([
       {
         id: 'wire1',
-        points: [{ x: 1, y: 1 }, { x: 3, y: 1 }],
+        points: [
+          { x: 1, y: 1 },
+          { x: 3, y: 1 }
+        ],
         startConnection: { componentId: 'comp1', pos: { x: 1, y: 1 } },
         endConnection: { componentId: 'comp2', pos: { x: 3, y: 1 } }
       },
       {
-        id: 'wire2', 
-        points: [{ x: 5, y: 5 }, { x: 7, y: 5 }],
+        id: 'wire2',
+        points: [
+          { x: 5, y: 5 },
+          { x: 7, y: 5 }
+        ],
         startConnection: { componentId: 'comp3', pos: { x: 5, y: 5 } },
         endConnection: { componentId: 'comp4', pos: { x: 7, y: 5 } }
       }
@@ -38,7 +44,7 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
     selectedWires = ref(new Set())
     wireJunctions = ref([])
 
-    mockSnapToGrid = vi.fn((pos) => pos) // No snapping for tests
+    mockSnapToGrid = vi.fn(pos => pos) // No snapping for tests
 
     dragController = useDragController(
       components,
@@ -72,7 +78,7 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
 
       // Update drag position
       dragController.updateDrag({ x: 100, y: 80 }) // Move to (100,80) pixels
-      
+
       // Calculate expected positions:
       // newX = (100 - 10) / 20 = 4.5 grid units
       // newY = (80 - 10) / 20 = 3.5 grid units
@@ -105,15 +111,15 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
 
       // Update drag position
       dragController.updateDrag({ x: 100, y: 80 }) // Move to (100,80) pixels
-      
+
       // Calculate expected positions for wire drag:
-      // newX = (100 - 10) / 20 = 4.5 grid units  
+      // newX = (100 - 10) / 20 = 4.5 grid units
       // newY = (80 - 10) / 20 = 3.5 grid units
       // Delta from wire initial (1,1): (4.5-1, 3.5-1) = (3.5, 2.5)
 
       // Both component and wire should have moved by same delta
       expect(components.value[0].x).toBeCloseTo(5.5) // comp1: 2 + 3.5 = 5.5
-      expect(components.value[0].y).toBeCloseTo(4.5) // comp1: 2 + 2.5 = 4.5  
+      expect(components.value[0].y).toBeCloseTo(4.5) // comp1: 2 + 2.5 = 4.5
       expect(wires.value[0].points[0].x).toBeCloseTo(4.5) // wire: 1 + 3.5 = 4.5
       expect(wires.value[0].points[0].y).toBeCloseTo(3.5) // wire: 1 + 2.5 = 3.5
     })
@@ -131,7 +137,7 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
       // Start drag from wire
       dragController.startWireDrag(0, {
         id: 'wire1',
-        offsetX: 20, // Start at wire center (40,20) with offset (20,20) 
+        offsetX: 20, // Start at wire center (40,20) with offset (20,20)
         offsetY: 20
       })
 
@@ -210,7 +216,7 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
       selectedWires.value.add(0)
 
       // Mock snapping function
-      mockSnapToGrid.mockImplementation((pos) => ({
+      mockSnapToGrid.mockImplementation(pos => ({
         x: Math.round(pos.x / 20) * 20,
         y: Math.round(pos.y / 20) * 20
       }))
@@ -248,24 +254,24 @@ describe('useDragController - Mixed Selection Drag Fix', () => {
         offsetY: 0,
         event: { metaKey: false, ctrlKey: false }
       })
-      
+
       expect(dragController.dragging.value.components.length).toBe(1)
       expect(dragController.dragging.value.wires.length).toBe(1)
       expect(dragController.dragging.value.isWireDrag).toBeFalsy()
-      
+
       dragController.endDrag(mockSnapToGrid)
 
-      // Test 2: Drag from wire includes both components and wires  
+      // Test 2: Drag from wire includes both components and wires
       dragController.startWireDrag(0, {
         id: 'wire1',
         offsetX: 0,
         offsetY: 0
       })
-      
+
       expect(dragController.dragging.value.components.length).toBe(1)
       expect(dragController.dragging.value.wires.length).toBe(1)
       expect(dragController.dragging.value.isWireDrag).toBeTruthy()
-      
+
       dragController.endDrag(mockSnapToGrid)
     })
   })

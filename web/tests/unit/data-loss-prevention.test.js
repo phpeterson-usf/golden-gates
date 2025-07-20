@@ -6,14 +6,14 @@ import ConfirmationDialog from '../../src/components/ConfirmationDialog.vue'
 
 /**
  * Data Loss Prevention Test Suite
- * 
+ *
  * This test suite focuses on the critical data loss prevention functionality:
  * 1. Confirmation dialogs when closing tabs with unsaved work
  * 2. Proper button configurations (safe defaults)
  * 3. Warning messages for data loss scenarios
  */
 
-// Mock the composables for App tests  
+// Mock the composables for App tests
 const mockCircuitManager = {
   tabs: [{ id: 'circuit_1', name: 'Test Circuit' }],
   activeTabId: 'circuit_1', // Destructured value (not reactive wrapper)
@@ -80,7 +80,7 @@ describe('Data Loss Prevention', () => {
       return mount(App, {
         global: {
           mocks: {
-            $t: (key) => key
+            $t: key => key
           },
           stubs: {
             Button: true,
@@ -97,7 +97,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: Should show confirmation when closing tab with unsaved components', async () => {
       const wrapper = createAppWrapper()
-      
+
       // Circuit with unsaved components
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
@@ -119,7 +119,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: Should show confirmation when closing tab with unsaved wires', async () => {
       const wrapper = createAppWrapper()
-      
+
       // Circuit with unsaved wires
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
@@ -136,7 +136,7 @@ describe('Data Loss Prevention', () => {
 
     it('SAFE: Should close immediately when no unsaved changes', async () => {
       const wrapper = createAppWrapper()
-      
+
       // Empty circuit - no data to lose
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
@@ -153,7 +153,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: User can save data by cancelling close operation', async () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: [{ id: 'comp1', type: 'and' }],
@@ -172,7 +172,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: User can explicitly choose to lose data', async () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: [{ id: 'comp1', type: 'and' }],
@@ -202,7 +202,7 @@ describe('Data Loss Prevention', () => {
     }
 
     it('CRITICAL: Default cancel button text is "Cancel" not "No" (safer)', () => {
-      const wrapper = createDialogWrapper({ 
+      const wrapper = createDialogWrapper({
         visible: true,
         showCancel: true
       })
@@ -212,7 +212,7 @@ describe('Data Loss Prevention', () => {
     })
 
     it('CRITICAL: Warning dialogs show both Yes and Cancel buttons', () => {
-      const wrapper = createDialogWrapper({ 
+      const wrapper = createDialogWrapper({
         visible: true,
         type: 'warning'
       })
@@ -225,7 +225,7 @@ describe('Data Loss Prevention', () => {
     })
 
     it('SAFE: Info dialogs can show only OK button (no data loss)', () => {
-      const wrapper = createDialogWrapper({ 
+      const wrapper = createDialogWrapper({
         visible: true,
         type: 'info',
         showCancel: false
@@ -251,7 +251,7 @@ describe('Data Loss Prevention', () => {
     })
 
     it('CRITICAL: Dangerous button styling for data loss scenarios', () => {
-      const wrapper = createDialogWrapper({ 
+      const wrapper = createDialogWrapper({
         visible: true,
         type: 'warning',
         acceptLabel: 'Close Without Saving'
@@ -267,11 +267,15 @@ describe('Data Loss Prevention', () => {
     const createAppWrapper = () => {
       return mount(App, {
         global: {
-          mocks: { $t: (key) => key },
+          mocks: { $t: key => key },
           stubs: {
-            Button: true, Toolbar: true, CircuitCanvas: true,
-            ComponentInspector: true, ConfirmationDialog: true,
-            CommandPalette: true, GoldenGateLogo: true
+            Button: true,
+            Toolbar: true,
+            CircuitCanvas: true,
+            ComponentInspector: true,
+            ConfirmationDialog: true,
+            CommandPalette: true,
+            GoldenGateLogo: true
           }
         }
       })
@@ -279,7 +283,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: Detects unsaved components correctly', () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: [{ id: 'comp1', type: 'and' }],
@@ -292,7 +296,7 @@ describe('Data Loss Prevention', () => {
 
     it('CRITICAL: Detects unsaved wires correctly', () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: [],
@@ -305,7 +309,7 @@ describe('Data Loss Prevention', () => {
 
     it('SAFE: Empty circuit has no unsaved work', () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: [],
@@ -318,7 +322,7 @@ describe('Data Loss Prevention', () => {
 
     it('SAFE: Non-existent circuit has no unsaved work', () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue(null)
 
       const result = wrapper.vm.hasCircuitUnsavedWork('non-existent')
@@ -327,7 +331,7 @@ describe('Data Loss Prevention', () => {
 
     it('SAFE: Handles malformed circuit data gracefully', () => {
       const wrapper = createAppWrapper()
-      
+
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
         components: undefined,
@@ -335,7 +339,7 @@ describe('Data Loss Prevention', () => {
       })
 
       const result = wrapper.vm.hasCircuitUnsavedWork('circuit_1')
-      
+
       // When components/wires are undefined/null, the function returns a falsy value
       // which is safe (no data loss detection when data is malformed)
       expect(result).toBeFalsy()

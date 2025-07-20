@@ -11,7 +11,12 @@
       <!-- Content -->
       <div class="modal-content">
         <p class="modal-message">
-          {{ $t('autosave.foundVersions', { count: autosaves.length, plural: autosaves.length !== 1 ? 's' : '' }) }}
+          {{
+            $t('autosave.foundVersions', {
+              count: autosaves.length,
+              plural: autosaves.length !== 1 ? 's' : ''
+            })
+          }}
         </p>
 
         <!-- Autosave list -->
@@ -35,11 +40,25 @@
                 <div class="autosave-info">
                   <div class="autosave-time">{{ formatTimeAgo(autosave.timestamp) }}</div>
                   <div class="autosave-details">
-                    {{ $t('autosave.circuitCount', { count: autosave.circuitCount, plural: autosave.circuitCount !== 1 ? 's' : '' }) }}, 
-                    {{ $t('autosave.componentCount', { count: autosave.componentCount, plural: autosave.componentCount !== 1 ? 's' : '' }) }}
+                    {{
+                      $t('autosave.circuitCount', {
+                        count: autosave.circuitCount,
+                        plural: autosave.circuitCount !== 1 ? 's' : ''
+                      })
+                    }},
+                    {{
+                      $t('autosave.componentCount', {
+                        count: autosave.componentCount,
+                        plural: autosave.componentCount !== 1 ? 's' : ''
+                      })
+                    }}
                   </div>
                   <div v-if="autosave.activeCircuit" class="autosave-active">
-                    {{ $t('autosave.activeCircuit', { name: getCircuitDisplayName(autosave.activeCircuit, autosave) }) }}
+                    {{
+                      $t('autosave.activeCircuit', {
+                        name: getCircuitDisplayName(autosave.activeCircuit, autosave)
+                      })
+                    }}
                   </div>
                 </div>
               </label>
@@ -160,7 +179,9 @@ export default {
 .autosave-dialog {
   background: white;
   border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 500px;
   width: 90%;
   max-height: 80vh;
@@ -235,7 +256,7 @@ export default {
   padding: 1rem;
 }
 
-.autosave-radio input[type="radio"] {
+.autosave-radio input[type='radio'] {
   position: absolute;
   opacity: 0;
   pointer-events: none;

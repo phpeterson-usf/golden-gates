@@ -44,7 +44,6 @@ vi.mock('@/composables/useClipboard', () => ({
   })
 }))
 
-
 // Mock useComponentController
 vi.mock('@/composables/useComponentController', () => ({
   useComponentController: () => ({
@@ -288,7 +287,6 @@ describe('useCanvasController - Clipboard Integration', () => {
       // The underlying clipboard controller should have been called
       expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
     })
-
 
     it('should not handle shortcuts when input is focused', () => {
       const mockInput = document.createElement('input')

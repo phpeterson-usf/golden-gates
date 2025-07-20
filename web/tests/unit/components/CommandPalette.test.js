@@ -364,10 +364,10 @@ describe('CommandPalette', () => {
 
       // Check that recent commands are available
       expect(wrapper.vm.recentCommands.length).toBeGreaterThan(0)
-      
+
       // Check that the same commands also appear in their static groups
       const groups = wrapper.vm.groupedCommands
-      
+
       // The 'save-circuit' command should appear in the file group even if it's recent
       expect(groups.has('file')).toBe(true)
       const fileCommands = groups.get('file')

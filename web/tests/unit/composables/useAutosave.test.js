@@ -30,31 +30,26 @@ describe('useAutosave', () => {
         { id: 'comp1', type: 'and', x: 100, y: 100 },
         { id: 'comp2', type: 'or', x: 200, y: 200 }
       ],
-      wires: [
-        { id: 'wire1', from: 'comp1', to: 'comp2' }
-      ]
+      wires: [{ id: 'wire1', from: 'comp1', to: 'comp2' }]
     }
 
     const circuit2 = {
       id: 'circuit_2',
       name: 'Circuit2',
-      components: [
-        { id: 'comp3', type: 'not', x: 300, y: 300 }
-      ],
+      components: [{ id: 'comp3', type: 'not', x: 300, y: 300 }],
       wires: []
     }
 
     mockCircuitManager = {
-      allCircuits: ref(new Map([
-        ['circuit_1', circuit1],
-        ['circuit_2', circuit2]
-      ])),
+      allCircuits: ref(
+        new Map([
+          ['circuit_1', circuit1],
+          ['circuit_2', circuit2]
+        ])
+      ),
       availableComponents: ref(new Map()),
       activeTabId: ref('circuit_1'),
-      openTabs: ref([
-        { id: 'circuit_1' },
-        { id: 'circuit_2' }
-      ])
+      openTabs: ref([{ id: 'circuit_1' }, { id: 'circuit_2' }])
     }
 
     autosave = useAutosave(mockCircuitManager)
@@ -193,7 +188,8 @@ describe('useAutosave', () => {
         'other-key'
       ])
 
-      localStorage.getItem = vi.fn()
+      localStorage.getItem = vi
+        .fn()
         .mockReturnValueOnce('{"test": "data1"}') // 17 characters
         .mockReturnValueOnce('{"test": "data2"}') // 17 characters
         .mockReturnValueOnce('other data')

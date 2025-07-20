@@ -26,7 +26,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should show only accept button when showCancel is false', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         showCancel: false
       })
@@ -39,7 +39,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should use "Cancel" as default cancel label (safer than "No")', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         showCancel: true
       })
@@ -49,7 +49,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should use "Yes" as default accept label', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true
       })
 
@@ -58,7 +58,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should use custom labels when provided', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         acceptLabel: 'Delete Anyway',
         cancelLabel: 'Keep Safe'
@@ -74,7 +74,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
   describe('Dialog Types and Safety', () => {
     it('should apply warning icon and styling for warning type', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         type: 'warning'
       })
@@ -87,7 +87,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should apply danger icon and styling for danger type', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         type: 'danger'
       })
@@ -100,7 +100,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should apply info icon and styling for info type', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         type: 'info'
       })
@@ -115,7 +115,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
   describe('Focus Management (Safety)', () => {
     it('should have cancel button for focus when dialog opens with showCancel true', async () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: false,
         showCancel: true
       })
@@ -130,7 +130,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should not have cancel button when showCancel is false', async () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: false,
         showCancel: false
       })
@@ -193,7 +193,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
   describe('Content Display', () => {
     it('should display custom title and message', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         title: 'Data Loss Warning',
         message: 'You will lose all unsaved work. Continue?'
@@ -207,7 +207,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should use default title when not provided', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true
       })
 
@@ -219,9 +219,9 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
   describe('Validation', () => {
     it('should validate type prop correctly', () => {
       const wrapper = createWrapper()
-      
+
       const typeValidator = wrapper.vm.$options.props.type.validator
-      
+
       expect(typeValidator('warning')).toBe(true)
       expect(typeValidator('danger')).toBe(true)
       expect(typeValidator('info')).toBe(true)
@@ -231,7 +231,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
   describe('Data Loss Prevention Scenarios', () => {
     it('should be configured correctly for unsaved changes warning', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         title: 'You have unsaved changes',
         message: 'If you close, your circuit will be lost',
@@ -253,7 +253,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should be configured correctly for error dialogs (no data loss)', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         title: 'Error',
         message: 'Failed to save circuit as component',
@@ -275,7 +275,7 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
     })
 
     it('should be configured correctly for success dialogs (no data loss)', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         title: 'Component Saved',
         message: 'Circuit has been saved as a reusable component',
@@ -299,13 +299,13 @@ describe('ConfirmationDialog - Data Loss Prevention', () => {
 
   describe('Button Order (Safety)', () => {
     it('should render safe action button first (left), dangerous action button second (right)', () => {
-      const wrapper = createWrapper({ 
+      const wrapper = createWrapper({
         visible: true,
         showCancel: true
       })
 
       const buttons = wrapper.findAll('.modal-button')
-      
+
       // First button should be the cancel (safe) button - safer UX pattern
       expect(buttons[0].classes()).toContain('modal-button-cancel')
       // Second button should be the confirm (dangerous) button

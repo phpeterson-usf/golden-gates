@@ -77,7 +77,6 @@
       >
         {{ label }}
       </text>
-      
     </g>
   </g>
 </template>
@@ -251,7 +250,7 @@ export default defineComponent({
       // Default: For inverted inputs, connection point is at the left edge of the inversion circle
       // For normal inputs, connection point is at x=0 (left edge of gate)
       return this.isInputInverted(index) ? -15 : 0
-    },
+    }
   }
 })
 </script>

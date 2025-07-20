@@ -46,7 +46,7 @@ describe('Autosave Behavior Logic', () => {
       }
 
       const availableRestores = mockAutosaveSystem.getAvailableRestores()
-      
+
       if (availableRestores.length === 0) {
         return { action: 'skip', reason: 'no_autosaves' }
       }
@@ -54,20 +54,23 @@ describe('Autosave Behavior Logic', () => {
       // Automatically restore the newest autosave
       const newestAutosave = availableRestores[0]
       const restoreSuccess = mockAutosaveSystem.restoreFromAutosave(newestAutosave.key)
-      
-      return { 
-        action: 'restore', 
-        autosave: newestAutosave, 
-        success: restoreSuccess 
+
+      return {
+        action: 'restore',
+        autosave: newestAutosave,
+        success: restoreSuccess
       }
     }
 
     it('should skip restoration when circuits have user data', () => {
       const circuitsWithData = new Map([
-        ['circuit_1', { 
-          components: [{ id: 'comp1', type: 'and' }], 
-          wires: [] 
-        }]
+        [
+          'circuit_1',
+          {
+            components: [{ id: 'comp1', type: 'and' }],
+            wires: []
+          }
+        ]
       ])
 
       const result = simulateCheckForAutosaveRestoration(circuitsWithData)
@@ -79,10 +82,13 @@ describe('Autosave Behavior Logic', () => {
 
     it('should skip restoration when circuits have wire data', () => {
       const circuitsWithWires = new Map([
-        ['circuit_1', { 
-          components: [], 
-          wires: [{ id: 'wire1', from: 'comp1', to: 'comp2' }] 
-        }]
+        [
+          'circuit_1',
+          {
+            components: [],
+            wires: [{ id: 'wire1', from: 'comp1', to: 'comp2' }]
+          }
+        ]
       ])
 
       const result = simulateCheckForAutosaveRestoration(circuitsWithWires)
@@ -93,9 +99,7 @@ describe('Autosave Behavior Logic', () => {
     })
 
     it('should allow restoration when circuits are empty', () => {
-      const emptyCircuits = new Map([
-        ['circuit_1', { components: [], wires: [] }]
-      ])
+      const emptyCircuits = new Map([['circuit_1', { components: [], wires: [] }]])
 
       const mockAutosaves = [
         { key: 'newest', timestamp: 1000000002000 },
@@ -113,9 +117,7 @@ describe('Autosave Behavior Logic', () => {
     })
 
     it('should skip restoration when no autosaves available', () => {
-      const emptyCircuits = new Map([
-        ['circuit_1', { components: [], wires: [] }]
-      ])
+      const emptyCircuits = new Map([['circuit_1', { components: [], wires: [] }]])
 
       mockAutosaveSystem.getAvailableRestores.mockReturnValue([])
 
@@ -127,9 +129,7 @@ describe('Autosave Behavior Logic', () => {
     })
 
     it('should always restore the newest autosave first', () => {
-      const emptyCircuits = new Map([
-        ['circuit_1', { components: [], wires: [] }]
-      ])
+      const emptyCircuits = new Map([['circuit_1', { components: [], wires: [] }]])
 
       const mockAutosaves = [
         { key: 'newest', timestamp: 1000000003000 },
@@ -148,13 +148,9 @@ describe('Autosave Behavior Logic', () => {
     })
 
     it('should handle restoration failure gracefully', () => {
-      const emptyCircuits = new Map([
-        ['circuit_1', { components: [], wires: [] }]
-      ])
+      const emptyCircuits = new Map([['circuit_1', { components: [], wires: [] }]])
 
-      const mockAutosaves = [
-        { key: 'corrupted', timestamp: 1000000001000 }
-      ]
+      const mockAutosaves = [{ key: 'corrupted', timestamp: 1000000001000 }]
       mockAutosaveSystem.getAvailableRestores.mockReturnValue(mockAutosaves)
       mockAutosaveSystem.restoreFromAutosave.mockReturnValue(false)
 
@@ -169,14 +165,14 @@ describe('Autosave Behavior Logic', () => {
   describe('manual restoration logic', () => {
     function simulateShowManualRestoreDialog() {
       const availableRestores = mockAutosaveSystem.getAvailableRestores()
-      
+
       if (availableRestores.length === 0) {
         return { action: 'skip', reason: 'no_autosaves' }
       }
 
-      return { 
-        action: 'show_dialog', 
-        autosaves: availableRestores 
+      return {
+        action: 'show_dialog',
+        autosaves: availableRestores
       }
     }
 
@@ -218,10 +214,10 @@ describe('Autosave Behavior Logic', () => {
     it('should map restoreAutosave action correctly', () => {
       // Simulate the command handler logic
       const action = 'restoreAutosave'
-      
+
       // This would call showManualRestoreDialog in the actual implementation
       let dialogShown = false
-      
+
       switch (action) {
         case 'restoreAutosave':
           dialogShown = true
@@ -265,7 +261,7 @@ describe('Autosave Behavior Logic', () => {
       }
 
       const availableRestores = mockAutosaveSystem.getAvailableRestores()
-      
+
       if (availableRestores.length === 0) {
         return { action: 'skip', reason: 'no_autosaves' }
       }
@@ -273,11 +269,11 @@ describe('Autosave Behavior Logic', () => {
       // Automatically restore the newest autosave
       const newestAutosave = availableRestores[0]
       const restoreSuccess = mockAutosaveSystem.restoreFromAutosave(newestAutosave.key)
-      
-      return { 
-        action: 'restore', 
-        autosave: newestAutosave, 
-        success: restoreSuccess 
+
+      return {
+        action: 'restore',
+        autosave: newestAutosave,
+        success: restoreSuccess
       }
     }
 
@@ -310,9 +306,7 @@ describe('Autosave Behavior Logic', () => {
     })
 
     it('should handle circuits with null/undefined properties', () => {
-      const circuitsWithNullData = new Map([
-        ['circuit_1', { components: null, wires: null }]
-      ])
+      const circuitsWithNullData = new Map([['circuit_1', { components: null, wires: null }]])
 
       mockAutosaveSystem.getAvailableRestores.mockReturnValue([])
 

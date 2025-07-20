@@ -27,9 +27,7 @@ describe('componentFactory - Rotation Support', () => {
         { name: '0', x: 0, y: 0 },
         { name: '1', x: 0, y: 2 }
       ])
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 1 }
-      ])
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 1 }])
     })
 
     it('should rotate input positions for 90 degree rotation', () => {
@@ -46,13 +44,11 @@ describe('componentFactory - Rotation Support', () => {
       // Input 1: (0, 2) -> rotated around (3, 1) -> (2, -2)
       expect(connections.inputs).toEqual([
         { name: '0', x: 4, y: -2 }, // 90° rotation of (0,0) around (3,1)
-        { name: '1', x: 2, y: -2 }  // 90° rotation of (0,2) around (3,1)
+        { name: '1', x: 2, y: -2 } // 90° rotation of (0,2) around (3,1)
       ])
-      
+
       // Output stays at rotation center
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 1 }
-      ])
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 1 }])
     })
 
     it('should rotate input positions for 180 degree rotation', () => {
@@ -69,12 +65,10 @@ describe('componentFactory - Rotation Support', () => {
       // Input 1: (0, 2) -> rotated around (3, 1) -> (6, 0)
       expect(connections.inputs).toEqual([
         { name: '0', x: 6, y: 2 }, // 180° rotation of (0,0) around (3,1)
-        { name: '1', x: 6, y: 0 }  // 180° rotation of (0,2) around (3,1)
+        { name: '1', x: 6, y: 0 } // 180° rotation of (0,2) around (3,1)
       ])
-      
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 1 }
-      ])
+
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 1 }])
     })
 
     it('should rotate input positions for 270 degree rotation', () => {
@@ -91,12 +85,10 @@ describe('componentFactory - Rotation Support', () => {
       // Input 1: (0, 2) -> rotated around (3, 1) -> (4, 4)
       expect(connections.inputs).toEqual([
         { name: '0', x: 2, y: 4 }, // 270° rotation of (0,0) around (3,1)
-        { name: '1', x: 4, y: 4 }  // 270° rotation of (0,2) around (3,1)
+        { name: '1', x: 4, y: 4 } // 270° rotation of (0,2) around (3,1)
       ])
-      
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 1 }
-      ])
+
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 1 }])
     })
 
     it('should handle rotation with inverted inputs', () => {
@@ -113,7 +105,7 @@ describe('componentFactory - Rotation Support', () => {
       // Input 1: (0, 2) -> rotated 90° around (3, 1) -> (2, -2)
       expect(connections.inputs).toEqual([
         { name: '0', x: 4, y: -3 }, // 90° rotation of (-1,0) around (3,1)
-        { name: '1', x: 2, y: -2 }  // 90° rotation of (0,2) around (3,1)
+        { name: '1', x: 2, y: -2 } // 90° rotation of (0,2) around (3,1)
       ])
     })
 
@@ -128,13 +120,9 @@ describe('componentFactory - Rotation Support', () => {
 
       // Single input gate has output at (3, 1)
       // Input 0: (0, 0) -> rotated 90° around (3, 1) -> (4, -2)
-      expect(connections.inputs).toEqual([
-        { name: '0', x: 4, y: -2 }
-      ])
-      
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 1 }
-      ])
+      expect(connections.inputs).toEqual([{ name: '0', x: 4, y: -2 }])
+
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 1 }])
     })
 
     it('should handle three input gate rotation', () => {
@@ -148,17 +136,15 @@ describe('componentFactory - Rotation Support', () => {
 
       // Three input gate has output at (3, 2) (center of 0, 2, 4)
       // Input 0: (0, 0) -> rotated 90° around (3, 2) -> (5, -1)
-      // Input 1: (0, 2) -> rotated 90° around (3, 2) -> (3, -1)  
+      // Input 1: (0, 2) -> rotated 90° around (3, 2) -> (3, -1)
       // Input 2: (0, 4) -> rotated 90° around (3, 2) -> (1, -1)
       expect(connections.inputs).toEqual([
         { name: '0', x: 5, y: -1 }, // 90° rotation of (0,0) around (3,2)
         { name: '1', x: 3, y: -1 }, // 90° rotation of (0,2) around (3,2)
-        { name: '2', x: 1, y: -1 }  // 90° rotation of (0,4) around (3,2)
+        { name: '2', x: 1, y: -1 } // 90° rotation of (0,4) around (3,2)
       ])
-      
-      expect(connections.outputs).toEqual([
-        { name: '0', x: 3, y: 2 }
-      ])
+
+      expect(connections.outputs).toEqual([{ name: '0', x: 3, y: 2 }])
     })
 
     it('should handle undefined rotation as 0 degrees', () => {
@@ -213,7 +199,7 @@ describe('componentFactory - Rotation Support', () => {
         { name: '0', x: 7, y: 6 }, // inverted and rotated
         { name: '1', x: 6, y: 4 }, // not inverted, rotated
         { name: '2', x: 7, y: 2 }, // inverted and rotated
-        { name: '3', x: 6, y: 0 }  // not inverted, rotated
+        { name: '3', x: 6, y: 0 } // not inverted, rotated
       ])
     })
 
@@ -231,7 +217,7 @@ describe('componentFactory - Rotation Support', () => {
         expect(Number.isInteger(input.x)).toBe(true)
         expect(Number.isInteger(input.y)).toBe(true)
       })
-      
+
       connections.outputs.forEach(output => {
         expect(Number.isInteger(output.x)).toBe(true)
         expect(Number.isInteger(output.y)).toBe(true)

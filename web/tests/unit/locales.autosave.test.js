@@ -10,7 +10,7 @@ describe('Autosave Localization', () => {
 
     it('should have restore command in file group alongside other file commands', () => {
       const fileCommands = enLocale.commands.file
-      
+
       expect(fileCommands.newCircuit).toBeDefined()
       expect(fileCommands.openCircuit).toBeDefined()
       expect(fileCommands.saveCircuit).toBeDefined()
@@ -19,7 +19,7 @@ describe('Autosave Localization', () => {
 
     it('should use consistent naming pattern with other commands', () => {
       const fileCommands = enLocale.commands.file
-      
+
       // All file commands should be in imperative form
       expect(fileCommands.newCircuit).toMatch(/^(New|Create)/i)
       expect(fileCommands.openCircuit).toMatch(/^Open/i)
@@ -31,7 +31,7 @@ describe('Autosave Localization', () => {
   describe('existing autosave dialog strings', () => {
     it('should maintain all existing autosave dialog strings', () => {
       const autosaveStrings = enLocale.autosave
-      
+
       expect(autosaveStrings.restoreTitle).toBe('Restore Previous Work?')
       expect(autosaveStrings.foundVersions).toBeDefined()
       expect(autosaveStrings.timeAgo.lessThanMinute).toBeDefined()
@@ -49,7 +49,7 @@ describe('Autosave Localization', () => {
       // The command and dialog should use consistent language
       const commandTitle = enLocale.commands.file.restoreAutosave
       const dialogTitle = enLocale.autosave.restoreTitle
-      
+
       // Both should mention "restore" and "work" or similar concepts
       expect(commandTitle.toLowerCase()).toContain('restore')
       expect(dialogTitle.toLowerCase()).toContain('restore')
@@ -61,7 +61,7 @@ describe('Autosave Localization', () => {
   describe('string interpolation', () => {
     it('should have proper interpolation syntax for count-based strings', () => {
       const autosaveStrings = enLocale.autosave
-      
+
       expect(autosaveStrings.foundVersions).toContain('{count}')
       expect(autosaveStrings.foundVersions).toContain('{plural}')
       expect(autosaveStrings.circuitCount).toContain('{count}')
@@ -72,7 +72,7 @@ describe('Autosave Localization', () => {
 
     it('should have proper interpolation syntax for time strings', () => {
       const timeStrings = enLocale.autosave.timeAgo
-      
+
       expect(timeStrings.minutes).toContain('{count}')
       expect(timeStrings.minutes).toContain('{plural}')
       expect(timeStrings.hoursAndMinutes).toContain('{hours}')
@@ -90,11 +90,11 @@ describe('Autosave Localization', () => {
     it('should use user-friendly language', () => {
       const commandTitle = enLocale.commands.file.restoreAutosave
       const dialogTitle = enLocale.autosave.restoreTitle
-      
+
       // Should avoid technical jargon like "autosave"
       expect(commandTitle.toLowerCase()).not.toContain('autosave')
       expect(dialogTitle.toLowerCase()).not.toContain('autosave')
-      
+
       // Should use friendly terms
       expect(commandTitle.toLowerCase()).toMatch(/previous|work|restore/)
       expect(dialogTitle.toLowerCase()).toMatch(/previous|work|restore/)
@@ -102,10 +102,10 @@ describe('Autosave Localization', () => {
 
     it('should have appropriate button labels', () => {
       const autosaveStrings = enLocale.autosave
-      
+
       expect(autosaveStrings.restoreSelected).toBe('Restore Selected')
       expect(autosaveStrings.cancel).toBe('Cancel')
-      
+
       // Button labels should be clear and actionable
       expect(autosaveStrings.restoreSelected).toMatch(/^(Restore|Select|Choose)/i)
       expect(autosaveStrings.cancel).toMatch(/^(Cancel|Close|Dismiss)/i)

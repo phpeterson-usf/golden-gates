@@ -161,7 +161,7 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     // Add the final connection point using orthogonal routing to avoid diagonal lines
     if (wirePoints.value.length > 0) {
       const lastPoint = wirePoints.value[wirePoints.value.length - 1]
-      
+
       // Apply the same orthogonal routing logic as addWireWaypoint
       if (wireDirection.value === 'horizontal') {
         // Horizontal first
