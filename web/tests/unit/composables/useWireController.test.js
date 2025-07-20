@@ -157,7 +157,8 @@ describe('useWireController', () => {
       expect(mockCallbacks.addWire).toHaveBeenCalledWith({
         id: expect.stringMatching(/^wire_\d+$/),
         points: [
-          { x: 7, y: 6 }, // start point
+          { x: 7, y: 6 },  // start point
+          { x: 10, y: 6 }, // intermediate orthogonal point  
           { x: 10, y: 6 }  // end point
         ],
         startConnection: {

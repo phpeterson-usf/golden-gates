@@ -158,8 +158,32 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
       }
     }
 
-    // Add the final point at the actual connection position
-    wirePoints.value.push(connectionPos)
+    // Add the final connection point using orthogonal routing to avoid diagonal lines
+    if (wirePoints.value.length > 0) {
+      const lastPoint = wirePoints.value[wirePoints.value.length - 1]
+      
+      // Apply the same orthogonal routing logic as addWireWaypoint
+      if (wireDirection.value === 'horizontal') {
+        // Horizontal first
+        if (connectionPos.x !== lastPoint.x) {
+          wirePoints.value.push({ x: connectionPos.x, y: lastPoint.y })
+        }
+        if (connectionPos.x !== lastPoint.x || connectionPos.y !== lastPoint.y) {
+          wirePoints.value.push(connectionPos)
+        }
+      } else {
+        // Vertical first
+        if (connectionPos.y !== lastPoint.y) {
+          wirePoints.value.push({ x: lastPoint.x, y: connectionPos.y })
+        }
+        if (connectionPos.x !== lastPoint.x || connectionPos.y !== lastPoint.y) {
+          wirePoints.value.push(connectionPos)
+        }
+      }
+    } else {
+      // If no waypoints, just add the connection point directly
+      wirePoints.value.push(connectionPos)
+    }
 
     // Get the final points array
     let finalPoints = [...wirePoints.value]
