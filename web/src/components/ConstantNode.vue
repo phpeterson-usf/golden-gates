@@ -12,16 +12,18 @@
         {{ label }}
       </text>
 
-      <!-- Input square (larger by 5px, offset left so output point is on right edge) -->
+      <!-- Constant rounded rectangle with outline only -->
       <rect
         x="-5"
         :y="-(GRID_SIZE + 5) / 2"
         :width="GRID_SIZE + 5"
         :height="GRID_SIZE + 5"
-        :fill="fillColor"
+        rx="3"
+        ry="3"
+        fill="none"
         :stroke="strokeColor"
         :stroke-width="strokeWidth"
-        class="component-body"
+        class="component-body constant-body"
         @mousedown="handleMouseDown"
       />
 
@@ -46,11 +48,11 @@ import { useComponentView, draggableProps } from '../composables/useComponentVie
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
 export default defineComponent({
-  name: 'InputNode',
+  name: 'ConstantNode',
   props: {
     ...draggableProps,
     // IO props
-    label: { type: String, default: 'IN' },
+    label: { type: String, default: 'CONST' },
     value: { type: Number, default: 0 },
     base: { type: Number, default: 10 },
     bits: { type: Number, default: 1 },
@@ -62,7 +64,7 @@ export default defineComponent({
       // Handle null/undefined value
       const val = this.value ?? 0
 
-      // Format value based on base
+      // Format value based on base (same as Input)
       if (this.base === 16) {
         return (
           '0x' +
@@ -91,10 +93,14 @@ export default defineComponent({
       GRID_SIZE
     }
   }
-  // generate() method will be added back later if needed
 })
 </script>
 
 <style scoped>
 @import '../styles/components.css';
+
+.constant-body {
+  /* Use dynamic colors from useComponentView like other components */
+  fill: none !important;
+}
 </style>

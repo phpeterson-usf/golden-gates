@@ -293,6 +293,9 @@ export default {
         case 'saveCircuit':
           this.saveCircuitFile()
           break
+        case 'clearCircuit':
+          this.clearCircuit()
+          break
         case 'runSimulation':
           this.runSimulation(this.$refs.canvas)
           break
@@ -563,6 +566,77 @@ export default {
       } else {
         alert(this.$t('autosave.restoreError'))
       }
+    },
+
+    /**
+     * Clear the current circuit (all components, wires, and reset to empty state)
+     */
+    clearCircuit() {
+      this.showConfirmation({
+        title: this.$t('dialogs.confirmClear'),
+        message: this.$t('dialogs.confirmClearMessage'),
+        type: 'warning',
+        acceptLabel: this.$t('ui.clearCircuit'),
+        onAccept: () => {
+          // Temporarily disable autosave to prevent saving cleared state
+          this.autosave.setAutosaveEnabled(false)
+
+          // Clear all autosave data first
+          this.autosave.clearAllAutosaves()
+
+          // Also clear any other circuit-related localStorage data
+          this.clearAllCircuitData()
+
+          // Clear the circuit manager data completely
+          this.circuitManager.allCircuits.value.clear()
+          this.circuitManager.availableComponents.value.clear()
+          this.circuitManager.openTabs.value = []
+
+          // Create a fresh main circuit
+          this.createNewCircuit()
+
+          // Clear the canvas if it exists
+          if (this.$refs.canvas) {
+            this.$refs.canvas.clearCircuit()
+          }
+
+          // Force a refresh of the selected circuit
+          this.selectedCircuit = this.activeCircuit
+
+          // Re-enable autosave after a short delay
+          setTimeout(() => {
+            this.autosave.setAutosaveEnabled(true)
+          }, 1000)
+        },
+        onReject: () => {
+          // User cancelled, do nothing
+        }
+      })
+    },
+
+    /**
+     * Aggressively clear all circuit-related localStorage data
+     */
+    clearAllCircuitData() {
+      // Get all localStorage keys
+      const keysToRemove = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (
+          key &&
+          (key.startsWith('golden-gates-') ||
+            key.includes('circuit') ||
+            key.includes('autosave') ||
+            key.includes('component'))
+        ) {
+          keysToRemove.push(key)
+        }
+      }
+
+      // Remove all found keys
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key)
+      })
     },
 
     // Tab scrolling methods

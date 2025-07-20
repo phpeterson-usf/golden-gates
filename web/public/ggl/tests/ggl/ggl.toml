@@ -2,6 +2,12 @@
 # test case file for the GGL circuit language
 
 [[tests]]
+name = "constant"
+input = ["python3", "$project_tests/constant.py"]
+expected = "0xc0001073"
+rubric = 1
+
+[[tests]]
 name = "1-and-1"
 input = ["python3", "$project_tests/1-and-1.py"]
 expected = "1"

@@ -335,14 +335,16 @@ export default {
       // Persist to localStorage
       localStorage.setItem('recentCommands', JSON.stringify(recentCommandIds.value))
 
-      // Emit command event
-      emit('command', {
-        action: command.action,
-        params: command.params || []
-      })
-
-      // Close palette
+      // Close palette first to ensure it closes even if command fails
       visible.value = false
+
+      // Then emit command event
+      nextTick(() => {
+        emit('command', {
+          action: command.action,
+          params: command.params || []
+        })
+      })
     }
 
     // Reset state when closing

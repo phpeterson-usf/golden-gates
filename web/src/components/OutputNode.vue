@@ -58,19 +58,22 @@ export default defineComponent({
   emits: ['startDrag'],
   computed: {
     formattedValue() {
+      // Handle null/undefined value
+      const val = this.value ?? 0
+
       // Format value based on base
       if (this.base === 16) {
         return (
           '0x' +
-          this.value
+          val
             .toString(16)
             .padStart(Math.ceil(this.bits / 4), '0')
             .toUpperCase()
         )
       } else if (this.base === 2) {
-        return '0b' + this.value.toString(2).padStart(this.bits, '0')
+        return '0b' + val.toString(2).padStart(this.bits, '0')
       } else {
-        return this.value.toString()
+        return val.toString()
       }
     }
   },

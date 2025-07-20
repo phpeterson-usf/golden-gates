@@ -1,6 +1,7 @@
 import type { ComponentGenerator, ComponentData } from '../types/ComponentGenerator'
 import { InputGenerator } from './InputGenerator'
 import { OutputGenerator } from './OutputGenerator'
+import { ConstantGenerator } from './ConstantGenerator'
 import { LogicGateGenerator } from './LogicGateGenerator'
 import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
@@ -16,6 +17,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'output':
       return new OutputGenerator(componentData)
+
+    case 'constant':
+      return new ConstantGenerator(componentData)
 
     case 'and-gate':
     case 'or-gate':

@@ -90,6 +90,44 @@ export const componentRegistry = {
     }
   },
 
+  constant: {
+    component: defineAsyncComponent(() => import('../components/ConstantNode.vue')),
+    label: 'Add Constant',
+    icon: 'pi pi-stop-circle',
+    category: 'io',
+    defaultProps: {
+      value: 0,
+      base: 10,
+      bits: 1,
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE,
+      height: GRID_SIZE
+    },
+    // Visual bounds relative to the component's x,y position
+    bounds: {
+      x: -10, // Extended left to accommodate longer values
+      y: -30, // Extended up to include value text
+      width: GRID_SIZE + 20, // Extra width for value display
+      height: 45 // Height to include value text above
+    },
+    // Visual center relative to the component's x,y position
+    center: {
+      x: GRID_SIZE / 2,
+      y: 0
+    },
+    connections: {
+      outputs: [
+        { name: '0', x: 1, y: 0 } // 1 grid unit right, 0 units down
+      ]
+    },
+    // Special handling for constant nodes
+    onCreate: (instance, index) => {
+      instance.props.label = `C${index}` // C0, C1, C2, etc.
+    }
+  },
+
   splitter: {
     component: defineAsyncComponent(() => import('../components/SplitterComponent.vue')),
     label: 'Splitter',

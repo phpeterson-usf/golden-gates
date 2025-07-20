@@ -168,6 +168,9 @@ describe('CommandPalette', () => {
 
       await wrapper.vm.executeCommand(mockCommand)
 
+      // Wait for nextTick since command emission is now deferred
+      await wrapper.vm.$nextTick()
+
       expect(wrapper.emitted('command')).toBeTruthy()
       expect(wrapper.emitted('command')[0]).toEqual([
         {

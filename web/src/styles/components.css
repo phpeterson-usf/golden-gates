@@ -1,5 +1,18 @@
 /* Shared styles for circuit components */
 
+/* Global input font fix to prevent multiplication symbol issue */
+.p-inputtext,
+.p-inputnumber-input,
+.p-inputtextarea,
+.p-dropdown,
+.p-multiselect,
+.p-chips-input-token,
+.p-calendar-input {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
 /* Prevent text selection during dragging */
 .circuit-canvas {
   -webkit-user-select: none;

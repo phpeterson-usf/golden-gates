@@ -23,6 +23,7 @@
   "componentTypes": {
     "input": "Input",
     "output": "Output",
+    "constant": "Constant",
     "and": "AND",
     "or": "OR",
     "not": "NOT",
@@ -37,6 +38,7 @@
   "componentRegistry": {
     "addInput": "Add Input",
     "addOutput": "Add Output",
+    "addConstant": "Add Constant",
     "addAnd": "Add AND",
     "addOr": "Add OR",
     "addNot": "Add NOT",
@@ -77,7 +79,8 @@
   },
   "dialogs": {
     "confirmDelete": "Are you sure you want to delete {name}?",
-    "confirmClear": "Are you sure you want to clear the circuit?",
+    "confirmClear": "Clear the circuit?",
+    "confirmClearMessage": "This will start from a clean sheet, including autosaved circuits.",
     "unsavedChanges": "You have unsaved changes",
     "unsavedChangesMessage": "If you close, your circuit will be lost"
   },
@@ -130,6 +133,7 @@
       "newCircuit": "New Circuit",
       "openCircuit": "Open Circuit",
       "saveCircuit": "Save Circuit",
+      "clearCircuit": "Clear Circuit",
       "restoreAutosave": "Restore Previous Work"
     },
     "simulation": {
@@ -146,6 +150,7 @@
       "xnorGate": "Xnor Gate",
       "input": "Input",
       "output": "Output",
+      "constant": "Constant",
       "splitter": "Splitter",
       "merger": "Merger"
     },
@@ -162,6 +167,7 @@
     "dropFileHere": "Drop JSON circuit file here",
     "dropFileAlert": "Please drop a JSON circuit file",
     "unknownCommand": "Unknown command action",
-    "closeWithoutSaving": "Close Without Saving"
+    "closeWithoutSaving": "Close Without Saving",
+    "clearCircuit": "Clear Circuit"
   }
 }

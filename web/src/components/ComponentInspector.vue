@@ -85,7 +85,9 @@
           <!-- Number input -->
           <MultibaseNumberInput
             v-else-if="
-              prop.type === 'number' && component.type === 'input' && prop.name === 'value'
+              prop.type === 'number' &&
+              (component.type === 'input' || component.type === 'constant') &&
+              prop.name === 'value'
             "
             :modelValue="getPropValue(prop.name, prop.default)"
             :base="getPropValue('base', 10)"

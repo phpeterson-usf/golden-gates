@@ -83,6 +83,31 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Constant node properties
+  constant: {
+    title: 'Constant Properties',
+    properties: [
+      { ...commonProperties.label, default: 'CONST' },
+      {
+        name: 'base',
+        type: 'base-selector',
+        label: 'Base',
+        default: 10
+      },
+      commonProperties.bits,
+      {
+        name: 'value',
+        type: 'number',
+        label: 'Value',
+        default: 0,
+        min: 0,
+        maxFormula: props => Math.pow(2, props.bits || 1) - 1,
+        showButtons: true
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // AND gate properties
   'and-gate': {
     title: 'AND Gate Properties',

@@ -59,11 +59,11 @@ class Output(IONode):
         return Output(label=new_label, bits=self.bits, js_id=None)
 
 
-class Constant(IONode):
+class Constant(Input):
     """
     Constant is an IONode for constant values in a circuit, e.g. c0001093
+    Maybe it's odd to make it an alias for Input, but for simulation
+    purposes, it seems to behave like an input
     """
-
-    kind = 'Constant'
     def __init__(self, label='', bits=1):
-        super().__init__(Constant.kind, 0, 1, label, bits)
+        super().__init__(label, bits)

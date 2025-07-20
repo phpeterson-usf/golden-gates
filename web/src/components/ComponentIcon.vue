@@ -119,6 +119,17 @@ export default {
         return `M ${cx + radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy}`
       }
 
+      if (this.componentType === 'constant') {
+        // Rounded rectangle for constant - outline only to match component style
+        const width = 35
+        const height = 22
+        const x = 4
+        const y = 15 - height / 2
+        const rx = 3
+        const ry = 3
+        return `M ${x + rx} ${y} L ${x + width - rx} ${y} Q ${x + width} ${y} ${x + width} ${y + ry} L ${x + width} ${y + height - ry} Q ${x + width} ${y + height} ${x + width - rx} ${y + height} L ${x + rx} ${y + height} Q ${x} ${y + height} ${x} ${y + height - ry} L ${x} ${y + ry} Q ${x} ${y} ${x + rx} ${y} Z`
+      }
+
       if (this.componentType === 'splitter') {
         // Splitter: one input line to thick vertical body, multiple output lines
         // Make it really large and prominent to match gate icons

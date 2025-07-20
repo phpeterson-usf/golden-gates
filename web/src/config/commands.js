@@ -24,6 +24,12 @@ export const commandGroups = {
         shortcut: 'S'
       },
       {
+        id: 'clear-circuit',
+        labelKey: 'commands.file.clearCircuit',
+        icon: 'pi pi-trash',
+        action: 'clearCircuit'
+      },
+      {
         separator: true
       },
       {
@@ -121,6 +127,13 @@ export const commandGroups = {
         componentType: 'output',
         action: 'addComponent',
         params: ['output']
+      },
+      {
+        id: 'insert-constant',
+        labelKey: 'commands.insert.constant',
+        componentType: 'constant',
+        action: 'addComponent',
+        params: ['constant']
       },
       {
         separator: true
