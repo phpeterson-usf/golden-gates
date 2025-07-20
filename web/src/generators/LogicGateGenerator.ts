@@ -48,7 +48,7 @@ export class LogicGateGenerator extends BaseComponentGenerator {
     const gateClass = this.gateType.charAt(0).toUpperCase() + this.gateType.slice(1)
 
     // Build parameters
-    const params = []
+    const params: string[] = []
     if (this.bits > 1) params.push(`bits=${this.bits}`)
     if (this.label) params.push(`label="${this.label}"`)
     if (this.numInputs !== 2) params.push(`num_inputs=${this.numInputs}`)
