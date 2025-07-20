@@ -31,26 +31,46 @@
           <GoldenGateLogo :width="48" :height="24" />
         </Button>
 
-        <!-- Circuit Tabs -->
-        <div v-if="circuitTabs.length > 0" class="circuit-tabs">
+        <!-- Circuit Tabs with Navigation -->
+        <div v-if="circuitTabs.length > 0" class="circuit-tabs-container">
           <Button
-            v-for="tab in circuitTabs"
-            :key="tab.id"
-            :label="tab.name"
-            :class="['circuit-tab', { active: tab.id === activeTabId }]"
-            @click="switchToTab(tab.id)"
+            v-if="showScrollButtons"
+            icon="pi pi-chevron-left"
+            class="tab-scroll-button tab-scroll-left"
+            @click="scrollTabs('left')"
             text
             size="small"
-          >
-            <template #default>
-              <span>{{ tab.name }}</span>
-              <i
-                class="pi pi-times tab-close"
-                @click.stop="handleCloseTab(tab.id)"
-                v-if="circuitTabs.length > 1"
-              ></i>
-            </template>
-          </Button>
+            :disabled="!canScrollLeft"
+          />
+          <div class="circuit-tabs" ref="tabsContainer">
+            <Button
+              v-for="tab in circuitTabs"
+              :key="tab.id"
+              :label="tab.name"
+              :class="['circuit-tab', { active: tab.id === activeTabId }]"
+              @click="switchToTab(tab.id)"
+              text
+              size="small"
+            >
+              <template #default>
+                <span>{{ tab.name }}</span>
+                <i
+                  class="pi pi-times tab-close"
+                  @click.stop="handleCloseTab(tab.id)"
+                  v-if="circuitTabs.length > 1"
+                ></i>
+              </template>
+            </Button>
+          </div>
+          <Button
+            v-if="showScrollButtons"
+            icon="pi pi-chevron-right"
+            class="tab-scroll-button tab-scroll-right"
+            @click="scrollTabs('right')"
+            text
+            size="small"
+            :disabled="!canScrollRight"
+          />
         </div>
       </template>
       <template #end>
@@ -242,7 +262,11 @@ export default {
       dragCounter: 0,
       beforeUnloadHandler: null,
       showAutosaveDialog: false,
-      availableAutosaves: []
+      availableAutosaves: [],
+      // Tab scrolling state
+      showScrollButtons: false,
+      canScrollLeft: false,
+      canScrollRight: false
     }
   },
   computed: {
@@ -541,6 +565,54 @@ export default {
       } else {
         alert(this.$t('autosave.restoreError'))
       }
+    },
+
+    // Tab scrolling methods
+    scrollTabs(direction) {
+      const container = this.$refs.tabsContainer
+      if (!container) return
+
+      const scrollAmount = 120 // pixels to scroll
+      const currentScroll = container.scrollLeft
+      
+      if (direction === 'left') {
+        container.scrollTo({
+          left: Math.max(0, currentScroll - scrollAmount),
+          behavior: 'smooth'
+        })
+      } else {
+        container.scrollTo({
+          left: currentScroll + scrollAmount,
+          behavior: 'smooth'
+        })
+      }
+      
+      // Update scroll button states after a brief delay
+      setTimeout(() => this.updateScrollButtonStates(), 100)
+    },
+
+    updateScrollButtonStates() {
+      const container = this.$refs.tabsContainer
+      if (!container) {
+        this.showScrollButtons = false
+        return
+      }
+
+      const { scrollLeft, scrollWidth, clientWidth } = container
+      
+      // Show scroll buttons if content is wider than container
+      this.showScrollButtons = scrollWidth > clientWidth
+      
+      // Update individual button states
+      this.canScrollLeft = scrollLeft > 0
+      this.canScrollRight = scrollLeft < (scrollWidth - clientWidth - 1) // -1 for rounding
+    },
+
+    checkTabOverflow() {
+      // Check if we need to show scroll buttons
+      this.$nextTick(() => {
+        this.updateScrollButtonStates()
+      })
     }
   },
 
@@ -563,6 +635,12 @@ export default {
     // Set up command event listener for keyboard shortcuts
     this.commandEventHandler = event => this.handleCommand(event.detail)
     window.addEventListener('circuitCommand', this.commandEventHandler)
+
+    // Set up tab scrolling event listeners
+    window.addEventListener('resize', this.updateScrollButtonStates)
+    
+    // Check tab overflow on initial load
+    this.checkTabOverflow()
   },
 
   watch: {
@@ -571,6 +649,14 @@ export default {
       if (!this.selectedComponent && newCircuit) {
         this.selectedCircuit = newCircuit
       }
+    },
+
+    // Watch for tab changes to update scroll button states
+    circuitTabs: {
+      handler() {
+        this.checkTabOverflow()
+      },
+      deep: true
     }
   },
 
@@ -584,6 +670,9 @@ export default {
     if (this.commandEventHandler) {
       window.removeEventListener('circuitCommand', this.commandEventHandler)
     }
+
+    // Clean up resize event listener
+    window.removeEventListener('resize', this.updateScrollButtonStates)
   }
 }
 </script>
@@ -832,13 +921,51 @@ body {
   background-color: #e5e7eb !important;
 }
 
-/* Circuit tabs */
+/* Circuit tabs container with navigation */
+.circuit-tabs-container {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  max-width: calc(100vw - 400px); /* Leave space for other toolbar elements */
+}
+
 .circuit-tabs {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  flex-wrap: nowrap;
+  flex: 1;
+  /* Hide scrollbar for cleaner appearance since we have navigation buttons */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.circuit-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tab scroll navigation buttons */
+.tab-scroll-button {
+  padding: 0.25rem !important;
+  min-width: auto !important;
+  height: auto !important;
+  border-radius: 4px !important;
+  color: #6b7280 !important;
+  flex-shrink: 0;
+  margin: 0 0.125rem;
+}
+
+.tab-scroll-button:hover:not(:disabled) {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.tab-scroll-button:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
 }
 
 .circuit-tab {
@@ -851,9 +978,11 @@ body {
   font-weight: 400 !important;
   position: relative;
   max-width: 120px;
+  min-width: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .circuit-tab:hover {
