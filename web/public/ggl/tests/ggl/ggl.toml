@@ -150,3 +150,15 @@ name = "32bit-splitter-merger"
 input = ["python3", "$project_tests/32bit-splitter-merger.py"]
 expected = "305419896"
 rubric = 1
+
+[[tests]]
+name = "mux-2bit"
+input = ["python3", "$project_tests/mux-2bit.py"]
+expected = "3"
+rubric = 1
+
+[[tests]]
+name = "mux-8bit"
+input = ["python3", "$project_tests/mux-8bit.py"]
+expected = "0xBB"
+rubric = 1

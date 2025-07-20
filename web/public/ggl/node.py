@@ -29,7 +29,10 @@ class NodeInputs:
             raise SimulatorError("Another Edge is already connected to this inpoint")
         """
         self.points[name] = edge
-    
+    def append_input(self, name):
+        assert(self.points.get(name) == None)
+        self.points[name] = None
+
     def __getitem__(self, index):
         """Allow array-style access like node.inputs[0]"""
         names = list(self.points.keys())
