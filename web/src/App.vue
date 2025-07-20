@@ -21,72 +21,21 @@
       @restore="handleAutosaveRestore"
       @cancel="showAutosaveDialog = false"
     />
-    <Toolbar class="app-toolbar">
-      <template #start>
-        <Button
-          class="p-button-sm golden-gate-button"
-          @click="commandPaletteVisible = true"
-          v-tooltip.right="commandPaletteTooltip"
-        >
-          <GoldenGateLogo :width="48" :height="24" />
-        </Button>
-
-        <!-- Circuit Tabs with Navigation -->
-        <div v-if="circuitTabs.length > 0" class="circuit-tabs-container">
-          <Button
-            v-if="showScrollButtons"
-            icon="pi pi-chevron-left"
-            class="tab-scroll-button tab-scroll-left"
-            @click="scrollTabs('left')"
-            text
-            size="small"
-            :disabled="!canScrollLeft"
-          />
-          <div class="circuit-tabs" ref="tabsContainer">
-            <Button
-              v-for="tab in circuitTabs"
-              :key="tab.id"
-              :label="tab.name"
-              :class="['circuit-tab', { active: tab.id === activeTabId }]"
-              @click="switchToTab(tab.id)"
-              text
-              size="small"
-            >
-              <template #default>
-                <span>{{ tab.name }}</span>
-                <i
-                  class="pi pi-times tab-close"
-                  @click.stop="handleCloseTab(tab.id)"
-                  v-if="circuitTabs.length > 1"
-                ></i>
-              </template>
-            </Button>
-          </div>
-          <Button
-            v-if="showScrollButtons"
-            icon="pi pi-chevron-right"
-            class="tab-scroll-button tab-scroll-right"
-            @click="scrollTabs('right')"
-            text
-            size="small"
-            :disabled="!canScrollRight"
-          />
-        </div>
-      </template>
-      <template #end>
-        <Button
-          icon="pi pi-sliders-h"
-          class="p-button-text p-button-sm"
-          @click="inspectorVisible = !inspectorVisible"
-          v-tooltip.left="$t('ui.toggleInspector')"
-        />
-      </template>
-    </Toolbar>
+    <AppToolbar
+      :circuitTabs="circuitTabs"
+      :activeTabId="activeTabId"
+      :circuitManager="circuitManager"
+      @openCommandPalette="commandPaletteVisible = true"
+      @switchToTab="switchToTab"
+      @closeTab="handleCloseTab"
+      @showConfirmation="showConfirmation"
+      @toggleInspector="inspectorVisible = !inspectorVisible"
+    />
 
     <div class="main-content">
       <div
         class="circuit-container"
-        :class="{ 'inspector-open': inspectorVisible, 'drag-over': isDraggingOver }"
+        :class="{ 'drag-over': isDraggingOver }"
         :data-drop-message="$t('ui.dropFileHere')"
         @dragover.prevent="handleDragOver"
         @drop.prevent="handleDrop"
@@ -139,7 +88,7 @@ import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import AutosaveSelectionDialog from './components/AutosaveSelectionDialog.vue'
-import GoldenGateLogo from './components/GoldenGateLogo.vue'
+import AppToolbar from './components/AppToolbar.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
@@ -157,7 +106,7 @@ export default {
     ConfirmationDialog,
     CommandPalette,
     AutosaveSelectionDialog,
-    GoldenGateLogo
+    AppToolbar
   },
   setup() {
     // Initialize circuit manager (model layer)
@@ -262,16 +211,7 @@ export default {
       dragCounter: 0,
       beforeUnloadHandler: null,
       showAutosaveDialog: false,
-      availableAutosaves: [],
-      // Tab scrolling state
-      showScrollButtons: false,
-      canScrollLeft: false,
-      canScrollRight: false
-    }
-  },
-  computed: {
-    commandPaletteTooltip() {
-      return `${this.$t('commands.commandPalette.title')} (G)`
+      availableAutosaves: []
     }
   },
   methods: {
@@ -326,35 +266,8 @@ export default {
     },
 
     handleCloseTab(circuitId) {
-      // Check if the circuit has unsaved changes
-      if (this.hasCircuitUnsavedWork(circuitId)) {
-        this.showConfirmation({
-          title: this.$t('dialogs.unsavedChanges'),
-          message: this.$t('dialogs.unsavedChangesMessage'),
-          type: 'warning',
-          acceptLabel: this.$t('ui.closeWithoutSaving'),
-          onAccept: () => {
-            this.closeTab(circuitId)
-          },
-          onReject: () => {
-            // User cancelled, do nothing
-          }
-        })
-      } else {
-        // No unsaved changes, close immediately
-        this.closeTab(circuitId)
-      }
-    },
-
-    hasCircuitUnsavedWork(circuitId) {
-      const circuit = this.circuitManager.getCircuit(circuitId)
-      if (!circuit) return false
-
-      // Check if circuit has any components or wires
-      const hasComponents = circuit.components && circuit.components.length > 0
-      const hasWires = circuit.wires && circuit.wires.length > 0
-
-      return hasComponents || hasWires
+      // Close tab directly - confirmation logic now handled by CircuitTabsBar
+      this.closeTab(circuitId)
     },
 
     handleSelectionChanged(selection) {
@@ -637,54 +550,6 @@ export default {
       keysToRemove.forEach(key => {
         localStorage.removeItem(key)
       })
-    },
-
-    // Tab scrolling methods
-    scrollTabs(direction) {
-      const container = this.$refs.tabsContainer
-      if (!container) return
-
-      const scrollAmount = 120 // pixels to scroll
-      const currentScroll = container.scrollLeft
-
-      if (direction === 'left') {
-        container.scrollTo({
-          left: Math.max(0, currentScroll - scrollAmount),
-          behavior: 'smooth'
-        })
-      } else {
-        container.scrollTo({
-          left: currentScroll + scrollAmount,
-          behavior: 'smooth'
-        })
-      }
-
-      // Update scroll button states after a brief delay
-      setTimeout(() => this.updateScrollButtonStates(), 100)
-    },
-
-    updateScrollButtonStates() {
-      const container = this.$refs.tabsContainer
-      if (!container) {
-        this.showScrollButtons = false
-        return
-      }
-
-      const { scrollLeft, scrollWidth, clientWidth } = container
-
-      // Show scroll buttons if content is wider than container
-      this.showScrollButtons = scrollWidth > clientWidth
-
-      // Update individual button states
-      this.canScrollLeft = scrollLeft > 0
-      this.canScrollRight = scrollLeft < scrollWidth - clientWidth - 1 // -1 for rounding
-    },
-
-    checkTabOverflow() {
-      // Check if we need to show scroll buttons
-      this.$nextTick(() => {
-        this.updateScrollButtonStates()
-      })
     }
   },
 
@@ -707,12 +572,6 @@ export default {
     // Set up command event listener for keyboard shortcuts
     this.commandEventHandler = event => this.handleCommand(event.detail)
     window.addEventListener('circuitCommand', this.commandEventHandler)
-
-    // Set up tab scrolling event listeners
-    window.addEventListener('resize', this.updateScrollButtonStates)
-
-    // Check tab overflow on initial load
-    this.checkTabOverflow()
   },
 
   watch: {
@@ -721,14 +580,6 @@ export default {
       if (!this.selectedComponent && newCircuit) {
         this.selectedCircuit = newCircuit
       }
-    },
-
-    // Watch for tab changes to update scroll button states
-    circuitTabs: {
-      handler() {
-        this.checkTabOverflow()
-      },
-      deep: true
     }
   },
 
@@ -742,9 +593,6 @@ export default {
     if (this.commandEventHandler) {
       window.removeEventListener('circuitCommand', this.commandEventHandler)
     }
-
-    // Clean up resize event listener
-    window.removeEventListener('resize', this.updateScrollButtonStates)
   }
 }
 </script>
@@ -754,23 +602,6 @@ export default {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
-
-/* Menu item styling for gate icons */
-.menu-item-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.component-icon-menu {
-  flex-shrink: 0;
-}
-
-.menu-item-label {
-  flex: 1;
 }
 
 body {
@@ -783,15 +614,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
-
-.app-toolbar {
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  height: 48px;
 }
 
 .main-content {
@@ -869,6 +691,9 @@ body {
 
 .p-button {
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Improve button appearance */
@@ -884,13 +709,6 @@ body {
 /* Add spacing between icon and label */
 .p-button .p-button-label {
   margin-left: 0.5rem !important;
-}
-
-/* Alternative approach - add gap to button content */
-.p-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .p-toolbar {
@@ -991,137 +809,5 @@ body {
 
 .breadcrumb-button.active:hover {
   background-color: #e5e7eb !important;
-}
-
-/* Circuit tabs container with navigation */
-.circuit-tabs-container {
-  display: flex;
-  align-items: center;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  max-width: calc(100vw - 400px); /* Leave space for other toolbar elements */
-}
-
-.circuit-tabs {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  flex-wrap: nowrap;
-  flex: 1;
-  /* Hide scrollbar for cleaner appearance since we have navigation buttons */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.circuit-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-/* Tab scroll navigation buttons */
-.tab-scroll-button {
-  padding: 0.25rem !important;
-  min-width: auto !important;
-  height: auto !important;
-  border-radius: 4px !important;
-  color: #6b7280 !important;
-  flex-shrink: 0;
-  margin: 0 0.125rem;
-}
-
-.tab-scroll-button:hover:not(:disabled) {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
-}
-
-.tab-scroll-button:disabled {
-  opacity: 0.3 !important;
-  cursor: not-allowed !important;
-}
-
-.circuit-tab {
-  padding: 0.25rem 0.75rem !important;
-  font-size: 0.75rem !important;
-  min-height: auto !important;
-  height: auto !important;
-  border-radius: 4px !important;
-  color: #6b7280 !important;
-  font-weight: 400 !important;
-  position: relative;
-  max-width: 120px;
-  min-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.circuit-tab:hover {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
-}
-
-.circuit-tab.active {
-  background-color: #e5e7eb !important;
-  color: #1f2937 !important;
-  font-weight: 500 !important;
-}
-
-.circuit-tab .tab-close {
-  margin-left: 0.5rem;
-  font-size: 0.625rem;
-  opacity: 0.6;
-  cursor: pointer;
-}
-
-.circuit-tab .tab-close:hover {
-  opacity: 1;
-  color: #ef4444 !important;
-}
-
-/* Golden Gate button styling with USF colors */
-.golden-gate-button {
-  padding: 0.375rem 0.875rem !important;
-  min-width: auto !important;
-  background-color: #00543c !important; /* USF Green */
-  border-color: #00543c !important;
-  color: #ffcc02 !important; /* USF Gold */
-}
-
-.golden-gate-button:hover {
-  background-color: #004832 !important; /* Darker USF Green */
-  border-color: #004832 !important;
-  color: #ffd633 !important; /* Brighter USF Gold */
-}
-
-.golden-gate-button .golden-gate-logo {
-  color: #ffcc02; /* USF Gold */
-  transition: color 0.2s ease;
-}
-
-.golden-gate-button:hover .golden-gate-logo {
-  color: #ffd633; /* Brighter USF Gold */
-}
-
-.golden-gate-button .logo-tower-left,
-.golden-gate-button .logo-tower-right {
-  fill: #ffcc02; /* USF Gold towers */
-}
-
-.golden-gate-button:hover .logo-tower-left,
-.golden-gate-button:hover .logo-tower-right {
-  fill: #ffd633; /* Brighter USF Gold towers */
-}
-
-/* Dark mode support */
-.p-dark .golden-gate-button {
-  background-color: #006b4d !important; /* Lighter USF Green for dark mode */
-  border-color: #006b4d !important;
-}
-
-.p-dark .golden-gate-button:hover {
-  background-color: #007d58 !important;
-  border-color: #007d58 !important;
 }
 </style>

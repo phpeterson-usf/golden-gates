@@ -2,7 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import App from '../../src/App.vue'
+import CircuitTabsBar from '../../src/components/CircuitTabsBar.vue'
 import ConfirmationDialog from '../../src/components/ConfirmationDialog.vue'
+
+// Mock the vue-i18n composable
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: key => key
+  })
+}))
 
 /**
  * Data Loss Prevention Test Suite
@@ -76,27 +84,24 @@ describe('Data Loss Prevention', () => {
   })
 
   describe('Tab Closing - Critical Data Loss Prevention', () => {
-    const createAppWrapper = () => {
-      return mount(App, {
+    const createTabsWrapper = () => {
+      return mount(CircuitTabsBar, {
+        props: {
+          circuitTabs: [{ id: 'circuit_1', name: 'Test Circuit' }],
+          activeTabId: 'circuit_1',
+          circuitManager: mockCircuitManager
+        },
         global: {
-          mocks: {
-            $t: key => key
-          },
+          mocks: { $t: key => key },
           stubs: {
-            Button: true,
-            Toolbar: true,
-            CircuitCanvas: true,
-            ComponentInspector: true,
-            ConfirmationDialog: true,
-            CommandPalette: true,
-            GoldenGateLogo: true
+            Button: true
           }
         }
       })
     }
 
     it('CRITICAL: Should show confirmation when closing tab with unsaved components', async () => {
-      const wrapper = createAppWrapper()
+      const wrapper = createTabsWrapper()
 
       // Circuit with unsaved components
       mockCircuitManager.getCircuit.mockReturnValue({
@@ -108,17 +113,17 @@ describe('Data Loss Prevention', () => {
       await wrapper.vm.handleCloseTab('circuit_1')
 
       // CRITICAL: Must show confirmation to prevent data loss
-      expect(mockCircuitOperations.showConfirmation).toHaveBeenCalled()
-      expect(mockCircuitManager.closeTab).not.toHaveBeenCalled()
+      expect(wrapper.emitted('showConfirmation')).toBeTruthy()
+      expect(wrapper.emitted('closeTab')).toBeFalsy()
 
-      const confirmationCall = mockCircuitOperations.showConfirmation.mock.calls[0][0]
-      expect(confirmationCall.type).toBe('warning')
-      expect(confirmationCall.title).toBe('dialogs.unsavedChanges')
-      expect(confirmationCall.message).toBe('dialogs.unsavedChangesMessage')
+      const confirmationEvent = wrapper.emitted('showConfirmation')[0][0]
+      expect(confirmationEvent.type).toBe('warning')
+      expect(confirmationEvent.title).toBe('dialogs.unsavedChanges')
+      expect(confirmationEvent.message).toBe('dialogs.unsavedChangesMessage')
     })
 
     it('CRITICAL: Should show confirmation when closing tab with unsaved wires', async () => {
-      const wrapper = createAppWrapper()
+      const wrapper = createTabsWrapper()
 
       // Circuit with unsaved wires
       mockCircuitManager.getCircuit.mockReturnValue({
@@ -130,12 +135,12 @@ describe('Data Loss Prevention', () => {
       await wrapper.vm.handleCloseTab('circuit_1')
 
       // CRITICAL: Must show confirmation to prevent data loss
-      expect(mockCircuitOperations.showConfirmation).toHaveBeenCalled()
-      expect(mockCircuitManager.closeTab).not.toHaveBeenCalled()
+      expect(wrapper.emitted('showConfirmation')).toBeTruthy()
+      expect(wrapper.emitted('closeTab')).toBeFalsy()
     })
 
     it('SAFE: Should close immediately when no unsaved changes', async () => {
-      const wrapper = createAppWrapper()
+      const wrapper = createTabsWrapper()
 
       // Empty circuit - no data to lose
       mockCircuitManager.getCircuit.mockReturnValue({
@@ -147,12 +152,13 @@ describe('Data Loss Prevention', () => {
       await wrapper.vm.handleCloseTab('circuit_1')
 
       // Safe to close without confirmation
-      expect(mockCircuitOperations.showConfirmation).not.toHaveBeenCalled()
-      expect(mockCircuitManager.closeTab).toHaveBeenCalledWith('circuit_1')
+      expect(wrapper.emitted('showConfirmation')).toBeFalsy()
+      expect(wrapper.emitted('closeTab')).toBeTruthy()
+      expect(wrapper.emitted('closeTab')[0]).toEqual(['circuit_1'])
     })
 
     it('CRITICAL: User can save data by cancelling close operation', async () => {
-      const wrapper = createAppWrapper()
+      const wrapper = createTabsWrapper()
 
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
@@ -163,15 +169,15 @@ describe('Data Loss Prevention', () => {
       await wrapper.vm.handleCloseTab('circuit_1')
 
       // Get the onReject callback and call it (user cancels)
-      const confirmationCall = mockCircuitOperations.showConfirmation.mock.calls[0][0]
-      confirmationCall.onReject()
+      const confirmationEvent = wrapper.emitted('showConfirmation')[0][0]
+      confirmationEvent.onReject()
 
       // Tab should NOT be closed (data is safe)
-      expect(mockCircuitManager.closeTab).not.toHaveBeenCalled()
+      expect(wrapper.emitted('closeTab')).toBeFalsy()
     })
 
     it('CRITICAL: User can explicitly choose to lose data', async () => {
-      const wrapper = createAppWrapper()
+      const wrapper = createTabsWrapper()
 
       mockCircuitManager.getCircuit.mockReturnValue({
         id: 'circuit_1',
@@ -182,11 +188,12 @@ describe('Data Loss Prevention', () => {
       await wrapper.vm.handleCloseTab('circuit_1')
 
       // Get the onAccept callback and call it (user confirms data loss)
-      const confirmationCall = mockCircuitOperations.showConfirmation.mock.calls[0][0]
-      confirmationCall.onAccept()
+      const confirmationEvent = wrapper.emitted('showConfirmation')[0][0]
+      confirmationEvent.onAccept()
 
       // Tab should be closed (user explicitly chose to lose data)
-      expect(mockCircuitManager.closeTab).toHaveBeenCalledWith('circuit_1')
+      expect(wrapper.emitted('closeTab')).toBeTruthy()
+      expect(wrapper.emitted('closeTab')[0]).toEqual(['circuit_1'])
     })
   })
 
@@ -260,89 +267,6 @@ describe('Data Loss Prevention', () => {
       const acceptButton = wrapper.find('.modal-button-confirm')
       expect(acceptButton.classes()).toContain('modal-button-warning')
       expect(acceptButton.text()).toBe('Close Without Saving')
-    })
-  })
-
-  describe('hasCircuitUnsavedWork - Data Detection', () => {
-    const createAppWrapper = () => {
-      return mount(App, {
-        global: {
-          mocks: { $t: key => key },
-          stubs: {
-            Button: true,
-            Toolbar: true,
-            CircuitCanvas: true,
-            ComponentInspector: true,
-            ConfirmationDialog: true,
-            CommandPalette: true,
-            GoldenGateLogo: true
-          }
-        }
-      })
-    }
-
-    it('CRITICAL: Detects unsaved components correctly', () => {
-      const wrapper = createAppWrapper()
-
-      mockCircuitManager.getCircuit.mockReturnValue({
-        id: 'circuit_1',
-        components: [{ id: 'comp1', type: 'and' }],
-        wires: []
-      })
-
-      const result = wrapper.vm.hasCircuitUnsavedWork('circuit_1')
-      expect(result).toBe(true)
-    })
-
-    it('CRITICAL: Detects unsaved wires correctly', () => {
-      const wrapper = createAppWrapper()
-
-      mockCircuitManager.getCircuit.mockReturnValue({
-        id: 'circuit_1',
-        components: [],
-        wires: [{ id: 'wire1', from: 'comp1', to: 'comp2' }]
-      })
-
-      const result = wrapper.vm.hasCircuitUnsavedWork('circuit_1')
-      expect(result).toBe(true)
-    })
-
-    it('SAFE: Empty circuit has no unsaved work', () => {
-      const wrapper = createAppWrapper()
-
-      mockCircuitManager.getCircuit.mockReturnValue({
-        id: 'circuit_1',
-        components: [],
-        wires: []
-      })
-
-      const result = wrapper.vm.hasCircuitUnsavedWork('circuit_1')
-      expect(result).toBe(false)
-    })
-
-    it('SAFE: Non-existent circuit has no unsaved work', () => {
-      const wrapper = createAppWrapper()
-
-      mockCircuitManager.getCircuit.mockReturnValue(null)
-
-      const result = wrapper.vm.hasCircuitUnsavedWork('non-existent')
-      expect(result).toBe(false)
-    })
-
-    it('SAFE: Handles malformed circuit data gracefully', () => {
-      const wrapper = createAppWrapper()
-
-      mockCircuitManager.getCircuit.mockReturnValue({
-        id: 'circuit_1',
-        components: undefined,
-        wires: null
-      })
-
-      const result = wrapper.vm.hasCircuitUnsavedWork('circuit_1')
-
-      // When components/wires are undefined/null, the function returns a falsy value
-      // which is safe (no data loss detection when data is malformed)
-      expect(result).toBeFalsy()
     })
   })
 
