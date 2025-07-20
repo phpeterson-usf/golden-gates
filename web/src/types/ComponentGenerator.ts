@@ -62,3 +62,13 @@ export interface MergerComponentData extends WireComponentData {
     outputBits?: number
   }
 }
+
+export interface MultiplexerComponentData extends ComponentData {
+  props: {
+    label?: string
+    numInputs?: number
+    bits?: number
+    selectorPosition?: 'top' | 'bottom'
+    rotation?: 0 | 90 | 180 | 270
+  }
+}

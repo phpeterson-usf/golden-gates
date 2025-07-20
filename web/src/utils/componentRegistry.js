@@ -270,6 +270,79 @@ export const componentRegistry = {
     }
   },
 
+  multiplexer: {
+    component: defineAsyncComponent(() => import('../components/MultiplexerNode.vue')),
+    label: 'Multiplexer',
+    icon: 'pi pi-share-alt',
+    category: 'components',
+    defaultProps: {
+      numInputs: 4,
+      bits: 1,
+      label: '',
+      selectorPosition: 'bottom',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 2,
+      height: GRID_SIZE * 3
+    },
+    // Dynamic connections based on numInputs
+    getConnections: props => {
+      const numInputs = props.numInputs || 4
+      
+      // Calculate height same as Vue component
+      const inputSpacing = 2 // 2 grid units between inputs
+      const baseHeight = (numInputs - 1) * inputSpacing
+      const minHeight = 4 // Minimum height in grid units
+      const totalHeight = Math.max(baseHeight + 2, minHeight) // Add 1 grid unit margin top/bottom
+      
+      // Input connections on the left - match Vue component getInputY method
+      const inputs = []
+      const margin = 1 // 1 grid unit margin from top
+      for (let i = 0; i < numInputs; i++) {
+        inputs.push({
+          name: i.toString(),
+          x: 0,
+          y: margin + i * inputSpacing
+        })
+      }
+      
+      // Selector input (special port named 'sel')
+      inputs.push({
+        name: 'sel',
+        x: 1, // Center of 2-unit wide component
+        y: props.selectorPosition === 'top' ? 0 : totalHeight
+      })
+      
+      // Single output on the right
+      const outputs = [{
+        name: '0',
+        x: 2,
+        y: Math.round(totalHeight / 2)
+      }]
+      
+      return { inputs, outputs }
+    },
+    getDimensions: props => {
+      const numInputs = props.numInputs || 4
+      
+      // Calculate height same as Vue component and getConnections
+      const inputSpacing = 2 // 2 grid units between inputs
+      const baseHeight = (numInputs - 1) * inputSpacing
+      const minHeight = 4 // Minimum height in grid units
+      const totalHeight = Math.max(baseHeight + 2, minHeight) // Add 1 grid unit margin top/bottom
+      
+      return {
+        width: 2 * GRID_SIZE,
+        height: totalHeight * GRID_SIZE
+      }
+    },
+    // Special handling for multiplexer creation
+    onCreate: (instance, index) => {
+      instance.props.label = instance.props.label || `MUX${index}`
+    }
+  },
+
   'schematic-component': {
     component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
     label: 'Schematic Component',

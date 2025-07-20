@@ -33,6 +33,7 @@
     "xnor": "XNOR",
     "splitter": "Splitter",
     "merger": "Merger",
+    "multiplexer": "Multiplexer",
     "schematic": "Schematic"
   },
   "componentRegistry": {
@@ -57,7 +58,18 @@
     "value": "Value",
     "base": "Base",
     "rotation": "Rotation",
-    "ranges": "Bit Ranges"
+    "ranges": "Bit Ranges",
+    "numInputs": "Number of Inputs",
+    "selectorPosition": "Selector Position"
+  },
+  "componentProperties": {
+    "titles": {
+      "multiplexer": "Multiplexer Properties"
+    },
+    "selectorPosition": {
+      "top": "Top",
+      "bottom": "Bottom"
+    }
   },
   "commonButtons": {
     "save": "Save Circuit",
@@ -152,7 +164,8 @@
       "output": "Output",
       "constant": "Constant",
       "splitter": "Splitter",
-      "merger": "Merger"
+      "merger": "Merger",
+      "multiplexer": "Multiplexer (Mux)"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",

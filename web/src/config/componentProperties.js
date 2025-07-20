@@ -234,6 +234,35 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Multiplexer properties
+  multiplexer: {
+    title: 'Multiplexer Properties',
+    properties: [
+      { ...commonProperties.label, default: 'MUX' },
+      {
+        name: 'numInputs',
+        type: 'number',
+        label: 'Number of Inputs',
+        default: 4,
+        min: 2,
+        max: 8,
+        showButtons: true
+      },
+      commonProperties.bits,
+      {
+        name: 'selectorPosition',
+        type: 'dropdown',
+        label: 'Selector Position',
+        default: 'bottom',
+        options: [
+          { label: 'Top', value: 'top' },
+          { label: 'Bottom', value: 'bottom' }
+        ]
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // Circuit properties
   circuit: {
     title: 'Circuit Properties',

@@ -151,6 +151,16 @@ export const commandGroups = {
         componentType: 'merger',
         action: 'addComponent',
         params: ['merger']
+      },
+      {
+        separator: true
+      },
+      {
+        id: 'insert-multiplexer',
+        labelKey: 'commands.insert.multiplexer',
+        componentType: 'multiplexer',
+        action: 'addComponent',
+        params: ['multiplexer']
       }
     ]
   }

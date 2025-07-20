@@ -133,6 +133,17 @@
             :inputBits="getPropValue('inputBits', 8)"
             @update:modelValue="updateProp(prop.name, $event)"
           />
+
+          <!-- Generic dropdown -->
+          <Dropdown
+            v-else-if="prop.type === 'dropdown'"
+            :modelValue="getPropValue(prop.name, prop.default)"
+            :options="prop.options"
+            @update:modelValue="updateProp(prop.name, $event)"
+            optionLabel="label"
+            optionValue="value"
+            class="property-input"
+          />
         </div>
       </div>
 
@@ -154,6 +165,7 @@ import InvertedInputsSelector from './InvertedInputsSelector.vue'
 import BitRangeTable from './BitRangeTable.vue'
 import PythonIdentifierInput from './PythonIdentifierInput.vue'
 import Textarea from 'primevue/textarea'
+import Dropdown from 'primevue/dropdown'
 
 export default {
   name: 'ComponentInspector',
@@ -164,7 +176,8 @@ export default {
     InvertedInputsSelector,
     BitRangeTable,
     PythonIdentifierInput,
-    Textarea
+    Textarea,
+    Dropdown
   },
   props: {
     component: {

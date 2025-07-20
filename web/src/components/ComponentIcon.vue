@@ -158,6 +158,28 @@ export default {
         return `${body} ${input1} ${input2} ${input3} ${output}`
       }
 
+      if (this.componentType === 'multiplexer') {
+        // Multiplexer with slanted top and bottom lines
+        const width = 24
+        const height = 28
+        const x = 6
+        const y = 1
+        const slant = 6
+        
+        // Create the multiplexer shape with slanted top and bottom
+        return `
+          M ${x} ${y + slant}
+          L ${x + slant} ${y}
+          L ${x + width - slant} ${y}
+          L ${x + width} ${y + slant}
+          L ${x + width} ${y + height - slant}
+          L ${x + width - slant} ${y + height}
+          L ${x + slant} ${y + height}
+          L ${x} ${y + height - slant}
+          Z
+        `
+      }
+
       return ''
     },
 
