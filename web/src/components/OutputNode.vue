@@ -123,29 +123,40 @@ export default defineComponent({
 <style scoped>
 @import '../styles/components.css';
 
-/* Animation for value updates */
+/* Animation for value updates - SVG compatible */
 @keyframes valueUpdate {
   0% {
     fill: #3b82f6;
     transform: scale(1);
+    opacity: 1;
   }
   25% {
     fill: #60a5fa;
-    transform: scale(1.3);
+    transform: scale(1.2);
+    opacity: 0.9;
   }
   50% {
     fill: #3b82f6;
-    transform: scale(1.2);
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  75% {
+    fill: #60a5fa;
+    transform: scale(1.05);
+    opacity: 0.9;
   }
   100% {
-    fill: currentColor;
+    fill: #3b82f6;
     transform: scale(1);
+    opacity: 1;
   }
 }
 
 .value-updated {
-  animation: valueUpdate 0.6s ease-out;
-  transform-origin: center;
+  animation: valueUpdate 1s ease-out;
   font-weight: bold;
+  fill: #3b82f6 !important;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
 }
 </style>
