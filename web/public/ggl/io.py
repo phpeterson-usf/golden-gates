@@ -71,5 +71,14 @@ class Constant(Input):
     Maybe it's odd to make it an alias for Input, but for simulation
     purposes, it seems to behave like an input
     """
-    def __init__(self, label='', bits=1):
-        super().__init__(label, bits)
+    """def __init__(self, label='', bits=1):
+        super().__init__(label, bits)"""
+    kind = 'Constant'
+
+    def __init__(self, label='', bits=1, value=0):
+        super().__init__(label=label, bits=bits)
+        self.kind = Constant.kind
+        self.value = value                                                      # set fixed value on initialization
+
+    def propagate(self, value=0):
+        return super().propagate(self.value)
