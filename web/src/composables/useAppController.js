@@ -136,21 +136,29 @@ export function useAppController(circuitManager) {
    * Set up the callback for Python to update Vue components
    */
   function setupPythonVueUpdateCallback(canvasRef) {
-    window.__vueUpdateCallback = (eventType, componentId, payload) => {
-      if (!canvasRef) return
+    window.__vueUpdateCallback = (eventType, componentId, value) => {
+      console.log(`Callback: ${componentId} = ${value}`)
+      
+      if (!canvasRef) {
+        console.error('No canvasRef available')
+        return
+      }
 
       const component = canvasRef.components.find(c => c.id === componentId)
-      if (!component) return
+      if (!component) {
+        console.error(`Component not found: ${componentId}`, 'Available components:', canvasRef.components.map(c => c.id))
+        return
+      }
 
       switch (eventType) {
         case 'value':
-          handleValueUpdate(canvasRef, component, payload)
+          handleValueUpdate(canvasRef, component, value)
           break
         case 'step':
-          handleStepUpdate(canvasRef, component, payload)
+          handleStepUpdate(canvasRef, component, value)
           break
         case 'error':
-          handleErrorUpdate(canvasRef, component, payload)
+          handleErrorUpdate(canvasRef, component, value)
           break
         default:
           console.warn(`Unknown event type: ${eventType}`)
@@ -159,22 +167,22 @@ export function useAppController(circuitManager) {
 
     // Handle legacy callback format for backward compatibility
     window.__vueUpdateCallbackLegacy = (componentId, value) => {
-      window.__vueUpdateCallback('value', componentId, { value, timestamp: Date.now() })
+      window.__vueUpdateCallback('value', componentId, value)
     }
   }
 
   /**
    * Handle value update events
    */
-  function handleValueUpdate(canvasRef, component, payload) {
+  function handleValueUpdate(canvasRef, component, value) {
     if (component.type === 'output') {
       // Create a new component object with updated timestamp to force animation
       const updatedComponent = {
         ...component,
         props: {
           ...component.props,
-          value: payload.value,
-          lastUpdate: payload.timestamp || Date.now()
+          value: value,
+          lastUpdate: Date.now()
         }
       }
       canvasRef.updateComponent(updatedComponent)
@@ -184,22 +192,27 @@ export function useAppController(circuitManager) {
   /**
    * Handle step highlighting events
    */
-  function handleStepUpdate(canvasRef, component, payload) {
+  function handleStepUpdate(canvasRef, component, stepData) {
+    // For now, treat stepData as a boolean for active/inactive
+    // Future: could be an object with { active: true, style: 'processing', duration: 500 }
+    const isActive = typeof stepData === 'boolean' ? stepData : stepData.active
+    
     const updatedComponent = {
       ...component,
       props: {
         ...component.props,
-        stepActive: payload.active,
-        stepStyle: payload.style || 'processing',
-        stepDuration: payload.duration || 500
+        stepActive: isActive,
+        stepStyle: stepData.style || 'processing',
+        stepDuration: stepData.duration || 500
       }
     }
     canvasRef.updateComponent(updatedComponent)
 
     // Auto-clear step highlighting after duration
-    if (payload.active && payload.duration) {
+    if (isActive) {
+      const duration = stepData.duration || 500
       setTimeout(() => {
-        const latestComponent = canvasRef.components.find(c => c.id === componentId)
+        const latestComponent = canvasRef.components.find(c => c.id === component.id)
         if (latestComponent) {
           const clearedComponent = {
             ...latestComponent,
@@ -210,28 +223,32 @@ export function useAppController(circuitManager) {
           }
           canvasRef.updateComponent(clearedComponent)
         }
-      }, payload.duration)
+      }, duration)
     }
   }
 
   /**
    * Handle error events
    */
-  function handleErrorUpdate(canvasRef, component, payload) {
+  function handleErrorUpdate(canvasRef, component, errorData) {
+    // For now, treat errorData as a simple error message string
+    // Future: could be an object with { severity: 'error', messageId: 'INPUT_NOT_CONNECTED', details: {} }
+    const isError = typeof errorData === 'string' || errorData.severity === 'error'
+    
     const updatedComponent = {
       ...component,
       props: {
         ...component.props,
-        hasError: payload.severity === 'error',
-        hasWarning: payload.severity === 'warning',
-        errorMessageId: payload.messageId,
-        errorDetails: payload.details
+        hasError: isError,
+        hasWarning: errorData.severity === 'warning',
+        errorMessageId: errorData.messageId || errorData,
+        errorDetails: errorData.details || {}
       }
     }
     canvasRef.updateComponent(updatedComponent)
 
     // TODO: Also show global error notification if needed
-    console.error(`Component ${componentId} error: ${payload.messageId}`, payload.details)
+    console.error(`Component ${component.id} error:`, errorData)
   }
 
   /**
