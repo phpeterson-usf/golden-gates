@@ -289,13 +289,13 @@ export const componentRegistry = {
     // Dynamic connections based on numInputs
     getConnections: props => {
       const numInputs = props.numInputs || 4
-      
+
       // Calculate height same as Vue component
       const inputSpacing = 2 // 2 grid units between inputs
       const baseHeight = (numInputs - 1) * inputSpacing
       const minHeight = 4 // Minimum height in grid units
       const totalHeight = Math.max(baseHeight + 2, minHeight) // Add 1 grid unit margin top/bottom
-      
+
       // Input connections on the left - match Vue component getInputY method
       const inputs = []
       const margin = 1 // 1 grid unit margin from top
@@ -306,32 +306,34 @@ export const componentRegistry = {
           y: margin + i * inputSpacing
         })
       }
-      
+
       // Selector input (special port named 'sel')
       inputs.push({
         name: 'sel',
         x: 1, // Center of 2-unit wide component
         y: props.selectorPosition === 'top' ? 0 : totalHeight
       })
-      
+
       // Single output on the right
-      const outputs = [{
-        name: '0',
-        x: 2,
-        y: Math.round(totalHeight / 2)
-      }]
-      
+      const outputs = [
+        {
+          name: '0',
+          x: 2,
+          y: Math.round(totalHeight / 2)
+        }
+      ]
+
       return { inputs, outputs }
     },
     getDimensions: props => {
       const numInputs = props.numInputs || 4
-      
+
       // Calculate height same as Vue component and getConnections
       const inputSpacing = 2 // 2 grid units between inputs
       const baseHeight = (numInputs - 1) * inputSpacing
       const minHeight = 4 // Minimum height in grid units
       const totalHeight = Math.max(baseHeight + 2, minHeight) // Add 1 grid unit margin top/bottom
-      
+
       return {
         width: 2 * GRID_SIZE,
         height: totalHeight * GRID_SIZE

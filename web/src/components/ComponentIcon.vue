@@ -165,7 +165,7 @@ export default {
         const x = 6
         const y = 1
         const slant = 6
-        
+
         // Create the multiplexer shape with slanted top and bottom
         return `
           M ${x} ${y + slant}

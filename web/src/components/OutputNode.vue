@@ -3,10 +3,10 @@
     <!-- Rotation group centered on input point -->
     <g :transform="`rotate(${rotation}, 0, 0)`">
       <!-- Value display (above the circle, centered on component) -->
-      <text 
-        :x="(GRID_SIZE + 5) / 2" 
-        y="-15" 
-        text-anchor="middle" 
+      <text
+        :x="(GRID_SIZE + 5) / 2"
+        y="-15"
+        text-anchor="middle"
         :class="['component-value', { 'value-updated': valueChanged }]"
       >
         {{ formattedValue }}
@@ -85,20 +85,20 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
-    
+
     // Track when value updates for animation
     const valueChanged = ref(false)
     let changeTimeout = null
-    
+
     // Watch for any update (value or forced refresh)
     watch([() => props.value, () => props.lastUpdate], () => {
       valueChanged.value = true
-      
+
       // Clear any existing timeout
       if (changeTimeout) {
         clearTimeout(changeTimeout)
       }
-      
+
       // Remove glow after animation completes
       changeTimeout = setTimeout(() => {
         valueChanged.value = false

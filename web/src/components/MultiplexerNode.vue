@@ -63,13 +63,7 @@
       </text>
 
       <!-- Input 0 label -->
-      <text
-        x="8"
-        :y="getInputY(0) + 4"
-        text-anchor="middle"
-        font-size="10"
-        class="component-label"
-      >
+      <text x="8" :y="getInputY(0) + 4" text-anchor="middle" font-size="10" class="component-label">
         0
       </text>
     </g>
@@ -143,7 +137,7 @@ export default defineComponent({
       const w = this.width
       const h = this.totalHeight
       const slant = GRID_SIZE / 2 // How much the top and bottom lines slant inward
-      
+
       // Proper multiplexer shape: vertical sides, diagonal top and bottom edges
       return `
         M 0 0
