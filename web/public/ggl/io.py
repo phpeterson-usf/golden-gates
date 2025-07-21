@@ -44,11 +44,17 @@ class Output(IONode):
         
         try:
             import builtins
+            import time
             # If we have a JS object ID and we're running under pyodide,
             # use the pyodide API to update the value of the JS object
             if self.js_id and hasattr(builtins, 'updateCallback'):
                 updateCallback = builtins.updateCallback
-                updateCallback(self.js_id, self.value)
+                # Use new event protocol: (eventType, componentId, payload)
+                payload = {
+                    'value': self.value,
+                    'timestamp': int(time.time() * 1000)  # JavaScript timestamp format
+                }
+                updateCallback('value', self.js_id, payload)
         except Exception as e:
             logger.error(f'Callback failed: {e}')
     

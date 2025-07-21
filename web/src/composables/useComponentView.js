@@ -34,24 +34,47 @@ export function useComponentView(props, emit) {
     })
   }
 
-  // Computed styles for selection state
-  const fillColor = computed(() =>
-    props.selected ? COLORS.componentSelectedFill : COLORS.componentFill
-  )
+  // Computed styles for selection, step highlighting, and error states
+  const fillColor = computed(() => {
+    if (props.hasError) return COLORS.componentErrorFill
+    if (props.hasWarning) return COLORS.componentWarningFill
+    if (props.stepActive) return COLORS.componentStepFill
+    if (props.selected) return COLORS.componentSelectedFill
+    return COLORS.componentFill
+  })
 
-  const strokeColor = computed(() =>
-    props.selected ? COLORS.componentSelectedStroke : COLORS.componentStroke
-  )
+  const strokeColor = computed(() => {
+    if (props.hasError) return COLORS.componentErrorStroke
+    if (props.hasWarning) return COLORS.componentWarningStroke
+    if (props.stepActive) return COLORS.componentStepStroke
+    if (props.selected) return COLORS.componentSelectedStroke
+    return COLORS.componentStroke
+  })
 
-  const strokeWidth = computed(() =>
-    props.selected ? STROKE_WIDTHS.selected : STROKE_WIDTHS.normal
-  )
+  const strokeWidth = computed(() => {
+    if (props.hasError || props.hasWarning) return STROKE_WIDTHS.error
+    if (props.stepActive) return STROKE_WIDTHS.step
+    if (props.selected) return STROKE_WIDTHS.selected
+    return STROKE_WIDTHS.normal
+  })
+
+  // CSS classes for step highlighting and error states
+  const componentClasses = computed(() => {
+    const classes = ['component-body']
+    if (props.stepActive) {
+      classes.push('step-active', `step-${props.stepStyle}`)
+    }
+    if (props.hasError) classes.push('has-error')
+    if (props.hasWarning) classes.push('has-warning')
+    return classes.join(' ')
+  })
 
   return {
     handleMouseDown,
     fillColor,
     strokeColor,
-    strokeWidth
+    strokeWidth,
+    componentClasses
   }
 }
 
@@ -72,5 +95,35 @@ export const draggableProps = {
   selected: {
     type: Boolean,
     default: false
+  },
+  // Step highlighting props
+  stepActive: {
+    type: Boolean,
+    default: false
+  },
+  stepStyle: {
+    type: String,
+    default: 'processing'
+  },
+  stepDuration: {
+    type: Number,
+    default: 500
+  },
+  // Error state props
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  hasWarning: {
+    type: Boolean,
+    default: false
+  },
+  errorMessageId: {
+    type: String,
+    default: ''
+  },
+  errorDetails: {
+    type: Object,
+    default: () => ({})
   }
 }

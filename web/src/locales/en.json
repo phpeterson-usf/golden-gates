@@ -182,5 +182,24 @@
     "unknownCommand": "Unknown command action",
     "closeWithoutSaving": "Close Without Saving",
     "clearCircuit": "Clear Circuit"
+  },
+  "simulation": {
+    "errors": {
+      "bitWidthMismatch": "Input bit width ({actualBits}) does not match expected bit width ({expectedBits})",
+      "inputNotConnected": "Input '{inputName}' is not connected",
+      "outputNotConnected": "Output '{outputName}' is not connected",
+      "invalidInputValue": "Invalid input value: {value}",
+      "circuitLoop": "Circuit contains a feedback loop",
+      "componentNotFound": "Component '{componentId}' not found",
+      "invalidPortConnection": "Invalid connection to port '{portName}' on component '{componentType}'",
+      "multipleOutputs": "Multiple outputs connected to input '{inputName}'",
+      "invalidComponentType": "Invalid component type: '{componentType}'",
+      "simulationTimeout": "Simulation timed out after {timeoutMs}ms"
+    },
+    "warnings": {
+      "unusedInput": "Input '{inputName}' is not used",
+      "unusedOutput": "Output '{outputName}' has no connections",
+      "highFanout": "Output '{outputName}' drives {connectionCount} inputs (high fan-out)"
+    }
   }
 }

@@ -20,7 +20,7 @@
         :fill="fillColor"
         :stroke="strokeColor"
         :stroke-width="strokeWidth"
-        class="component-body"
+        :class="componentClasses"
         @mousedown="handleMouseDown"
       />
 
@@ -84,7 +84,7 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
 
     // Track when value updates for animation
     const valueChanged = ref(false)
@@ -110,6 +110,7 @@ export default defineComponent({
       fillColor,
       strokeColor,
       strokeWidth,
+      componentClasses,
       valueChanged,
       COLORS,
       CONNECTION_DOT_RADIUS,

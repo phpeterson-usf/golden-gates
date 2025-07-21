@@ -195,3 +195,67 @@
 .p-dropdown.p-component .p-dropdown-label {
   font-size: 12px !important;
 }
+
+/* Step highlighting animations */
+@keyframes stepProcessing {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+}
+
+@keyframes stepActive {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+  100% {
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+  }
+}
+
+.step-active {
+  animation: stepProcessing 1s ease-in-out infinite;
+}
+
+.step-active.step-processing {
+  animation: stepProcessing 1s ease-in-out infinite;
+}
+
+.step-active.step-active {
+  animation: stepActive 0.3s ease-out forwards;
+}
+
+.step-active.step-computing {
+  animation: stepProcessing 0.8s ease-in-out infinite;
+}
+
+/* Error state styles */
+.has-error {
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+}
+
+.has-warning {
+  filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.6));
+}
+
+/* Error indicator pulse */
+@keyframes errorPulse {
+  0% {
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.9));
+  }
+  100% {
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+  }
+}
+
+.has-error.error-pulse {
+  animation: errorPulse 1.5s ease-in-out infinite;
+}

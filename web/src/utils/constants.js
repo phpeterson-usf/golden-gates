@@ -33,6 +33,16 @@ export const COLORS = {
   componentSelectedStroke: '#3b82f6',
   componentHoverFill: '#f1f5f9',
 
+  // Step highlighting colors
+  componentStepFill: '#fef3c7',
+  componentStepStroke: '#f59e0b',
+
+  // Error state colors
+  componentErrorFill: '#fecaca',
+  componentErrorStroke: '#ef4444',
+  componentWarningFill: '#fed7aa',
+  componentWarningStroke: '#f97316',
+
   // Connection point colors
   connectionFill: 'black',
   connectionHoverFill: '#0066cc',
@@ -51,6 +61,8 @@ export const COLORS = {
 export const STROKE_WIDTHS = {
   normal: 2,
   selected: 3,
+  step: 3,
+  error: 3,
   wire: 2,
   wireSelected: 3
 }

@@ -21,7 +21,7 @@
         :fill="fillColor"
         :stroke="strokeColor"
         :stroke-width="strokeWidth"
-        class="component-body"
+        :class="componentClasses"
         @mousedown="handleMouseDown"
       />
 
@@ -79,13 +79,14 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
 
     return {
       handleMouseDown,
       fillColor,
       strokeColor,
       strokeWidth,
+      componentClasses,
       COLORS,
       CONNECTION_DOT_RADIUS,
       GRID_SIZE

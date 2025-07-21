@@ -136,24 +136,102 @@ export function useAppController(circuitManager) {
    * Set up the callback for Python to update Vue components
    */
   function setupPythonVueUpdateCallback(canvasRef) {
-    window.__vueUpdateCallback = (componentId, value) => {
-      // Update the component in the canvas
-      if (canvasRef) {
-        const component = canvasRef.components.find(c => c.id === componentId)
-        if (component && component.type === 'output') {
-          // Create a new component object with updated timestamp to force animation
-          const updatedComponent = {
-            ...component,
-            props: {
-              ...component.props,
-              value: value,
-              lastUpdate: Date.now() // Force watcher to trigger
-            }
-          }
-          canvasRef.updateComponent(updatedComponent)
-        }
+    window.__vueUpdateCallback = (eventType, componentId, payload) => {
+      if (!canvasRef) return
+
+      const component = canvasRef.components.find(c => c.id === componentId)
+      if (!component) return
+
+      switch (eventType) {
+        case 'value':
+          handleValueUpdate(canvasRef, component, payload)
+          break
+        case 'step':
+          handleStepUpdate(canvasRef, component, payload)
+          break
+        case 'error':
+          handleErrorUpdate(canvasRef, component, payload)
+          break
+        default:
+          console.warn(`Unknown event type: ${eventType}`)
       }
     }
+
+    // Handle legacy callback format for backward compatibility
+    window.__vueUpdateCallbackLegacy = (componentId, value) => {
+      window.__vueUpdateCallback('value', componentId, { value, timestamp: Date.now() })
+    }
+  }
+
+  /**
+   * Handle value update events
+   */
+  function handleValueUpdate(canvasRef, component, payload) {
+    if (component.type === 'output') {
+      // Create a new component object with updated timestamp to force animation
+      const updatedComponent = {
+        ...component,
+        props: {
+          ...component.props,
+          value: payload.value,
+          lastUpdate: payload.timestamp || Date.now()
+        }
+      }
+      canvasRef.updateComponent(updatedComponent)
+    }
+  }
+
+  /**
+   * Handle step highlighting events
+   */
+  function handleStepUpdate(canvasRef, component, payload) {
+    const updatedComponent = {
+      ...component,
+      props: {
+        ...component.props,
+        stepActive: payload.active,
+        stepStyle: payload.style || 'processing',
+        stepDuration: payload.duration || 500
+      }
+    }
+    canvasRef.updateComponent(updatedComponent)
+
+    // Auto-clear step highlighting after duration
+    if (payload.active && payload.duration) {
+      setTimeout(() => {
+        const latestComponent = canvasRef.components.find(c => c.id === componentId)
+        if (latestComponent) {
+          const clearedComponent = {
+            ...latestComponent,
+            props: {
+              ...latestComponent.props,
+              stepActive: false
+            }
+          }
+          canvasRef.updateComponent(clearedComponent)
+        }
+      }, payload.duration)
+    }
+  }
+
+  /**
+   * Handle error events
+   */
+  function handleErrorUpdate(canvasRef, component, payload) {
+    const updatedComponent = {
+      ...component,
+      props: {
+        ...component.props,
+        hasError: payload.severity === 'error',
+        hasWarning: payload.severity === 'warning',
+        errorMessageId: payload.messageId,
+        errorDetails: payload.details
+      }
+    }
+    canvasRef.updateComponent(updatedComponent)
+
+    // TODO: Also show global error notification if needed
+    console.error(`Component ${componentId} error: ${payload.messageId}`, payload.details)
   }
 
   /**
