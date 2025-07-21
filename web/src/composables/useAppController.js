@@ -141,12 +141,13 @@ export function useAppController(circuitManager) {
       if (canvasRef) {
         const component = canvasRef.components.find(c => c.id === componentId)
         if (component && component.type === 'output') {
-          // Create a new component object to ensure Vue detects the change
+          // Create a new component object with updated timestamp to force animation
           const updatedComponent = {
             ...component,
             props: {
               ...component.props,
-              value: value
+              value: value,
+              lastUpdate: Date.now() // Force watcher to trigger
             }
           }
           canvasRef.updateComponent(updatedComponent)

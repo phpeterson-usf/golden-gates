@@ -3,7 +3,12 @@
     <!-- Rotation group centered on input point -->
     <g :transform="`rotate(${rotation}, 0, 0)`">
       <!-- Value display (above the circle, centered on component) -->
-      <text :x="(GRID_SIZE + 5) / 2" y="-15" text-anchor="middle" class="component-value">
+      <text 
+        :x="(GRID_SIZE + 5) / 2" 
+        y="-15" 
+        text-anchor="middle" 
+        :class="['component-value', { 'value-updated': valueChanged }]"
+      >
         {{ formattedValue }}
       </text>
 
@@ -40,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
 
@@ -53,7 +58,8 @@ export default defineComponent({
     value: { type: Number, default: 0 },
     base: { type: Number, default: 10 },
     bits: { type: Number, default: 1 },
-    rotation: { type: Number, default: 0 }
+    rotation: { type: Number, default: 0 },
+    lastUpdate: { type: Number, default: 0 }
   },
   emits: ['startDrag'],
   computed: {
@@ -79,12 +85,32 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { handleMouseDown, fillColor, strokeColor, strokeWidth } = useComponentView(props, emit)
+    
+    // Track when value updates for animation
+    const valueChanged = ref(false)
+    let changeTimeout = null
+    
+    // Watch for any update (value or forced refresh)
+    watch([() => props.value, () => props.lastUpdate], () => {
+      valueChanged.value = true
+      
+      // Clear any existing timeout
+      if (changeTimeout) {
+        clearTimeout(changeTimeout)
+      }
+      
+      // Remove glow after animation completes
+      changeTimeout = setTimeout(() => {
+        valueChanged.value = false
+      }, 1000)
+    })
 
     return {
       handleMouseDown,
       fillColor,
       strokeColor,
       strokeWidth,
+      valueChanged,
       COLORS,
       CONNECTION_DOT_RADIUS,
       GRID_SIZE
@@ -95,4 +121,30 @@ export default defineComponent({
 
 <style scoped>
 @import '../styles/components.css';
+
+/* Animation for value updates */
+@keyframes valueUpdate {
+  0% {
+    fill: #3b82f6;
+    transform: scale(1);
+  }
+  25% {
+    fill: #60a5fa;
+    transform: scale(1.3);
+  }
+  50% {
+    fill: #3b82f6;
+    transform: scale(1.2);
+  }
+  100% {
+    fill: currentColor;
+    transform: scale(1);
+  }
+}
+
+.value-updated {
+  animation: valueUpdate 0.6s ease-out;
+  transform-origin: center;
+  font-weight: bold;
+}
 </style>
