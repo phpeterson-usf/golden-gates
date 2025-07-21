@@ -1,38 +1,39 @@
 <template>
-  <div id="app">
-    <ConfirmationDialog
-      v-model:visible="showConfirmDialog"
-      :title="confirmDialog.title"
-      :message="confirmDialog.message"
-      :type="confirmDialog.type"
-      :acceptLabel="confirmDialog.acceptLabel"
-      :showCancel="confirmDialog.showCancel"
-      @accept="confirmDialog.acceptCallback"
-      @reject="confirmDialog.rejectCallback"
-    />
-    <CommandPalette
-      v-model="commandPaletteVisible"
-      :availableComponents="availableComponentsArray"
-      @command="handleCommand"
-    />
-    <AutosaveSelectionDialog
-      v-model:visible="showAutosaveDialog"
-      :autosaves="availableAutosaves"
-      @restore="handleAutosaveRestore"
-      @cancel="showAutosaveDialog = false"
-    />
-    <AppToolbar
-      :circuitTabs="circuitTabs"
-      :activeTabId="activeTabId"
-      :circuitManager="circuitManager"
-      @openCommandPalette="commandPaletteVisible = true"
-      @switchToTab="switchToTab"
-      @closeTab="handleCloseTab"
-      @showConfirmation="showConfirmation"
-      @toggleInspector="inspectorVisible = !inspectorVisible"
-    />
+  <BrowserCompatibilityGuard>
+    <div id="app">
+      <ConfirmationDialog
+        v-model:visible="showConfirmDialog"
+        :title="confirmDialog.title"
+        :message="confirmDialog.message"
+        :type="confirmDialog.type"
+        :acceptLabel="confirmDialog.acceptLabel"
+        :showCancel="confirmDialog.showCancel"
+        @accept="confirmDialog.acceptCallback"
+        @reject="confirmDialog.rejectCallback"
+      />
+      <CommandPalette
+        v-model="commandPaletteVisible"
+        :availableComponents="availableComponentsArray"
+        @command="handleCommand"
+      />
+      <AutosaveSelectionDialog
+        v-model:visible="showAutosaveDialog"
+        :autosaves="availableAutosaves"
+        @restore="handleAutosaveRestore"
+        @cancel="showAutosaveDialog = false"
+      />
+      <AppToolbar
+        :circuitTabs="circuitTabs"
+        :activeTabId="activeTabId"
+        :circuitManager="circuitManager"
+        @openCommandPalette="commandPaletteVisible = true"
+        @switchToTab="switchToTab"
+        @closeTab="handleCloseTab"
+        @showConfirmation="showConfirmation"
+        @toggleInspector="inspectorVisible = !inspectorVisible"
+      />
 
-    <div class="main-content">
+      <div class="main-content">
       <div
         class="circuit-container"
         :class="{ 'drag-over': isDraggingOver }"
@@ -79,6 +80,7 @@
       </div>
     </div>
   </div>
+  </BrowserCompatibilityGuard>
 </template>
 
 <script>
@@ -89,6 +91,7 @@ import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import AutosaveSelectionDialog from './components/AutosaveSelectionDialog.vue'
 import AppToolbar from './components/AppToolbar.vue'
+import BrowserCompatibilityGuard from './components/BrowserCompatibilityGuard.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
@@ -106,7 +109,8 @@ export default {
     ConfirmationDialog,
     CommandPalette,
     AutosaveSelectionDialog,
-    AppToolbar
+    AppToolbar,
+    BrowserCompatibilityGuard
   },
   setup() {
     // Initialize circuit manager (model layer)

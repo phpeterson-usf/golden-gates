@@ -201,5 +201,21 @@
       "unusedOutput": "Output '{outputName}' has no connections",
       "highFanout": "Output '{outputName}' drives {connectionCount} inputs (high fan-out)"
     }
+  },
+  "browserCompat": {
+    "title": "Browser Update Needed",
+    "message": "Golden Gates requires modern browser features to run circuit simulations directly in your browser.",
+    "checking": "Checking browser compatibility...",
+    "missingFeatures": "Your browser is missing the following required features:",
+    "features": {
+      "webAssembly": "WebAssembly (for Python circuit simulation)",
+      "esModules": "JavaScript Modules (for application loading)",
+      "sharedArrayBuffer": "SharedArrayBuffer (for simulation performance)",
+      "modernJS": "Modern JavaScript (ES2017+)",
+      "svg": "Advanced SVG Support (for circuit drawing)",
+      "localStorage": "Local Storage (for saving your work)"
+    },
+    "recommendedBrowsers": "Please update to one of these browsers:",
+    "helpText": "If you're unable to update your browser, please contact your system administrator."
   }
 }
