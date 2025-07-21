@@ -168,9 +168,12 @@ export function useBrowserCompatibility() {
       incompatibleFeatures.value.push('esModules')
     }
 
-    if (!checkSharedArrayBuffer()) {
-      incompatibleFeatures.value.push('sharedArrayBuffer')
-    }
+    // SharedArrayBuffer is not critical - Pyodide can work without it
+    // It's mainly for performance optimization
+    // Don't block the app if it's not available (common on deployed sites)
+    // if (!checkSharedArrayBuffer()) {
+    //   incompatibleFeatures.value.push('sharedArrayBuffer')
+    // }
 
     if (!checkModernJS()) {
       incompatibleFeatures.value.push('modernJS')
