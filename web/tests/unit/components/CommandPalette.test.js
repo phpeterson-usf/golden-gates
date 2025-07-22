@@ -347,10 +347,14 @@ describe('CommandPalette', () => {
     it('should group commands by category', () => {
       const groups = wrapper.vm.groupedCommands
 
-      // Should have groups for file, simulation, insert, etc.
+      // Should have groups for file, simulation, and component groups
       expect(groups.has('file')).toBe(true)
       expect(groups.has('simulation')).toBe(true)
-      expect(groups.has('insert')).toBe(true)
+      expect(groups.has('logicGates')).toBe(true)
+      expect(groups.has('inputOutput')).toBe(true)
+      expect(groups.has('wires')).toBe(true)
+      expect(groups.has('plexers')).toBe(true)
+      expect(groups.has('memory')).toBe(true)
     })
 
     it('should render group headers', () => {
