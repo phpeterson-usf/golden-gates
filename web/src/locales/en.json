@@ -165,7 +165,8 @@
       "constant": "Constant",
       "splitter": "Splitter",
       "merger": "Merger",
-      "multiplexer": "Multiplexer (Mux)"
+      "multiplexer": "Multiplexer (Mux)",
+      "register": "Register"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",

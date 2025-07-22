@@ -345,6 +345,35 @@ export const componentRegistry = {
     }
   },
 
+  register: {
+    component: defineAsyncComponent(() => import('../components/Register.vue')),
+    label: 'Register',
+    icon: 'pi pi-stop',
+    category: 'memory',
+    defaultProps: {
+      bits: 1,
+      label: 'REG',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 6
+    },
+    connections: {
+      inputs: [
+        { name: 'D', x: 0, y: 1 },    // Data input (top)
+        { name: 'CLK', x: 0, y: 3 },  // Clock input (middle)
+        { name: 'en', x: 0, y: 5 }    // Enable input (bottom)
+      ],
+      outputs: [
+        { name: 'Q', x: 4, y: 3 }     // Output (right, center)
+      ]
+    },
+    onCreate: (instance, index) => {
+      instance.props.label = `REG${index}`
+    }
+  },
+
   'schematic-component': {
     component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
     label: 'Schematic Component',

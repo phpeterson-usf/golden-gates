@@ -161,6 +161,16 @@ export const commandGroups = {
         componentType: 'multiplexer',
         action: 'addComponent',
         params: ['multiplexer']
+      },
+      {
+        separator: true
+      },
+      {
+        id: 'insert-register',
+        labelKey: 'commands.insert.register',
+        componentType: 'register',
+        action: 'addComponent',
+        params: ['register']
       }
     ]
   }

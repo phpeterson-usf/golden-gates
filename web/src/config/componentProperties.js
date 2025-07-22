@@ -263,6 +263,16 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Register properties
+  register: {
+    title: 'Register Properties',
+    properties: [
+      { ...commonProperties.label, default: 'REG' },
+      commonProperties.bits,
+      commonProperties.rotation
+    ]
+  },
+
   // Circuit properties
   circuit: {
     title: 'Circuit Properties',

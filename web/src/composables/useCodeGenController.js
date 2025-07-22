@@ -119,13 +119,8 @@ export function useCodeGenController() {
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
 
-    // Header - determine which modules to import
-    const hasMultiplexer = components.some(c => c.type === 'multiplexer')
-    const importModules = ['io', 'logic', 'circuit', 'wires']
-    if (hasMultiplexer) {
-      importModules.push('plexers')
-    }
-    sections.push(`from ggl import ${importModules.join(', ')}`)
+    // Header - import all GGL modules (unused imports are not an error in Python)
+    sections.push(`from ggl import circuit, component, io, logic, memory, plexers, wires`)
 
     // Import all circuit components used in this circuit
     const componentImports = findRequiredComponentImports(components, circuitManager)
@@ -434,13 +429,14 @@ export function useCodeGenController() {
     let destExpr = destVarName
 
     // For schematic components, always specify ports since they're circuit.Component objects
+    // For register components, always specify ports since they use named ports
     // For regular components, only specify ports if there are multiple
-    if (sourceComp.type === 'schematic-component' || sourceOutputs.length > 1) {
+    if (sourceComp.type === 'schematic-component' || sourceComp.type === 'register' || sourceOutputs.length > 1) {
       const outputName = getPortName(sourceOutputs, sourcePort, 'output')
       sourceExpr = `${sourceVarName}.output("${outputName}")`
     }
 
-    if (destComp.type === 'schematic-component' || destInputs.length > 1) {
+    if (destComp.type === 'schematic-component' || destComp.type === 'register' || destInputs.length > 1) {
       const inputName = getPortName(destInputs, destPort, 'input')
       destExpr = `${destVarName}.input("${inputName}")`
     }

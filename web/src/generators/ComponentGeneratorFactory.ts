@@ -6,6 +6,7 @@ import { LogicGateGenerator } from './LogicGateGenerator'
 import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
 import { MultiplexerGenerator } from './MultiplexerGenerator'
+import { RegisterGenerator } from './RegisterGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -39,6 +40,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'multiplexer':
       return new MultiplexerGenerator(componentData)
+
+    case 'register':
+      return new RegisterGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

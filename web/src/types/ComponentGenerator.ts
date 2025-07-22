@@ -5,6 +5,7 @@
 export interface GeneratedStatement {
   varName: string
   code: string
+  imports?: Set<string>
 }
 
 export interface ComponentGenerator {
@@ -69,6 +70,14 @@ export interface MultiplexerComponentData extends ComponentData {
     numInputs?: number
     bits?: number
     selectorPosition?: 'top' | 'bottom'
+    rotation?: 0 | 90 | 180 | 270
+  }
+}
+
+export interface RegisterComponentData extends ComponentData {
+  props: {
+    label?: string
+    bits?: number
     rotation?: 0 | 90 | 180 | 270
   }
 }

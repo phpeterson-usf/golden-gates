@@ -16,6 +16,7 @@ class Register(BitsNode):
             bits=bits,
             named_inputs=[Register.D, Register.CLK, Register.en],
             named_outputs=[Register.Q])
+        self.value = 0
 
     def propagate(self, value=0):
         en = self.get_input_edge(Register.en).value
