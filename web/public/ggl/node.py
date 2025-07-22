@@ -29,11 +29,9 @@ class NodeInputs:
             raise SimulatorError("Another Edge is already connected to this inpoint")
         """
         self.points[name] = edge
-    def append_input(self, name):
-        assert(self.points.get(name) == None)
-        self.points[name] = None
 
     def __getitem__(self, index):
+        logger.info(f'getitem index: {index}')
         """Allow array-style access like node.inputs[0]"""
         names = list(self.points.keys())
         if 0 <= index < len(names):
@@ -50,9 +48,10 @@ class NodeOutputs:
     def __init__(self, names, node):
         self.points = {name: [] for name in names}
         self.node = node
+
     def append_edge(self, name, obj):
         self.points[name].append(obj)
-    
+
     def __getitem__(self, index):
         """Allow array-style access like node.outputs[0]"""
         names = list(self.points.keys())
@@ -136,10 +135,16 @@ class BitsNode(Node):
     """
     BitsNode is a Node which has a bit width, e.g. Gates, plexers, registers
     """
-    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1):
+    def __init__(self, kind, num_inputs=0, num_outputs=0, label='', bits=1, named_inputs=[], named_outputs=[]):
+        # Inputs can be numbered (num_inputs) or named (named_inputs, e.g. 'D', 'en')
         innames = [str(i) for i in range(num_inputs)]
+        innames += named_inputs
+
+        # Outputs can be numbered (num_outputs) or named (named_outputs, e.g. 'Q', 'R')
         outnames = [str(o) for o in range(num_outputs)]
-        super().__init__(kind, innames, outnames, label)
+        outnames += named_outputs
+
+        super().__init__(kind=kind, innames=innames, outnames=outnames, label=label)
         self.bits = bits
     
     def clone(self, instance_id):

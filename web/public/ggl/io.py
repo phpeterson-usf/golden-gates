@@ -7,8 +7,13 @@ class IONode(BitsNode):
     """
     IONode is an abstract class which encapsulates the value of an I/O node
     """
-    def __init__(self, kind, n_inputs, n_outputs, label='', bits=1):
-        super().__init__(kind, n_inputs, n_outputs, label, bits)
+    def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
+        super().__init__(
+            kind=kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
         self.value = 0
 
 class Input(IONode):
@@ -18,7 +23,12 @@ class Input(IONode):
 
     kind = 'Input'
     def __init__(self, label='', bits=1):
-        super().__init__(Input.kind, 0, 1, label, bits)
+        super().__init__(
+            kind=Input.kind,
+            num_inputs=0,
+            num_outputs=1,
+            label=label,
+            bits=bits)
 
     def propagate(self, value=0):
         return super().propagate(self.value)
@@ -35,7 +45,12 @@ class Output(IONode):
 
     kind = 'Output'
     def __init__(self, label='', bits=1, js_id=None):
-        super().__init__(Output.kind, 1, 0, label, bits)
+        super().__init__(
+            kind=Output.kind,
+            num_inputs=1,
+            num_outputs=0,
+            label=label,
+            bits=bits)
         self.js_id = js_id
 
     def propagate(self, value=0):
@@ -71,9 +86,11 @@ class Constant(Input):
     kind = 'Constant'
 
     def __init__(self, label='', bits=1, value=0):
-        super().__init__(label=label, bits=bits)
-        self.kind = Constant.kind
-        self.value = value                                                      # set fixed value on initialization
+        super().__init__(
+            kind=Constant.kind,
+            label=label,
+            bits=bits)
+        self.value = value   # set fixed value on initialization
 
     def propagate(self, value=0):
         return super().propagate(self.value)

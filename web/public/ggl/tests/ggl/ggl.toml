@@ -162,3 +162,9 @@ name = "mux-8bit"
 input = ["python3", "$project_tests/mux-8bit.py"]
 expected = "0xBB"
 rubric = 1
+
+[[tests]]
+name = "reg-8bit"
+input = ["python3", "$project_tests/reg-8bit.py"]
+expected = "0xAB"
+rubric = 1

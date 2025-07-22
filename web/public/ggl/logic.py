@@ -8,7 +8,12 @@ class Gate(BitsNode):
     Gate is a logic gate, like AND, OR, XOR, etc
     """
     def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(kind, num_inputs, num_outputs, label, bits)
+        super().__init__(
+            kind=kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
         self.label = label
         self.inverted_inputs = inverted_inputs or []
     
@@ -72,7 +77,13 @@ class And(Gate):
     """And Gates perform bitwise AND"""
     kind = 'And'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(And.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=And.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 & v2
@@ -82,7 +93,13 @@ class Or(Gate):
     """Or Gates perform bitwise OR"""
     kind = 'Or'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Or.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Or.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 | v2
@@ -91,7 +108,13 @@ class Nor(Gate):
     """Nor Gates perform bitwise NOR"""
     kind = 'Nor'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Nor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Nor.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 | v2
@@ -104,7 +127,13 @@ class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
     kind = 'Xor'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Xor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Xor.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 ^ v2
@@ -113,7 +142,13 @@ class Xnor(Gate):
     """Xnor Gates perform bitwise XNOR"""
     kind = 'Xnor'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Xnor.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Xnor.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 ^ v2
@@ -125,7 +160,13 @@ class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
     kind = 'Nand'
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Nand.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Nand.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def logic(self, v1, v2):
         return v1 & v2
@@ -137,7 +178,13 @@ class Not(Gate):
     """Not Gates perform bitwise NOT"""
     kind = 'Not'
     def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
-        super().__init__(Not.kind, num_inputs, num_outputs, label, bits, inverted_inputs)
+        super().__init__(
+            kind=Not.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits,
+            inverted_inputs=inverted_inputs)
 
     def invert(self, rv):
         return ~rv
