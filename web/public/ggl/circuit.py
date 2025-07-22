@@ -30,56 +30,35 @@ class Circuit:
         - don't allow more than one output to the same input
         """
         return True
+    def step(self):
+        """
+        Perform one propagation step in the circuit which handles both clocked and combinational propagation.
+        """
+        work = list(self.inputs) + list(getattr(self, 'clocks', []))
 
+        for node in self.all_nodes:
+            for edges in node.outputs.points.values():
+                for edge in edges:
+                    edge.prev_value = edge.value
+
+        new_work = set()
+
+        while work:
+            node = work.pop(0)
+            downstream_nodes = node.propagate() or []
+
+            for n in downstream_nodes:
+                new_work.add(n)
+
+            for edges in node.outputs.points.values():
+                for edge in edges:
+                    if edge.prev_value != edge.value:
+                        for dest_node in edge.get_dest_nodes():
+                            new_work.add(dest_node)
+
+        return list(new_work)
+    
     def run(self):
-        """
-        run() initiates a simulation starting with Input Nodes
-        Each Node in the work queue does its function, and returns
-        a list of any Nodes which must be re-evaluated
-        """
-        """work = []
-        for i in self.inputs:
-            work.append(i)
-        while len(work) > 0:
-            node = work[0]
-            new_work = node.propagate()
-            work.remove(node)
-            if new_work:
-                work += new_work"""
-
-               
-        """work = list(self.inputs)                                # start with all input Nodes
-        iteration = 0
-
-        while iteration < MAX_ITERATIONS:
-            iteration += 1
-            logger.info(f"Simulation iteration {iteration}")
-
-            changes = 0
-            new_work = set()
-
-            while work:
-                node = work.pop(0)                              # first in first out queue
-                downstream_nodes = node.propagate() or []
-
-                for n in downstream_nodes:                      # queue nodes returned by propagate
-                    new_work.add(n)
-
-                for edges in node.outputs.points.values():      # queue nodes downstream of changed edge values
-                    for edge in edges:
-                        if edge.prev_value != edge.value:
-                            changes += 1
-                            for dest_node in edge.get_dest_nodes():
-                                new_work.add(dest_node)
-
-            if not new_work and changes == 0:
-                logger.info("Circuit stabilized.")
-                break
-
-            work = list(new_work)
-        if iteration == MAX_ITERATIONS:
-            logger.warning("Circuit did not stabilize within max iterations.")"""
-
         work = work = list(self.inputs)                                     # start with all input Nodes
         iteration = 0
 
