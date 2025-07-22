@@ -59,8 +59,8 @@ export const commandGroups = {
       }
     ]
   },
-  insert: {
-    labelKey: 'commands.groups.insert',
+  logicGates: {
+    labelKey: 'commands.groups.logicGates',
     items: [
       {
         id: 'insert-and-gate',
@@ -75,13 +75,6 @@ export const commandGroups = {
         componentType: 'or',
         action: 'addComponent',
         params: ['or-gate']
-      },
-      {
-        id: 'insert-xor-gate',
-        labelKey: 'commands.insert.xorGate',
-        componentType: 'xor',
-        action: 'addComponent',
-        params: ['xor-gate']
       },
       {
         id: 'insert-not-gate',
@@ -105,15 +98,24 @@ export const commandGroups = {
         params: ['nor-gate']
       },
       {
+        id: 'insert-xor-gate',
+        labelKey: 'commands.insert.xorGate',
+        componentType: 'xor',
+        action: 'addComponent',
+        params: ['xor-gate']
+      },
+      {
         id: 'insert-xnor-gate',
         labelKey: 'commands.insert.xnorGate',
         componentType: 'xnor',
         action: 'addComponent',
         params: ['xnor-gate']
-      },
-      {
-        separator: true
-      },
+      }
+    ]
+  },
+  inputOutput: {
+    labelKey: 'commands.groups.inputOutput',
+    items: [
       {
         id: 'insert-input',
         labelKey: 'commands.insert.input',
@@ -134,10 +136,12 @@ export const commandGroups = {
         componentType: 'constant',
         action: 'addComponent',
         params: ['constant']
-      },
-      {
-        separator: true
-      },
+      }
+    ]
+  },
+  wires: {
+    labelKey: 'commands.groups.wires',
+    items: [
       {
         id: 'insert-splitter',
         labelKey: 'commands.insert.splitter',
@@ -151,20 +155,24 @@ export const commandGroups = {
         componentType: 'merger',
         action: 'addComponent',
         params: ['merger']
-      },
-      {
-        separator: true
-      },
+      }
+    ]
+  },
+  plexers: {
+    labelKey: 'commands.groups.plexers',
+    items: [
       {
         id: 'insert-multiplexer',
         labelKey: 'commands.insert.multiplexer',
         componentType: 'multiplexer',
         action: 'addComponent',
         params: ['multiplexer']
-      },
-      {
-        separator: true
-      },
+      }
+    ]
+  },
+  memory: {
+    labelKey: 'commands.groups.memory',
+    items: [
       {
         id: 'insert-register',
         labelKey: 'commands.insert.register',

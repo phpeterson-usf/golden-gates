@@ -139,7 +139,11 @@
     "groups": {
       "file": "File",
       "simulation": "Simulation",
-      "insert": "Insert"
+      "logicGates": "Logic Gates",
+      "inputOutput": "Input/Output",
+      "wires": "Wires",
+      "plexers": "Plexers",
+      "memory": "Memory"
     },
     "file": {
       "newCircuit": "New Circuit",
