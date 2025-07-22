@@ -72,6 +72,8 @@ describe('useCanvasController - Clipboard Integration', () => {
           junctions: []
         })
       ),
+      addComponent: vi.fn(),
+      addWire: vi.fn(),
       removeComponent: vi.fn(),
       removeWire: vi.fn()
     }
@@ -205,6 +207,53 @@ describe('useCanvasController - Clipboard Integration', () => {
         expect(mockSelection.clearSelection).toHaveBeenCalled()
       })
 
+      it('should add pasted components to the circuit', async () => {
+        canvasController.clipboardController.hasClipboardData.value = true
+        const pastedComponent = { id: 'pasted_1', type: 'input', x: 10, y: 20 }
+        canvasController.clipboardController.pasteFromClipboard.mockReturnValue({
+          components: [pastedComponent],
+          wires: [],
+          junctions: []
+        })
+
+        const result = await canvasController.pasteFromClipboard()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.addComponent).toHaveBeenCalledWith(pastedComponent)
+      })
+
+      it('should add pasted wires to the circuit', async () => {
+        canvasController.clipboardController.hasClipboardData.value = true
+        const pastedWire = { id: 'wire_1', points: [{x: 0, y: 0}, {x: 10, y: 10}] }
+        canvasController.clipboardController.pasteFromClipboard.mockReturnValue({
+          components: [],
+          wires: [pastedWire],
+          junctions: []
+        })
+
+        const result = await canvasController.pasteFromClipboard()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.addWire).toHaveBeenCalledWith(pastedWire)
+      })
+
+      it('should add pasted junctions to the circuit', async () => {
+        canvasController.clipboardController.hasClipboardData.value = true
+        const pastedJunction = { pos: {x: 5, y: 5}, connectedWireId: 'wire_1' }
+        canvasController.clipboardController.pasteFromClipboard.mockReturnValue({
+          components: [],
+          wires: [],
+          junctions: [pastedJunction]
+        })
+
+        const result = await canvasController.pasteFromClipboard()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions.length).toBe(1)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions[0].pos.x).toBe(5)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions[0].pos.y).toBe(5)
+      })
+
       it('should try OS clipboard when internal clipboard is empty', async () => {
         canvasController.clipboardController.hasClipboardData.value = false
         global.navigator.clipboard.readText.mockResolvedValue('{"test": "data"}')
@@ -237,6 +286,50 @@ describe('useCanvasController - Clipboard Integration', () => {
         expect(canvasController.clipboardController.serializeElements).toHaveBeenCalled()
         expect(canvasController.clipboardController.deserializeElements).toHaveBeenCalled()
         expect(mockSelection.clearSelection).toHaveBeenCalled()
+      })
+
+      it('should add duplicated components to the circuit', () => {
+        const duplicatedComponent = { id: 'duplicated_1', type: 'input', x: 15, y: 25 }
+        canvasController.clipboardController.deserializeElements.mockReturnValue({
+          components: [duplicatedComponent],
+          wires: [],
+          junctions: []
+        })
+
+        const result = canvasController.duplicateSelected()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.addComponent).toHaveBeenCalledWith(duplicatedComponent)
+      })
+
+      it('should add duplicated wires to the circuit', () => {
+        const duplicatedWire = { id: 'wire_dup_1', points: [{x: 5, y: 5}, {x: 15, y: 15}] }
+        canvasController.clipboardController.deserializeElements.mockReturnValue({
+          components: [],
+          wires: [duplicatedWire],
+          junctions: []
+        })
+
+        const result = canvasController.duplicateSelected()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.addWire).toHaveBeenCalledWith(duplicatedWire)
+      })
+
+      it('should add duplicated junctions to the circuit', () => {
+        const duplicatedJunction = { pos: {x: 10, y: 10}, connectedWireId: 'wire_dup_1' }
+        canvasController.clipboardController.deserializeElements.mockReturnValue({
+          components: [],
+          wires: [],
+          junctions: [duplicatedJunction]
+        })
+
+        const result = canvasController.duplicateSelected()
+
+        expect(result).toBe(true)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions.length).toBe(1)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions[0].pos.x).toBe(10)
+        expect(mockCircuitManager.activeCircuit.value.wireJunctions[0].pos.y).toBe(10)
       })
 
       it('should warn when no components selected', () => {
