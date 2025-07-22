@@ -214,6 +214,26 @@ export function useCanvasController(
         return false
       }
 
+      // Add pasted components to the circuit
+      pastedElements.components.forEach(component => {
+        circuitManager.addComponent(component)
+      })
+
+      // Add pasted wires to the circuit
+      pastedElements.wires.forEach(wire => {
+        circuitManager.addWire(wire)
+      })
+
+      // Add pasted junctions to the circuit
+      if (pastedElements.junctions) {
+        const circuit = activeCircuit.value
+        if (circuit && circuit.wireJunctions) {
+          pastedElements.junctions.forEach(junction => {
+            circuit.wireJunctions.push(junction)
+          })
+        }
+      }
+
       // Update selection to show pasted elements
       selectElements(pastedElements)
 
@@ -250,6 +270,26 @@ export function useCanvasController(
         serializedData,
         duplicatePosition
       )
+
+      // Add duplicated components to the circuit
+      duplicatedElements.components.forEach(component => {
+        circuitManager.addComponent(component)
+      })
+
+      // Add duplicated wires to the circuit
+      duplicatedElements.wires.forEach(wire => {
+        circuitManager.addWire(wire)
+      })
+
+      // Add duplicated junctions to the circuit
+      if (duplicatedElements.junctions) {
+        const circuit = activeCircuit.value
+        if (circuit && circuit.wireJunctions) {
+          duplicatedElements.junctions.forEach(junction => {
+            circuit.wireJunctions.push(junction)
+          })
+        }
+      }
 
       // Update selection to show duplicated elements
       selectElements(duplicatedElements)
