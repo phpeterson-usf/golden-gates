@@ -1,7 +1,7 @@
 from .node import BitsNode
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('memory')
+logger = new_logger('memory')
 
 class Register(BitsNode):
     D = 'D'
@@ -20,9 +20,9 @@ class Register(BitsNode):
     def propagate(self, value=0):
         en = self.get_input_edge(Register.en).value
         clk = self.get_input_edge(Register.CLK).value
-        logger.info(f'register en: {en} clk: {clk}')
         if en and clk:
             self.value = self.get_input_edge(Register.D).value
+        logger.info(f'Register {self.label} propagates {self.value}')
         return super().propagate(self.value)
     
     # Nothing special to do for clone(). BitsNode.clone() is enough.

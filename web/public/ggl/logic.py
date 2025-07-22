@@ -1,7 +1,7 @@
 from .node import BitsNode
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('logic')
+logger = new_logger('logic')
 
 class Gate(BitsNode):
     """
@@ -66,7 +66,6 @@ class Gate(BitsNode):
 
         # Invert if needed, and truncate the output to self.bits wide
         rv = self.invert(rv) & self.mask()
-        logger.info(f'{self.kind} propagates: {rv}')
         return super().propagate(rv)
     
     def invert(self, rv):

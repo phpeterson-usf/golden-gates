@@ -1,6 +1,6 @@
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('node')
+logger = new_logger('node')
 
 class Connector:
     """Represents a specific input or output point on a node"""

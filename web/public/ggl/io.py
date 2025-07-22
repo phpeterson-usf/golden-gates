@@ -1,7 +1,7 @@
 from .node import BitsNode
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('io')
+logger = new_logger('io')
 
 class IONode(BitsNode):
     """

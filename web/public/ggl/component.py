@@ -7,10 +7,10 @@ that can be instantiated multiple times with isolated state.
 
 from .node import Node, Connector
 from .io import Input, Output
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 import copy
 
-logger = get_logger('component')
+logger = new_logger('component')
 
 class ComponentConnector(Connector):
     """

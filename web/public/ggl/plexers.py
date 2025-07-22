@@ -1,7 +1,7 @@
 from .node import BitsNode
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('plexers')
+logger = new_logger('plexers')
 
 class Plexer(BitsNode):
     """
@@ -38,6 +38,4 @@ class Multiplexer(Plexer):
         sel_value = self.get_input_edge(Plexer.sel).value
         input_name = str(sel_value)
         v = self.get_input_edge(input_name).value
-
-        logger.info(f'mux propagates {v}')
         return super().propagate(v)

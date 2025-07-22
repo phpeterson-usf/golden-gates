@@ -1,7 +1,7 @@
 from .node import BitsNode
-from .ggl_logging import get_logger
+from .ggl_logging import new_logger
 
-logger = get_logger('wires')
+logger = new_logger('wires')
 
 class WireNode(BitsNode):
     """
