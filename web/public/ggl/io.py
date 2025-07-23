@@ -100,5 +100,5 @@ class Clock(IONode):
             self.prev_value = self.value
             self.value = new_val
             if self.prev_value == 0 and new_val == 1:
-                return [self]  # rising edge
+                return [self]                                               # rising edge
         return []
