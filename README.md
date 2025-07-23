@@ -53,6 +53,29 @@ Since Golden Gates is a web app, it doesn't have direct access to the files on y
 1. To open a saved circuit, you can drag/drop the JSON file into the circuit area. Or you can use the Open command in the command palette. 
 1. **Important** Golden Gates has no ability to save new updates to a previously-saved file. If you imagine the commands as "Save As" and "Save", Golden Gates has only "Save As".
 
+### Working with Memory
+
+Golden Gates contains a ROM component whose values can be loaded from a JSON file of this format:
+
+    [
+        0,
+        255,
+        "0xFF",
+        "0b11111111",
+        128,
+        "0x80",
+        "0b10000000",
+        64,
+        32,
+        16,
+        8,
+        4,
+        2,
+        1,
+        "0x00",
+        "0b00000000"
+    ]
+
 ## Development
 
 If you want to develop for Golden Gates, the tool chain works like this:
