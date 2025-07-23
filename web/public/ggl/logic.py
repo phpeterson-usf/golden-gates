@@ -7,7 +7,7 @@ class Gate(BitsNode):
     """
     Gate is a logic gate, like AND, OR, XOR, etc
     """
-    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None, invert_output=False):
         super().__init__(
             kind=kind,
             num_inputs=num_inputs,
@@ -16,7 +16,8 @@ class Gate(BitsNode):
             bits=bits)
         self.label = label
         self.inverted_inputs = inverted_inputs or []
-    
+        self.invert_output = invert_output
+
     def clone(self, instance_id):
         """Clone a Gate with proper parameters"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -60,13 +61,12 @@ class Gate(BitsNode):
             # Perform the Gate-specific logic (AND, OR, ...)
             rv = self.logic(rv, v)
 
-        # Invert if needed
-        rv = self.invert(rv) 
+        if self.invert_output:
+            # Invert can't be done in a propagate() overload, so
+            # apply inversion for Nand, Nor, Xnor here
+            rv = ~rv
         return super().propagate(rv)
     
-    def invert(self, rv):
-        # No inversion in the base class
-        return rv
 
 class And(Gate):
     """And Gates perform bitwise AND"""
@@ -99,6 +99,7 @@ class Or(Gate):
     def logic(self, v1, v2):
         return v1 | v2
     
+
 class Nor(Gate):
     """Nor Gates perform bitwise NOR"""
     kind = 'Nor'
@@ -109,13 +110,11 @@ class Nor(Gate):
             num_outputs=num_outputs,
             label=label,
             bits=bits,
-            inverted_inputs=inverted_inputs)
+            inverted_inputs=inverted_inputs,
+            invert_output=True)
 
     def logic(self, v1, v2):
         return v1 | v2
-
-    def invert(self, rv):
-        return ~rv
     
 
 class Xor(Gate):
@@ -143,13 +142,12 @@ class Xnor(Gate):
             num_outputs=num_outputs,
             label=label,
             bits=bits,
-            inverted_inputs=inverted_inputs)
+            inverted_inputs=inverted_inputs,
+            invert_output=True)
 
     def logic(self, v1, v2):
         return v1 ^ v2
 
-    def invert(self, rv):
-        return ~rv
 
 class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
@@ -161,13 +159,12 @@ class Nand(Gate):
             num_outputs=num_outputs,
             label=label,
             bits=bits,
-            inverted_inputs=inverted_inputs)
+            inverted_inputs=inverted_inputs,
+            invert_output=True)
 
     def logic(self, v1, v2):
         return v1 & v2
 
-    def invert(self, rv):
-        return ~rv
     
 class Not(Gate):
     """Not Gates perform bitwise NOT"""
@@ -179,8 +176,6 @@ class Not(Gate):
             num_outputs=num_outputs,
             label=label,
             bits=bits,
-            inverted_inputs=inverted_inputs)
-
-    def invert(self, rv):
-        return ~rv
+            inverted_inputs=inverted_inputs,
+            invert_output=True)
     
