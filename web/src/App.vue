@@ -78,6 +78,12 @@
           @action="handleInspectorAction"
         />
       </div>
+
+      <!-- Subtle simulation loading indicator -->
+      <div v-if="isRunning || isPyodideLoading" class="simulation-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ isPyodideLoading ? $t('simulation.initializing') : $t('simulation.running') }}</span>
+      </div>
     </div>
   </div>
   </BrowserCompatibilityGuard>
@@ -813,5 +819,33 @@ body {
 
 .breadcrumb-button.active:hover {
   background-color: #e5e7eb !important;
+}
+
+/* Subtle simulation loading indicator */
+.simulation-loading {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  color: #374151;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.simulation-loading i {
+  color: #3b82f6;
+  font-size: 1rem;
+}
+
+.simulation-loading span {
+  font-weight: 500;
 }
 </style>

@@ -191,6 +191,8 @@
     "clearCircuit": "Clear Circuit"
   },
   "simulation": {
+    "initializing": "Initializing simulation engine...",
+    "running": "Running simulation...",
     "errors": {
       "bitWidthMismatch": "Input bit width ({actualBits}) does not match expected bit width ({expectedBits})",
       "inputNotConnected": "Input '{inputName}' is not connected",
