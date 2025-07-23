@@ -45,10 +45,6 @@ class Gate(BitsNode):
             values.append(v)
         return values
 
-    def mask(self):
-        """Builds the bit mask for the number of data bits for this gate"""
-        return (1 << self.bits) - 1
-
     def propagate(self, value=0):
         """
         Gate.propagate() loops over the Edges which are connected to
@@ -64,8 +60,8 @@ class Gate(BitsNode):
             # Perform the Gate-specific logic (AND, OR, ...)
             rv = self.logic(rv, v)
 
-        # Invert if needed, and truncate the output to self.bits wide
-        rv = self.invert(rv) & self.mask()
+        # Invert if needed
+        rv = self.invert(rv) 
         return super().propagate(rv)
     
     def invert(self, rv):

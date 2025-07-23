@@ -157,3 +157,12 @@ class BitsNode(Node):
             label=new_label,
             bits=self.bits
         )
+
+    def mask(self):
+        """Builds the bit mask for the number of data bits for this gate"""
+        return (1 << self.bits) - 1
+
+    def propagate(self, value=0):
+        # Truncate the output to self.bits wide
+        value &= self.mask()
+        return super().propagate(value)
