@@ -13,16 +13,16 @@ b = io.Input(bits=4, label="b")
 a.value = 9     # 0b1001
 b.value = 6     # 0b0110
 
-adder = arithmetic.Adder(bits=4, label="adder")
+sub = arithmetic.Subtract(bits=4, label="subtract")
 
-sum = io.Output(bits=4, label="sum")
+difference = io.Output(bits=4, label="difference")
 cout = io.Output(bits=1, label="carryOut")
 
 
-c.connect(a, adder.input("0"))
-c.connect(b, adder.input("1"))
-c.connect(adder.output("0"), sum)
+c.connect(a, sub.input("0"))
+c.connect(b, sub.input("1"))
+c.connect(sub.output("0"), difference)
 
 
 c.run()
-print(sum.value)
+print(difference.value)

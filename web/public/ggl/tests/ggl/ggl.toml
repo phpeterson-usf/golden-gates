@@ -203,3 +203,24 @@ name = "adder-no-carryin"
 input = ["python3", "$project_tests/adder-no-carryin.py"]
 expected = "15"
 rubric = 1
+
+[[tests]]
+name = "subtract-no-carryin"
+input = ["python3", "$project_tests/subtract-no-carryin.py"]
+expected = "3"
+rubric = 1
+
+[[tests]]
+name = "multiply"
+input = ["python3", "$project_tests/multiply.py"]
+expected = "54"
+rubric = 1
+
+[[tests]]
+name = "division"
+input = ["python3", "$project_tests/division.py"]
+expected = """
+1.5
+4
+"""
+rubric = 1

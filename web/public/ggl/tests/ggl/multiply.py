@@ -13,16 +13,15 @@ b = io.Input(bits=4, label="b")
 a.value = 9     # 0b1001
 b.value = 6     # 0b0110
 
-adder = arithmetic.Adder(bits=4, label="adder")
+multiply = arithmetic.Multiply(bits=4, label="multiply")
 
-sum = io.Output(bits=4, label="sum")
-cout = io.Output(bits=1, label="carryOut")
+product = io.Output(bits=4, label="product")
 
 
-c.connect(a, adder.input("0"))
-c.connect(b, adder.input("1"))
-c.connect(adder.output("0"), sum)
+c.connect(a, multiply.input("0"))
+c.connect(b, multiply.input("1"))
+c.connect(multiply.output("0"), product)
 
 
 c.run()
-print(sum.value)
+print(product.value)
