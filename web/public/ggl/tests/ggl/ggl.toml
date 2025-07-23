@@ -256,3 +256,21 @@ expected = """
 0b1101
 """
 rubric = 1
+
+[[tests]]
+name = "8bit-sign-extend"
+input = ["python3", "$project_tests/8bit-sign-extend.py"]
+expected = "65435"
+rubric = 1
+
+[[tests]]
+name = "bit-counter"
+input = ["python3", "$project_tests/bit-counter.py"]
+expected = "5"
+rubric = 1
+
+[[tests]]
+name = "1bit-sign-extend"
+input = ["python3", "$project_tests/1bit-sign-extend.py"]
+expected = "255"
+rubric = 1

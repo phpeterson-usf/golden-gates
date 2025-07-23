@@ -278,6 +278,65 @@ class Negation(Arithmetic):
             new_work += edge.get_dest_nodes()
         return new_work
     
-    """class SignExtend(Arithmetic):
+class SignExtend(Arithmetic):
+    """Performs sign extension of input"""
+    kind = 'SignExtend'
 
-    class BitCounter(Arithmetic):"""
+    def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, input_width=1, output_width=1):
+        self.input_width = input_width
+        self.output_width = output_width
+        super().__init__(
+            kind=SignExtend.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
+    
+    def operator(self, v1):
+        sign_bit = (v1 >> (self.input_width - 1)) & 1
+        if sign_bit:
+            extension = ((1 << (self.output_width - self.input_width)) - 1) << self.input_width
+            extended = v1 | extension
+        else:
+            extended = v1 & ((1 << self.input_width) - 1)
+        return extended & ((1 << self.output_width) - 1)
+    
+    def propagate(self):
+        edge = self.inputs.get_edges()[0]
+        value = edge.value if edge is not None else 0
+        result = self.operator(value)
+
+        new_work = []
+        edges = self.outputs.points.get('0', [])
+        for edge in edges:
+            edge.propagate(result)
+            new_work += edge.get_dest_nodes()
+        return new_work
+        
+
+class BitCounter(Arithmetic):
+    """Counts number of 1-bits for input"""
+    kind = 'BitCounter'
+
+    def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1):
+        super().__init__(
+            kind=BitCounter.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
+    
+    def operator(self, v1):
+        return bin(v1 & ((1 << self.bits) - 1)).count('1')
+    
+    def propagate(self):
+        edge = self.inputs.get_edges()[0]
+        value = edge.value if edge is not None else 0
+        result = self.operator(value)
+
+        new_work = []
+        edges = self.outputs.points.get('0', [])
+        for edge in edges:
+            edge.propagate(result)
+            new_work += edge.get_dest_nodes()
+        return new_work
