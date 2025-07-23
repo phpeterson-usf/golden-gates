@@ -467,11 +467,11 @@ export const componentRegistry = {
       
       return {
         inputs: [
-          { name: 'A', x: 0, y: 1.5 },    // Address input
-          { name: 'sel', x: 0, y: 3.5 }   // Select input (2 grid units apart)
+          { name: 'A', x: 0, y: 1 },      // Address input (grid-aligned)
+          { name: 'sel', x: 0, y: 3 }     // Select input (2 grid units apart, grid-aligned)
         ],
         outputs: [
-          { name: 'D', x: width, y: height / 2 }  // Data output (center right)
+          { name: 'D', x: width, y: Math.floor(height / 2) }  // Data output (center right, grid-aligned)
         ]
       }
     },

@@ -148,16 +148,16 @@ export default defineComponent({
     height() {
       return Math.max(5, Math.ceil(this.addressBits / 2) + 1)
     },
-    // Input positions (left side, spaced 2 grid units apart)
+    // Input positions (left side, spaced 2 grid units apart, on grid vertices)
     aInputY() {
-      return GRID_SIZE * 1.5 // 1.5 grid units from top
+      return GRID_SIZE * 1 // 1 grid unit from top
     },
     selInputY() {
-      return GRID_SIZE * 3.5 // 3.5 grid units from top (2 units apart)
+      return GRID_SIZE * 3 // 3 grid units from top (2 units apart)
     },
-    // Output position (right side, center)
+    // Output position (right side, center, on grid vertex)
     dOutputY() {
-      return GRID_SIZE * this.height / 2
+      return GRID_SIZE * Math.floor(this.height / 2) // Center, snapped to grid
     },
     // Label positions
     inputLabelX() {

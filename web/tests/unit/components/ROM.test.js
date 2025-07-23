@@ -36,7 +36,7 @@ describe('ROM', () => {
       const aInput = inputs.find(input => input.attributes('data-port') === '0')
       expect(aInput.exists()).toBe(true)
       expect(aInput.attributes('cx')).toBe('0')
-      expect(aInput.attributes('cy')).toBe(String(1.5 * GRID_SIZE)) // 1.5 grid units from top
+      expect(aInput.attributes('cy')).toBe(String(1 * GRID_SIZE)) // 1 grid unit from top
     })
 
     it('renders sel (select) input connection point', () => {
@@ -45,7 +45,7 @@ describe('ROM', () => {
       const selInput = inputs.find(input => input.attributes('data-port') === '1')
       expect(selInput.exists()).toBe(true)
       expect(selInput.attributes('cx')).toBe('0')
-      expect(selInput.attributes('cy')).toBe(String(3.5 * GRID_SIZE)) // 3.5 grid units from top (2 units apart)
+      expect(selInput.attributes('cy')).toBe(String(3 * GRID_SIZE)) // 3 grid units from top (2 units apart)
     })
 
     it('renders D (data) output connection point', () => {
@@ -55,7 +55,7 @@ describe('ROM', () => {
       const dOutput = outputs[0]
       expect(dOutput.attributes('data-port')).toBe('0')
       expect(dOutput.attributes('cx')).toBe(String(4 * GRID_SIZE)) // Right edge
-      expect(dOutput.attributes('cy')).toBe(String(2.5 * GRID_SIZE)) // Center height
+      expect(dOutput.attributes('cy')).toBe(String(Math.floor(5 / 2) * GRID_SIZE)) // Center height, grid-aligned
     })
 
     it('renders input labels', () => {
@@ -103,8 +103,8 @@ describe('ROM', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       const dOutput = outputs[0]
       
-      const expectedHeight = Math.max(5, Math.ceil(8 / 2) + 1) // 5 grid units for 8 address bits
-      expect(dOutput.attributes('cy')).toBe(String((expectedHeight * GRID_SIZE) / 2))
+      const expectedHeight = Math.max(5, Math.ceil(8 / 2) + 1) // 5 grid units for 8 address bits  
+      expect(dOutput.attributes('cy')).toBe(String(Math.floor(expectedHeight / 2) * GRID_SIZE))
     })
   })
 
