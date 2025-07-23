@@ -1,7 +1,18 @@
-import { defineAsyncComponent } from 'vue'
 import { GRID_SIZE } from './constants'
 import { createGateRegistryEntry } from './componentFactory'
 import { gateDefinitions } from '../config/gateDefinitions'
+
+// Static imports for all components
+import InputNode from '../components/InputNode.vue'
+import OutputNode from '../components/OutputNode.vue'
+import ConstantNode from '../components/ConstantNode.vue'
+import SplitterComponent from '../components/SplitterComponent.vue'
+import MergerComponent from '../components/MergerComponent.vue'
+import MultiplexerNode from '../components/MultiplexerNode.vue'
+import Decoder from '../components/Decoder.vue'
+import Register from '../components/Register.vue'
+import PriorityEncoder from '../components/PriorityEncoder.vue'
+import SchematicComponent from '../components/SchematicComponent.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -15,7 +26,7 @@ export const componentRegistry = {
   'xnor-gate': createGateRegistryEntry('xnor', gateDefinitions.xnor),
 
   input: {
-    component: defineAsyncComponent(() => import('../components/InputNode.vue')),
+    component: InputNode,
     label: 'Add Input',
     icon: 'pi pi-circle',
     category: 'io',
@@ -53,7 +64,7 @@ export const componentRegistry = {
   },
 
   output: {
-    component: defineAsyncComponent(() => import('../components/OutputNode.vue')),
+    component: OutputNode,
     label: 'Add Output',
     icon: 'pi pi-circle-fill',
     category: 'io',
@@ -91,7 +102,7 @@ export const componentRegistry = {
   },
 
   constant: {
-    component: defineAsyncComponent(() => import('../components/ConstantNode.vue')),
+    component: ConstantNode,
     label: 'Add Constant',
     icon: 'pi pi-stop-circle',
     category: 'io',
@@ -129,7 +140,7 @@ export const componentRegistry = {
   },
 
   splitter: {
-    component: defineAsyncComponent(() => import('../components/SplitterComponent.vue')),
+    component: SplitterComponent,
     label: 'Splitter',
     icon: 'pi pi-share-alt',
     category: 'wires',
@@ -200,7 +211,7 @@ export const componentRegistry = {
   },
 
   merger: {
-    component: defineAsyncComponent(() => import('../components/MergerComponent.vue')),
+    component: MergerComponent,
     label: 'Merger',
     icon: 'pi pi-sign-in',
     category: 'wires',
@@ -271,7 +282,7 @@ export const componentRegistry = {
   },
 
   multiplexer: {
-    component: defineAsyncComponent(() => import('../components/MultiplexerNode.vue')),
+    component: MultiplexerNode,
     label: 'Multiplexer',
     icon: 'pi pi-share-alt',
     category: 'components',
@@ -346,7 +357,7 @@ export const componentRegistry = {
   },
 
   decoder: {
-    component: defineAsyncComponent(() => import('../components/Decoder.vue')),
+    component: Decoder,
     label: 'Decoder',
     icon: 'pi pi-sitemap',
     category: 'components',
@@ -406,7 +417,7 @@ export const componentRegistry = {
   },
 
   register: {
-    component: defineAsyncComponent(() => import('../components/Register.vue')),
+    component: Register,
     label: 'Register',
     icon: 'pi pi-stop',
     category: 'memory',
@@ -436,7 +447,7 @@ export const componentRegistry = {
   },
 
   priorityEncoder: {
-    component: defineAsyncComponent(() => import('../components/PriorityEncoder.vue')),
+    component: PriorityEncoder,
     label: 'Priority Encoder',
     icon: 'pi pi-list',
     category: 'components',
@@ -499,7 +510,7 @@ export const componentRegistry = {
   },
 
   'schematic-component': {
-    component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
+    component: SchematicComponent,
     label: 'Schematic Component',
     icon: 'pi pi-cube',
     category: 'components',
