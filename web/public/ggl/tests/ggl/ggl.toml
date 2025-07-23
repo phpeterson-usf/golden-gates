@@ -197,3 +197,9 @@ name = "reg-8bit"
 input = ["python3", "$project_tests/reg-8bit.py"]
 expected = "0xAB"
 rubric = 1
+
+[[tests]]
+name = "adder-no-carryin"
+input = ["python3", "$project_tests/adder-no-carryin.py"]
+expected = "15"
+rubric = 1
