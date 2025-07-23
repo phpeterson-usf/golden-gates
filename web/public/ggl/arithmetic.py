@@ -173,6 +173,54 @@ class Division(Arithmetic):
 
         return new_work
 
+class Comparator(Arithmetic):
+    """Division performs a / b"""
+    kind = 'Comparator'
+
+    def __init__(self, num_inputs=2, num_outputs=3, label='', bits=1):
+        super().__init__(
+            kind=Comparator.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
+
+    def operator(self, v1, v2):
+        complist = [0,0,0]
+        if v1 > v2:
+            complist[0] = 1
+        elif v1 == v2:
+            complist[1] = 1
+        elif v1 < v2:
+            complist[2] = 1
+        
+        return complist
+    
+    def propagate(self):
+        values = [e.value if e is not None else 0 for e in self.inputs.get_edges()]
+
+        a, b = values[0], values[1]
+
+        greaterThan = self.operator(a, b)[0]
+        equal = self.operator(a, b)[1]
+        lessThan = self.operator(a,b)[2]
+
+        new_work = []
+
+        for edge in self.outputs.points.get('0', []):                               # propagate a > b on output port 0 (first ouput port)
+            edge.propagate(greaterThan)
+            new_work += edge.get_dest_nodes()
+
+        for edge in self.outputs.points.get('1', []):                               # propagate a=b on output port 1 (second output port)
+            edge.propagate(equal)
+            new_work += edge.get_dest_nodes()
+        
+        for edge in self.outputs.points.get('2', []):                               # propagate a < b on output port 2 (third output port)
+            edge.propagate(lessThan)
+            new_work += edge.get_dest_nodes()
+
+        return new_work
+
     """class BarrelShifter(Arithmetic):
 
     class Comparator(Arithmetic):

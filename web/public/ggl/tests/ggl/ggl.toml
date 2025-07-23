@@ -224,3 +224,19 @@ expected = """
 4
 """
 rubric = 1
+
+[[tests]]
+name = "comparator"
+input = ["python3", "$project_tests/comparator.py"]
+expected = """
+1
+0
+0
+0
+0
+1
+0
+1
+0
+"""
+rubric = 1

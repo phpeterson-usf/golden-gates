@@ -1,0 +1,49 @@
+import sys
+sys.path.append('../')
+
+from ggl import circuit
+from ggl import io
+from ggl import arithmetic
+
+
+c = circuit.Circuit()
+
+a = io.Input(bits=4, label="a")
+b = io.Input(bits=4, label="b")
+a.value = 9     
+b.value = 6     
+
+comp = arithmetic.Comparator(bits=4, label="multiply")
+
+greater = io.Output(bits=4, label="greater")
+equal = io.Output(bits=4, label="equal")
+less = io.Output(bits=4, label="less")
+
+
+c.connect(a, comp.input("0"))
+c.connect(b, comp.input("1"))
+c.connect(comp.output("0"),greater)
+c.connect(comp.output("1"),equal)
+c.connect(comp.output("2"),less)
+
+
+c.run()
+print(greater.value)
+print(equal.value)
+print(less.value)
+
+a.value = 6
+b.value = 9
+
+c.run()
+print(greater.value)
+print(equal.value)
+print(less.value)
+
+a.value = 6
+b.value = 6
+
+c.run()
+print(greater.value)
+print(equal.value)
+print(less.value)
