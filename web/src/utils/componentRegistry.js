@@ -345,11 +345,65 @@ export const componentRegistry = {
     }
   },
 
+  decoder: {
+    component: defineAsyncComponent(() => import('../components/Decoder.vue')),
+    label: 'Decoder',
+    icon: 'pi pi-sitemap',
+    category: 'components',
+    requiresNamedPorts: true,
+    defaultProps: {
+      numOutputs: 4,
+      label: 'DEC',
+      rotation: 0
+    },
+    getConnections: props => {
+      const numOutputs = props.numOutputs || 4
+
+      // Single selector input at top center
+      const inputs = [
+        {
+          name: 'sel',
+          x: 2, // Center of 4-unit wide component
+          y: 0
+        }
+      ]
+
+      // Output connections on the right - match Vue component getOutputY method
+      const outputs = []
+      const firstOutputY = 1 // First output at 1 grid unit from top
+      for (let i = 0; i < numOutputs; i++) {
+        outputs.push({
+          name: i.toString(),
+          x: 4,
+          y: firstOutputY + i * 2 // 2 grid units between outputs
+        })
+      }
+
+      return { inputs, outputs }
+    },
+    getDimensions: props => {
+      const numOutputs = props.numOutputs || 4
+      const outputSpacing = 2
+      const baseHeight = (numOutputs - 1) * outputSpacing
+      const totalHeight = Math.max(baseHeight + 2, 4)
+
+      return {
+        width: GRID_SIZE * 4,
+        height: GRID_SIZE * totalHeight
+      }
+    },
+    // Special handling for decoder creation
+    onCreate: (instance, index) => {
+      instance.props.label = instance.props.label || `DEC${index}`
+    }
+  },
+
   register: {
     component: defineAsyncComponent(() => import('../components/Register.vue')),
     label: 'Register',
     icon: 'pi pi-stop',
     category: 'memory',
+    requiresNamedPorts: true,
     defaultProps: {
       bits: 1,
       label: 'REG',

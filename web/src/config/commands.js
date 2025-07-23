@@ -167,6 +167,13 @@ export const commandGroups = {
         componentType: 'multiplexer',
         action: 'addComponent',
         params: ['multiplexer']
+      },
+      {
+        id: 'insert-decoder',
+        labelKey: 'commands.insert.decoder',
+        componentType: 'decoder',
+        action: 'addComponent',
+        params: ['decoder']
       }
     ]
   },

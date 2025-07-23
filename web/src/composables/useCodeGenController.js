@@ -428,15 +428,25 @@ export function useCodeGenController() {
     let sourceExpr = sourceVarName
     let destExpr = destVarName
 
-    // For schematic components, always specify ports since they're circuit.Component objects
-    // For register components, always specify ports since they use named ports
-    // For regular components, only specify ports if there are multiple
-    if (sourceComp.type === 'schematic-component' || sourceComp.type === 'register' || sourceOutputs.length > 1) {
+    // Get component configurations
+    const sourceConfig = componentRegistry[sourceComp.type]
+    const destConfig = componentRegistry[destComp.type]
+
+    // Determine if we need to specify port names
+    const sourceRequiresNamedPorts = sourceComp.type === 'schematic-component' || 
+                                     sourceConfig?.requiresNamedPorts || 
+                                     sourceOutputs.length > 1
+    
+    const destRequiresNamedPorts = destComp.type === 'schematic-component' || 
+                                   destConfig?.requiresNamedPorts || 
+                                   destInputs.length > 1
+
+    if (sourceRequiresNamedPorts) {
       const outputName = getPortName(sourceOutputs, sourcePort, 'output')
       sourceExpr = `${sourceVarName}.output("${outputName}")`
     }
 
-    if (destComp.type === 'schematic-component' || destComp.type === 'register' || destInputs.length > 1) {
+    if (destRequiresNamedPorts) {
       const inputName = getPortName(destInputs, destPort, 'input')
       destExpr = `${destVarName}.input("${inputName}")`
     }

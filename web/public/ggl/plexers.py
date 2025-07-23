@@ -53,7 +53,7 @@ class Decoder(Plexer):
     kind = 'Decoder'
     def __init__(self, num_outputs=0, label='', bits=1):
         super().__init__(
-            Multiplexer.kind,
+            Decoder.kind,
             num_outputs=num_outputs,
             label=label,
             bits=bits)
@@ -114,7 +114,7 @@ class PriorityEncoder(BitsNode):
         for i in input_names:
             edge = self.inputs.points[i]
             if edge.value == 1:
-                inum = int(i)
+                inum = int(i)  # TODO: could raise an exception
                 any = 1
                 break
         inum_edges = self.outputs.points[PriorityEncoder.inum]

@@ -6,6 +6,7 @@ import { LogicGateGenerator } from './LogicGateGenerator'
 import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
 import { MultiplexerGenerator } from './MultiplexerGenerator'
+import { DecoderGenerator } from './DecoderGenerator'
 import { RegisterGenerator } from './RegisterGenerator'
 
 /**
@@ -40,6 +41,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'multiplexer':
       return new MultiplexerGenerator(componentData)
+
+    case 'decoder':
+      return new DecoderGenerator(componentData)
 
     case 'register':
       return new RegisterGenerator(componentData)

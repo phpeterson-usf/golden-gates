@@ -170,6 +170,7 @@
       "splitter": "Splitter",
       "merger": "Merger",
       "multiplexer": "Multiplexer (Mux)",
+      "decoder": "Decoder",
       "register": "Register"
     },
     "commandPalette": {

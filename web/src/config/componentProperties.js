@@ -263,6 +263,25 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Decoder properties
+  decoder: {
+    title: 'Decoder Properties',
+    properties: [
+      { ...commonProperties.label, default: 'DEC' },
+      {
+        name: 'numOutputs',
+        type: 'number',
+        label: 'Number of Outputs',
+        default: 4,
+        min: 2,
+        max: 16,
+        step: 1,
+        reactive: true
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // Register properties
   register: {
     title: 'Register Properties',
