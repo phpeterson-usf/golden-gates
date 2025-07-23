@@ -19,10 +19,10 @@ quotient = io.Output(bits=4, label="quotient")
 remainder = io.Output(bits=4, label="remainder")
 
 
-c.connect(a, div.input("0"))
-c.connect(b, div.input("1"))
-c.connect(div.output("0"), quotient)
-c.connect(div.output("1"), remainder)
+c.connect(a, div.input('a'))
+c.connect(b, div.input('b'))
+c.connect(div.output('quotient'), quotient)
+c.connect(div.output('remainder'), remainder)
 
 
 c.run()

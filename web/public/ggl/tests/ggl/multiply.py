@@ -18,9 +18,9 @@ multiply = arithmetic.Multiply(bits=4, label="multiply")
 product = io.Output(bits=4, label="product")
 
 
-c.connect(a, multiply.input("0"))
-c.connect(b, multiply.input("1"))
-c.connect(multiply.output("0"), product)
+c.connect(a, multiply.input('a'))
+c.connect(b, multiply.input('b'))
+c.connect(multiply.output('product'), product)
 
 
 c.run()

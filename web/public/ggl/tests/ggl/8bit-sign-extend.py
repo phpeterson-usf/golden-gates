@@ -10,7 +10,7 @@ g = arithmetic.SignExtend(bits=8, label='r',input_width=8,output_width=16)
 
 a = io.Input(bits=8, label='a')
 a.value = 0b10011011                # 155
-c.connect(a, g.input("0"))
+c.connect(a, g.input('in'))
 
 r = io.Output(bits=16, label='r')
 c.connect(g, r)

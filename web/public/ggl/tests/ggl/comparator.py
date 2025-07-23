@@ -20,11 +20,11 @@ equal = io.Output(bits=4, label="equal")
 less = io.Output(bits=4, label="less")
 
 
-c.connect(a, comp.input("0"))
-c.connect(b, comp.input("1"))
-c.connect(comp.output("0"),greater)
-c.connect(comp.output("1"),equal)
-c.connect(comp.output("2"),less)
+c.connect(a, comp.input('a'))
+c.connect(b, comp.input('b'))
+c.connect(comp.output('gt'),greater)
+c.connect(comp.output('eq'),equal)
+c.connect(comp.output('lt'),less)
 
 
 c.run()

@@ -19,9 +19,10 @@ sum = io.Output(bits=4, label="sum")
 cout = io.Output(bits=1, label="carryOut")
 
 
-c.connect(a, adder.input("0"))
-c.connect(b, adder.input("1"))
-c.connect(adder.output("0"), sum)
+c.connect(a, adder.input('a'))
+c.connect(b, adder.input('b'))
+c.connect(adder.output('sum'), sum)
+c.connect(adder.output('carryOut'), cout)
 
 
 c.run()
