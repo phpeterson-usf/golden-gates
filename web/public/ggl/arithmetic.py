@@ -33,6 +33,7 @@ class Arithmetic(BitsNode):
             return []
 
         a, b = values[0], values[1]
+        
         carryIn = values[2] if len(values) > 2 else 0
 
         result = self.operator(a, b, carryIn)
@@ -174,7 +175,7 @@ class Division(Arithmetic):
         return new_work
 
 class Comparator(Arithmetic):
-    """Division performs a / b"""
+    """Compares values a and b"""
     kind = 'Comparator'
 
     def __init__(self, num_inputs=2, num_outputs=3, label='', bits=1):
@@ -221,12 +222,48 @@ class Comparator(Arithmetic):
 
         return new_work
 
-    """class BarrelShifter(Arithmetic):
+class BarrelShifter(Arithmetic):
+    """Shift a 'b' amount of times to either the right or left"""
+    kind = 'BarrelShifter'
 
-    class Comparator(Arithmetic):
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1):
+        super().__init__(
+            kind=BarrelShifter.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
 
-    class Negation(Arithmetic):
+    def operator(self, v1, v2):
+        return v1 * v2
 
-    class SignExtend(Arithmetic):
+class Negation(Arithmetic):
+    """Performs negation of input"""
+    kind = 'Negation'
+
+    def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1):
+        super().__init__(
+            kind=Negation.kind,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits)
+
+    def operator(self, v1):
+        return (-v1) & ((1 << self.bits) - 1)                                       # same as not in logic gate
+    
+    def propagate(self):
+        edge = self.inputs.get_edges()[0]
+        value = edge.value if edge is not None else 0
+        result = self.operator(value)
+
+        new_work = []
+        edges = self.outputs.points.get('0', [])
+        for edge in edges:
+            edge.propagate(result)
+            new_work += edge.get_dest_nodes()
+        return new_work
+    
+    """class SignExtend(Arithmetic):
 
     class BitCounter(Arithmetic):"""

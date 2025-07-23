@@ -240,3 +240,9 @@ expected = """
 0
 """
 rubric = 1
+
+[[tests]]
+name = "negation"
+input = ["python3", "$project_tests/negation.py"]
+expected = "101"
+rubric = 1
