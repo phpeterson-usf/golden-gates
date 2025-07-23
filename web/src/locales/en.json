@@ -171,6 +171,7 @@
       "merger": "Merger",
       "multiplexer": "Multiplexer (Mux)",
       "decoder": "Decoder",
+      "priorityEncoder": "Priority Encoder",
       "register": "Register"
     },
     "commandPalette": {

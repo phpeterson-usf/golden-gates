@@ -7,6 +7,7 @@ import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
 import { MultiplexerGenerator } from './MultiplexerGenerator'
 import { DecoderGenerator } from './DecoderGenerator'
+import { PriorityEncoderGenerator } from './PriorityEncoderGenerator'
 import { RegisterGenerator } from './RegisterGenerator'
 
 /**
@@ -44,6 +45,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'decoder':
       return new DecoderGenerator(componentData)
+
+    case 'priorityEncoder':
+      return new PriorityEncoderGenerator(componentData)
 
     case 'register':
       return new RegisterGenerator(componentData)

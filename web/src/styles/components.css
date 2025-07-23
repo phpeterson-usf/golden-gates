@@ -129,6 +129,18 @@
 .component-label {
   font-family: monospace;
   font-size: 12px;
+  font-weight: normal;
+  fill: var(--component-text-color, #000);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Port label styles for component inputs/outputs */
+.port-label {
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: normal;
+  fill: var(--component-text-color, #000);
   pointer-events: none;
   user-select: none;
 }
@@ -157,6 +169,24 @@
   font-weight: normal;
   pointer-events: none;
   user-select: none;
+}
+
+/* Output value display - regular weight by default */
+.output-value {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Value update animation for outputs - bold during pulse animation only */
+.value-updated {
+  animation: valueUpdate 1s ease-out;
+  font-weight: bold;
+  fill: #3b82f6 !important;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
 }
 
 /* Wire styles (for future use) */

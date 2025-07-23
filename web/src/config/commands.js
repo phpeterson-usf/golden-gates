@@ -174,6 +174,13 @@ export const commandGroups = {
         componentType: 'decoder',
         action: 'addComponent',
         params: ['decoder']
+      },
+      {
+        id: 'insert-priority-encoder',
+        labelKey: 'commands.insert.priorityEncoder',
+        componentType: 'priorityEncoder',
+        action: 'addComponent',
+        params: ['priorityEncoder']
       }
     ]
   },

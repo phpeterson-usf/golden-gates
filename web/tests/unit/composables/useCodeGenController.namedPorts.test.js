@@ -98,6 +98,57 @@ describe('Named Ports Code Generation', () => {
       expect(code).toContain('reg0.output("Q")')
     })
 
+    it('generates named ports for priority encoder regardless of port count', () => {
+      const components = [
+        {
+          id: 'input-1',
+          type: 'input',
+          x: 0,
+          y: 0,
+          props: { bits: 1, label: 'IN' }
+        },
+        {
+          id: 'priorityEncoder-1',
+          type: 'priorityEncoder',
+          x: 4,
+          y: 0,
+          props: { numInputs: 4, label: 'PE' }
+        },
+        {
+          id: 'output-1',
+          type: 'output',
+          x: 10,
+          y: 0,
+          props: { bits: 2, label: 'INUM' }
+        }
+      ]
+
+      const wires = [
+        {
+          startConnection: { pos: { x: 1, y: 0 }, portIndex: 0, portType: 'output' },
+          endConnection: { pos: { x: 4, y: 1 }, portIndex: 0, portType: 'input' }
+        },
+        {
+          startConnection: { pos: { x: 7, y: 3 }, portIndex: 0, portType: 'output' },
+          endConnection: { pos: { x: 10, y: 0 }, portIndex: 0, portType: 'input' }
+        }
+      ]
+
+      const code = codeGenController.generateGglProgram(
+        components,
+        wires,
+        [],
+        {},
+        {},
+        null,
+        false
+      )
+
+      // Priority encoder should use named input and output
+      expect(code).toContain('priorityEncoder0.input("0")')
+      expect(code).toContain('priorityEncoder0.output("inum")')
+    })
+
     it('components without requiresNamedPorts use simple connections when single port', () => {
       const components = [
         {

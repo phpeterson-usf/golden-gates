@@ -293,6 +293,25 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Priority Encoder properties
+  priorityEncoder: {
+    title: 'Priority Encoder Properties',
+    properties: [
+      { ...commonProperties.label, default: 'PE' },
+      {
+        name: 'numInputs',
+        type: 'number',
+        label: 'Number of Inputs',
+        default: 4,
+        min: 2,
+        max: 16,
+        step: 1,
+        reactive: true
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // Register properties
   register: {
     title: 'Register Properties',

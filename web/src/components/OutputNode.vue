@@ -7,7 +7,7 @@
         :x="(GRID_SIZE + 5) / 2"
         y="-15"
         text-anchor="middle"
-        :class="['component-value', { 'value-updated': valueChanged }]"
+        :class="['output-value', { 'value-updated': valueChanged }]"
       >
         {{ formattedValue }}
       </text>
@@ -152,11 +152,5 @@ export default defineComponent({
   }
 }
 
-.value-updated {
-  animation: valueUpdate 1s ease-out;
-  font-weight: bold;
-  fill: #3b82f6 !important;
-  transform-origin: 50% 50%;
-  transform-box: fill-box;
-}
+/* Output-specific styles - value-updated uses centralized styles from components.css */
 </style>

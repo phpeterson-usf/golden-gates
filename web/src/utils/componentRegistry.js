@@ -435,6 +435,69 @@ export const componentRegistry = {
     }
   },
 
+  priorityEncoder: {
+    component: defineAsyncComponent(() => import('../components/PriorityEncoder.vue')),
+    label: 'Priority Encoder',
+    icon: 'pi pi-list',
+    category: 'components',
+    requiresNamedPorts: true,
+    defaultProps: {
+      numInputs: 4,
+      label: 'PE',
+      rotation: 0
+    },
+    getConnections: props => {
+      const numInputs = props.numInputs || 4
+      
+      // Calculate height same as Vue component
+      const inputSpacing = 2
+      const baseHeight = (numInputs - 1) * inputSpacing
+      const totalHeight = Math.max(baseHeight + 2, 6)
+
+      // Input connections on the left - numbered inputs
+      const inputs = []
+      const margin = 1 // 1 grid unit margin from top
+      for (let i = 0; i < numInputs; i++) {
+        inputs.push({
+          name: i.toString(),
+          x: 0,
+          y: margin + i * 2 // 2 grid units between inputs
+        })
+      }
+
+      // Two fixed outputs on the right: inum and any
+      const outputs = [
+        {
+          name: 'inum',
+          x: 3, // Right edge of 3-unit wide component
+          y: Math.round(totalHeight / 3) // 1/3 height
+        },
+        {
+          name: 'any',
+          x: 3, // Right edge of 3-unit wide component  
+          y: Math.round((totalHeight * 2) / 3) // 2/3 height
+        }
+      ]
+
+      return { inputs, outputs }
+    },
+    getDimensions: props => {
+      const numInputs = props.numInputs || 4
+      const inputSpacing = 2
+      const baseHeight = (numInputs - 1) * inputSpacing
+      const totalHeight = Math.max(baseHeight + 2, 6)
+
+      return {
+        width: GRID_SIZE * 3, // 3 grid units wide
+        height: GRID_SIZE * totalHeight
+      }
+    },
+    // Special handling for priority encoder creation
+    onCreate: (instance, index) => {
+      instance.props.label = instance.props.label || `PE${index}`
+    }
+  },
+
   'schematic-component': {
     component: defineAsyncComponent(() => import('../components/SchematicComponent.vue')),
     label: 'Schematic Component',

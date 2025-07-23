@@ -195,17 +195,5 @@ export default defineComponent({
 <style scoped>
 @import '../styles/components.css';
 
-.port-label {
-  font-family: monospace;
-  font-weight: bold;
-  fill: var(--component-text-color, #000);
-  pointer-events: none;
-}
-
-.component-label {
-  font-family: monospace;
-  font-weight: bold;
-  fill: var(--component-text-color, #000);
-  pointer-events: none;
-}
+/* Register-specific styles - component and port labels use centralized styles from components.css */
 </style>
