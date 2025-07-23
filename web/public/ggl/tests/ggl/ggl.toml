@@ -164,6 +164,35 @@ expected = "0xBB"
 rubric = 1
 
 [[tests]]
+name = "decoder-4out"
+input = ["python3", "$project_tests/decoder-4out.py"]
+expected = """
+0
+0
+1
+0
+"""
+rubric = 1
+
+[[tests]]
+name = "priority-4in"
+input = ["python3", "$project_tests/priority-4in.py"]
+expected = """
+1
+1
+"""
+rubric = 1
+
+[[tests]]
+name = "priority-4in-none-out"
+input = ["python3", "$project_tests/priority-4in-none-out.py"]
+expected = """
+0
+0
+"""
+rubric = 1
+
+[[tests]]
 name = "reg-8bit"
 input = ["python3", "$project_tests/reg-8bit.py"]
 expected = "0xAB"
