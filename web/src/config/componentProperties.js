@@ -317,8 +317,38 @@ export const componentPropertySchema = {
     title: 'Register Properties',
     properties: [
       { ...commonProperties.label, default: 'REG' },
-      commonProperties.bits,
-      commonProperties.rotation
+      commonProperties.bits
+    ]
+  },
+
+  // ROM properties
+  rom: {
+    title: 'ROM Properties',
+    properties: [
+      { ...commonProperties.label, default: 'ROM' },
+      {
+        name: 'addressBits',
+        type: 'number',
+        label: 'Address Bits',
+        default: 4,
+        min: 1,
+        max: 16,
+        showButtons: true
+      },
+      {
+        name: 'dataBits',
+        type: 'number',
+        label: 'Data Bits',
+        default: 8,
+        min: 1,
+        max: 32,
+        showButtons: true
+      },
+      {
+        name: 'data',
+        type: 'memory-data-table',
+        label: 'Memory Contents'
+      }
     ]
   },
 

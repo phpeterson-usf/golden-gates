@@ -81,3 +81,13 @@ export interface RegisterComponentData extends ComponentData {
     rotation?: 0 | 90 | 180 | 270
   }
 }
+
+export interface ROMComponentData extends ComponentData {
+  props: {
+    label?: string
+    addressBits?: number
+    dataBits?: number
+    data?: number[]
+    rotation?: 0 | 90 | 180 | 270
+  }
+}

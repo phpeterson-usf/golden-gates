@@ -193,6 +193,13 @@ export const commandGroups = {
         componentType: 'register',
         action: 'addComponent',
         params: ['register']
+      },
+      {
+        id: 'insert-rom',
+        labelKey: 'commands.insert.rom',
+        componentType: 'rom',
+        action: 'addComponent',
+        params: ['rom']
       }
     ]
   }

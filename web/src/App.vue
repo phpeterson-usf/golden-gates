@@ -66,10 +66,15 @@
         </div>
       </div>
 
-      <div v-if="inspectorVisible" class="inspector-panel">
-        <button class="inspector-close" @click="inspectorVisible = false">
-          <i class="pi pi-times"></i>
-        </button>
+      <div v-if="inspectorVisible" class="inspector-panel" :style="inspectorPanelStyle">
+        <div class="inspector-header">
+          <button class="inspector-expand" @click="inspectorExpanded = !inspectorExpanded" :title="inspectorExpanded ? 'Collapse Inspector' : 'Expand Inspector'">
+            <i :class="inspectorExpanded ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"></i>
+          </button>
+          <button class="inspector-close" @click="inspectorVisible = false">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
         <ComponentInspector
           :component="selectedComponent"
           :circuit="selectedCircuit"
@@ -215,6 +220,7 @@ export default {
   data() {
     return {
       inspectorVisible: true,
+      inspectorExpanded: false,
       selectedComponent: null,
       selectedCircuit: null,
       isDraggingOver: false,
@@ -222,6 +228,14 @@ export default {
       beforeUnloadHandler: null,
       showAutosaveDialog: false,
       availableAutosaves: []
+    }
+  },
+  computed: {
+    inspectorPanelStyle() {
+      const width = this.inspectorExpanded ? 440 : 220  // Exactly double the normal width
+      return {
+        width: width + 'px'
+      }
     }
   },
   methods: {
@@ -590,7 +604,8 @@ export default {
       if (!this.selectedComponent && newCircuit) {
         this.selectedCircuit = newCircuit
       }
-    }
+    },
+
   },
 
   beforeUnmount() {
@@ -744,19 +759,26 @@ body {
 
 /* Inspector panel styles */
 .inspector-panel {
-  width: 220px;
   flex-shrink: 0;
   background-color: #ffffff;
   border-left: 1px solid #e2e8f0;
   box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   position: relative;
+  transition: width 0.2s ease;
 }
 
+.inspector-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.inspector-expand,
 .inspector-close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
   width: 24px;
   height: 24px;
   border: none;
@@ -769,9 +791,11 @@ body {
   justify-content: center;
   border-radius: 4px;
   transition: all 0.2s;
-  z-index: 1;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
+.inspector-expand:hover,
 .inspector-close:hover {
   background-color: #f3f4f6;
   color: #374151;

@@ -13,6 +13,7 @@ import Decoder from '../components/Decoder.vue'
 import Register from '../components/Register.vue'
 import PriorityEncoder from '../components/PriorityEncoder.vue'
 import SchematicComponent from '../components/SchematicComponent.vue'
+import ROM from '../components/ROM.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -424,8 +425,7 @@ export const componentRegistry = {
     requiresNamedPorts: true,
     defaultProps: {
       bits: 1,
-      label: 'REG',
-      rotation: 0
+      label: 'REG'
     },
     dimensions: {
       width: GRID_SIZE * 4,
@@ -443,6 +443,54 @@ export const componentRegistry = {
     },
     onCreate: (instance, index) => {
       instance.props.label = `REG${index}`
+    }
+  },
+
+  rom: {
+    component: ROM,
+    label: 'ROM',
+    icon: 'pi pi-database',
+    category: 'memory',
+    requiresNamedPorts: true,
+    defaultProps: {
+      addressBits: 4,
+      dataBits: 8,
+      data: [],
+      label: 'ROM'
+    },
+    // Dynamic connections based on addressBits
+    getConnections: props => {
+      const addressBits = props.addressBits || 4
+      // Dynamic size based on address bits (min 4x5 to accommodate 2 grid unit spacing)
+      const width = Math.max(4, Math.ceil(addressBits / 2))
+      const height = Math.max(5, Math.ceil(addressBits / 2) + 1)
+      
+      return {
+        inputs: [
+          { name: 'A', x: 0, y: 1.5 },    // Address input
+          { name: 'sel', x: 0, y: 3.5 }   // Select input (2 grid units apart)
+        ],
+        outputs: [
+          { name: 'D', x: width, y: height / 2 }  // Data output (center right)
+        ]
+      }
+    },
+    getDimensions: props => {
+      const addressBits = props.addressBits || 4
+      // Dynamic size based on address bits (min 4x4)
+      const width = Math.max(4, Math.ceil(addressBits / 2))
+      const height = Math.max(4, Math.ceil(addressBits / 2))
+      
+      return {
+        width: width * GRID_SIZE,
+        height: height * GRID_SIZE
+      }
+    },
+    onCreate: (instance, index) => {
+      instance.props.label = `ROM${index}`
+      // Initialize empty data array
+      const totalCells = Math.pow(2, instance.props.addressBits || 4)
+      instance.props.data = new Array(totalCells).fill(0)
     }
   },
 

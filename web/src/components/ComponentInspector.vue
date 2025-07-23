@@ -144,6 +144,15 @@
             optionValue="value"
             class="property-input"
           />
+
+          <!-- Memory data table for ROM/RAM -->
+          <MemoryDataTable
+            v-else-if="prop.type === 'memory-data-table'"
+            :modelValue="getPropValue(prop.name, [])"
+            :addressBits="getPropValue('addressBits', 4)"
+            :dataBits="getPropValue('dataBits', 8)"
+            @update:modelValue="updateProp(prop.name, $event)"
+          />
         </div>
       </div>
 
@@ -164,6 +173,7 @@ import RotationSelector from './RotationSelector.vue'
 import InvertedInputsSelector from './InvertedInputsSelector.vue'
 import BitRangeTable from './BitRangeTable.vue'
 import PythonIdentifierInput from './PythonIdentifierInput.vue'
+import MemoryDataTable from './MemoryDataTable.vue'
 import Textarea from 'primevue/textarea'
 import Dropdown from 'primevue/dropdown'
 
@@ -176,6 +186,7 @@ export default {
     InvertedInputsSelector,
     BitRangeTable,
     PythonIdentifierInput,
+    MemoryDataTable,
     Textarea,
     Dropdown
   },
