@@ -22,7 +22,7 @@ export class MultiplexerGenerator extends BaseComponentGenerator {
 
     // Build parameters
     const params: string[] = []
-    params.push(`n_inputs=${this.numInputs}`)
+    params.push(`num_inputs=${this.numInputs}`)
     if (this.bits > 1) params.push(`bits=${this.bits}`)
     if (this.label) params.push(`label="${this.label}"`)
 

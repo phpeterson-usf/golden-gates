@@ -2,12 +2,9 @@
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on component -->
     <g :transform="`rotate(${rotation}, ${width * GRID_SIZE / 2}, ${height * GRID_SIZE / 2})`">
-      <!-- Decoder body (rectangle) -->
-      <rect
-        :x="0"
-        :y="0"
-        :width="width * GRID_SIZE"
-        :height="height * GRID_SIZE"
+      <!-- Decoder body (trapezoid - mirror of multiplexer) -->
+      <path
+        :d="decoderPath"
         :fill="fillColor"
         :stroke="strokeColor"
         :stroke-width="strokeWidth"
@@ -40,6 +37,17 @@
           data-type="output"
         />
       </template>
+
+      <!-- Output 0 label -->
+      <text 
+        :x="width * GRID_SIZE - 8" 
+        :y="getOutputY(0) + 4" 
+        text-anchor="middle" 
+        font-size="10" 
+        class="component-label"
+      >
+        0
+      </text>
 
       <!-- Component label (centered) -->
       <text
@@ -76,6 +84,11 @@ export default defineComponent({
       type: String,
       default: 'DEC'
     },
+    selectorPosition: {
+      type: String,
+      default: 'bottom',
+      validator: (value: string) => ['top', 'bottom'].includes(value)
+    },
     rotation: {
       type: Number,
       default: 0
@@ -97,22 +110,42 @@ export default defineComponent({
     }
   },
   computed: {
-    // Decoder is 4 grid units wide for better proportions, height based on number of outputs
+    // Decoder is 2 grid units wide to match multiplexer, height based on number of outputs
     width() {
-      return 4
+      return 2
     },
-    height() {
-      // Height = (numOutputs - 1) * 2 + 2 for proper spacing with grid alignment
+    totalHeight() {
+      // Ensure outputs are spaced 2 grid units apart
       const outputSpacing = 2 // 2 grid units between outputs
       const baseHeight = (this.numOutputs - 1) * outputSpacing
       return Math.max(baseHeight + 2, 4) // Ensure minimum height of 4 grid units
     },
-    // Selector input position (top center, on grid vertex)
+    height() {
+      return this.totalHeight
+    },
+    // SVG path for the decoder shape (trapezoid - mirror of multiplexer)
+    decoderPath() {
+      const w = this.width * GRID_SIZE
+      const h = this.totalHeight * GRID_SIZE
+      const slant = GRID_SIZE / 2 // How much the diagonal slants inward
+      
+      // Decoder shape: narrow on left, wide on right (mirror of multiplexer)
+      // Multiplexer has vertical left, diagonal right: M 0 0, L w slant, L w (h-slant), L 0 h
+      // Decoder should have diagonal left, vertical right: M 0 slant, L w 0, L w h, L 0 (h-slant)
+      return `
+        M 0 ${slant}
+        L ${w} 0
+        L ${w} ${h}
+        L 0 ${h - slant}
+        Z
+      `
+    },
+    // Selector input position (center, top or bottom based on prop)
     selInputX() {
-      return GRID_SIZE * 2 // Center of 4-unit wide component
+      return GRID_SIZE * 1 // Center of 2-unit wide component
     },
     selInputY() {
-      return 0 // Top edge
+      return this.selectorPosition === 'top' ? 0 : this.totalHeight * GRID_SIZE
     }
   },
   methods: {

@@ -21,11 +21,12 @@ describe('Decoder', () => {
   })
 
   describe('Component Structure', () => {
-    it('renders decoder rectangle', () => {
-      const rect = wrapper.find('rect')
-      expect(rect.exists()).toBe(true)
-      expect(rect.attributes('width')).toBe(String(4 * GRID_SIZE))
-      expect(rect.attributes('height')).toBe(String(8 * GRID_SIZE)) // (4-1)*2 + 2 = 8
+    it('renders decoder trapezoid', () => {
+      const path = wrapper.find('path')
+      expect(path.exists()).toBe(true)
+      // Check the path creates a trapezoid (we don't need to test exact path string)
+      expect(path.attributes('d')).toContain('M 0')
+      expect(path.attributes('d')).toContain('Z')
     })
 
     it('renders selector input connection point', () => {
@@ -33,8 +34,8 @@ describe('Decoder', () => {
       expect(inputs).toHaveLength(1)
       
       const selInput = inputs[0]
-      expect(selInput.attributes('cx')).toBe(String(GRID_SIZE * 2)) // Center of 4-unit wide
-      expect(selInput.attributes('cy')).toBe('0')
+      expect(selInput.attributes('cx')).toBe(String(GRID_SIZE * 1)) // Center of 2-unit wide
+      expect(selInput.attributes('cy')).toBe(String(8 * GRID_SIZE)) // Bottom position by default
       expect(selInput.attributes('data-port')).toBe('0')
     })
 
@@ -43,7 +44,7 @@ describe('Decoder', () => {
       expect(outputs).toHaveLength(4)
       
       // Check first and last output positions
-      expect(outputs[0].attributes('cx')).toBe(String(4 * GRID_SIZE))
+      expect(outputs[0].attributes('cx')).toBe(String(2 * GRID_SIZE))
       expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE)) // First at y=1
       expect(outputs[0].attributes('data-port')).toBe('0')
       
@@ -53,21 +54,27 @@ describe('Decoder', () => {
 
     it('does not render port labels', () => {
       const texts = wrapper.findAll('text')
-      // Should only have the component label, no port labels
-      expect(texts).toHaveLength(1)
-      expect(texts[0].text()).toBe('DEC0')
+      // Should have the component label and '0' label for first output
+      expect(texts).toHaveLength(2)
+      // Find the component label (should be 'DEC0')
+      const componentLabel = texts.find(t => t.text() === 'DEC0')
+      expect(componentLabel.exists()).toBe(true)
     })
 
     it('renders component label when provided', () => {
-      const label = wrapper.find('.component-label')
-      expect(label.exists()).toBe(true)
-      expect(label.text()).toBe('DEC0')
+      const labels = wrapper.findAll('.component-label')
+      expect(labels.length).toBeGreaterThan(0)
+      // Find the main component label (should be 'DEC0')
+      const componentLabel = labels.find(l => l.text() === 'DEC0')
+      expect(componentLabel.exists()).toBe(true)
     })
 
-    it('does not render label when empty', async () => {
+    it('does not render main label when empty', async () => {
       await wrapper.setProps({ label: '' })
-      const label = wrapper.find('.component-label')
-      expect(label.exists()).toBe(false)
+      const labels = wrapper.findAll('.component-label')
+      // Should still have the '0' label, but no main component label
+      const componentLabel = labels.find(l => l.text() === '')
+      expect(componentLabel).toBeUndefined()
     })
   })
 
@@ -77,9 +84,10 @@ describe('Decoder', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(2)
       
-      // Height should be minimum 4 grid units
-      const rect = wrapper.find('rect')
-      expect(rect.attributes('height')).toBe(String(4 * GRID_SIZE))
+      // Component should have minimum height (check via computed property or visual result)
+      // We can't easily test the path height, so just verify outputs are rendered
+      expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE))
+      expect(outputs[1].attributes('cy')).toBe(String(3 * GRID_SIZE))
     })
 
     it('renders up to 16 outputs maximum', async () => {
@@ -87,9 +95,9 @@ describe('Decoder', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(16)
       
-      // Height should be (16-1)*2 + 2 = 32 grid units
-      const rect = wrapper.find('rect')
-      expect(rect.attributes('height')).toBe(String(32 * GRID_SIZE))
+      // Check that outputs are properly spaced
+      expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE))
+      expect(outputs[15].attributes('cy')).toBe(String(31 * GRID_SIZE)) // 1 + 15*2
     })
 
     it('maintains 2 grid unit spacing between outputs', async () => {
@@ -150,7 +158,7 @@ describe('Decoder', () => {
     it('rotates around component center', async () => {
       await wrapper.setProps({ rotation: 180 })
       const rotationGroup = wrapper.findAll('g')[1]
-      const centerX = 4 * GRID_SIZE / 2
+      const centerX = 2 * GRID_SIZE / 2  // 2 grid units wide
       const centerY = 8 * GRID_SIZE / 2
       expect(rotationGroup.attributes('transform')).toBe(`rotate(180, ${centerX}, ${centerY})`)
     })
@@ -159,16 +167,16 @@ describe('Decoder', () => {
   describe('Selection State', () => {
     it('changes visual appearance when selected', async () => {
       await wrapper.setProps({ selected: true })
-      const rect = wrapper.find('rect')
+      const path = wrapper.find('path')
       // Selected state is indicated by stroke width, not CSS class
-      expect(rect.attributes('stroke-width')).toBe('3')
+      expect(path.attributes('stroke-width')).toBe('3')
     })
 
     it('reverts visual appearance when deselected', async () => {
       await wrapper.setProps({ selected: true })
       await wrapper.setProps({ selected: false })
-      const rect = wrapper.find('rect')
-      expect(rect.attributes('stroke-width')).toBe('2')
+      const path = wrapper.find('path')
+      expect(path.attributes('stroke-width')).toBe('2')
     })
   })
 

@@ -354,17 +354,24 @@ export const componentRegistry = {
     defaultProps: {
       numOutputs: 4,
       label: 'DEC',
+      selectorPosition: 'bottom',
       rotation: 0
     },
     getConnections: props => {
       const numOutputs = props.numOutputs || 4
+      const selectorPosition = props.selectorPosition || 'bottom'
+      
+      // Calculate height same as Vue component
+      const outputSpacing = 2
+      const baseHeight = (numOutputs - 1) * outputSpacing
+      const totalHeight = Math.max(baseHeight + 2, 4)
 
-      // Single selector input at top center
+      // Single selector input at center, top or bottom based on prop
       const inputs = [
         {
           name: 'sel',
-          x: 2, // Center of 4-unit wide component
-          y: 0
+          x: 1, // Center of 2-unit wide component
+          y: selectorPosition === 'top' ? 0 : totalHeight
         }
       ]
 
@@ -374,7 +381,7 @@ export const componentRegistry = {
       for (let i = 0; i < numOutputs; i++) {
         outputs.push({
           name: i.toString(),
-          x: 4,
+          x: 2, // Right edge of 2-unit wide component
           y: firstOutputY + i * 2 // 2 grid units between outputs
         })
       }
@@ -388,7 +395,7 @@ export const componentRegistry = {
       const totalHeight = Math.max(baseHeight + 2, 4)
 
       return {
-        width: GRID_SIZE * 4,
+        width: GRID_SIZE * 2, // Match multiplexer width
         height: GRID_SIZE * totalHeight
       }
     },

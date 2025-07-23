@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
 import { useCanvasController } from '@/composables/useCanvasController'
 import { useCircuitModel } from '@/composables/useCircuitModel'
 import { useClipboard } from '@/composables/useClipboard'
+import { mockClipboardAPI } from '../fixtures/clipboard-test-data'
 
 describe('Clipboard Integration Tests', () => {
   let circuitModel
@@ -11,6 +12,11 @@ describe('Clipboard Integration Tests', () => {
   let mockSelection
 
   beforeEach(() => {
+    // Setup clipboard mocks
+    global.navigator.clipboard = mockClipboardAPI.createMockNavigatorClipboard()
+    global.document.execCommand = mockClipboardAPI.createMockExecCommand()
+    vi.clearAllMocks()
+
     // Create real circuit model
     circuitModel = useCircuitModel()
     activeCircuit = circuitModel.activeCircuit
@@ -239,6 +245,9 @@ describe('Clipboard Integration Tests', () => {
 
   describe('Error Cases', () => {
     it('should handle paste with no clipboard data', async () => {
+      // Override the clipboard mock to return empty/null data for this test
+      global.navigator.clipboard.readText = vi.fn().mockResolvedValue('')
+      
       // Don't copy anything first
       const result = await canvasController.pasteFromClipboard()
       

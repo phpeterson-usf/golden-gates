@@ -41,7 +41,7 @@ describe('Named Ports Code Generation', () => {
       const wires = [
         {
           startConnection: { pos: { x: 1, y: 0 }, portIndex: 0, portType: 'output' },
-          endConnection: { pos: { x: 6, y: 0 }, portIndex: 0, portType: 'input' }
+          endConnection: { pos: { x: 5, y: 8 }, portIndex: 0, portType: 'input' }
         }
       ]
 

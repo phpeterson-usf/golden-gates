@@ -18,6 +18,7 @@ describe('Decoder Integration', () => {
       expect(config.defaultProps).toEqual({
         numOutputs: 4,
         label: 'DEC',
+        selectorPosition: 'bottom',
         rotation: 0
       })
     })
@@ -29,15 +30,15 @@ describe('Decoder Integration', () => {
       expect(connections.inputs).toHaveLength(1)
       expect(connections.inputs[0]).toEqual({
         name: 'sel',
-        x: 2,
-        y: 0
+        x: 1,
+        y: 8
       })
       
       expect(connections.outputs).toHaveLength(4)
-      expect(connections.outputs[0]).toEqual({ name: '0', x: 4, y: 1 })
-      expect(connections.outputs[1]).toEqual({ name: '1', x: 4, y: 3 })
-      expect(connections.outputs[2]).toEqual({ name: '2', x: 4, y: 5 })
-      expect(connections.outputs[3]).toEqual({ name: '3', x: 4, y: 7 })
+      expect(connections.outputs[0]).toEqual({ name: '0', x: 2, y: 1 })
+      expect(connections.outputs[1]).toEqual({ name: '1', x: 2, y: 3 })
+      expect(connections.outputs[2]).toEqual({ name: '2', x: 2, y: 5 })
+      expect(connections.outputs[3]).toEqual({ name: '3', x: 2, y: 7 })
     })
 
     it('calculates correct dimensions', () => {
@@ -45,17 +46,17 @@ describe('Decoder Integration', () => {
       
       // Test with 4 outputs
       let dims = config.getDimensions({ numOutputs: 4 })
-      expect(dims.width).toBe(60) // 4 * GRID_SIZE (15)
+      expect(dims.width).toBe(30) // 2 * GRID_SIZE (15)
       expect(dims.height).toBe(120) // 8 * GRID_SIZE
       
       // Test with 2 outputs (minimum)
       dims = config.getDimensions({ numOutputs: 2 })
-      expect(dims.width).toBe(60)
+      expect(dims.width).toBe(30)
       expect(dims.height).toBe(60) // Minimum 4 grid units * 15
       
       // Test with 8 outputs
       dims = config.getDimensions({ numOutputs: 8 })
-      expect(dims.width).toBe(60)
+      expect(dims.width).toBe(30)
       expect(dims.height).toBe(240) // ((8-1)*2 + 2) * GRID_SIZE
     })
   })
@@ -89,10 +90,10 @@ describe('Decoder Integration', () => {
       const wires = [
         {
           startConnection: { pos: { x: 1, y: 0 }, portIndex: 0, portType: 'output' },
-          endConnection: { pos: { x: 6, y: 0 }, portIndex: 0, portType: 'input' }
+          endConnection: { pos: { x: 5, y: 8 }, portIndex: 0, portType: 'input' }
         },
         {
-          startConnection: { pos: { x: 8, y: 1 }, portIndex: 0, portType: 'output' },
+          startConnection: { pos: { x: 6, y: 1 }, portIndex: 0, portType: 'output' },
           endConnection: { pos: { x: 10, y: 0 }, portIndex: 0, portType: 'input' }
         }
       ]
@@ -149,15 +150,15 @@ describe('Decoder Integration', () => {
 
       const wires = [
         {
-          startConnection: { pos: { x: 8, y: 1 }, portIndex: 0, portType: 'output' },
+          startConnection: { pos: { x: 6, y: 1 }, portIndex: 0, portType: 'output' },
           endConnection: { pos: { x: 10, y: 0 }, portIndex: 0, portType: 'input' }
         },
         {
-          startConnection: { pos: { x: 8, y: 3 }, portIndex: 1, portType: 'output' },
+          startConnection: { pos: { x: 6, y: 3 }, portIndex: 1, portType: 'output' },
           endConnection: { pos: { x: 10, y: 2 }, portIndex: 0, portType: 'input' }
         },
         {
-          startConnection: { pos: { x: 8, y: 5 }, portIndex: 2, portType: 'output' },
+          startConnection: { pos: { x: 6, y: 5 }, portIndex: 2, portType: 'output' },
           endConnection: { pos: { x: 10, y: 4 }, portIndex: 0, portType: 'input' }
         }
       ]

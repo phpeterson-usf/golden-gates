@@ -278,6 +278,17 @@ export const componentPropertySchema = {
         step: 1,
         reactive: true
       },
+      {
+        name: 'selectorPosition',
+        type: 'dropdown',
+        label: 'Selector Position',
+        default: 'bottom',
+        options: [
+          { label: 'Top', value: 'top' },
+          { label: 'Bottom', value: 'bottom' }
+        ],
+        reactive: true
+      },
       commonProperties.rotation
     ]
   },
