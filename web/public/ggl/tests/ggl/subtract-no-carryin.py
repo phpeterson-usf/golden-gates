@@ -19,9 +19,9 @@ difference = io.Output(bits=4, label="difference")
 cout = io.Output(bits=1, label="carryOut")
 
 
-c.connect(a, sub.input("0"))
-c.connect(b, sub.input("1"))
-c.connect(sub.output("0"), difference)
+c.connect(a, sub.input('a'))
+c.connect(b, sub.input('b'))
+c.connect(sub.output('difference'), difference)
 
 
 c.run()
