@@ -246,3 +246,13 @@ name = "negation"
 input = ["python3", "$project_tests/negation.py"]
 expected = "101"
 rubric = 1
+
+[[tests]]
+name = "barrelshifter"
+input = ["python3", "$project_tests/barrelshifter.py"]
+expected = """
+0b100
+0b101
+0b1101
+"""
+rubric = 1

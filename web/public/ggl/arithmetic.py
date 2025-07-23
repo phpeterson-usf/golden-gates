@@ -226,7 +226,9 @@ class BarrelShifter(Arithmetic):
     """Shift a 'b' amount of times to either the right or left"""
     kind = 'BarrelShifter'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1):
+    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, direction='left', mode='logical'):
+        self.direction = direction
+        self.mode = mode
         super().__init__(
             kind=BarrelShifter.kind,
             num_inputs=num_inputs,
@@ -234,8 +236,20 @@ class BarrelShifter(Arithmetic):
             label=label,
             bits=bits)
 
-    def operator(self, v1, v2):
-        return v1 * v2
+    def operator(self, v1, v2, carryIn=0):
+        if self.direction == 'right':
+            if self.mode == 'arithmetic':
+                sign_bit = (v1 >> (self.bits - 1)) & 1
+                shifted = v1 >> v2
+                if sign_bit:
+                    mask = ((1 << v2) - 1) << (self.bits - v2)
+                    shifted |= mask
+                return shifted & ((1 << self.bits) - 1)
+            else:
+                return (v1 >> v2) & ((1 << self.bits) - 1)
+        else:
+            return (v1 << v2) & ((1 << self.bits) - 1)
+
 
 class Negation(Arithmetic):
     """Performs negation of input"""
