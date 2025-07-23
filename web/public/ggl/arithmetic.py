@@ -65,9 +65,9 @@ class Adder(Arithmetic):
         values = [e.value if e is not None else 0 for e in self.inputs.get_edges()]
 
         a, b = values[0], values[1]
-        carry_in = values[2] if len(values) > 2 else 0
+        carryIn = values[2] if len(values) > 2 else 0
 
-        total = self.operator(a, b, carry_in)
+        total = self.operator(a, b, carryIn)
         sum = total & ((1 << self.bits) - 1)                                        # sum: lower bits
         carryOut = (total >> self.bits) & 1                                         # carryOut: the bit just above the highest bit
 
