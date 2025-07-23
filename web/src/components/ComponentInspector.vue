@@ -1,5 +1,5 @@
 <template>
-  <div class="component-inspector">
+  <div class="component-inspector" spellcheck="false">
     <div v-if="!component && !circuit" class="empty-state">
       <i class="pi pi-info-circle"></i>
       <p>{{ $t('componentInspector.emptyState') }}</p>

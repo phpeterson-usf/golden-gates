@@ -16,7 +16,7 @@
       Additional attributes help prevent autocomplete:
       - autocomplete="nope" (invalid value browsers respect)
       - name="xkslrklrkuutyxu" (random string that won't match patterns)
-      - spellcheck="false" (prevents spellcheck suggestions)
+      - spellcheck now inherited from ComponentInspector parent
     -->
     <input
       type="text"
@@ -26,7 +26,6 @@
       :class="['p-inputtext', 'p-component', { 'p-filled': modelValue, 'p-invalid': !isValid }]"
       :placeholder="placeholder"
       autocomplete="nope"
-      spellcheck="false"
       name="xkslrklrkuutyxu"
       role="textbox"
       readonly
