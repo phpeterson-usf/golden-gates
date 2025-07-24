@@ -21,7 +21,7 @@ cout = io.Output(bits=1, label="carryOut")
 
 c.connect(a, sub.input('a'))
 c.connect(b, sub.input('b'))
-c.connect(sub.output('difference'), difference)
+c.connect(sub.output('diff'), difference)
 
 
 c.run()

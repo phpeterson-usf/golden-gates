@@ -22,7 +22,7 @@ cout = io.Output(bits=1, label="carryOut")
 c.connect(a, adder.input('a'))
 c.connect(b, adder.input('b'))
 c.connect(adder.output('sum'), sum)
-c.connect(adder.output('carryOut'), cout)
+c.connect(adder.output('cout'), cout)
 
 
 c.run()

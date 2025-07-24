@@ -20,7 +20,7 @@ product = io.Output(bits=4, label="product")
 
 c.connect(a, multiply.input('a'))
 c.connect(b, multiply.input('b'))
-c.connect(multiply.output('product'), product)
+c.connect(multiply.output('mul'), product)
 
 
 c.run()

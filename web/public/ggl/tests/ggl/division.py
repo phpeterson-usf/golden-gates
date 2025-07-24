@@ -21,8 +21,8 @@ remainder = io.Output(bits=4, label="remainder")
 
 c.connect(a, div.input('a'))
 c.connect(b, div.input('b'))
-c.connect(div.output('quotient'), quotient)
-c.connect(div.output('remainder'), remainder)
+c.connect(div.output('quot'), quotient)
+c.connect(div.output('rem'), remainder)
 
 
 c.run()

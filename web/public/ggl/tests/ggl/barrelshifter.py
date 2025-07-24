@@ -20,8 +20,8 @@ out = io.Output(bits=4, label="out")
 
 
 c.connect(a, sll.input('a'))  # value to shift
-c.connect(b, sll.input('b'))  # amount to shift
-c.connect(sll.output('result'), out)
+c.connect(b, sll.input('shift'))  # amount to shift
+c.connect(sll.output('out'), out)
 
 
 c.run()
@@ -32,8 +32,8 @@ outSRL = io.Output(bits=4, label="out_right")
 
 
 c.connect(a, srl.input('a'))
-c.connect(b, srl.input('b'))
-c.connect(srl.output('result'), outSRL)
+c.connect(b, srl.input('shift'))
+c.connect(srl.output('out'), outSRL)
 
 c.run()
 print(bin(outSRL.value))
@@ -43,8 +43,8 @@ outSRA = io.Output(bits=4, label="out_right")
 
 
 c.connect(a, sra.input('a'))
-c.connect(b, sra.input('b'))
-c.connect(sra.output('result'), outSRA)
+c.connect(b, sra.input('shift'))
+c.connect(sra.output('out'), outSRA)
 
 c.run()
 print(bin(outSRA.value))

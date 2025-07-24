@@ -50,9 +50,9 @@ class Adder(Arithmetic):
     kind = 'Adder'
     a = 'a'
     b = 'b'
-    carryIn = 'carryIn'
+    carryIn = 'cin'
     sum = 'sum'
-    carryOut = 'carryOut'
+    carryOut = 'cout'
 
     def __init__(self, label='', bits=1):
         super().__init__(
@@ -92,9 +92,9 @@ class Subtract(Arithmetic):
     kind = 'Subtract'
     a = 'a'
     b = 'b'
-    carryIn = 'carryIn'
-    difference = 'difference'
-    carryOut = 'carryOut'
+    carryIn = 'cin'
+    difference = 'diff'
+    carryOut = 'cout'
 
     def __init__(self, label='', bits=1):
         super().__init__(
@@ -134,7 +134,7 @@ class Multiply(Arithmetic):
     kind = 'Multiply'
     a = 'a'
     b = 'b'
-    product = 'product'
+    product = 'mul'
 
     def __init__(self, label='', bits=1):
         super().__init__(
@@ -166,8 +166,8 @@ class Division(Arithmetic):
     kind = 'Division'
     a = 'a'
     b = 'b'
-    quotient = 'quotient'
-    remainder = 'remainder'
+    quotient = 'quot'
+    remainder = 'rem'
 
     def __init__(self, label='', bits=1):
         super().__init__(
@@ -248,8 +248,8 @@ class BarrelShifter(Arithmetic):
     """Shift a 'b' amount of times to either the right or left"""
     kind = 'BarrelShifter'
     a = 'a'
-    b = 'b'
-    result = 'result'
+    b = 'shift'
+    result = 'out'
 
     def __init__(self, label='', bits=1, direction='left', mode='logical'):
         self.direction = direction
