@@ -148,6 +148,7 @@
       "inputOutput": "Input/Output",
       "wires": "Wires",
       "plexers": "Plexers",
+      "arithmetic": "Arithmetic",
       "memory": "Memory"
     },
     "file": {
@@ -178,7 +179,8 @@
       "decoder": "Decoder",
       "priorityEncoder": "Priority Encoder",
       "register": "Register",
-      "rom": "ROM"
+      "rom": "ROM",
+      "adder": "Adder"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",

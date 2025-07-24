@@ -10,6 +10,7 @@ import { DecoderGenerator } from './DecoderGenerator'
 import { PriorityEncoderGenerator } from './PriorityEncoderGenerator'
 import { RegisterGenerator } from './RegisterGenerator'
 import { ROMGenerator } from './ROMGenerator'
+import { AdderGenerator } from './AdderGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -55,6 +56,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'rom':
       return new ROMGenerator(componentData)
+
+    case 'adder':
+      return new AdderGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

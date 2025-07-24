@@ -184,6 +184,18 @@ export const commandGroups = {
       }
     ]
   },
+  arithmetic: {
+    labelKey: 'commands.groups.arithmetic',
+    items: [
+      {
+        id: 'insert-adder',
+        labelKey: 'commands.insert.adder',
+        componentType: 'adder',
+        action: 'addComponent',
+        params: ['adder']
+      }
+    ]
+  },
   memory: {
     labelKey: 'commands.groups.memory',
     items: [

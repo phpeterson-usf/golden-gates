@@ -120,7 +120,7 @@ export function useCodeGenController() {
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
 
     // Header - import all GGL modules (unused imports are not an error in Python)
-    sections.push(`from ggl import circuit, component, io, logic, memory, plexers, wires`)
+    sections.push(`from ggl import arithmetic, circuit, component, io, logic, memory, plexers, wires`)
 
     // Import all circuit components used in this circuit
     const componentImports = findRequiredComponentImports(components, circuitManager)
@@ -484,7 +484,7 @@ export function useCodeGenController() {
    * Wrap a GGL program as an importable Python component module
    */
   function wrapGglProgramAsComponentModule(componentName, gglProgram, requiredImports) {
-    return `from ggl import circuit, logic, io, wires, plexers
+    return `from ggl import arithmetic, circuit, logic, io, wires, plexers
 
 # Import other components this circuit uses
 ${requiredImports}
