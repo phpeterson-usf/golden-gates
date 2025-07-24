@@ -88,17 +88,17 @@ class Clock(IONode):
     def __init__(self, label='', frequency=0, js_id=None):
         super().__init__('Clock', 0, 1, label, bits=1)
         self.js_id = js_id
-        self.frequency = frequency
-        self.ticks = 0
+        self.frequency = frequency                                          # number of ticks per toggle
+        self.ticks = 0                                                      # tick counter since last clock toggle
         self.prev_value = 0
 
     def propagate(self):
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0
-            new_val = 1 - self.value
+            new_val = 1 - self.value                                        # toggle between 0 and 1
             self.prev_value = self.value
             self.value = new_val
             if self.prev_value == 0 and new_val == 1:
-                return [self]                                               # rising edge
+                return [self]                                               # rising edge occurred: return list to indicate clock node
         return []

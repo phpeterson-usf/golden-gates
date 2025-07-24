@@ -30,6 +30,7 @@ class Circuit:
         - don't allow more than one output to the same input
         """
         return True
+    
     def step(self):
         """
         Perform one propagation step in the circuit which handles both clocked and combinational propagation.
@@ -58,22 +59,30 @@ class Circuit:
 
         return list(new_work)
     
-    def run(self):
-        work = work = list(self.inputs)                                     # start with all input Nodes
-        iteration = 0
+    def run(self):        
+        if not hasattr(self, 'clocks'):                                     # check for clock nodes
+            self.clocks = [node for node in self.all_nodes if node.kind == 'Clock']
 
+        work = list(self.inputs)                                            # start with all input Nodes
+        iteration = 0
         output_history = deque(maxlen=10)                                   # use deque to track last ten inputs so that it stops before max iterations if the output values do not change
 
         for node in self.all_nodes:
-            for edges in node.outputs.points.values():
+            for edges in node.outputs.points.values():                      # initialize previous edge values
                 for edge in edges:
                     edge.prev_value = edge.value
 
-        while iteration < MAX_ITERATIONS:       
+        while iteration < MAX_ITERATIONS:
             iteration += 1
             logger.info(f"Simulation iteration {iteration}")
 
             new_work = set()
+
+            for clock in self.clocks:                                       # clock propagation first before properly creating work list
+                result = clock.propagate()                                  # returns [clock] on rising edge or empty list
+                if result:
+                    logger.info(f"Clock {clock.label} triggered")
+                    work = result + work                                    # prepend to work list to be evaluated immediately
 
             while work:                                                     # first in first out queue
                 node = work.pop(0)
@@ -88,12 +97,10 @@ class Circuit:
                             for dest_node in edge.get_dest_nodes():
                                 new_work.add(dest_node)
 
-
             output_vals = {node.label: node.value for node in self.outputs} # get output values
             logger.info(f"Outputs at iteration {iteration}: {output_vals}")
 
             output_history.append(output_vals)                              # append output values to output history
-
 
             if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
                 logger.info("Circuit stabilized (same output values for 10 iterations).")
@@ -103,7 +110,6 @@ class Circuit:
 
         if iteration == MAX_ITERATIONS:
             logger.warning("Circuit did not stabilize within max iterations.")
-
 
     def connect(self, src, dest):
         """
@@ -155,8 +161,17 @@ class Circuit:
             self.inputs.append(srcnode)
         if destnode.kind == 'Output' and destnode not in self.outputs:
             self.outputs.append(destnode)
-        
+       
         self.all_nodes.update([srcnode, destnode])
+
+        # Keep a list of Clock Nodes for clock propagation in the circuit.run() 
+        if not hasattr(self, 'clocks'):
+            self.clocks = []
+        if srcnode.kind == 'Clock' and srcnode not in self.clocks:
+            print("Clock Propagation")
+            self.clocks.append(srcnode)
+        if destnode.kind == 'Clock' and destnode not in self.clocks:
+            self.clocks.append(destnode)
     
     def _ensure_component_registered(self, component_instance):
         """
