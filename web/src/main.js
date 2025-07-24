@@ -22,6 +22,7 @@ import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Tooltip from 'primevue/tooltip'
 import Dialog from 'primevue/dialog'
+import Message from 'primevue/message'
 
 // Create i18n instance
 const i18n = createI18n({
@@ -46,6 +47,7 @@ app.component('Sidebar', Sidebar)
 app.component('InputText', InputText)
 app.component('InputNumber', InputNumber)
 app.component('Dialog', Dialog)
+app.component('Message', Message)
 
 // Register PrimeVue directives
 app.directive('tooltip', Tooltip)

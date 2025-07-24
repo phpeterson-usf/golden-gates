@@ -84,6 +84,30 @@ export function useAppController(circuitManager) {
   async function runCircuitSimulationWithHierarchy(canvasRef) {
     isRunning.value = true
 
+    // Clear any existing error notifications when starting a new simulation
+    if (canvasRef?.clearAllNotifications) {
+      canvasRef.clearAllNotifications()
+    }
+
+    // Clear component error states from previous Pyodide errors
+    if (canvasRef?.components) {
+      canvasRef.components.forEach(component => {
+        if (component.props?.hasError || component.props?.hasWarning) {
+          const clearedComponent = {
+            ...component,
+            props: {
+              ...component.props,
+              hasError: false,
+              hasWarning: false,
+              errorMessageId: '',
+              errorDetails: {}
+            }
+          }
+          canvasRef.updateComponent(clearedComponent)
+        }
+      })
+    }
+
     try {
       // Initialize Pyodide if not already initialized
       if (!isPyodideReady.value) {
@@ -247,7 +271,16 @@ export function useAppController(circuitManager) {
     }
     canvasRef.updateComponent(updatedComponent)
 
-    // TODO: Also show global error notification if needed
+    // Show global error notification using the same system as front-end errors
+    if (isError && canvasRef?.showErrorNotification) {
+      const componentLabel = component.props?.label || component.label || 'unlabeled'
+      const errorMessage = typeof errorData === 'string' 
+        ? errorData 
+        : errorData.message || `Error in ${component.type} "${componentLabel}"`
+      
+      canvasRef.showErrorNotification(`Error in ${component.type} "${componentLabel}": ${errorMessage}`)
+    }
+    
     console.error(`Component ${component.id} error:`, errorData)
   }
 

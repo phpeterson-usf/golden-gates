@@ -134,6 +134,7 @@ export function useCodeGenController() {
 
     // Phase 1: Generate all components first
     const componentVarNames = {} // Map component IDs to their variable names
+    const componentErrors = [] // Collect errors for components
 
     // Use BFS to process components level by level
     const queue = []
@@ -270,7 +271,45 @@ export function useCodeGenController() {
         // Check if this wire is from a junction - if so, it will be handled later
         const isJunctionWire = wireJunctions.some(j => j.connectedWireId === wire.id)
         if (!isJunctionWire) {
-          console.error(`Component not found for wire connection`)
+          // Mark connected components with error state and details
+          const errorDetails = {
+            wireId: wire.id,
+            startPos: `(${wire.startConnection.x}, ${wire.startConnection.y})`,
+            endPos: `(${wire.endConnection.x}, ${wire.endConnection.y})`
+          }
+          
+          // If source component exists but destination doesn't, mark source with error
+          if (sourceComp && !destComp) {
+            const sourceLabel = sourceComp.props?.label || sourceComp.label || 'unlabeled'
+            componentErrors.push({
+              componentId: sourceComp.id,
+              error: {
+                severity: 'error',
+                messageId: 'WIRE_MISSING_DESTINATION',
+                message: `Wire from ${sourceComp.type} "${sourceLabel}" has no destination component`,
+                details: errorDetails
+              }
+            })
+          }
+          
+          // If destination exists but source doesn't, mark destination with error
+          if (!sourceComp && destComp) {
+            const destLabel = destComp.props?.label || destComp.label || 'unlabeled'
+            componentErrors.push({
+              componentId: destComp.id,
+              error: {
+                severity: 'error',
+                messageId: 'WIRE_MISSING_SOURCE',
+                message: `Wire to ${destComp.type} "${destLabel}" has no source component`,
+                details: errorDetails
+              }
+            })
+          }
+          
+          // If neither exists, we can't mark anything - just log
+          if (!sourceComp && !destComp) {
+            console.error(`Dangling wire: id=${wire.id}, from ${errorDetails.startPos} to ${errorDetails.endPos}`)
+          }
         }
         continue
       }
@@ -396,7 +435,11 @@ export function useCodeGenController() {
       sections.push(`${circuitVarName}.run()`)
     }
 
-    return sections.join('\n')
+    // Return both the generated code and any errors
+    return {
+      code: sections.join('\n'),
+      errors: componentErrors
+    }
   }
 
   function generateConnection(
@@ -469,7 +512,7 @@ export function useCodeGenController() {
    */
   function generateGglProgramForCircuitComponent(circuit, circuitManager) {
     // Generate the GGL code for this circuit (without run() call for components)
-    return generateGglProgram(
+    const result = generateGglProgram(
       circuit.components,
       circuit.wires,
       circuit.wireJunctions,
@@ -478,6 +521,8 @@ export function useCodeGenController() {
       circuitManager,
       false // Don't include run() call for component modules
     )
+    // For now, just return the code part for backward compatibility
+    return result.code
   }
 
   /**

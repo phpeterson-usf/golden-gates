@@ -56,3 +56,47 @@ The web app will eventually use Pyodide to run the GGL simulation engine directl
 - Maintain separation between simulation logic and UI components
 - When adding Javascript or Typescript code to the web app, use object-oriented design rather than writing code which uses component type in if/else or switch statements
 - When adding features to the web app, use the Model View Controller design pattern
+
+## PrimeVue Styling Guidelines
+
+This project uses PrimeVue components which can be challenging to style due to their scoped CSS and high specificity. Follow these guidelines:
+
+### General Approach
+1. **Check component documentation first** - Look for props, slots, and built-in styling options before attempting custom CSS
+2. **Use component slots when available** - PrimeVue components often provide slots (like `#messageicon`, `#closeicon`) to override default content
+3. **Leverage component props** - Many styling needs can be met with props like `icon`, `severity`, `closable`, etc.
+
+### When Custom Styling is Needed
+1. **Start with inline styles** - For simple padding, margins, or colors, inline styles (`style="padding-left: 12px"`) often work best
+2. **Use `!important` sparingly but when needed** - PrimeVue's CSS has high specificity, so `!important` may be necessary
+3. **Target specific PrimeVue CSS classes** - Use browser dev tools to identify the exact classes (e.g., `.p-message-text`, `.p-button-label`)
+4. **Avoid nested CSS syntax in Vue components** - Use flat selectors like `.my-component .p-message-text` instead of nested syntax
+
+### Common PrimeVue Classes
+- `.p-message`, `.p-message-text`, `.p-message-icon`, `.p-message-close` - Message component
+- `.p-button`, `.p-button-label`, `.p-button-icon` - Button component  
+- `.p-dialog`, `.p-dialog-header`, `.p-dialog-content` - Dialog component
+
+### Debugging Techniques
+1. **Add temporary background colors** - Use bright colors like `background-color: lime !important` to verify CSS selectors work
+2. **Check browser dev tools** - Inspect the actual rendered HTML structure and CSS classes
+3. **Test with multiple approaches** - Try inline styles, global CSS, and scoped CSS to find what works
+
+### Example Patterns That Work
+```vue
+<!-- Use slots to override default content -->
+<Message>
+  <template #messageicon><!-- empty to hide icon --></template>
+  <div style="padding-left: 12px;">{{ message }}</div>
+</Message>
+
+<!-- Use component props when available -->
+<Message :closable="true" severity="error" icon=" " />
+
+<!-- Use specific CSS classes with !important -->
+<style>
+.my-notification .p-message-icon {
+  display: none !important;
+}
+</style>
+```

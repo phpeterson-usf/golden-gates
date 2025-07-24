@@ -169,7 +169,7 @@ export default defineComponent({
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses, dismissError } = useComponentView(props, emit)
 
     return {
       handleMouseDown,
@@ -177,6 +177,7 @@ export default defineComponent({
       strokeColor,
       strokeWidth,
       componentClasses,
+      dismissError,
       COLORS,
       CONNECTION_DOT_RADIUS,
       GRID_SIZE

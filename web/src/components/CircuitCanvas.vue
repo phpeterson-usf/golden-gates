@@ -1,5 +1,22 @@
 <template>
   <div class="circuit-canvas-container" ref="container">
+    <!-- Error notifications -->
+    <div class="error-notifications">
+      <Message
+        v-for="notification in errorNotifications"
+        :key="notification.id"
+        severity="error"
+        :closable="true"
+        @close="removeNotification(notification.id)"
+        class="error-notification"
+        icon=" "
+      >
+        <template #messageicon>
+          <!-- Empty template to hide the icon -->
+        </template>
+        <div style="padding-left: 12px;">{{ notification.message }}</div>
+      </Message>
+    </div>
     <!-- Grid background -->
     <svg class="grid-canvas" :width="canvasWidth" :height="canvasHeight">
       <defs>
@@ -206,6 +223,10 @@ export default {
     // Circuit generation
     const { generateGglProgram } = useCodeGenController()
 
+    // Error notifications
+    const errorNotifications = ref([])
+    let notificationIdCounter = 0
+
     // Wire management - pass the shared model functions
     const wireManagement = useWireController(
       components,
@@ -389,7 +410,22 @@ export default {
     })
 
     function getCircuitData() {
-      return generateGglProgram(
+      // Clear all existing error states first
+      components.value.forEach(component => {
+        if (component.props?.hasError) {
+          updateComponent({
+            ...component,
+            props: {
+              ...component.props,
+              hasError: false,
+              errorMessage: '',
+              errorDetails: {}
+            }
+          })
+        }
+      })
+      
+      const result = generateGglProgram(
         components.value,
         wires.value,
         wireJunctions.value,
@@ -397,6 +433,31 @@ export default {
         componentInstances.value,
         props.circuitManager
       )
+      
+      // Handle component errors - mark components with visual error state and show notifications
+      if (result.errors && result.errors.length > 0) {
+        result.errors.forEach(error => {
+          const component = components.value.find(c => c.id === error.componentId)
+          if (component) {
+            // Update component with error state (for red styling)
+            updateComponent({
+              ...component,
+              props: {
+                ...component.props,
+                hasError: true,
+                errorMessage: error.error.message,
+                errorDetails: error.error.details
+              }
+            })
+            
+            // Show error notification
+            showErrorNotification(error.error.message)
+          }
+        })
+      }
+      
+      // Return just the code for backward compatibility
+      return result.code
     }
 
     // Watch for selection changes and emit event
@@ -419,6 +480,31 @@ export default {
     // Add wire junction directly (for loading from file)
     function addWireJunction(junctionData) {
       activeCircuit.value?.wireJunctions.push(junctionData)
+    }
+
+    // Error notification management
+    function showErrorNotification(message) {
+      const notification = {
+        id: ++notificationIdCounter,
+        message: message
+      }
+      errorNotifications.value.push(notification)
+      
+      // Auto-dismiss after 10 seconds
+      setTimeout(() => {
+        removeNotification(notification.id)
+      }, 10000)
+    }
+    
+    function clearAllNotifications() {
+      errorNotifications.value = []
+    }
+    
+    function removeNotification(notificationId) {
+      const index = errorNotifications.value.findIndex(n => n.id === notificationId)
+      if (index !== -1) {
+        errorNotifications.value.splice(index, 1)
+      }
     }
 
     // Load component directly from saved data (preserves ID and props)
@@ -469,6 +555,12 @@ export default {
       // Hierarchical circuit state
       activeCircuit,
       breadcrumbs,
+
+      // Error notifications
+      errorNotifications,
+      showErrorNotification,
+      removeNotification,
+      clearAllNotifications,
 
       // Constants
       COLORS,
@@ -576,5 +668,28 @@ export default {
 
 .zoom-button i {
   font-size: 12px;
+}
+
+.error-notifications {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 500px;
+  width: auto;
+}
+
+.error-notification {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+}
+
+/* Clean styling for error notifications */
+.error-notification .p-message-icon {
+  display: none !important;
 }
 </style>
