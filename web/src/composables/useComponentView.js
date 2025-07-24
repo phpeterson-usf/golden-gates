@@ -69,20 +69,12 @@ export function useComponentView(props, emit) {
     return classes.join(' ')
   })
 
-  // Method to dismiss errors
-  const dismissError = () => {
-    // This would typically emit to parent or call a store action
-    // For now, components can override this behavior
-    // TODO: Implement actual error dismissal logic
-  }
-
   return {
     handleMouseDown,
     fillColor,
     strokeColor,
     strokeWidth,
-    componentClasses,
-    dismissError
+    componentClasses
   }
 }
 
@@ -122,17 +114,15 @@ export const draggableProps = {
     type: Boolean,
     default: false
   },
-  errorMessage: {
-    type: String,
-    default: ''
-  },
-  errorDetails: {
-    type: Object,
-    default: () => ({})
-  },
   hasWarning: {
     type: Boolean,
     default: false
+  },
+  // These props are set by the error system but not used by components
+  // since we switched to centralized PrimeVue notifications
+  errorMessage: {
+    type: String,
+    default: ''
   },
   errorMessageId: {
     type: String,
