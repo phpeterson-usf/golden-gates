@@ -199,6 +199,18 @@ expected = "0xAB"
 rubric = 1
 
 [[tests]]
+name = "rom-4a-32d"
+input = ["python3", "$project_tests/rom-4a-32d.py"]
+expected = "0x2b282b3"
+rubric = 1
+
+[[tests]]
+name = "rom-4a-32d-load-data"
+input = ["python3", "$project_tests/rom-4a-32d-load-data.py"]
+expected = "0x2b282b3"
+rubric = 1
+
+[[tests]]
 name = "adder-no-carryin"
 input = ["python3", "$project_tests/adder-no-carryin.py"]
 expected = "15"

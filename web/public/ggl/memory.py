@@ -42,30 +42,49 @@ class ROM(BitsNode):
             bits=data_bits,
             named_inputs=[ROM.A, ROM.sel],
             named_outputs=[ROM.D])
-        
+
         self.address_bits = address_bits
         self.data_bits = data_bits
         self.total_cells = 2 ** address_bits
         self.max_value = (2 ** data_bits) - 1
-        
+
         # Initialize memory with provided data or zeros
         self.memory = [0] * self.total_cells
-        if data:
-            for i, value in enumerate(data[:self.total_cells]):
-                self.memory[i] = max(0, min(value, self.max_value))
+        self.load_data(data)
     
     def propagate(self, value=0):
         # Get inputs
         address = self.get_input_edge(ROM.A).value
-        select = self.get_input_edge(ROM.sel).value
+        selected = self.get_input_edge(ROM.sel).value
         
+        if address >= self.total_cells:
+            address = address % self.total_cells
+
         # Only output data when selected
-        if select and address < self.total_cells:
-            output_value = self.memory[address]
+        if selected:
+            value = self.memory[address]
         else:
-            output_value = 0
+            value = 0
             
-        logger.info(f'ROM {self.label} at address {address}, sel={select} outputs {output_value}')
-        return super().propagate(output_value)
+        logger.info(f'ROM {self.label} address={address}, sel={selected} outputs {value}')
+        return super().propagate(value)
     
-    # Nothing special to do for clone(). BitsNode.clone() is enough.
+    def clone(self, instance_id):
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return ROM(
+            address_bits=self.address_bits,
+            data_bits=self.data_bits,
+            data=self.memory.copy(),  # Deep copy the data
+            label=new_label
+        )
+
+    def load_data(self, data):
+        """
+        This is sort of redundant with having the data in the constructor,
+        but I imagined that with a larger list of ROM elements, it would be
+        unwieldy to have the whole list on the constructor line. 
+        """
+        if data:
+            for i in range(len(data)):
+                if i < self.total_cells:
+                    self.memory[i] = data[i]
