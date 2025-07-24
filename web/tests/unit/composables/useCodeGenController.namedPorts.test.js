@@ -45,7 +45,7 @@ describe('Named Ports Code Generation', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -54,6 +54,7 @@ describe('Named Ports Code Generation', () => {
         null,
         false
       )
+      const code = result.code
 
       // Decoder should use named input even though it only has one input
       expect(code).toContain('decoder0.input("sel")')
@@ -84,7 +85,7 @@ describe('Named Ports Code Generation', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -93,6 +94,7 @@ describe('Named Ports Code Generation', () => {
         null,
         false
       )
+      const code = result.code
 
       // Register should use named output
       expect(code).toContain('reg0.output("Q")')
@@ -134,7 +136,7 @@ describe('Named Ports Code Generation', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -143,6 +145,7 @@ describe('Named Ports Code Generation', () => {
         null,
         false
       )
+      const code = result.code
 
       // Priority encoder should use named input and output
       expect(code).toContain('priorityEncoder0.input("0")')
@@ -210,7 +213,7 @@ describe('Named Ports Code Generation', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -219,6 +222,7 @@ describe('Named Ports Code Generation', () => {
         null,
         false
       )
+      const code = result.code
 
       // NOT gate has single input/output, so no named ports needed
       expect(code).toContain('circuit0.connect(input0, not0)')
@@ -283,7 +287,7 @@ describe('Named Ports Code Generation', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -292,6 +296,7 @@ describe('Named Ports Code Generation', () => {
         null,
         false
       )
+      const code = result.code
 
       // Decoder uses named ports
       expect(code).toContain('decoder0.input("sel")')

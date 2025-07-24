@@ -491,7 +491,7 @@ export default {
       errorNotifications.value.push(notification)
       
       // Auto-dismiss after 10 seconds
-      setTimeout(() => {
+      window.setTimeout(() => {
         removeNotification(notification.id)
       }, 10000)
     }

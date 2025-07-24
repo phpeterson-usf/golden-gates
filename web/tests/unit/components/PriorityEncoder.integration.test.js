@@ -118,7 +118,7 @@ describe('PriorityEncoder Integration', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -127,6 +127,7 @@ describe('PriorityEncoder Integration', () => {
         null,
         false
       )
+      const code = result.code
 
       // Check priority encoder instantiation
       expect(code).toContain('priorityEncoder0 = plexers.PriorityEncoder(num_inputs=4, label="PE0")')
@@ -207,7 +208,7 @@ describe('PriorityEncoder Integration', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -216,6 +217,7 @@ describe('PriorityEncoder Integration', () => {
         null,
         false
       )
+      const code = result.code
 
       // Check all input connections
       expect(code).toContain('circuit0.connect(input0, priorityEncoder0.input("0"))')

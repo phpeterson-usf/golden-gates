@@ -274,11 +274,14 @@ export function useAppController(circuitManager) {
     // Show global error notification using the same system as front-end errors
     if (isError && canvasRef?.showErrorNotification) {
       const componentLabel = component.props?.label || component.label || 'unlabeled'
-      const errorMessage = typeof errorData === 'string' 
-        ? errorData 
-        : errorData.message || `Error in ${component.type} "${componentLabel}"`
-      
-      canvasRef.showErrorNotification(`Error in ${component.type} "${componentLabel}": ${errorMessage}`)
+      const errorMessage =
+        typeof errorData === 'string'
+          ? errorData
+          : errorData.message || `Error in ${component.type} "${componentLabel}"`
+
+      canvasRef.showErrorNotification(
+        `Error in ${component.type} "${componentLabel}": ${errorMessage}`
+      )
     }
     
     console.error(`Component ${component.id} error:`, errorData)

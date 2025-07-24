@@ -56,6 +56,7 @@ The web app will eventually use Pyodide to run the GGL simulation engine directl
 - Maintain separation between simulation logic and UI components
 - When adding Javascript or Typescript code to the web app, use object-oriented design rather than writing code which uses component type in if/else or switch statements
 - When adding features to the web app, use the Model View Controller design pattern
+- Always check test cases when finishing a task. We do not allow broken test cases in the github build.
 
 ## PrimeVue Styling Guidelines
 

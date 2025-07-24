@@ -98,7 +98,7 @@ describe('Decoder Integration', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -107,6 +107,7 @@ describe('Decoder Integration', () => {
         null,
         false
       )
+      const code = result.code
 
       // Check decoder instantiation
       expect(code).toContain('decoder0 = plexers.Decoder(num_outputs=4, label="DEC0")')
@@ -163,7 +164,7 @@ describe('Decoder Integration', () => {
         }
       ]
 
-      const code = codeGenController.generateGglProgram(
+      const result = codeGenController.generateGglProgram(
         components,
         wires,
         [],
@@ -172,6 +173,7 @@ describe('Decoder Integration', () => {
         null,
         false
       )
+      const code = result.code
 
       // Check all output connections
       expect(code).toContain('circuit0.connect(decoder0.output("0"), output0)')
