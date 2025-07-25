@@ -259,8 +259,8 @@ class SignExtend(Arithmetic):
     outport = 'out'
 
     def __init__(self, label='', bits=1, in_bits=1, out_bits=1):
-        self.input_width = in_bits
-        self.output_width = out_bits
+        self.in_bits = in_bits
+        self.out_bits = out_bits
         super().__init__(
             kind=SignExtend.kind,
             label=label,
