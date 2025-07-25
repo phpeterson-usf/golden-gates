@@ -18,10 +18,11 @@ WARNING_UNUSED_INPUT = 'simulation.warnings.unusedInput'
 WARNING_UNUSED_OUTPUT = 'simulation.warnings.unusedOutput'
 WARNING_HIGH_FANOUT = 'simulation.warnings.highFanout'
 
+
 def send_error_event(update_callback, component_id, message_id, details=None, severity='error'):
     """
     Send an error event to the frontend using the callback protocol
-    
+
     Args:
         update_callback: The updateCallback function from builtins
         component_id: ID of the component with the error
@@ -37,10 +38,11 @@ def send_error_event(update_callback, component_id, message_id, details=None, se
     }
     update_callback('error', component_id, payload)
 
+
 def send_step_event(update_callback, component_id, active=True, style='processing', duration=500):
     """
     Send a step highlighting event to the frontend
-    
+
     Args:
         update_callback: The updateCallback function from builtins
         component_id: ID of the component to highlight

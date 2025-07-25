@@ -5,11 +5,13 @@ from .ggl_logging import new_logger
 
 logger = new_logger('plexers')
 
+
 class Plexer(BitsNode):
     """
     Plexer is an abstract base class which provides selector inputs to derived classes
     """
     sel = "sel"
+
     def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1):
         super().__init__(
             kind=kind,
@@ -25,6 +27,7 @@ class Multiplexer(Plexer):
     Multiplexer is a multiplexer :)
     """
     kind = 'Multiplexer'
+
     def __init__(self, num_inputs=2, label='', bits=1):
         super().__init__(
             Multiplexer.kind,
@@ -42,7 +45,7 @@ class Multiplexer(Plexer):
         input_name = str(sel_value)
         v = self.inputs.read_value(input_name)
         return super().propagate(value=v)
-    
+
     # Don't need to implement clone() since Multiplexer has no unique state
 
 
@@ -51,6 +54,7 @@ class Decoder(Plexer):
     Decoder decodes an input value on sel
     """
     kind = 'Decoder'
+
     def __init__(self, num_outputs=0, label='', bits=1):
         super().__init__(
             Decoder.kind,
@@ -71,7 +75,8 @@ class Decoder(Plexer):
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
-            logger.info(f'{self.kind} {self.label} propagates {v} to output {oname}')
+            logger.info(
+                f'{self.kind} {self.label} propagates {v} to output {oname}')
             new_work += super().propagate(output_name=oname, value=v)
         return new_work
 
@@ -99,7 +104,7 @@ class PriorityEncoder(BitsNode):
             num_inputs=num_inputs,
             named_outputs=[PriorityEncoder.inum, PriorityEncoder.any],
             label=label)
-    
+
     def propagate(self, output_name='0', value=0):
         inum = 0
         any = 0

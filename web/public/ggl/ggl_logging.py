@@ -8,6 +8,7 @@ try:
 except ImportError:
     _has_js = False
 
+
 class GGLLogger:
     """
     Universal logger that routes to JavaScript console or Python logging
@@ -19,42 +20,44 @@ class GGLLogger:
     2. If you're working in the web app, pyodide js.console.log goes into
        the browser console directly.
     """
+
     def __init__(self, name, level, use_js=None):
         self.name = name
         self.level = level
         # If use_js is explicitly set, use that; otherwise auto-detect
         self.use_js = use_js if use_js is not None else _has_js
-        
+
         if not self.use_js:
             # Set up Python logger
             self.logger = logging.getLogger(f'ggl.{name}')
             if not self.logger.handlers:
                 handler = logging.StreamHandler(sys.stdout)
-                handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+                handler.setFormatter(logging.Formatter(
+                    '%(name)s - %(levelname)s - %(message)s'))
                 self.logger.addHandler(handler)
                 self.logger.setLevel(self.level)
-    
+
     def info(self, msg):
         if self.use_js:
             if self.level <= logging.INFO:
                 js.console.log(f"[ggl.{self.name}] INFO: {msg}")
         else:
             self.logger.info(msg)
-    
+
     def debug(self, msg):
         if self.use_js:
-            if self.level <= logging.DEBUG: 
+            if self.level <= logging.DEBUG:
                 js.console.log(f"[ggl.{self.name}] DEBUG: {msg}")
         else:
             self.logger.debug(msg)
-    
+
     def warning(self, msg):
         if self.use_js:
             if self.level <= logging.WARNING:
                 js.console.warn(f"[ggl.{self.name}] WARNING: {msg}")
         else:
             self.logger.warning(msg)
-    
+
     def error(self, msg):
         if self.use_js:
             if self.level <= logging.ERROR:
@@ -62,13 +65,16 @@ class GGLLogger:
         else:
             self.logger.error(msg)
 
+
 # Global flag to control logging behavior for all loggers
 _global_use_js = None
+
 
 def set_global_js_logging(use_js):
     """Set global JavaScript logging preference"""
     global _global_use_js
     _global_use_js = use_js
+
 
 def new_logger(name, level=logging.WARN):
     """Get a logger instance with the current global settings"""

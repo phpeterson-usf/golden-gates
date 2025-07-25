@@ -3,6 +3,7 @@ from .ggl_logging import new_logger
 
 logger = new_logger('operator')
 
+
 class Arithmetic(BitsNode):
     def __init__(self, kind, label='', bits=1, named_inputs=[], named_outputs=[]):
         super().__init__(
@@ -11,10 +12,12 @@ class Arithmetic(BitsNode):
             bits=bits,
             named_inputs=named_inputs,
             named_outputs=named_outputs
-            )
-        
+        )
+
     def operator(self, v1, v2, carryIn=0):
-        logger.error(f'Arithmetic operator() must be implemented for {self.kind}')    
+        logger.error(
+            f'Arithmetic operator() must be implemented for {self.kind}')
+
 
 class Adder(Arithmetic):
     """Adder performs a + b (+ carry if present)"""
@@ -32,12 +35,14 @@ class Adder(Arithmetic):
             bits=bits,
             named_inputs=[Adder.a, Adder.b, Adder.carryIn],
             named_outputs=[Adder.sum, Adder.carryOut]
-            )
+        )
 
     def operator(self, v1, v2, carryIn=0):
         total = v1 + v2 + (1 if carryIn else 0)
-        sum = total & ((1 << self.bits) - 1)                                        # sum: lower bits
-        carryOut = (total >> self.bits) & 1                                         # carryOut: the bit just above the highest bit
+        # sum: lower bits
+        sum = total & ((1 << self.bits) - 1)
+        # carryOut: the bit just above the highest bit
+        carryOut = (total >> self.bits) & 1
         return sum, carryOut
 
     def propagate(self, output_name='0', value=0):
@@ -50,6 +55,7 @@ class Adder(Arithmetic):
         new_work = super().propagate(output_name=Adder.sum, value=sum)
         new_work += super().propagate(output_name=Adder.carryOut, value=carryOut)
         return new_work
+
 
 class Subtract(Arithmetic):
     """Subtract performs a - b (- carry if present)"""
@@ -67,12 +73,14 @@ class Subtract(Arithmetic):
             bits=bits,
             named_inputs=[Subtract.a, Subtract.b, Subtract.carryIn],
             named_outputs=[Subtract.difference, Subtract.carryOut]
-            )
+        )
 
     def operator(self, v1, v2, carryIn=0):
         result = v1 - v2 - (1 if carryIn else 0)
-        difference = result & ((1 << self.bits) - 1)                                # difference: lower bits
-        carryOut = (result >> self.bits) & 1                                        # carryOut: the bit just above the highest bit
+        # difference: lower bits
+        difference = result & ((1 << self.bits) - 1)
+        # carryOut: the bit just above the highest bit
+        carryOut = (result >> self.bits) & 1
         return difference, carryOut
 
     def propagate(self, output_name='0', value=0):
@@ -84,6 +92,7 @@ class Subtract(Arithmetic):
         new_work = super().propagate(output_name=Subtract.difference, value=difference)
         new_work += super().propagate(output_name=Subtract.carryOut, value=carryOut)
         return new_work
+
 
 class Multiply(Arithmetic):
     """Multiple performs a * b"""
@@ -99,17 +108,18 @@ class Multiply(Arithmetic):
             bits=bits,
             named_inputs=[Multiply.a, Multiply.b],
             named_outputs=[Multiply.product]
-            )
+        )
 
     def operator(self, v1, v2, carryIn=0):
         return v1 * v2
-    
+
     def propagate(self, output_name='0', value=0):
         a = self.inputs.read_value(Multiply.a)
         b = self.inputs.read_value(Multiply.b)
         product = self.operator(a, b)
         new_work = super().propagate(output_name=Multiply.product, value=product)
         return new_work
+
 
 class Division(Arithmetic):
     """Division performs a / b"""
@@ -126,11 +136,11 @@ class Division(Arithmetic):
             bits=bits,
             named_inputs=[Division.a, Division.b],
             named_outputs=[Division.quotient, Division.remainder]
-            )
+        )
 
     def operator(self, v1, v2):
         return v1 // v2, v1 % v2
-    
+
     def propagate(self, output_name='0', value=0):
         a = self.inputs.read_value(Division.a)
         b = self.inputs.read_value(Division.b)
@@ -138,6 +148,7 @@ class Division(Arithmetic):
         new_work = super().propagate(output_name=Division.quotient, value=quotient)
         new_work += super().propagate(output_name=Division.remainder, value=remainder)
         return new_work
+
 
 class Comparator(Arithmetic):
     """Compares values a and b"""
@@ -147,6 +158,7 @@ class Comparator(Arithmetic):
     gt = 'gt'
     eq = 'eq'
     lt = 'lt'
+
     def __init__(self, label='', bits=1):
         super().__init__(
             kind=Comparator.kind,
@@ -154,10 +166,10 @@ class Comparator(Arithmetic):
             bits=bits,
             named_inputs=[Comparator.a, Comparator.b],
             named_outputs=[Comparator.gt, Comparator.eq, Comparator.lt]
-            )
+        )
 
     def operator(self, v1, v2):
-        complist = [0,0,0]
+        complist = [0, 0, 0]
         if v1 > v2:
             complist[0] = 1
         elif v1 == v2:
@@ -165,7 +177,7 @@ class Comparator(Arithmetic):
         elif v1 < v2:
             complist[2] = 1
         return complist
-    
+
     def propagate(self, output_name='0', value=0):
         a = self.inputs.read_value(Comparator.a)
         b = self.inputs.read_value(Comparator.b)
@@ -174,6 +186,7 @@ class Comparator(Arithmetic):
         new_work += super().propagate(output_name=Comparator.eq, value=eq)
         new_work += super().propagate(output_name=Comparator.lt, value=lt)
         return new_work
+
 
 class BarrelShifter(Arithmetic):
     """Shift a 'b' amount of times to either the right or left"""
@@ -191,7 +204,7 @@ class BarrelShifter(Arithmetic):
             bits=bits,
             named_inputs=[BarrelShifter.a, BarrelShifter.b],
             named_outputs=[BarrelShifter.result]
-            )
+        )
 
     def operator(self, v1, v2, carryIn=0):
         if self.direction == 'right':
@@ -214,6 +227,7 @@ class BarrelShifter(Arithmetic):
         new_work = super().propagate(output_name=BarrelShifter.result, value=v)
         return new_work
 
+
 class Negation(Arithmetic):
     """Performs negation of input"""
     kind = 'Negation'
@@ -229,14 +243,15 @@ class Negation(Arithmetic):
             named_outputs=[Negation.outport])
 
     def operator(self, v1):
-        return (-v1) & ((1 << self.bits) - 1)                                       
-    
+        return (-v1) & ((1 << self.bits) - 1)
+
     def propagate(self, output_name='0', value=0):
         v = self.inputs.read_value(Negation.inport)
         v = self.operator(v)
         new_work = super().propagate(output_name=Negation.outport, value=v)
         return new_work
-    
+
+
 class SignExtend(Arithmetic):
     """Performs sign extension of input"""
     kind = 'SignExtend'
@@ -249,26 +264,27 @@ class SignExtend(Arithmetic):
         super().__init__(
             kind=SignExtend.kind,
             label=label,
-            bits=bits,            
+            bits=bits,
             named_inputs=[SignExtend.inport],
             named_outputs=[SignExtend.outport]
-            )
-    
+        )
+
     def operator(self, v1):
         sign_bit = (v1 >> (self.input_width - 1)) & 1
         if sign_bit:
-            extension = ((1 << (self.output_width - self.input_width)) - 1) << self.input_width
+            extension = (
+                (1 << (self.output_width - self.input_width)) - 1) << self.input_width
             extended = v1 | extension
         else:
             extended = v1 & ((1 << self.input_width) - 1)
         return extended & ((1 << self.output_width) - 1)
-    
+
     def propagate(self, output_name='0', value=0):
         v = self.inputs.read_value(SignExtend.inport)
         v = self.operator(v)
         new_work = super().propagate(output_name=SignExtend.outport, value=v)
         return new_work
-        
+
 
 class BitCounter(Arithmetic):
     """Counts number of 1-bits for input"""
@@ -283,11 +299,11 @@ class BitCounter(Arithmetic):
             bits=bits,
             named_inputs=[BitCounter.inport],
             named_outputs=[BitCounter.outport]
-            )
-    
+        )
+
     def operator(self, v1):
         return bin(v1 & ((1 << self.bits) - 1)).count('1')
-    
+
     def propagate(self, output_name='0', value=0):
         v = self.inputs.read_value(BitCounter.inport)
         count = self.operator(v)

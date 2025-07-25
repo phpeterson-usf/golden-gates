@@ -3,10 +3,12 @@ from .ggl_logging import new_logger
 
 logger = new_logger('io')
 
+
 class IONode(BitsNode):
     """
     IONode is an abstract class which encapsulates the value of an I/O node
     """
+
     def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
         super().__init__(
             kind=kind,
@@ -16,12 +18,14 @@ class IONode(BitsNode):
             bits=bits)
         self.value = 0
 
+
 class Input(IONode):
     """
     Input is an IONode for the input of a circuit, e.g. A
     """
 
     kind = 'Input'
+
     def __init__(self, label='', bits=1):
         super().__init__(
             kind=Input.kind,
@@ -32,18 +36,20 @@ class Input(IONode):
 
     def propagate(self, output_name='0', value=0):
         return super().propagate(value=self.value)
-    
+
     def clone(self, instance_id):
         """Clone an Input node"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         return Input(label=new_label, bits=self.bits)
-        
+
+
 class Output(IONode):
     """
     Output is an IONode for the output of a circuit, e.g. R
     """
 
     kind = 'Output'
+
     def __init__(self, label='', bits=1, js_id=None):
         super().__init__(
             kind=Output.kind,
@@ -56,7 +62,7 @@ class Output(IONode):
     def propagate(self, output_name='0', value=0):
         self.value = self.inputs.read_value('0')
         logger.info(f'Output {self.label} gets value {self.value}')
-        
+
         try:
             import builtins
             # If we have a JS object ID and we're running under pyodide,
@@ -67,7 +73,7 @@ class Output(IONode):
                 updateCallback('value', self.js_id, self.value)
         except Exception as e:
             logger.error(f'Callback failed: {e}')
-    
+
     def clone(self, instance_id):
         """Clone an Output node"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -81,24 +87,30 @@ class Constant(Input):
     Maybe it's odd to make it an alias for Input, but for simulation
     purposes, it seems to behave like an input
     """
+
     def __init__(self, label='', bits=1):
         super().__init__(label, bits)
+
 
 class Clock(IONode):
     def __init__(self, label='', frequency=0, js_id=None):
         super().__init__('Clock', 0, 1, label, bits=1)
         self.js_id = js_id
-        self.frequency = frequency                                          # number of ticks per toggle
-        self.ticks = 0                                                      # tick counter since last clock toggle
+        # number of ticks per toggle
+        self.frequency = frequency
+        # tick counter since last clock toggle
+        self.ticks = 0
         self.prev_value = 0
 
     def propagate(self, output_name='0', value=0):
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0
-            new_val = 1 - self.value                                        # toggle between 0 and 1
+            # toggle between 0 and 1
+            new_val = 1 - self.value
             self.prev_value = self.value
             self.value = new_val
             if self.prev_value == 0 and new_val == 1:
-                return [self]                                               # rising edge occurred: return list to indicate clock node
+                # rising edge occurred: return list to indicate clock node
+                return [self]
         return []

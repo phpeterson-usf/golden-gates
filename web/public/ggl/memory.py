@@ -3,12 +3,14 @@ from .ggl_logging import new_logger
 
 logger = new_logger('memory')
 
+
 class Register(BitsNode):
     D = 'D'
     CLK = 'CLK'
     en = 'en'
     Q = 'Q'
     kind = 'Register'
+
     def __init__(self, label='', bits=32):
         super().__init__(
             kind=Register.kind,
@@ -25,7 +27,7 @@ class Register(BitsNode):
             self.value = self.inputs.read_value(Register.D)
         logger.info(f'Register {self.label} propagates {self.value}')
         return super().propagate(output_name=output_name, value=self.value)
-    
+
     # Nothing special to do for clone(). BitsNode.clone() is enough.
 
 
@@ -34,7 +36,7 @@ class ROM(BitsNode):
     sel = 'sel'  # Select/enable input
     D = 'D'      # Data output
     kind = 'ROM'
-    
+
     def __init__(self, address_bits=4, data_bits=8, data=None, label=''):
         super().__init__(
             kind=ROM.kind,
@@ -51,12 +53,12 @@ class ROM(BitsNode):
         # Initialize memory with provided data or zeros
         self.memory = [0] * self.total_cells
         self.load_data(data)
-    
+
     def propagate(self, output_name='D', value=0):
         # Get inputs
         address = self.inputs.read_value(ROM.A)
         selected = self.inputs.read_value(ROM.sel)
-        
+
         if address >= self.total_cells:
             # Wrap around
             address = address % self.total_cells
@@ -66,10 +68,11 @@ class ROM(BitsNode):
             v = self.memory[address]
         else:
             v = 0
-            
-        logger.info(f'ROM {self.label} address={address}, sel={selected} outputs {value}')
+
+        logger.info(
+            f'ROM {self.label} address={address}, sel={selected} outputs {value}')
         return super().propagate(output_name=output_name, value=v)
-    
+
     def clone(self, instance_id):
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         return ROM(

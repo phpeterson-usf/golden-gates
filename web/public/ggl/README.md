@@ -29,3 +29,12 @@ import ggl
 - `io.py` - Input/Output node classes
 - `logic.py` - Logic gate implementations (AND, OR, NOT, NAND, NOR, XOR)
 - `config.toml` - Configuration file
+
+## Coding Style
+
+- We use `pycodestyle` (formerly known as `pep8` like this:
+    ```sh
+    pip install pycodestyle
+    autopep8 --in-place *.py
+    ```
+- We haven't set up any custom config in `~/.config/pycodestyle` but that could be done

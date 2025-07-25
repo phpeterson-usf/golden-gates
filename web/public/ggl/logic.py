@@ -3,10 +3,12 @@ from .ggl_logging import new_logger
 
 logger = new_logger('logic')
 
+
 class Gate(BitsNode):
     """
     Gate is a logic gate, like AND, OR, XOR, etc
     """
+
     def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=kind,
@@ -16,7 +18,7 @@ class Gate(BitsNode):
             bits=bits)
         self.label = label
         self.inverted_inputs = inverted_inputs or []
-    
+
     def clone(self, instance_id):
         """Clone a Gate with proper parameters"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -61,16 +63,18 @@ class Gate(BitsNode):
             rv = self.logic(rv, v)
 
         # Invert if needed
-        rv = self.invert(rv) 
+        rv = self.invert(rv)
         return super().propagate(value=rv)
-    
+
     def invert(self, rv):
         # No inversion in the base class
         return rv
 
+
 class And(Gate):
     """And Gates perform bitwise AND"""
     kind = 'And'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=And.kind,
@@ -87,6 +91,7 @@ class And(Gate):
 class Or(Gate):
     """Or Gates perform bitwise OR"""
     kind = 'Or'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Or.kind,
@@ -98,10 +103,12 @@ class Or(Gate):
 
     def logic(self, v1, v2):
         return v1 | v2
-    
+
+
 class Nor(Gate):
     """Nor Gates perform bitwise NOR"""
     kind = 'Nor'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Nor.kind,
@@ -116,11 +123,12 @@ class Nor(Gate):
 
     def invert(self, rv):
         return ~rv
-    
+
 
 class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
     kind = 'Xor'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Xor.kind,
@@ -133,9 +141,11 @@ class Xor(Gate):
     def logic(self, v1, v2):
         return v1 ^ v2
 
+
 class Xnor(Gate):
     """Xnor Gates perform bitwise XNOR"""
     kind = 'Xnor'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Xnor.kind,
@@ -151,9 +161,11 @@ class Xnor(Gate):
     def invert(self, rv):
         return ~rv
 
+
 class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
     kind = 'Nand'
+
     def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Nand.kind,
@@ -168,10 +180,12 @@ class Nand(Gate):
 
     def invert(self, rv):
         return ~rv
-    
+
+
 class Not(Gate):
     """Not Gates perform bitwise NOT"""
     kind = 'Not'
+
     def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Not.kind,
@@ -183,4 +197,3 @@ class Not(Gate):
 
     def invert(self, rv):
         return ~rv
-    

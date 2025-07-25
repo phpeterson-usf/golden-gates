@@ -2,19 +2,23 @@ from .ggl_logging import new_logger
 
 logger = new_logger('edge')
 
+
 class EdgePoint:
     """
     A single EdgePoint specifies the Node and endpoint name (e.g. 'cin')
     that an Edge connects to
     """
+
     def __init__(self, node, name):
         self.node = node
         self.name = name
+
 
 class EdgePoints:
     """
     EdgePoints is a list of EdgePoint objects
     """
+
     def __init__(self, node, name):
         self.points = [EdgePoint(node, name)]
 
@@ -28,15 +32,18 @@ class EdgePoints:
         found = False
         for p in self.points:
             if p.name == name and p.node == node:
-                logger.error(f'Edge {self} already outputs to {name} of {node}')
+                logger.error(
+                    f'Edge {self} already outputs to {name} of {node}')
                 found = True
         if not found:
             self.points.append(EdgePoint(node, name))
+
 
 class Edge:
     """
     Edges (wires) are connections which carry values between Nodes
     """
+
     def __init__(self, srcnode, srcname, dstnode, dstname):
         """
         __init__() initializes an Edge with the object and endpoint name
@@ -59,4 +66,3 @@ class Edge:
         """
         self.value = value
         return self.get_dest_nodes()
-    
