@@ -30,6 +30,14 @@ class NodeInputs:
         """
         self.points[name] = edge
 
+    def get_names(self):
+        return self.points.keys()
+
+    def read_value(self, name):
+        # Read the value from the edge connected to the named inpoint
+        edge = self.points[name]
+        return edge.value
+
     def __getitem__(self, index):
         logger.info(f'getitem index: {index}')
         """Allow array-style access like node.inputs[0]"""
@@ -51,6 +59,17 @@ class NodeOutputs:
 
     def append_edge(self, name, obj):
         self.points[name].append(obj)
+
+    def get_names(self):
+        return self.points.keys()
+
+    def write_value(self, name, value):
+        # Write the given value to all edges connected to the named outpoint
+        # Add all nodes connectes to those edges to the simulator work list
+        new_work = []
+        for edge in self.points[name]:
+            new_work += edge.propagate(value)
+        return new_work
 
     def __getitem__(self, index):
         """Allow array-style access like node.outputs[0]"""
@@ -90,29 +109,9 @@ class Node:
         """Returns a Connector for the named output"""
         return Connector(self, name)
 
-    def propagate(self, value=0):
-        """
-        propagates a value from a Node to all Edges
-        it is connected to. Derived Node classes calculate
-        the value and then call super() to do the fan-out
-        returns new_work, which is a list of all the Nodes
-        which now have a new value on an inpoint's Edge
-        """
-        new_work = []
-
-        # TODO: I don't love direct access to the points dict here
-        # should propagate go into self.outputs, passing kind and label?
-        for name, edges in self.outputs.points.items():
-            logger.info(f'{self.kind} {self.label} outpoint {name} propagates: {value}')
-            logger.debug(f"{self.kind} {self.label} has {len(edges)} output edges on port {name}")
-            for e in edges:
-                e.propagate(value)
-                dest_nodes = e.get_dest_nodes()
-                logger.debug(f"Edge propagated to {len(dest_nodes)} destinations: {[n.label for n in dest_nodes]}")
-                # NB: use += to join the lists rather than append() a list to a list
-                new_work += dest_nodes
-        logger.debug(f"{self.kind} {self.label} returning {len(new_work)} nodes to work queue")
-        return new_work
+    def propagate(self, output_name='0', value=0):
+        assert(output_name in self.outputs.points)
+        return self.outputs.write_value(output_name, value)
 
     def preflight(self):
         logger.error("Node preflight() must be overridden")
@@ -159,10 +158,10 @@ class BitsNode(Node):
         )
 
     def mask(self):
-        """Builds the bit mask for the number of data bits for this gate"""
+        # Builds the bit mask for the number of data bits for this gate
         return (1 << self.bits) - 1
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         # Truncate the output to self.bits wide
         value &= self.mask()
-        return super().propagate(value)
+        return super().propagate(output_name=output_name, value=value)

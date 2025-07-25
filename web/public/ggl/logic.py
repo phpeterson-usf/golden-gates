@@ -45,7 +45,7 @@ class Gate(BitsNode):
             values.append(v)
         return values
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         """
         Gate.propagate() loops over the Edges which are connected to
         the inpoints of this gate, getting the value. It calls
@@ -62,7 +62,7 @@ class Gate(BitsNode):
 
         # Invert if needed
         rv = self.invert(rv) 
-        return super().propagate(rv)
+        return super().propagate(value=rv)
     
     def invert(self, rv):
         # No inversion in the base class

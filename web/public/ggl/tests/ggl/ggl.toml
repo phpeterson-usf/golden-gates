@@ -232,7 +232,7 @@ rubric = 1
 name = "division"
 input = ["python3", "$project_tests/division.py"]
 expected = """
-1.5
+1
 4
 """
 rubric = 1

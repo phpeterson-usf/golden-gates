@@ -10,7 +10,6 @@ class WireNode(BitsNode):
     def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
         super().__init__(kind, num_inputs, num_outputs, label, bits)
     
-    
     def clone(self, instance_id):
         """Clone a WireNode - subclasses may override"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -30,11 +29,10 @@ class Splitter(WireNode):
     def __init__(self, label='', bits=1, splits=None):
         if splits is None:
             splits = [(i, i) for i in range(bits)]                      # default to 1-bit outputs
-        
         self.splits = splits
         super().__init__(Splitter.kind, num_inputs=1, num_outputs=len(splits), label=label, bits=bits)
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         input_edge = self.inputs.get_edge('0')
         input_value = input_edge.value if input_edge else 0
 
@@ -47,10 +45,7 @@ class Splitter(WireNode):
             chunk = (input_value >> low) & mask                         # mask bit at i to get bit_val, and then propagate to the output node
 
             logger.info(f'{self.kind} {self.label} output {i} ({start}-{end}): {bin(chunk)}')
-
-            for edge in self.outputs.points[str(i)]:
-                edge.propagate(chunk)
-                new_work += edge.get_dest_nodes()
+            new_work += super().propagate(output_name=str(i), value=chunk)
 
         return new_work
 
@@ -67,7 +62,7 @@ class Merger(WireNode):
         self.merge_inputs = merge_inputs
         super().__init__(Merger.kind, num_inputs=len(merge_inputs), num_outputs=1, label=label, bits=bits)
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         output_val = 0
 
         for i, (start, end) in enumerate(self.merge_inputs):
@@ -82,7 +77,7 @@ class Merger(WireNode):
             output_val |= (masked << low)
 
         logger.info(f'{self.kind} {self.label} merged/ored value: {bin(output_val)}')
-        return super().propagate(output_val)
+        return super().propagate(value=output_val)
     
 class Tunnel(WireNode):
     """
@@ -93,8 +88,8 @@ class Tunnel(WireNode):
     def __init__(self, label='', bits=1):
         super().__init__(Tunnel.kind, num_inputs=1, num_outputs=1, label=label, bits=bits)
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         input_edge = self.inputs.get_edge('0')
         input_value = input_edge.value
         logger.info(f'{self.kind} {self.label} passes value: {input_value}')
-        return super().propagate(input_value)
+        return super().propagate(value=input_value)

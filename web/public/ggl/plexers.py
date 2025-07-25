@@ -33,15 +33,15 @@ class Multiplexer(Plexer):
             label=label,
             bits=bits)
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         """
         Given a selector value, propagate the value of the input numbered
         with that value. So if sel == 2, propagate the value of the 2'th input
         """
-        sel_value = self.get_input_edge(Plexer.sel).value
+        sel_value = self.inputs.read_value(Plexer.sel)
         input_name = str(sel_value)
-        v = self.get_input_edge(input_name).value
-        return super().propagate(v)
+        v = self.inputs.read_value(input_name)
+        return super().propagate(value=v)
     
     # Don't need to implement clone() since Multiplexer has no unique state
 
@@ -58,7 +58,7 @@ class Decoder(Plexer):
             label=label,
             bits=bits)
 
-    def propagate(self, value=0):
+    def propagate(self, output_name='0', value=0):
         """
         Given a selector value, propagate a 1 on the corresponding output
         e.g. if sel == 2, propagate 1 on the 2th output and 0 on all other outputs
@@ -67,18 +67,13 @@ class Decoder(Plexer):
         but with conditional value. Can this be cleanly generalized?
         """
         new_work = []
-        sel_value = self.get_input_edge(Plexer.sel).value
+        sel_value = self.inputs.read_value(Plexer.sel)
         hi_output = str(sel_value)
-        for output_name, edges in self.outputs.points.items():
-            v = 0
-            if output_name == hi_output:
-                v = 1
-            for edge in edges:
-                # TODO: maybe edge.propagate should return dest_nodes
-                logger.info(f'{self.kind} {self.label} propagates {v} to output {output_name}')
-                edge.propagate(v)
-                new_work += edge.get_dest_nodes()
-        return new_work  # Do not call super().propagate()
+        for oname in self.outputs.get_names():
+            v = 1 if oname == hi_output else 0
+            logger.info(f'{self.kind} {self.label} propagates {v} to output {oname}')
+            new_work += super().propagate(output_name=oname, value=v)
+        return new_work
 
         # Don't need to implement clone() since Decoder has no unique state
 
@@ -105,24 +100,16 @@ class PriorityEncoder(BitsNode):
             named_outputs=[PriorityEncoder.inum, PriorityEncoder.any],
             label=label)
     
-    def propagate(self, value=0):
-        # TODO: this is gross but it works. Need some abstraction here.
-        new_work = []
+    def propagate(self, output_name='0', value=0):
         inum = 0
         any = 0
-        input_names = sorted(self.inputs.points.keys(), reverse=True)
-        for i in input_names:
-            edge = self.inputs.points[i]
-            if edge.value == 1:
-                inum = int(i)  # TODO: could raise an exception
+        # reverse=True gives us bottom-up traversal
+        input_names = sorted(self.inputs.get_names(), reverse=True)
+        for iname in input_names:
+            if self.inputs.read_value(iname) == 1:
+                inum = int(iname)
                 any = 1
                 break
-        inum_edges = self.outputs.points[PriorityEncoder.inum]
-        for e in inum_edges:
-            e.propagate(inum)
-            new_work += e.get_dest_nodes()
-        any_edges = self.outputs.points[PriorityEncoder.any]
-        for e in any_edges:
-            e.propagate(any)
-            new_work += e.get_dest_nodes()
-        return new_work  # Do not call super().propagate()
+        new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum)
+        new_work += super().propagate(output_name=PriorityEncoder.any, value=any)
+        return new_work

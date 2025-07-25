@@ -4,46 +4,17 @@ from .ggl_logging import new_logger
 logger = new_logger('operator')
 
 class Arithmetic(BitsNode):
-    def __init__(self, kind, label='', bits=1, named_inputs=None, named_outputs=None):
+    def __init__(self, kind, label='', bits=1, named_inputs=[], named_outputs=[]):
         super().__init__(
             kind=kind,
             label=label,
             bits=bits,
-            named_inputs=named_inputs or [],
-            named_outputs=named_outputs or []
+            named_inputs=named_inputs,
+            named_outputs=named_outputs
             )
-        self.label = label
-    
-    def clone(self, instance_id):
-        """Clone an Arithmetic Component with proper parameters"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            label=new_label,
-            bits=self.bits,
-        )
-    
-    def operator(self, v1, v2, carryIn=0):
-        logger.error(f'Arithmetic operator() must be implemented for {self.kind}')
-
-    def propagate(self):
-        values = [e.value if e is not None else 0 for e in self.inputs.get_edges()]
-        if len(values) < 2:
-            logger.error(f"{self.kind} requires at least two inputs: a, b")
-            return []
-
-        a, b = values[0], values[1]
         
-        carryIn = values[2] if len(values) > 2 else 0
-
-        result = self.operator(a, b, carryIn)
-
-        new_work = []
-        edges = self.outputs.points.get('0', [])
-        for edge in edges:
-            edge.propagate(result)
-            new_work += edge.get_dest_nodes()
-        return new_work
-    
+    def operator(self, v1, v2, carryIn=0):
+        logger.error(f'Arithmetic operator() must be implemented for {self.kind}')    
 
 class Adder(Arithmetic):
     """Adder performs a + b (+ carry if present)"""
@@ -69,22 +40,15 @@ class Adder(Arithmetic):
         carryOut = (total >> self.bits) & 1                                         # carryOut: the bit just above the highest bit
         return sum, carryOut
 
-    def propagate(self):
-        a = self.get_input_edge(Adder.a).value
-        b = self.get_input_edge(Adder.b).value
-        carryIn = self.get_input_edge(Adder.carryIn).value if self.get_input_edge(Adder.carryIn) else 0
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(Adder.a)
+        b = self.inputs.read_value(Adder.b)
+        carryIn = self.inputs.read_value(Adder.carryIn)
 
         sum, carryOut = self.operator(a, b, carryIn)
-        new_work = []
 
-        for edge in self.outputs.points.get(Adder.sum, []):                             # propagate sum on output port 0 (first ouput port)
-            edge.propagate(sum)
-            new_work += edge.get_dest_nodes()
-
-        for edge in self.outputs.points.get(Adder.carryOut, []):                        # propagate carryOut on output port 1 (second output port)
-            edge.propagate(carryOut)
-            new_work += edge.get_dest_nodes()
-
+        new_work = super().propagate(output_name=Adder.sum, value=sum)
+        new_work += super().propagate(output_name=Adder.carryOut, value=carryOut)
         return new_work
 
 class Subtract(Arithmetic):
@@ -111,22 +75,14 @@ class Subtract(Arithmetic):
         carryOut = (result >> self.bits) & 1                                        # carryOut: the bit just above the highest bit
         return difference, carryOut
 
-    def propagate(self):
-        a = self.get_input_edge(Subtract.a).value
-        b = self.get_input_edge(Subtract.b).value
-        carryIn = self.get_input_edge(Subtract.carryIn).value if self.get_input_edge(Subtract.carryIn) else 0
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(Subtract.a)
+        b = self.inputs.read_value(Subtract.b)
+        carryIn = self.inputs.read_value(Subtract.carryIn)
 
         difference, carryOut = self.operator(a, b, carryIn)
-        new_work = []
-
-        for edge in self.outputs.points.get(Subtract.difference, []):                             # propagate sum on output port 0 (first ouput port)
-            edge.propagate(difference)
-            new_work += edge.get_dest_nodes()
-
-        for edge in self.outputs.points.get(Subtract.carryOut, []):                        # propagate carryOut on output port 1 (second output port)
-            edge.propagate(carryOut)
-            new_work += edge.get_dest_nodes()
-
+        new_work = super().propagate(output_name=Subtract.difference, value=difference)
+        new_work += super().propagate(output_name=Subtract.carryOut, value=carryOut)
         return new_work
 
 class Multiply(Arithmetic):
@@ -148,17 +104,11 @@ class Multiply(Arithmetic):
     def operator(self, v1, v2, carryIn=0):
         return v1 * v2
     
-    def propagate(self):
-        a = self.get_input_edge(Multiply.a).value
-        b = self.get_input_edge(Multiply.b).value
-
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(Multiply.a)
+        b = self.inputs.read_value(Multiply.b)
         product = self.operator(a, b)
-
-        new_work = []
-        for edge in self.outputs.points.get(Multiply.product, []):
-            edge.propagate(product)
-            new_work += edge.get_dest_nodes()
-
+        new_work = super().propagate(output_name=Multiply.product, value=product)
         return new_work
 
 class Division(Arithmetic):
@@ -179,22 +129,14 @@ class Division(Arithmetic):
             )
 
     def operator(self, v1, v2):
-        return v1 / v2 , v1 % v2
+        return v1 // v2, v1 % v2
     
-    def propagate(self):
-        a = self.get_input_edge(Division.a).value
-        b = self.get_input_edge(Division.b).value
-
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(Division.a)
+        b = self.inputs.read_value(Division.b)
         quotient, remainder = self.operator(a, b)
-
-        new_work = []
-        for edge in self.outputs.points.get(Division.quotient, []):
-            edge.propagate(quotient)
-            new_work += edge.get_dest_nodes()
-        for edge in self.outputs.points.get(Division.remainder, []):
-            edge.propagate(remainder)
-            new_work += edge.get_dest_nodes()
-
+        new_work = super().propagate(output_name=Division.quotient, value=quotient)
+        new_work += super().propagate(output_name=Division.remainder, value=remainder)
         return new_work
 
 class Comparator(Arithmetic):
@@ -222,26 +164,15 @@ class Comparator(Arithmetic):
             complist[1] = 1
         elif v1 < v2:
             complist[2] = 1
-        
         return complist
     
-    def propagate(self):
-        a = self.get_input_edge(Comparator.a).value
-        b = self.get_input_edge(Comparator.b).value
-
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(Comparator.a)
+        b = self.inputs.read_value(Comparator.b)
         gt, eq, lt = self.operator(a, b)
-
-        new_work = []
-        for edge in self.outputs.points.get(Comparator.gt, []):
-            edge.propagate(gt)
-            new_work += edge.get_dest_nodes()
-        for edge in self.outputs.points.get(Comparator.eq, []):
-            edge.propagate(eq)
-            new_work += edge.get_dest_nodes()
-        for edge in self.outputs.points.get(Comparator.lt, []):
-            edge.propagate(lt)
-            new_work += edge.get_dest_nodes()
-
+        new_work = super().propagate(output_name=Comparator.gt, value=gt)
+        new_work += super().propagate(output_name=Comparator.eq, value=eq)
+        new_work += super().propagate(output_name=Comparator.lt, value=lt)
         return new_work
 
 class BarrelShifter(Arithmetic):
@@ -276,17 +207,11 @@ class BarrelShifter(Arithmetic):
         else:
             return (v1 << v2) & ((1 << self.bits) - 1)
 
-    def propagate(self):
-        a = self.get_input_edge(BarrelShifter.a).value
-        b = self.get_input_edge(BarrelShifter.b).value
-
-        result = self.operator(a, b)
-
-        new_work = []
-        for edge in self.outputs.points.get(BarrelShifter.result, []):
-            edge.propagate(result)
-            new_work += edge.get_dest_nodes()
-
+    def propagate(self, output_name='0', value=0):
+        a = self.inputs.read_value(BarrelShifter.a)
+        b = self.inputs.read_value(BarrelShifter.b)
+        v = self.operator(a, b)
+        new_work = super().propagate(output_name=BarrelShifter.result, value=v)
         return new_work
 
 class Negation(Arithmetic):
@@ -306,15 +231,10 @@ class Negation(Arithmetic):
     def operator(self, v1):
         return (-v1) & ((1 << self.bits) - 1)                                       
     
-    def propagate(self):
-        v = self.get_input_edge(Negation.inport).value
-        result = self.operator(v)
-
-        new_work = []
-        for edge in self.outputs.points.get(Negation.outport, []):
-            edge.propagate(result)
-            new_work += edge.get_dest_nodes()
-
+    def propagate(self, output_name='0', value=0):
+        v = self.inputs.read_value(Negation.inport)
+        v = self.operator(v)
+        new_work = super().propagate(output_name=Negation.outport, value=v)
         return new_work
     
 class SignExtend(Arithmetic):
@@ -343,15 +263,10 @@ class SignExtend(Arithmetic):
             extended = v1 & ((1 << self.input_width) - 1)
         return extended & ((1 << self.output_width) - 1)
     
-    def propagate(self):
-        v = self.get_input_edge(SignExtend.inport).value
-        result = self.operator(v)
-
-        new_work = []
-        for edge in self.outputs.points.get(SignExtend.outport, []):
-            edge.propagate(result)
-            new_work += edge.get_dest_nodes()
-
+    def propagate(self, output_name='0', value=0):
+        v = self.inputs.read_value(SignExtend.inport)
+        v = self.operator(v)
+        new_work = super().propagate(output_name=SignExtend.outport, value=v)
         return new_work
         
 
@@ -373,13 +288,8 @@ class BitCounter(Arithmetic):
     def operator(self, v1):
         return bin(v1 & ((1 << self.bits) - 1)).count('1')
     
-    def propagate(self):
-        v = self.get_input_edge(BitCounter.inport).value
+    def propagate(self, output_name='0', value=0):
+        v = self.inputs.read_value(BitCounter.inport)
         count = self.operator(v)
-
-        new_work = []
-        for edge in self.outputs.points.get(BitCounter.outport, []):
-            edge.propagate(count)
-            new_work += edge.get_dest_nodes()
-
+        new_work = self.outputs.write_value(BitCounter.outport, value=count)
         return new_work

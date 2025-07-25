@@ -30,8 +30,8 @@ class Input(IONode):
             label=label,
             bits=bits)
 
-    def propagate(self, value=0):
-        return super().propagate(self.value)
+    def propagate(self, output_name='0', value=0):
+        return super().propagate(value=self.value)
     
     def clone(self, instance_id):
         """Clone an Input node"""
@@ -53,8 +53,8 @@ class Output(IONode):
             bits=bits)
         self.js_id = js_id
 
-    def propagate(self, value=0):
-        self.value = self.get_input_edge('0').value
+    def propagate(self, output_name='0', value=0):
+        self.value = self.inputs.read_value('0')
         logger.info(f'Output {self.label} gets value {self.value}')
         
         try:
@@ -92,7 +92,7 @@ class Clock(IONode):
         self.ticks = 0                                                      # tick counter since last clock toggle
         self.prev_value = 0
 
-    def propagate(self):
+    def propagate(self, output_name='0', value=0):
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0

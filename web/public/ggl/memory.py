@@ -18,13 +18,13 @@ class Register(BitsNode):
             named_outputs=[Register.Q])
         self.value = 0
 
-    def propagate(self, value=0):
-        en = self.get_input_edge(Register.en).value
-        clk = self.get_input_edge(Register.CLK).value
+    def propagate(self, output_name='Q', value=0):
+        en = self.inputs.read_value(Register.en)
+        clk = self.inputs.read_value(Register.CLK)
         if en and clk:
-            self.value = self.get_input_edge(Register.D).value
+            self.value = self.inputs.read_value(Register.D)
         logger.info(f'Register {self.label} propagates {self.value}')
-        return super().propagate(self.value)
+        return super().propagate(output_name=output_name, value=self.value)
     
     # Nothing special to do for clone(). BitsNode.clone() is enough.
 
@@ -52,22 +52,23 @@ class ROM(BitsNode):
         self.memory = [0] * self.total_cells
         self.load_data(data)
     
-    def propagate(self, value=0):
+    def propagate(self, output_name='D', value=0):
         # Get inputs
-        address = self.get_input_edge(ROM.A).value
-        selected = self.get_input_edge(ROM.sel).value
+        address = self.inputs.read_value(ROM.A)
+        selected = self.inputs.read_value(ROM.sel)
         
         if address >= self.total_cells:
+            # Wrap around
             address = address % self.total_cells
 
-        # Only output data when selected
         if selected:
-            value = self.memory[address]
+            # Only output data when selected
+            v = self.memory[address]
         else:
-            value = 0
+            v = 0
             
         logger.info(f'ROM {self.label} address={address}, sel={selected} outputs {value}')
-        return super().propagate(value)
+        return super().propagate(output_name=output_name, value=v)
     
     def clone(self, instance_id):
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -80,9 +81,10 @@ class ROM(BitsNode):
 
     def load_data(self, data):
         """
-        This is sort of redundant with having the data in the constructor,
-        but I imagined that with a larger list of ROM elements, it would be
-        unwieldy to have the whole list on the constructor line. 
+        This is redundant with having the data in the constructor, but
+        I imagined that with a larger list of ROM elements, it would be
+        unwieldy to have the whole list on the constructor line, so both
+        syntaxes are accepted.
         """
         if data:
             for i in range(len(data)):

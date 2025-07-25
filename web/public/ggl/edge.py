@@ -50,7 +50,7 @@ class Edge:
     def get_dest_nodes(self):
         return self.destpoints.get_dest_nodes()
 
-    def propagate(self, value=0):
+    def propagate(self, value=0, output_name='0'):
         """
         Edges simply carry the value
         The reason Edges don't propagate to their outpoints (as Nodes do)
@@ -58,4 +58,5 @@ class Edge:
         simulation runs a work queue which is populated breadth-first
         """
         self.value = value
+        return self.get_dest_nodes()
     
