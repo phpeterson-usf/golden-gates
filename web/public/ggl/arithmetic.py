@@ -1,7 +1,7 @@
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('operator')
+logger = new_logger(__name__)
 
 
 class Arithmetic(BitsNode):

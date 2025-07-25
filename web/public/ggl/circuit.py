@@ -3,7 +3,7 @@ from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
 from collections import deque
 
-logger = new_logger('circuit')
+logger = new_logger(__name__)
 
 MAX_ITERATIONS = 100  # Prevent infinite loops
 

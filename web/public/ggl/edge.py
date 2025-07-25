@@ -1,6 +1,6 @@
 from .ggl_logging import new_logger
 
-logger = new_logger('edge')
+logger = new_logger(__name__)
 
 
 class EdgePoint:

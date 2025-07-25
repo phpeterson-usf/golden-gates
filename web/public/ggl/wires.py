@@ -1,7 +1,7 @@
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('wires')
+logger = new_logger(__name__)
 
 
 class WireNode(BitsNode):
@@ -88,9 +88,6 @@ class Merger(WireNode):
             masked = input_val & ((1 << width) - 1)
 
             output_val |= (masked << low)
-
-        logger.info(
-            f'{self.kind} {self.label} merged/ored value: {bin(output_val)}')
         return super().propagate(value=output_val)
 
 
@@ -106,5 +103,4 @@ class Tunnel(WireNode):
     def propagate(self, output_name='0', value=0):
         input_edge = self.inputs.get_edge('0')
         input_value = input_edge.value
-        logger.info(f'{self.kind} {self.label} passes value: {input_value}')
         return super().propagate(value=input_value)

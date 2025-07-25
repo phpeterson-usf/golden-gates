@@ -3,7 +3,7 @@ import logging
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('plexers')
+logger = new_logger(__name__)
 
 
 class Plexer(BitsNode):
@@ -75,8 +75,6 @@ class Decoder(Plexer):
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
-            logger.info(
-                f'{self.kind} {self.label} propagates {v} to output {oname}')
             new_work += super().propagate(output_name=oname, value=v)
         return new_work
 

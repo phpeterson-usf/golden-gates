@@ -1,6 +1,6 @@
 from .ggl_logging import new_logger
 
-logger = new_logger('node')
+logger = new_logger(__name__)
 
 
 class Connector:
@@ -121,7 +121,14 @@ class Node:
         return Connector(self, name)
 
     def propagate(self, output_name='0', value=0):
+        """
+        The base Node propagate() method fans out the given value to the
+        given output_name, assuming all necessary transformations (e.g.
+        invert, truncation) have been done by propagate() in derived classes
+        """
         assert (output_name in self.outputs.points)
+        logger.info(
+            f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value)
 
     def preflight(self):

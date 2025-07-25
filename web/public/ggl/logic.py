@@ -1,7 +1,7 @@
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('logic')
+logger = new_logger(__name__)
 
 
 class Gate(BitsNode):

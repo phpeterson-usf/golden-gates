@@ -1,7 +1,7 @@
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('io')
+logger = new_logger(__name__)
 
 
 class IONode(BitsNode):
@@ -61,7 +61,7 @@ class Output(IONode):
 
     def propagate(self, output_name='0', value=0):
         self.value = self.inputs.read_value('0')
-        logger.info(f'Output {self.label} gets value {self.value}')
+        logger.info(f"{self.kind} '{self.label}' gets value {self.value}")
 
         try:
             import builtins

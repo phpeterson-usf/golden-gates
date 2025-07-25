@@ -1,9 +1,10 @@
 import logging
+import os
 import sys
 
 # Try to import js module to detect if we're in Pyodide
 try:
-    import js
+    import js  # type: ignore pylance error on js
     _has_js = True
 except ImportError:
     _has_js = False
@@ -29,7 +30,7 @@ class GGLLogger:
 
         if not self.use_js:
             # Set up Python logger
-            self.logger = logging.getLogger(f'ggl.{name}')
+            self.logger = logging.getLogger(f'{name}')
             if not self.logger.handlers:
                 handler = logging.StreamHandler(sys.stdout)
                 handler.setFormatter(logging.Formatter(
@@ -76,6 +77,17 @@ def set_global_js_logging(use_js):
     _global_use_js = use_js
 
 
-def new_logger(name, level=logging.WARN):
+def new_logger(name, level=None):
+    env_var = os.getenv('ggloglevel')
+    match env_var:  # type: ignore pylance error on match
+        case 'logging.ERROR':
+            level = logging.ERROR
+        case 'logging.DEBUG':
+            level = logging.DEBUG
+        case 'logging.INFO':
+            level = logging.INFO
+        case _:
+            level = logging.WARN
+
     """Get a logger instance with the current global settings"""
     return GGLLogger(name, level, use_js=_global_use_js)

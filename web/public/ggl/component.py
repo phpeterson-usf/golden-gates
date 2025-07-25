@@ -10,7 +10,7 @@ from .io import Input, Output
 from .ggl_logging import new_logger
 import copy
 
-logger = new_logger('component')
+logger = new_logger(__name__)
 
 
 class ComponentConnector(Connector):

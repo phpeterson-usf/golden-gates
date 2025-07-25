@@ -1,7 +1,7 @@
 from .node import BitsNode
 from .ggl_logging import new_logger
 
-logger = new_logger('memory')
+logger = new_logger(__name__)
 
 
 class Register(BitsNode):
@@ -25,7 +25,6 @@ class Register(BitsNode):
         clk = self.inputs.read_value(Register.CLK)
         if en and clk:
             self.value = self.inputs.read_value(Register.D)
-        logger.info(f'Register {self.label} propagates {self.value}')
         return super().propagate(output_name=output_name, value=self.value)
 
     # Nothing special to do for clone(). BitsNode.clone() is enough.
@@ -70,7 +69,7 @@ class ROM(BitsNode):
             v = 0
 
         logger.info(
-            f'ROM {self.label} address={address}, sel={selected} outputs {value}')
+            f"{ROM} '{self.label}' address={address}, sel={selected}")
         return super().propagate(output_name=output_name, value=v)
 
     def clone(self, instance_id):
