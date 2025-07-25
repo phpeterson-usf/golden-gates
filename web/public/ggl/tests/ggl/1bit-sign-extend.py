@@ -6,7 +6,7 @@ from ggl import io
 from ggl import arithmetic
 
 c = circuit.Circuit()
-ext = arithmetic.SignExtend(bits=1, label='r',input_width=1,output_width=8)
+ext = arithmetic.SignExtend(label='r',in_bits=1, out_bits=8)
 
 a = io.Input(bits=1, label='a')
 a.value = 0b1                    # input 1bit 1

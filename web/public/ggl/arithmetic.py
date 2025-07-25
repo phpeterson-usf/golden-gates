@@ -258,26 +258,26 @@ class SignExtend(Arithmetic):
     inport = 'in'
     outport = 'out'
 
-    def __init__(self, label='', bits=1, input_width=1, output_width=1):
-        self.input_width = input_width
-        self.output_width = output_width
+    def __init__(self, label='', bits=1, in_bits=1, out_bits=1):
+        self.input_width = in_bits
+        self.output_width = out_bits
         super().__init__(
             kind=SignExtend.kind,
             label=label,
-            bits=bits,
+            bits=out_bits,
             named_inputs=[SignExtend.inport],
             named_outputs=[SignExtend.outport]
         )
 
     def operator(self, v1):
-        sign_bit = (v1 >> (self.input_width - 1)) & 1
+        sign_bit = (v1 >> (self.in_bits - 1)) & 1
         if sign_bit:
             extension = (
-                (1 << (self.output_width - self.input_width)) - 1) << self.input_width
+                (1 << (self.out_bits - self.in_bits)) - 1) << self.in_bits
             extended = v1 | extension
         else:
-            extended = v1 & ((1 << self.input_width) - 1)
-        return extended & ((1 << self.output_width) - 1)
+            extended = v1 & ((1 << self.in_bits) - 1)
+        return extended & ((1 << self.out_bits) - 1)
 
     def propagate(self, output_name='0', value=0):
         v = self.inputs.read_value(SignExtend.inport)
