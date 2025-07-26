@@ -11,9 +11,10 @@ class Register(BitsNode):
     Q = 'Q'
     kind = 'Register'
 
-    def __init__(self, label='', bits=32):
+    def __init__(self, js_id='', label='', bits=32):
         super().__init__(
             kind=Register.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Register.D, Register.CLK, Register.en],
@@ -36,9 +37,10 @@ class ROM(BitsNode):
     D = 'D'      # Data output
     kind = 'ROM'
 
-    def __init__(self, address_bits=4, data_bits=8, data=None, label=''):
+    def __init__(self, js_id='', address_bits=4, data_bits=8, data=None, label=''):
         super().__init__(
             kind=ROM.kind,
+            js_id=js_id,
             label=label,
             bits=data_bits,
             named_inputs=[ROM.A, ROM.sel],
@@ -75,6 +77,7 @@ class ROM(BitsNode):
     def clone(self, instance_id):
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         return ROM(
+            js_id=self.js_id,
             address_bits=self.address_bits,
             data_bits=self.data_bits,
             data=self.memory.copy(),  # Deep copy the data

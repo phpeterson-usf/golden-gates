@@ -130,7 +130,7 @@ describe('PriorityEncoder Integration', () => {
       const code = result.code
 
       // Check priority encoder instantiation
-      expect(code).toContain('priorityEncoder0 = plexers.PriorityEncoder(num_inputs=4, label="PE0")')
+      expect(code).toContain('priorityEncoder0 = plexers.PriorityEncoder(label="PE0", num_inputs=4, js_id="priorityEncoder-1")')
       
       // Check connections use named ports
       expect(code).toContain('circuit0.connect(input0, priorityEncoder0.input("0"))')

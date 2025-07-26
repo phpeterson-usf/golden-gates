@@ -110,7 +110,7 @@ describe('Decoder Integration', () => {
       const code = result.code
 
       // Check decoder instantiation
-      expect(code).toContain('decoder0 = plexers.Decoder(num_outputs=4, label="DEC0")')
+      expect(code).toContain('decoder0 = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")')
       
       // Check connections use named ports
       expect(code).toContain('circuit0.connect(input0, decoder0.input("sel"))')

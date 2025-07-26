@@ -22,13 +22,7 @@ export class AdderGenerator extends BaseComponentGenerator {
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('adder')
-    const params = [`bits=${this.bits}`]
-    
-    if (this.label) {
-      params.push(`label="${this.label}"`)
-    }
-
-    const paramString = params.join(', ')
+    const paramString = this.buildGglParams({ bits: this.bits })
 
     return {
       varName,

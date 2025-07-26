@@ -39,6 +39,6 @@ export abstract class IOComponentGenerator extends BaseComponentGenerator {
    * Generate GGL base parameters common to all IO nodes
    */
   protected getGglBaseParams(): string {
-    return `bits=${this.bits}, label="${this.label}"`
+    return this.buildGglParams({ bits: this.bits })
   }
 }

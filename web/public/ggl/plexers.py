@@ -12,9 +12,10 @@ class Plexer(BitsNode):
     """
     sel = "sel"
 
-    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1):
+    def __init__(self, kind, js_id='', num_inputs=2, num_outputs=1, label='', bits=1):
         super().__init__(
             kind=kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -28,9 +29,10 @@ class Multiplexer(Plexer):
     """
     kind = 'Multiplexer'
 
-    def __init__(self, num_inputs=2, label='', bits=1):
+    def __init__(self, js_id='', num_inputs=2, label='', bits=1):
         super().__init__(
             Multiplexer.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=1,
             label=label,
@@ -55,9 +57,10 @@ class Decoder(Plexer):
     """
     kind = 'Decoder'
 
-    def __init__(self, num_outputs=0, label='', bits=1):
+    def __init__(self, js_id='', num_outputs=0, label='', bits=1):
         super().__init__(
             Decoder.kind,
+            js_id=js_id,
             num_outputs=num_outputs,
             label=label,
             bits=bits)
@@ -96,9 +99,10 @@ class PriorityEncoder(BitsNode):
     inum = 'inum'
     any = 'any'
 
-    def __init__(self, num_inputs=0, label=''):
+    def __init__(self, js_id='', num_inputs=0, label=''):
         super().__init__(
             PriorityEncoder.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             named_outputs=[PriorityEncoder.inum, PriorityEncoder.any],
             label=label)

@@ -9,20 +9,21 @@ class Gate(BitsNode):
     Gate is a logic gate, like AND, OR, XOR, etc
     """
 
-    def __init__(self, kind, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, kind, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
             bits=bits)
-        self.label = label
         self.inverted_inputs = inverted_inputs or []
 
     def clone(self, instance_id):
         """Clone a Gate with proper parameters"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         return self.__class__(
+            js_id=self.js_id,
             num_inputs=len(self.inputs.points),
             num_outputs=len(self.outputs.points),
             label=new_label,
@@ -75,9 +76,10 @@ class And(Gate):
     """And Gates perform bitwise AND"""
     kind = 'And'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=And.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -92,9 +94,10 @@ class Or(Gate):
     """Or Gates perform bitwise OR"""
     kind = 'Or'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Or.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -109,9 +112,10 @@ class Nor(Gate):
     """Nor Gates perform bitwise NOR"""
     kind = 'Nor'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Nor.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -129,9 +133,10 @@ class Xor(Gate):
     """Xor Gates perform bitwise XOR"""
     kind = 'Xor'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Xor.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -146,9 +151,10 @@ class Xnor(Gate):
     """Xnor Gates perform bitwise XNOR"""
     kind = 'Xnor'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Xnor.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -166,9 +172,10 @@ class Nand(Gate):
     """Nand Gates perform bitwise NAND"""
     kind = 'Nand'
 
-    def __init__(self, num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Nand.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -186,9 +193,10 @@ class Not(Gate):
     """Not Gates perform bitwise NOT"""
     kind = 'Not'
 
-    def __init__(self, num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
+    def __init__(self, js_id='', num_inputs=1, num_outputs=1, label='', bits=1, inverted_inputs=None):
         super().__init__(
             kind=Not.kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,

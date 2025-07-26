@@ -9,9 +9,10 @@ class IONode(BitsNode):
     IONode is an abstract class which encapsulates the value of an I/O node
     """
 
-    def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
+    def __init__(self, kind, num_inputs, num_outputs, js_id='', label='', bits=1):
         super().__init__(
             kind=kind,
+            js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
@@ -26,9 +27,10 @@ class Input(IONode):
 
     kind = 'Input'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Input.kind,
+            js_id=js_id,
             num_inputs=0,
             num_outputs=1,
             label=label,
@@ -50,14 +52,14 @@ class Output(IONode):
 
     kind = 'Output'
 
-    def __init__(self, label='', bits=1, js_id=None):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Output.kind,
+            js_id=js_id,
             num_inputs=1,
             num_outputs=0,
             label=label,
             bits=bits)
-        self.js_id = js_id
 
     def propagate(self, output_name='0', value=0):
         self.value = self.inputs.read_value('0')
@@ -88,14 +90,22 @@ class Constant(Input):
     purposes, it seems to behave like an input
     """
 
-    def __init__(self, label='', bits=1):
-        super().__init__(label, bits)
+    def __init__(self, js_id='', label='', bits=1):
+        super().__init__(js_id=js_id, label=label, bits=bits)
 
 
 class Clock(IONode):
-    def __init__(self, label='', frequency=0, js_id=None):
-        super().__init__('Clock', 0, 1, label, bits=1)
-        self.js_id = js_id
+    kind = 'Clock'
+
+    def __init__(self, js_id='', label='', frequency=0):
+        super().__init__(
+            Clock.kind,
+            js_id=js_id,
+            num_inputs=0,
+            num_outputs=1,
+            label=label,
+            bits=1
+        )
         # number of ticks per toggle
         self.frequency = frequency
         # tick counter since last clock toggle

@@ -15,17 +15,7 @@ export class DecoderGenerator extends BaseComponentGenerator {
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('decoder')
-
-    // Build parameters
-    const params: string[] = []
-    params.push(`num_outputs=${this.numOutputs}`)
-    if (this.label) {
-      // Escape quotes in label
-      const escapedLabel = this.label.replace(/"/g, '\\"')
-      params.push(`label="${escapedLabel}"`)
-    }
-
-    const paramString = params.join(', ')
+    const paramString = this.buildGglParams({ num_outputs: this.numOutputs })
 
     return {
       varName,

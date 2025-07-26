@@ -94,8 +94,9 @@ class Node:
     in the circuit
     """
 
-    def __init__(self, kind, innames=[], outnames=[], label=''):
+    def __init__(self, kind, js_id='', innames=[], outnames=[], label=''):
         self.kind = kind    # Hard-coded, e.g. 'And Gate'
+        self.js_id = js_id  # Optionally provided be the frontend
         self.label = label  # User-provided, e.g. 'is b-type'
         self.inputs = NodeInputs(innames, self)
         self.outputs = NodeOutputs(outnames, self)
@@ -154,7 +155,7 @@ class BitsNode(Node):
     BitsNode is a Node which has a bit width, e.g. Gates, plexers, registers
     """
 
-    def __init__(self, kind, num_inputs=0, num_outputs=0, label='', bits=1, named_inputs=[], named_outputs=[]):
+    def __init__(self, kind, js_id='', num_inputs=0, num_outputs=0, label='', bits=1, named_inputs=[], named_outputs=[]):
         # Inputs can be numbered (num_inputs) or named (named_inputs, e.g. 'D', 'en')
         innames = [str(i) for i in range(num_inputs)]
         innames += named_inputs
@@ -163,7 +164,7 @@ class BitsNode(Node):
         outnames = [str(o) for o in range(num_outputs)]
         outnames += named_outputs
 
-        super().__init__(kind=kind, innames=innames, outnames=outnames, label=label)
+        super().__init__(kind, js_id=js_id, innames=innames, outnames=outnames, label=label)
         self.bits = bits
 
     def clone(self, instance_id):
@@ -171,6 +172,7 @@ class BitsNode(Node):
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         return self.__class__(
             kind=self.kind,
+            js_id=self.js_id,
             num_inputs=len(self.inputs.points),
             num_outputs=len(self.outputs.points),
             label=new_label,

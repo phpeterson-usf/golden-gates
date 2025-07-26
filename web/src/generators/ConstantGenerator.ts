@@ -16,7 +16,7 @@ export class ConstantGenerator extends IOComponentGenerator {
 
     // For constants, we set the value directly in the constructor
     const lines = [
-      `${varName} = io.Constant(${this.getGglBaseParams()})`,
+      `${varName} = io.Constant(${this.buildGglParams({ bits: this.bits })})`,
       `${varName}.value = ${valueStr}`
     ]
 

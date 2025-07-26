@@ -35,6 +35,49 @@ export abstract class BaseComponentGenerator implements ComponentGenerator {
   abstract generate(): GeneratedStatement
 
   /**
+   * Generate the js_id parameter for GGL components
+   * This enables payload-based callbacks from Pyodide
+   */
+  protected getJsIdParam(): string {
+    return `js_id="${this.id}"`
+  }
+
+  /**
+   * Build common GGL parameters that all components should have
+   * Subclasses should call this method and add their specific parameters
+   */
+  protected buildGglParams(additionalParams: Record<string, any> = {}): string {
+    const params: string[] = []
+    
+    // Add common parameters
+    if (this.label) {
+      // Escape quotes in label
+      const escapedLabel = this.label.replace(/"/g, '\\"')
+      params.push(`label="${escapedLabel}"`)
+    }
+    
+    // Add additional parameters from subclass
+    for (const [key, value] of Object.entries(additionalParams)) {
+      if (value !== undefined && value !== null) {
+        if (typeof value === 'string') {
+          // Escape quotes in string values
+          const escapedValue = value.replace(/"/g, '\\"')
+          params.push(`${key}="${escapedValue}"`)
+        } else if (Array.isArray(value)) {
+          params.push(`${key}=[${value.join(', ')}]`)
+        } else {
+          params.push(`${key}=${value}`)
+        }
+      }
+    }
+    
+    // Always add js_id for payload-based callbacks
+    params.push(this.getJsIdParam())
+    
+    return params.join(', ')
+  }
+
+  /**
    * Generate clean variable name with sequential numbering starting from 0
    */
   protected generateVarName(type: string): string {

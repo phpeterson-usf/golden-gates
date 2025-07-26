@@ -14,7 +14,7 @@ describe('DecoderGenerator', () => {
       const result = generator.generate()
       
       expect(result.varName).toMatch(/^decoder\d+$/)
-      expect(result.code).toBe(`${result.varName} = plexers.Decoder(num_outputs=4)`)
+      expect(result.code).toBe(`${result.varName} = plexers.Decoder(num_outputs=4, js_id="decoder-1")`)
       expect(result.imports).toBeUndefined() // No imports needed for decoder
     })
 
@@ -30,7 +30,7 @@ describe('DecoderGenerator', () => {
       const generator = new DecoderGenerator(componentData)
       const result = generator.generate()
       
-      expect(result.code).toBe(`${result.varName} = plexers.Decoder(num_outputs=8)`)
+      expect(result.code).toBe(`${result.varName} = plexers.Decoder(num_outputs=8, js_id="decoder-1")`)
     })
 
     it('includes label when provided', () => {
@@ -46,7 +46,7 @@ describe('DecoderGenerator', () => {
       const generator = new DecoderGenerator(componentData)
       const result = generator.generate()
       
-      expect(result.code).toBe(`${result.varName} = plexers.Decoder(num_outputs=4, label="DEC0")`)
+      expect(result.code).toBe(`${result.varName} = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")`)
     })
 
     it('generates unique variable names for multiple instances', () => {

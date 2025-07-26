@@ -38,3 +38,34 @@ import ggl
     autopep8 --in-place *.py
     ```
 - We haven't set up any custom config in `~/.config/pycodestyle` but that could be done
+
+## Callbacks
+
+⏺ The __vueUpdateCallback function expects 3 scalar arguments:
+
+  window.__vueUpdateCallback = (eventType, componentId, value) => {
+
+  Arguments:
+
+  1. eventType (string): The type of event - 'value', 'step', or 'error'
+  2. componentId (string): The Vue component ID (corresponds to the js_id parameter)
+  3. value (any): The payload data - can be scalar or object depending on event type
+
+  From Python, you would call it like:
+
+  ### For value updates
+  updateCallback('value', component_js_id, new_value)
+
+  ### For step highlighting
+  updateCallback('step', component_js_id, {'active': True, 'style': 'processing', 'duration':
+  500})
+
+  ### For errors
+  updateCallback('error', component_js_id, {'severity': 'error', 'messageId': 'SOME_ERROR',
+  'details': {}})
+  
+  ### Or simple string error:
+  updateCallback('error', component_js_id, "Error message string")
+
+  The value parameter can be a Python dict that gets converted to a JavaScript object when
+  passed across the Pyodide boundary.

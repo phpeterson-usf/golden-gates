@@ -20,13 +20,17 @@ export class MultiplexerGenerator extends BaseComponentGenerator {
   generate(): GeneratedStatement {
     const varName = this.generateVarName('mux')
 
-    // Build parameters
-    const params: string[] = []
-    params.push(`num_inputs=${this.numInputs}`)
-    if (this.bits > 1) params.push(`bits=${this.bits}`)
-    if (this.label) params.push(`label="${this.label}"`)
+    // Build parameters using centralized method
+    const additionalParams: Record<string, any> = {
+      num_inputs: this.numInputs
+    }
+    
+    // Only add bits if it's not the default value of 1
+    if (this.bits > 1) {
+      additionalParams.bits = this.bits
+    }
 
-    const paramString = params.join(', ')
+    const paramString = this.buildGglParams(additionalParams)
 
     return {
       varName,

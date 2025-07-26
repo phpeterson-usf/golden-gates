@@ -5,9 +5,10 @@ logger = new_logger(__name__)
 
 
 class Arithmetic(BitsNode):
-    def __init__(self, kind, label='', bits=1, named_inputs=[], named_outputs=[]):
+    def __init__(self, kind, js_id='', label='', bits=1, named_inputs=[], named_outputs=[]):
         super().__init__(
             kind=kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=named_inputs,
@@ -28,9 +29,10 @@ class Adder(Arithmetic):
     sum = 'sum'
     carryOut = 'cout'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Adder.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Adder.a, Adder.b, Adder.carryIn],
@@ -66,9 +68,10 @@ class Subtract(Arithmetic):
     difference = 'diff'
     carryOut = 'cout'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Subtract.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Subtract.a, Subtract.b, Subtract.carryIn],
@@ -101,9 +104,10 @@ class Multiply(Arithmetic):
     b = 'b'
     product = 'mul'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Multiply.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Multiply.a, Multiply.b],
@@ -129,9 +133,10 @@ class Division(Arithmetic):
     quotient = 'quot'
     remainder = 'rem'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Division.kind,
+            js_id='',
             label=label,
             bits=bits,
             named_inputs=[Division.a, Division.b],
@@ -159,9 +164,10 @@ class Comparator(Arithmetic):
     eq = 'eq'
     lt = 'lt'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Comparator.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Comparator.a, Comparator.b],
@@ -195,11 +201,12 @@ class BarrelShifter(Arithmetic):
     b = 'shift'
     result = 'out'
 
-    def __init__(self, label='', bits=1, direction='left', mode='logical'):
+    def __init__(self, js_id='', label='', bits=1, direction='left', mode='logical'):
         self.direction = direction
         self.mode = mode
         super().__init__(
             kind=BarrelShifter.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[BarrelShifter.a, BarrelShifter.b],
@@ -234,9 +241,10 @@ class Negation(Arithmetic):
     inport = 'in'
     outport = 'out'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=Negation.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[Negation.inport],
@@ -258,11 +266,12 @@ class SignExtend(Arithmetic):
     inport = 'in'
     outport = 'out'
 
-    def __init__(self, label='', bits=1, in_bits=1, out_bits=1):
+    def __init__(self, js_id='', label='', bits=1, in_bits=1, out_bits=1):
         self.in_bits = in_bits
         self.out_bits = out_bits
         super().__init__(
             kind=SignExtend.kind,
+            js_id=js_id,
             label=label,
             bits=out_bits,
             named_inputs=[SignExtend.inport],
@@ -292,9 +301,10 @@ class BitCounter(Arithmetic):
     inport = 'in'
     outport = 'count'
 
-    def __init__(self, label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1):
         super().__init__(
             kind=BitCounter.kind,
+            js_id=js_id,
             label=label,
             bits=bits,
             named_inputs=[BitCounter.inport],

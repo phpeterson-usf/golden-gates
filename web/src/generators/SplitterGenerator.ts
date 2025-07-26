@@ -17,9 +17,21 @@ export class SplitterGenerator extends WireComponentGenerator {
     const varName = this.generateVarName('splitter')
     const splits = this.formatRanges()
 
+    // Format splits as tuples: [(0,1), (2,3), (4,5), (6,7)]
+    const splitsString = `[${this.ranges.map(range => `(${range.start},${range.end})`).join(', ')}]`
+
+    // Build parameters using centralized method, but handle splits specially
+    const additionalParams = {
+      bits: this.inputBits
+    }
+    
+    const baseParams = this.buildGglParams(additionalParams)
+    // Insert splits parameter before js_id (which is always last)
+    const paramString = baseParams.replace(/, js_id=/, `, splits=${splitsString}, js_id=`)
+
     return {
       varName,
-      code: `${varName} = wires.Splitter(label="${this.label || 'splitter'}", bits=${this.inputBits}, splits=${splits})`
+      code: `${varName} = wires.Splitter(${paramString})`
     }
   }
 }

@@ -20,11 +20,6 @@ export class ROMGenerator extends BaseComponentGenerator {
   generate(): GeneratedStatement {
     const varName = this.generateVarName('rom')
 
-    // Build parameters
-    const params: string[] = []
-    params.push(`address_bits=${this.addressBits}`)
-    params.push(`data_bits=${this.dataBits}`)
-    
     // Format data array - ensure it's the right size
     const totalCells = Math.pow(2, this.addressBits)
     const dataArray = new Array(totalCells).fill(0)
@@ -35,12 +30,14 @@ export class ROMGenerator extends BaseComponentGenerator {
       dataArray[i] = Math.max(0, Math.min(this.data[i], maxValue))
     }
     
-    // Format as Python list
-    params.push(`data=[${dataArray.join(', ')}]`)
+    // Build parameters using centralized method
+    const additionalParams = {
+      address_bits: this.addressBits,
+      data_bits: this.dataBits,
+      data: dataArray
+    }
     
-    if (this.label) params.push(`label="${this.label}"`)
-
-    const paramString = params.join(', ')
+    const paramString = this.buildGglParams(additionalParams)
 
     return {
       varName,

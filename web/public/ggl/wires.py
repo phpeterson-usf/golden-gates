@@ -9,8 +9,15 @@ class WireNode(BitsNode):
     Class for wire type components such as splitters, mergers, and tunnels.
     """
 
-    def __init__(self, kind, num_inputs, num_outputs, label='', bits=1):
-        super().__init__(kind, num_inputs, num_outputs, label, bits)
+    def __init__(self, kind, num_inputs, num_outputs, js_id='', label='', bits=1):
+        super().__init__(
+            kind,
+            js_id=js_id,
+            num_inputs=num_inputs,
+            num_outputs=num_outputs,
+            label=label,
+            bits=bits
+        )
 
     def clone(self, instance_id):
         """Clone a WireNode - subclasses may override"""
@@ -30,12 +37,12 @@ class Splitter(WireNode):
     kind = 'Splitter'
     # TODO: error checking if the splits don't add up to total input bits
 
-    def __init__(self, label='', bits=1, splits=None):
+    def __init__(self, js_id='', label='', bits=1, splits=None):
         if splits is None:
             # default to 1-bit outputs
             splits = [(i, i) for i in range(bits)]
         self.splits = splits
-        super().__init__(Splitter.kind, num_inputs=1,
+        super().__init__(Splitter.kind, js_id=js_id, num_inputs=1,
                          num_outputs=len(splits), label=label, bits=bits)
 
     def propagate(self, output_name='0', value=0):
@@ -64,13 +71,13 @@ class Merger(WireNode):
     """
     kind = 'Merger'
 
-    def __init__(self, label='', bits=1, merge_inputs=None):
+    def __init__(self, js_id='', label='', bits=1, merge_inputs=None):
         if merge_inputs is None:
             # default to 1-bit inputs
             merge_inputs = [(i, i) for i in range(bits)]
 
         self.merge_inputs = merge_inputs
-        super().__init__(Merger.kind, num_inputs=len(
+        super().__init__(Merger.kind, js_id=js_id, num_inputs=len(
             merge_inputs), num_outputs=1, label=label, bits=bits)
 
     def propagate(self, output_name='0', value=0):
@@ -97,8 +104,15 @@ class Tunnel(WireNode):
     """
     kind = 'Tunnel'
 
-    def __init__(self, label='', bits=1):
-        super().__init__(Tunnel.kind, num_inputs=1, num_outputs=1, label=label, bits=bits)
+    def __init__(self, js_id='', label='', bits=1):
+        super().__init__(
+            Tunnel.kind,
+            js_id=js_id,
+            num_inputs=1,
+            num_outputs=1,
+            label=label,
+            bits=bits
+        )
 
     def propagate(self, output_name='0', value=0):
         input_edge = self.inputs.get_edge('0')

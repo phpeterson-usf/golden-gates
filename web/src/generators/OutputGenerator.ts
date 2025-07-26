@@ -15,7 +15,7 @@ export class OutputGenerator extends IOComponentGenerator {
 
     return {
       varName,
-      code: `${varName} = io.Output(${this.getGglBaseParams()}, js_id="${this.id}")`
+      code: `${varName} = io.Output(${this.getGglBaseParams()})`
     }
   }
 }
