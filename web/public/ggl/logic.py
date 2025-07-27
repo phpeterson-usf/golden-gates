@@ -40,10 +40,11 @@ class Gate(BitsNode):
         the index with the inverted inputs, and inverting if necessary
         """
         values = []
-        edges = self.inputs.get_edges()
-        for i in range(len(edges)):
-            v = edges[i].value
-            if i in self.inverted_inputs:
+        input_names = self.inputs.points.keys()
+        for iname in input_names:
+            v = self.safe_read_input(iname)
+            inum = int(iname)
+            if inum in self.inverted_inputs:
                 v = ~v
             values.append(v)
         return values

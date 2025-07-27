@@ -43,9 +43,9 @@ class Multiplexer(Plexer):
         Given a selector value, propagate the value of the input numbered
         with that value. So if sel == 2, propagate the value of the 2'th input
         """
-        sel_value = self.inputs.read_value(Plexer.sel)
+        sel_value = self.safe_read_value(Plexer.sel)
         input_name = str(sel_value)
-        v = self.inputs.read_value(input_name)
+        v = self.safe_read_value(input_name)
         return super().propagate(value=v)
 
     # Don't need to implement clone() since Multiplexer has no unique state
@@ -74,7 +74,7 @@ class Decoder(Plexer):
         but with conditional value. Can this be cleanly generalized?
         """
         new_work = []
-        sel_value = self.inputs.read_value(Plexer.sel)
+        sel_value = self.safe_read_value(Plexer.sel)
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
@@ -113,7 +113,7 @@ class PriorityEncoder(BitsNode):
         # reverse=True gives us bottom-up traversal
         input_names = sorted(self.inputs.get_names(), reverse=True)
         for iname in input_names:
-            if self.inputs.read_value(iname) == 1:
+            if self.safe_read_value(iname) == 1:
                 inum = int(iname)
                 any = 1
                 break

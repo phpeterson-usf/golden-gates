@@ -46,8 +46,7 @@ class Splitter(WireNode):
                          num_outputs=len(splits), label=label, bits=bits)
 
     def propagate(self, output_name='0', value=0):
-        input_edge = self.inputs.get_edge('0')
-        input_value = input_edge.value if input_edge else 0
+        input_value = self.safe_read_input('0')
 
         new_work = []
         for i, (start, end) in enumerate(self.splits):
@@ -88,12 +87,10 @@ class Merger(WireNode):
             high = max(start, end)
             width = high - low + 1
 
-            edge = self.inputs.get_edge(str(i))
+            v = self.safe_read_input(str(i))
             # mask to width and shift into position
-            input_val = edge.value if edge else 0
             # or all bits together to get an output value
-            masked = input_val & ((1 << width) - 1)
-
+            masked = v & ((1 << width) - 1)
             output_val |= (masked << low)
         return super().propagate(value=output_val)
 
@@ -115,6 +112,5 @@ class Tunnel(WireNode):
         )
 
     def propagate(self, output_name='0', value=0):
-        input_edge = self.inputs.get_edge('0')
-        input_value = input_edge.value
+        input_value = self.safe_read_input('0')
         return super().propagate(value=input_value)

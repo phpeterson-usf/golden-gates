@@ -1,4 +1,5 @@
 from .ggl_logging import new_logger
+from .errors import CircuitComponentError, ERROR_INPUT_NOT_CONNECTED
 
 logger = new_logger(__name__)
 
@@ -110,6 +111,18 @@ class Node:
     def set_input_edge(self, name, edge):
         self.inputs.set_edge(name, edge)
 
+    def safe_read_input(self, iname):
+        """If iname is not connected raise an exception through to the UI"""
+        try:
+            return self.inputs.read_value(iname)
+        except Exception as e:
+            raise CircuitComponentError(
+                component_id=self.js_id,
+                component_type=self.kind,
+                error_code="inputNotConnected",
+                port_name=iname
+            ) from e
+
     def append_output_edge(self, name, edge):
         self.outputs.append_edge(name, edge)
 
@@ -132,9 +145,6 @@ class Node:
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value)
 
-    def preflight(self):
-        logger.error("Node preflight() must be overridden")
-
     def clone(self, instance_id):
         """
         Create a copy of this node with a new instance ID.
@@ -149,6 +159,21 @@ class Node:
         raise NotImplementedError(
             f"clone() must be implemented by {self.__class__.__name__}")
 
+    def js_callback(self, event_type, details):
+        try:
+            import builtins
+            if self.js_id and hasattr(builtins, 'updateCallback'):
+                updateCallback = builtins.updateCallback
+                updateCallback(event_type, self.js_id, details)
+        except Exception as e:
+            logger.error(f'Callback failed: {e}')
+
+    def error_callback(self, msg_id):
+        d = {
+            'severity': 'error',
+            'messageId': msg_id,
+        }
+        self.js_callback('error', d)
 
 class BitsNode(Node):
     """

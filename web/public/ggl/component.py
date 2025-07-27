@@ -46,7 +46,7 @@ class ComponentInputProxy:
 
         # Connect our output to the wrapped input's value
         self._connect_to_wrapped()
-
+        
     def _connect_to_wrapped(self):
         """Create internal connection to wrapped input"""
         # This proxy's output feeds the wrapped input's value

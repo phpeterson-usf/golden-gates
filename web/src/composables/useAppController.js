@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useFileService } from './useFileService'
 import { usePythonEngine } from './usePythonEngine'
 
@@ -7,6 +8,7 @@ import { usePythonEngine } from './usePythonEngine'
  * Provides controller layer functionality for circuit operations
  */
 export function useAppController(circuitManager) {
+  const { t } = useI18n()
   const {
     saveCircuit: saveCircuitFile,
     openCircuit: openCircuitFile,
@@ -133,7 +135,38 @@ export function useAppController(circuitManager) {
       await executeHierarchicalCircuit(circuitManager, mainCircuitGglProgram)
     } catch (err) {
       console.error('Hierarchical circuit simulation error:', err)
-      // TODO: Show error to user with more specific error handling
+      
+      // Check if the error message contains our exception
+      const isCircuitComponentError = err.message && err.message.includes('CircuitComponentError')
+      
+      if (isCircuitComponentError) {
+        // Try to extract component info from the error message
+        // Format: "ggl.errors.CircuitComponentError: And and-gate_1_1753544247799: inputNotConnected (port: 1)"
+        const match = err.message.match(/CircuitComponentError: (\w+) ([^:]+): (\w+)(?:\s*\(port:\s*([^)]+)\))?/)
+        if (match) {
+          const [, componentType, componentId, errorCode, portName] = match
+          
+          const errorData = {
+            component_id: componentId,
+            component_type: componentType,
+            error_code: errorCode,
+            severity: 'error',
+            port_name: portName || null,
+            connected_component_id: null
+          }
+          handleCircuitComponentError(canvasRef, errorData)
+        } else {
+          // Could not parse CircuitComponentError, show generic error
+          if (canvasRef?.showErrorNotification) {
+            canvasRef.showErrorNotification(`Simulation error: ${err.message}`)
+          }
+        }
+      } else {
+        // Handle other types of errors
+        if (canvasRef?.showErrorNotification) {
+          canvasRef.showErrorNotification(`Simulation error: ${err.message}`)
+        }
+      }
     } finally {
       isRunning.value = false
     }
@@ -248,6 +281,59 @@ export function useAppController(circuitManager) {
           canvasRef.updateComponent(clearedComponent)
         }
       }, duration)
+    }
+  }
+
+  /**
+   * Handle CircuitComponentError exceptions from Python
+   */
+  function handleCircuitComponentError(canvasRef, errorData) {
+    if (!canvasRef) {
+      console.error('No canvasRef available')
+      return
+    }
+
+    // Find the component that has the error
+    const component = canvasRef.components.find(c => c.id === errorData.component_id)
+    if (!component) {
+      console.error(`Component not found: ${errorData.component_id}`)
+      return
+    }
+
+    // Update component to show error state
+    const updatedComponent = {
+      ...component,
+      props: {
+        ...component.props,
+        hasError: errorData.severity === 'error',
+        hasWarning: errorData.severity === 'warning',
+        errorMessageId: errorData.error_code,
+        errorDetails: {
+          portName: errorData.port_name,
+          connectedComponentId: errorData.connected_component_id
+        }
+      }
+    }
+    canvasRef.updateComponent(updatedComponent)
+
+    // Show global error notification
+    if (canvasRef?.showErrorNotification) {
+      const componentLabel = component.props?.label || component.label
+      
+      // Get localized error message
+      const errorMessageKey = `simulation.errors.${errorData.error_code}`
+      const errorMessage = t(errorMessageKey, {
+        inputName: errorData.port_name || 'unknown'
+      })
+      
+      // Format the error message with or without label
+      const componentDescription = componentLabel 
+        ? `${errorData.component_type} "${componentLabel}"`
+        : errorData.component_type
+      
+      canvasRef.showErrorNotification(
+        `Error in ${componentDescription}: ${errorMessage}`
+      )
     }
   }
 
