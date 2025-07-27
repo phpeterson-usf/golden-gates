@@ -180,6 +180,16 @@
   user-select: none;
 }
 
+/* Component icon text styling for character-based icons (constant, adder, etc.) */
+.component-icon-text {
+  font-family: monospace;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* Output value display - regular weight by default */
 .output-value {
   font-family: monospace;

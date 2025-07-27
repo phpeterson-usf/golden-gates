@@ -13,6 +13,28 @@
       />
     </template>
 
+    <!-- Special handling for constant with text -->
+    <template v-else-if="componentType === 'constant'">
+      <text
+        :x="iconTextX"
+        :y="iconTextY"
+        :font-size="iconTextFontSize"
+        class="component-icon-text"
+        :fill="color"
+      >1</text>
+    </template>
+
+    <!-- Special handling for adder with text -->
+    <template v-else-if="componentType === 'adder'">
+      <text
+        :x="iconTextX"
+        :y="iconTextY"
+        :font-size="iconTextFontSize"
+        class="component-icon-text"
+        :fill="color"
+      >+</text>
+    </template>
+
     <!-- Render other components as single path -->
     <template v-else>
       <path :d="componentPath" :fill="fillColor" :stroke="color" :stroke-width="strokeWidth" />
@@ -119,15 +141,31 @@ export default {
         return `M ${cx + radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy}`
       }
 
-      if (this.componentType === 'constant') {
-        // Rounded rectangle for constant - outline only to match component style
-        const width = 35
-        const height = 22
-        const x = 4
-        const y = 15 - height / 2
-        const rx = 3
-        const ry = 3
-        return `M ${x + rx} ${y} L ${x + width - rx} ${y} Q ${x + width} ${y} ${x + width} ${y + ry} L ${x + width} ${y + height - ry} Q ${x + width} ${y + height} ${x + width - rx} ${y + height} L ${x + rx} ${y + height} Q ${x} ${y + height} ${x} ${y + height - ry} L ${x} ${y + ry} Q ${x} ${y} ${x + rx} ${y} Z`
+      if (this.componentType === 'clock') {
+        // Square wave signal path for clock icon - made much bigger to match other icons
+        // The viewBox is 60x30, so we should use most of that space like Input/Output do
+        const startX = 2 // Start near left edge
+        const endX = 58 // End near right edge (almost full 60-unit width)
+        const width = endX - startX
+        const centerY = 15
+        const highY = 3 // Near top of 30-unit height
+        const lowY = 27 // Near bottom of 30-unit height
+        
+        // Create square wave with 2 full cycles - using almost the full viewBox
+        const quarterWave = width / 8
+        
+        return `
+          M ${startX} ${lowY}
+          L ${startX + quarterWave} ${lowY}
+          L ${startX + quarterWave} ${highY}
+          L ${startX + 3 * quarterWave} ${highY}
+          L ${startX + 3 * quarterWave} ${lowY}
+          L ${startX + 5 * quarterWave} ${lowY}
+          L ${startX + 5 * quarterWave} ${highY}
+          L ${startX + 7 * quarterWave} ${highY}
+          L ${startX + 7 * quarterWave} ${lowY}
+          L ${endX} ${lowY}
+        `.replace(/\s+/g, ' ').trim()
       }
 
       if (this.componentType === 'splitter') {
@@ -185,9 +223,12 @@ export default {
 
     strokeWidth() {
       // Use thicker strokes for small icons to improve visibility
-      // Make splitter and merger much thicker since they're line-based
+      // Make splitter, merger, and clock thicker since they're line-based
       if (this.componentType === 'splitter' || this.componentType === 'merger') {
         return this.size <= 20 ? 5 : 4
+      }
+      if (this.componentType === 'clock') {
+        return this.size <= 20 ? 6 : 4 // Much thicker stroke to match prominence of other icons
       }
       return this.size <= 20 ? 3 : 2
     },
@@ -211,7 +252,7 @@ export default {
       if (this.componentType === 'output') {
         return this.color // Solid fill for output
       }
-      return 'none' // No fill for gates and inputs
+      return 'none' // No fill for gates, inputs, and clock (stroke only)
     },
 
     pathSegments() {
@@ -263,6 +304,28 @@ export default {
         return '0 0 75 30' // Standard XOR width
       }
       return '0 0 60 30' // Standard width for other gates
+    },
+
+    // Text-based icon positioning and sizing (for constant, adder, etc.)
+    iconTextX() {
+      return 30 // Center of 60-width viewBox
+    },
+
+    iconTextY() {
+      return 15 // Center of 30-height viewBox
+    },
+
+    iconTextFontSize() {
+      // Scale font size based on icon size - much larger to be visible in SVG viewBox
+      // The viewBox is 60x30, so we need font sizes that work within that coordinate system
+      // Making it dramatically bigger since text seems to render smaller than expected
+      if (this.size <= 16) {
+        return 48 // Dramatically larger - should be very prominent now
+      } else if (this.size <= 24) {
+        return 44
+      } else {
+        return 40
+      }
     }
   }
 }
