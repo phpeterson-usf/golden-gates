@@ -62,7 +62,7 @@ class Output(IONode):
             bits=bits)
 
     def propagate(self, output_name='0', value=0):
-        self.value = self.safe_read_value('0')
+        self.value = self.safe_read_input('0')
         logger.info(f"{self.kind} '{self.label}' gets value {self.value}")
 
         try:

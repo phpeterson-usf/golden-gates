@@ -22,10 +22,10 @@ class Register(BitsNode):
         self.value = 0
 
     def propagate(self, output_name='Q', value=0):
-        en = self.safe_read_value(Register.en)
-        clk = self.safe_read_value(Register.CLK)
+        en = self.safe_read_input(Register.en)
+        clk = self.safe_read_input(Register.CLK)
         if en and clk:
-            self.value = self.safe_read_value(Register.D)
+            self.value = self.safe_read_input(Register.D)
         return super().propagate(output_name=output_name, value=self.value)
 
     # Nothing special to do for clone(). BitsNode.clone() is enough.
@@ -57,8 +57,8 @@ class ROM(BitsNode):
 
     def propagate(self, output_name='D', value=0):
         # Get inputs
-        address = self.safe_read_value(ROM.A)
-        selected = self.safe_read_value(ROM.sel)
+        address = self.safe_read_input(ROM.A)
+        selected = self.safe_read_input(ROM.sel)
 
         if address >= self.total_cells:
             # Wrap around

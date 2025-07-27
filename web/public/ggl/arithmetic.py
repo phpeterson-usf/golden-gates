@@ -48,9 +48,9 @@ class Adder(Arithmetic):
         return sum, carryOut
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(Adder.a)
-        b = self.safe_read_value(Adder.b)
-        carryIn = self.safe_read_value(Adder.carryIn)
+        a = self.safe_read_input(Adder.a)
+        b = self.safe_read_input(Adder.b)
+        carryIn = self.safe_read_input(Adder.carryIn)
 
         sum, carryOut = self.operator(a, b, carryIn)
 
@@ -87,9 +87,9 @@ class Subtract(Arithmetic):
         return difference, carryOut
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(Subtract.a)
-        b = self.safe_read_value(Subtract.b)
-        carryIn = self.safe_read_value(Subtract.carryIn)
+        a = self.safe_read_input(Subtract.a)
+        b = self.safe_read_input(Subtract.b)
+        carryIn = self.safe_read_input(Subtract.carryIn)
 
         difference, carryOut = self.operator(a, b, carryIn)
         new_work = super().propagate(output_name=Subtract.difference, value=difference)
@@ -118,8 +118,8 @@ class Multiply(Arithmetic):
         return v1 * v2
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(Multiply.a)
-        b = self.safe_read_value(Multiply.b)
+        a = self.safe_read_input(Multiply.a)
+        b = self.safe_read_input(Multiply.b)
         product = self.operator(a, b)
         new_work = super().propagate(output_name=Multiply.product, value=product)
         return new_work
@@ -147,8 +147,8 @@ class Division(Arithmetic):
         return v1 // v2, v1 % v2
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(Division.a)
-        b = self.safe_read_value(Division.b)
+        a = self.safe_read_input(Division.a)
+        b = self.safe_read_input(Division.b)
         quotient, remainder = self.operator(a, b)
         new_work = super().propagate(output_name=Division.quotient, value=quotient)
         new_work += super().propagate(output_name=Division.remainder, value=remainder)
@@ -185,8 +185,8 @@ class Comparator(Arithmetic):
         return complist
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(Comparator.a)
-        b = self.safe_read_value(Comparator.b)
+        a = self.safe_read_input(Comparator.a)
+        b = self.safe_read_input(Comparator.b)
         gt, eq, lt = self.operator(a, b)
         new_work = super().propagate(output_name=Comparator.gt, value=gt)
         new_work += super().propagate(output_name=Comparator.eq, value=eq)
@@ -228,8 +228,8 @@ class BarrelShifter(Arithmetic):
             return (v1 << v2) & ((1 << self.bits) - 1)
 
     def propagate(self, output_name='0', value=0):
-        a = self.safe_read_value(BarrelShifter.a)
-        b = self.safe_read_value(BarrelShifter.b)
+        a = self.safe_read_input(BarrelShifter.a)
+        b = self.safe_read_input(BarrelShifter.b)
         v = self.operator(a, b)
         new_work = super().propagate(output_name=BarrelShifter.result, value=v)
         return new_work
@@ -254,7 +254,7 @@ class Negation(Arithmetic):
         return (-v1) & ((1 << self.bits) - 1)
 
     def propagate(self, output_name='0', value=0):
-        v = self.safe_read_value(Negation.inport)
+        v = self.safe_read_input(Negation.inport)
         v = self.operator(v)
         new_work = super().propagate(output_name=Negation.outport, value=v)
         return new_work
@@ -289,7 +289,7 @@ class SignExtend(Arithmetic):
         return extended & ((1 << self.out_bits) - 1)
 
     def propagate(self, output_name='0', value=0):
-        v = self.safe_read_value(SignExtend.inport)
+        v = self.safe_read_input(SignExtend.inport)
         v = self.operator(v)
         new_work = super().propagate(output_name=SignExtend.outport, value=v)
         return new_work
@@ -315,7 +315,7 @@ class BitCounter(Arithmetic):
         return bin(v1 & ((1 << self.bits) - 1)).count('1')
 
     def propagate(self, output_name='0', value=0):
-        v = self.safe_read_value(BitCounter.inport)
+        v = self.safe_read_input(BitCounter.inport)
         count = self.operator(v)
         new_work = self.outputs.write_value(BitCounter.outport, value=count)
         return new_work
