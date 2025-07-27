@@ -66,7 +66,7 @@ describe('ConstantNode', () => {
   })
 
   describe('visual representation', () => {
-    it('should render as rounded rectangle with outline only to distinguish from input', () => {
+    it('should render as rounded rectangle with dynamic fill for draggability', () => {
       const wrapper = mount(ConstantNode, {
         props: {
           id: 'const1',
@@ -76,7 +76,9 @@ describe('ConstantNode', () => {
       })
 
       const rect = wrapper.find('rect')
-      expect(rect.attributes('fill')).toBe('none')
+      // Should have dynamic fill (not fill="none") for draggability
+      expect(rect.attributes('fill')).toBeDefined()
+      expect(rect.attributes('fill')).not.toBe('none')
       expect(rect.attributes('rx')).toBe('3')
       expect(rect.attributes('ry')).toBe('3')
     })
