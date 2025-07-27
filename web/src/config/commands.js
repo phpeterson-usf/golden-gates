@@ -136,6 +136,13 @@ export const commandGroups = {
         componentType: 'constant',
         action: 'addComponent',
         params: ['constant']
+      },
+      {
+        id: 'insert-clock',
+        labelKey: 'commands.insert.clock',
+        componentType: 'clock',
+        action: 'addComponent',
+        params: ['clock']
       }
     ]
   },

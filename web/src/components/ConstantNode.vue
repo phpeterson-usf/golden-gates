@@ -20,7 +20,7 @@
         :height="GRID_SIZE + 5"
         rx="3"
         ry="3"
-        fill="none"
+        :fill="fillColor"
         :stroke="strokeColor"
         :stroke-width="strokeWidth"
         class="component-body constant-body"
@@ -101,6 +101,5 @@ export default defineComponent({
 
 .constant-body {
   /* Use dynamic colors from useComponentView like other components */
-  fill: none !important;
 }
 </style>

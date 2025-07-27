@@ -108,6 +108,25 @@ export const componentPropertySchema = {
     ]
   },
 
+  // Clock node properties
+  clock: {
+    title: 'Clock Properties',
+    properties: [
+      { ...commonProperties.label, default: 'CLK' },
+      {
+        name: 'frequency',
+        type: 'number',
+        label: 'Frequency (Hz)',
+        default: 1,
+        min: 1,
+        max: 1000,
+        step: 1,
+        showButtons: true
+      },
+      commonProperties.rotation
+    ]
+  },
+
   // AND gate properties
   'and-gate': {
     title: 'AND Gate Properties',

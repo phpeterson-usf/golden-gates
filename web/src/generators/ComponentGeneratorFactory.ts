@@ -2,6 +2,7 @@ import type { ComponentGenerator, ComponentData } from '../types/ComponentGenera
 import { InputGenerator } from './InputGenerator'
 import { OutputGenerator } from './OutputGenerator'
 import { ConstantGenerator } from './ConstantGenerator'
+import { ClockGenerator } from './ClockGenerator'
 import { LogicGateGenerator } from './LogicGateGenerator'
 import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
@@ -26,6 +27,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'constant':
       return new ConstantGenerator(componentData)
+
+    case 'clock':
+      return new ClockGenerator(componentData)
 
     case 'and-gate':
     case 'or-gate':

@@ -173,6 +173,7 @@
       "input": "Input",
       "output": "Output",
       "constant": "Constant",
+      "clock": "Clock",
       "splitter": "Splitter",
       "merger": "Merger",
       "multiplexer": "Multiplexer (Mux)",

@@ -6,6 +6,7 @@ import { gateDefinitions } from '../config/gateDefinitions'
 import InputNode from '../components/InputNode.vue'
 import OutputNode from '../components/OutputNode.vue'
 import ConstantNode from '../components/ConstantNode.vue'
+import ClockNode from '../components/ClockNode.vue'
 import SplitterComponent from '../components/SplitterComponent.vue'
 import MergerComponent from '../components/MergerComponent.vue'
 import MultiplexerNode from '../components/MultiplexerNode.vue'
@@ -138,6 +139,42 @@ export const componentRegistry = {
     // Special handling for constant nodes
     onCreate: (instance, index) => {
       instance.props.label = `C${index}` // C0, C1, C2, etc.
+    }
+  },
+
+  clock: {
+    component: ClockNode,
+    label: 'Add Clock',
+    icon: 'pi pi-clock',
+    category: 'io',
+    defaultProps: {
+      frequency: 1,
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE,
+      height: GRID_SIZE
+    },
+    // Visual bounds relative to the component's x,y position
+    bounds: {
+      x: -10, // Extended left to accommodate longer values
+      y: -30, // Extended up to include frequency text
+      width: GRID_SIZE + 20, // Extra width for frequency display
+      height: 45 // Height to include frequency text above
+    },
+    // Visual center relative to the component's x,y position
+    center: {
+      x: GRID_SIZE / 2,
+      y: 0
+    },
+    connections: {
+      outputs: [
+        { name: '0', x: 1, y: 0 } // 1 grid unit right, 0 units down
+      ]
+    },
+    // Special handling for clock nodes
+    onCreate: (instance, index) => {
+      instance.props.label = `CLK${index}` // CLK0, CLK1, CLK2, etc.
     }
   },
 
