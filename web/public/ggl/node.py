@@ -159,21 +159,6 @@ class Node:
         raise NotImplementedError(
             f"clone() must be implemented by {self.__class__.__name__}")
 
-    def js_callback(self, event_type, details):
-        try:
-            import builtins
-            if self.js_id and hasattr(builtins, 'updateCallback'):
-                updateCallback = builtins.updateCallback
-                updateCallback(event_type, self.js_id, details)
-        except Exception as e:
-            logger.error(f'Callback failed: {e}')
-
-    def error_callback(self, msg_id):
-        d = {
-            'severity': 'error',
-            'messageId': msg_id,
-        }
-        self.js_callback('error', d)
 
 class BitsNode(Node):
     """

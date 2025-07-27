@@ -25,14 +25,6 @@ class Circuit:
         if js_logging is not None:
             set_global_js_logging(js_logging)
 
-    def preflight(self):
-        """
-        TODO: 
-        - don't allow mismatched bit widths. Can that be done here?
-        - don't allow more than one output to the same input
-        """
-        return True
-
     def step(self):
         """
         Perform one propagation step in the circuit which handles both clocked and combinational propagation.
