@@ -1,20 +1,10 @@
 import { ArithmeticComponentGenerator } from './ArithmeticComponentGenerator'
 import type { ComponentData } from '../types/ComponentGenerator'
 
-interface ShiftComponentData extends ComponentData {
-  type: 'shift'
-  props: {
-    bits?: number
-    label?: string
-    mode?: string
-    rotation?: number
-  }
-}
-
 export class ShiftGenerator extends ArithmeticComponentGenerator {
   protected mode: string
 
-  constructor(componentData: ShiftComponentData) {
+  constructor(componentData: ComponentData) {
     super(componentData, { className: 'BarrelShifter', varPrefix: 'shft' })
     this.mode = this.props.mode || 'logical_left'
   }

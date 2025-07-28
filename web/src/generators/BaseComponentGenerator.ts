@@ -101,8 +101,10 @@ export abstract class BaseComponentGenerator implements ComponentGenerator {
     }
 
     // Generate the next sequential name
-    const varName = `${baseType}${registry[`${baseType}_counter`]}`
-    registry[`${baseType}_counter`]++
+    const counterKey = `${baseType}_counter`
+    const counter = registry[counterKey] as number
+    const varName = `${baseType}${counter}`
+    registry[counterKey] = counter + 1
 
     // Store the mapping for this component
     registry[this.id] = varName
