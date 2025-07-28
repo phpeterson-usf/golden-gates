@@ -20,6 +20,7 @@ import Subtract from '../components/Subtract.vue'
 import Multiply from '../components/Multiply.vue'
 import Divide from '../components/Divide.vue'
 import Shift from '../components/Shift.vue'
+import Compare from '../components/Compare.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -698,6 +699,40 @@ export const componentRegistry = {
       // Don't override if it already has a label (including default '<<')
       if (!instance.props.label || instance.props.label === '') {
         instance.props.label = '<<'
+      }
+    }
+  },
+
+  compare: {
+    component: Compare,
+    label: 'Compare',
+    icon: 'pi pi-equals',
+    category: 'arithmetic',
+    requiresNamedPorts: true,
+    defaultProps: {
+      bits: 8,
+      label: '=',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 6
+    },
+    connections: {
+      inputs: [
+        { name: 'a', x: 0, y: 2 },      // a input (top)
+        { name: 'b', x: 0, y: 4 }       // b input (bottom)
+      ],
+      outputs: [
+        { name: 'lt', x: 4, y: 1 },     // lt output (less than - top)
+        { name: 'eq', x: 4, y: 3 },     // eq output (equal - middle)
+        { name: 'gt', x: 4, y: 5 }      // gt output (greater than - bottom)
+      ]
+    },
+    onCreate: (instance, index) => {
+      // Don't override if it already has a label (including default '=')
+      if (!instance.props.label || instance.props.label === '') {
+        instance.props.label = '='
       }
     }
   },

@@ -185,7 +185,8 @@
       "subtract": "Subtract",
       "multiply": "Multiply",
       "divide": "Divide",
-      "shift": "Shift"
+      "shift": "Shift",
+      "compare": "Compare"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",

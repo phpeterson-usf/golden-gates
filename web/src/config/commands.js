@@ -228,6 +228,13 @@ export const commandGroups = {
         componentType: 'shift',
         action: 'addComponent',
         params: ['shift']
+      },
+      {
+        id: 'insert-compare',
+        labelKey: 'commands.insert.compare',
+        componentType: 'compare',
+        action: 'addComponent',
+        params: ['compare']
       }
     ]
   },
