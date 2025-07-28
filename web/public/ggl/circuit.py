@@ -14,12 +14,14 @@ class Circuit:
     to produce a value in Output Nodes
     """
 
-    def __init__(self, label='', js_logging=None):
+    def __init__(self, label='', js_logging=None, auto_propagate=True):
         self.label = label
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
         self.all_nodes = set()
+        self.running = False
+        self.auto_propagate = auto_propagate
 
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -29,31 +31,79 @@ class Circuit:
         """
         Perform one propagation step in the circuit which handles both clocked and combinational propagation.
         """
-        work = list(self.inputs) + list(getattr(self, 'clocks', []))
+        # helper function to check whether a node is sequential
+        def sequential(node):
+            for edge in node.inputs.points.values():
+                if edge is not None and edge.srcpoint.node.kind == 'Clock':
+                    return True
+            return False
 
+        if not hasattr(self, 'clocks'):
+            self.clocks = [node for node in self.all_nodes if node.kind == 'Clock']
+
+        # separate combinational and sequential nodes
+        comb_nodes = [n for n in self.all_nodes if n.kind != 'Clock' and not sequential(n)]
+        seq_nodes = [n for n in self.all_nodes if sequential(n)]
+
+        def propagate_until_stable(nodes, name):
+            work = list(nodes)
+            seen = set(work)
+            iterations = 0
+            while work and iterations < MAX_ITERATIONS:
+                iterations += 1
+                new_work = set()
+                while work:
+                    node = work.pop(0)
+                    downstream = node.propagate() or []
+                    for n in downstream:
+                        if n not in seen:
+                            new_work.add(n)
+                            seen.add(n)
+                    for edges in node.outputs.points.values():
+                        for edge in edges:
+                            if edge.prev_value != edge.value:
+                                for dest_node in edge.get_dest_nodes():
+                                    if dest_node not in seen:
+                                        new_work.add(dest_node)
+                                        seen.add(dest_node)
+                work = list(new_work)
+            if iterations == MAX_ITERATIONS:
+                logger.warning(f"{name} graph did not stabilize in {MAX_ITERATIONS} steps.")
+
+        # save previous edge values
         for node in self.all_nodes:
             for edges in node.outputs.points.values():
                 for edge in edges:
                     edge.prev_value = edge.value
 
-        new_work = set()
+        # combinational logic
+        propagate_until_stable(comb_nodes, "Combinational")
 
-        while work:
-            node = work.pop(0)
-            downstream_nodes = node.propagate() or []
+        # clock edge propagation
+        triggered_clocks = []
+        for clock in self.clocks:
+            result = clock.propagate()
+            if result:
+                triggered_clocks.extend(result)
 
-            for n in downstream_nodes:
-                new_work.add(n)
+        # sequential logic
+        if triggered_clocks:
+            logger.info(f"{len(triggered_clocks)} clock triggered rising edge.")
+            propagate_until_stable(seq_nodes, "Sequential")
+        else:
+            logger.info("No clocks triggered this step.")
 
-            for edges in node.outputs.points.values():
-                for edge in edges:
-                    if edge.prev_value != edge.value:
-                        for dest_node in edge.get_dest_nodes():
-                            new_work.add(dest_node)
+        # final combinational logic
+        propagate_until_stable(comb_nodes, "Combinational post-Sequential")
 
-        return list(new_work)
+        return bool(triggered_clocks)
     
-
+    def stop(self):
+        """
+        Stop the long running circuit loop using boolean self.running
+        """
+        logger.info("Circuit stop() called: long running circuit will stop")
+        self.running = False
     
     def run(self):
         """
@@ -72,85 +122,14 @@ class Circuit:
                 loop: # CLK LOW
                     seq...
         """
-        # helper function to check whether a circuit is sequential or combinational
-        def sequential(node):
-            for edge in node.inputs.points.values():
-                if edge is not None and edge.srcpoint.node.kind == 'Clock':
-                    return True
-            return False
-        
-        if not hasattr(self, 'clocks'):
-            self.clocks = [node for node in self.all_nodes if node.kind == 'Clock']
-
-        iteration = 0
+        self.running = True
         output_history = deque(maxlen=10)
+        iteration = 0
 
-        # separate combinational vs sequential nodes using the helper funciton
-        comb_nodes = [n for n in self.all_nodes if n.kind != 'Clock' and not sequential(n)]
-        seq_nodes = [n for n in self.all_nodes if sequential(n)]
-
-        def propagate_until_stable(nodes, name):
-            work = list(nodes)
-            seen = set(work)
-            iterations = 0
-            while work and iterations < MAX_ITERATIONS:
-                iterations += 1
-                new_work = set()
-                while work:
-                    node = work.pop(0)
-                    downstream = node.propagate() or []
-
-                    for n in downstream:
-                        if n not in seen:
-                            new_work.add(n)
-                            seen.add(n)
-
-                    for edges in node.outputs.points.values():
-                        for edge in edges:
-                            if edge.prev_value != edge.value:
-                                for dest_node in edge.get_dest_nodes():
-                                    if dest_node not in seen:
-                                        new_work.add(dest_node)
-                                        seen.add(dest_node)
-
-                work = list(new_work)
-
-            if iterations == MAX_ITERATIONS:
-                logger.warning(f"{name} graph did not stabilize in {MAX_ITERATIONS} steps.")
-
-        for node in self.all_nodes:
-            for edges in node.outputs.points.values():
-                for edge in edges:
-                    edge.prev_value = edge.value
-
-        while iteration < MAX_ITERATIONS:
+        while self.running:
             iteration += 1
             logger.info(f"Main iteration {iteration}")
-
-            # loop through combinational logic until stable
-            propagate_until_stable(comb_nodes, "Combinational")
-
-            # propagate clocks
-            triggered_clocks = []
-            for clock in self.clocks:
-                # updates its own value if frequency > 0
-                result = clock.propagate() 
-                if result:
-                    triggered_clocks.extend(result)
-
-            if not triggered_clocks:
-                logger.info("No clocks triggered this iteration.")
-            else:
-                logger.info(f"{len(triggered_clocks)} clock triggered rising edge.")
-
-            # propagate sequential logic if clocks triggered until stable
-            if triggered_clocks:
-                propagate_until_stable(seq_nodes, "Sequential")
-
-            # final combinational propagation post-sequential changes
-            propagate_until_stable(comb_nodes, "Combinational post-Sequential")
-
-            # check output stability using deque
+            self.step()
             output_vals = {node.label: node.value for node in self.outputs}
             logger.info(f"Outputs after iteration {iteration}: {output_vals}")
             output_history.append(output_vals)
@@ -158,10 +137,6 @@ class Circuit:
             if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
                 logger.info("Circuit stabilized with constant outputs for 10 iterations.")
                 break
-
-        if iteration == MAX_ITERATIONS:
-            logger.warning("Circuit did not stabilize within max iterations.")
-
 
     def connect(self, src, dest):
         """
@@ -213,6 +188,7 @@ class Circuit:
         # Keep a list of Input Nodes so we can start the simulation from there
         if srcnode.kind == 'Input' and srcnode not in self.inputs:
             self.inputs.append(srcnode)
+            srcnode.circuit = self
         if destnode.kind == 'Output' and destnode not in self.outputs:
             self.outputs.append(destnode)
 

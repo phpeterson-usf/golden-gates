@@ -144,7 +144,10 @@ class Division(Arithmetic):
         )
 
     def operator(self, v1, v2):
-        return v1 // v2, v1 % v2
+        if v2 == 0:
+            return 0, 0
+        else:
+            return v1 // v2, v1 % v2
 
     def propagate(self, output_name='0', value=0):
         a = self.safe_read_input(Division.a)

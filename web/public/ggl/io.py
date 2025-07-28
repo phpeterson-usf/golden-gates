@@ -17,7 +17,8 @@ class IONode(BitsNode):
             num_outputs=num_outputs,
             label=label,
             bits=bits)
-        self.value = 0
+        self._value = 0
+        self.circuit = None
 
 
 class Input(IONode):
@@ -35,6 +36,17 @@ class Input(IONode):
             num_outputs=1,
             label=label,
             bits=bits)
+    
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        if self._value != new_value:
+            self._value = new_value
+            if self.circuit and getattr(self.circuit, 'auto_propagate', False):
+                self.circuit.step()
 
     def propagate(self, output_name='0', value=0):
         return super().propagate(value=self.value)
@@ -116,8 +128,8 @@ class Clock(IONode):
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0
-            new_val = 1 - self.value
-            self.prev_value = self.value
+            new_val = 1 - self._value
+            self.prev_value = self._value
             self.value = new_val
 
             logger.info(f"Clock '{self.label}' toggled to {self.value}")
