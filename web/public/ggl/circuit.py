@@ -130,19 +130,25 @@ class Circuit:
             # loop through combinational logic until stable
             propagate_until_stable(comb_nodes, "Combinational")
 
-            # propagate clocks to high
+            # propagate clocks
+            triggered_clocks = []
             for clock in self.clocks:
-                clock.value = 1
-                clock.propagate()
-            propagate_until_stable(seq_nodes, "Sequential HI CLK")
+                # updates its own value if frequency > 0
+                result = clock.propagate() 
+                if result:
+                    triggered_clocks.extend(result)
+
+            if not triggered_clocks:
+                logger.info("No clocks triggered this iteration.")
+            else:
+                logger.info(f"{len(triggered_clocks)} clock triggered rising edge.")
+
+            # propagate sequential logic if clocks triggered until stable
+            if triggered_clocks:
+                propagate_until_stable(seq_nodes, "Sequential")
 
             # final combinational propagation post-sequential changes
-            propagate_until_stable(comb_nodes, "Combinational post-CLK HI")
-
-            for clock in self.clocks:
-                clock.value = 0  # Simulate CLK LOW
-                clock.propagate()
-            propagate_until_stable(seq_nodes, "Sequential CLK LOW")
+            propagate_until_stable(comb_nodes, "Combinational post-Sequential")
 
             # check output stability using deque
             output_vals = {node.label: node.value for node in self.outputs}
