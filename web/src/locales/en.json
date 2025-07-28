@@ -149,7 +149,8 @@
       "wires": "Wires",
       "plexers": "Plexers",
       "arithmetic": "Arithmetic",
-      "memory": "Memory"
+      "memory": "Memory",
+      "insert": "Circuits"
     },
     "file": {
       "newCircuit": "New Circuit",
