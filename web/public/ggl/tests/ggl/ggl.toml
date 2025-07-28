@@ -299,3 +299,9 @@ Test 5: D=1, CLK=1, CLR=1 => Q=0, ~Q=1
 Test 6: D=1, CLK=0, CLR=0 => Q=0, ~Q=1
 """
 rubric = 1
+
+[[tests]]
+name = "registerclk"
+input = ["python3", "$project_tests/registerclk.py"]
+expected = "1"
+rubric = 1
