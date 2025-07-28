@@ -632,19 +632,6 @@ export function useAppController(circuitManager) {
     return components.length > 0 || wires.length > 0
   }
 
-  /**
-   * Handle before unload event
-   */
-  function handleBeforeUnload(canvasRef, event) {
-    if (hasUnsavedWork(canvasRef)) {
-      // Modern browsers ignore custom messages for security reasons
-      // They show a generic "Leave site?" dialog instead
-      event.preventDefault()
-      event.returnValue = '' // Chrome requires this
-      return '' // Some browsers need this
-    }
-  }
-
   return {
     // Simulation state
     isRunning,
@@ -670,7 +657,6 @@ export function useAppController(circuitManager) {
 
     // Utility functions
     showConfirmation,
-    hasUnsavedWork,
-    handleBeforeUnload
+    hasUnsavedWork
   }
 }

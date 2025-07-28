@@ -161,8 +161,6 @@ export default {
       handleDroppedFile,
       handleInspectorAction,
       showConfirmation,
-      hasUnsavedWork,
-      handleBeforeUnload,
       isRunning,
       isPyodideLoading,
       isPyodideReady,
@@ -211,8 +209,6 @@ export default {
       handleDroppedFile,
       handleInspectorAction,
       showConfirmation,
-      hasUnsavedWork,
-      handleBeforeUnload,
       isRunning,
       isPyodideLoading,
       isPyodideReady,
@@ -231,7 +227,6 @@ export default {
       selectedCircuit: null,
       isDraggingOver: false,
       dragCounter: 0,
-      beforeUnloadHandler: null,
       showAutosaveDialog: false,
       availableAutosaves: []
     }
@@ -584,10 +579,6 @@ export default {
   },
 
   mounted() {
-    // Set up the beforeunload handler
-    this.beforeUnloadHandler = event => this.handleBeforeUnload(this.$refs.canvas, event)
-    window.addEventListener('beforeunload', this.beforeUnloadHandler)
-
     // Initialize autosave system
     this.autosave.initializeAutosave()
 
@@ -614,11 +605,6 @@ export default {
   },
 
   beforeUnmount() {
-    // Clean up the beforeunload handler
-    if (this.beforeUnloadHandler) {
-      window.removeEventListener('beforeunload', this.beforeUnloadHandler)
-    }
-
     // Clean up the command event handler
     if (this.commandEventHandler) {
       window.removeEventListener('circuitCommand', this.commandEventHandler)
