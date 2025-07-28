@@ -46,6 +46,17 @@
       >-</text>
     </template>
 
+    <!-- Special handling for multiply with text -->
+    <template v-else-if="componentType === 'multiply'">
+      <text
+        :x="iconTextX"
+        :y="iconTextY"
+        :font-size="iconTextFontSize"
+        class="component-icon-text"
+        :fill="color"
+      >*</text>
+    </template>
+
     <!-- Render other components as single path -->
     <template v-else>
       <path :d="componentPath" :fill="fillColor" :stroke="color" :stroke-width="strokeWidth" />

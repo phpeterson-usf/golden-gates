@@ -17,6 +17,7 @@ import SchematicComponent from '../components/SchematicComponent.vue'
 import ROM from '../components/ROM.vue'
 import Adder from '../components/Adder.vue'
 import Subtract from '../components/Subtract.vue'
+import Multiply from '../components/Multiply.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -597,6 +598,38 @@ export const componentRegistry = {
       // Don't override if it already has a label (including default '-')
       if (!instance.props.label || instance.props.label === '') {
         instance.props.label = '-'
+      }
+    }
+  },
+
+  multiply: {
+    component: Multiply,
+    label: 'Multiply',
+    icon: 'pi pi-times',
+    category: 'arithmetic',
+    requiresNamedPorts: true,
+    defaultProps: {
+      bits: 8,
+      label: '×',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 4
+    },
+    connections: {
+      inputs: [
+        { name: 'a', x: 0, y: 1 },      // a input (top)
+        { name: 'b', x: 0, y: 3 }       // b input (bottom)
+      ],
+      outputs: [
+        { name: 'mul', x: 4, y: 2 }     // mul output (center)
+      ]
+    },
+    onCreate: (instance, index) => {
+      // Don't override if it already has a label (including default '×')
+      if (!instance.props.label || instance.props.label === '') {
+        instance.props.label = '×'
       }
     }
   },

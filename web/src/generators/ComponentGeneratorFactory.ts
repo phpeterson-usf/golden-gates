@@ -13,6 +13,7 @@ import { RegisterGenerator } from './RegisterGenerator'
 import { ROMGenerator } from './ROMGenerator'
 import { AdderGenerator } from './AdderGenerator'
 import { SubtractGenerator } from './SubtractGenerator'
+import { MultiplyGenerator } from './MultiplyGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -67,6 +68,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'subtract':
       return new SubtractGenerator(componentData)
+
+    case 'multiply':
+      return new MultiplyGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

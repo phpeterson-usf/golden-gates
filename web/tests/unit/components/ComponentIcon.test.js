@@ -293,8 +293,85 @@ describe('ComponentIcon', () => {
     })
   })
 
+  describe('Multiply icon', () => {
+    it('should render "*" character as text for multiply component', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.exists()).toBe(true)
+      expect(text.text()).toBe('*')
+      expect(text.classes()).toContain('component-icon-text')
+    })
+
+    it('should use shared CSS class for consistent styling', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.classes()).toContain('component-icon-text')
+    })
+
+    it('should scale font size for different icon sizes', () => {
+      const smallWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
+      const largeWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 32
+        }
+      })
+
+      const smallText = smallWrapper.find('text')
+      const largeText = largeWrapper.find('text')
+      
+      // Font sizes should be different for different icon sizes
+      expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
+    })
+
+    it('should use specified color for text fill', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16,
+          color: '#00ff00'
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.attributes('fill')).toBe('#00ff00')
+    })
+
+    it('should center the text properly', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      // Text centering is handled by CSS class, but we can verify positioning
+      expect(text.attributes('x')).toBe('30') // Center of viewBox
+      expect(text.attributes('y')).toBe('15') // Center of viewBox
+    })
+  })
+
   describe('Text-based icons (shared functionality)', () => {
-    it('should use same positioning for constant, adder, and subtract', () => {
+    it('should use same positioning for constant, adder, subtract, and multiply', () => {
       const constantWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'constant',
@@ -316,9 +393,17 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const multiplyWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
       const constantText = constantWrapper.find('text')
       const adderText = adderWrapper.find('text')
       const subtractText = subtractWrapper.find('text')
+      const multiplyText = multiplyWrapper.find('text')
       
       // Should use same positioning
       expect(constantText.attributes('x')).toBe(adderText.attributes('x'))
@@ -328,9 +413,13 @@ describe('ComponentIcon', () => {
       expect(constantText.attributes('x')).toBe(subtractText.attributes('x'))
       expect(constantText.attributes('y')).toBe(subtractText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(subtractText.attributes('font-size'))
+      
+      expect(constantText.attributes('x')).toBe(multiplyText.attributes('x'))
+      expect(constantText.attributes('y')).toBe(multiplyText.attributes('y'))
+      expect(constantText.attributes('font-size')).toBe(multiplyText.attributes('font-size'))
     })
 
-    it('should use same CSS class for constant, adder, and subtract', () => {
+    it('should use same CSS class for constant, adder, subtract, and multiply', () => {
       const constantWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'constant',
@@ -352,19 +441,28 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const multiplyWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
       const constantText = constantWrapper.find('text')
       const adderText = adderWrapper.find('text')
       const subtractText = subtractWrapper.find('text')
+      const multiplyText = multiplyWrapper.find('text')
       
       // Should use same CSS class
       expect(constantText.classes()).toEqual(adderText.classes())
       expect(constantText.classes()).toEqual(subtractText.classes())
+      expect(constantText.classes()).toEqual(multiplyText.classes())
       expect(constantText.classes()).toContain('component-icon-text')
     })
   })
 
   describe('SVG properties', () => {
-    it('should set correct viewBox for clock, constant, adder, and subtract icons', () => {
+    it('should set correct viewBox for clock, constant, adder, subtract, and multiply icons', () => {
       const clockWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'clock',
@@ -393,11 +491,19 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const multiplyWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'multiply',
+          size: 16
+        }
+      })
+
       // All should use standard viewBox
       expect(clockWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
       expect(constantWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
       expect(adderWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
       expect(subtractWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
+      expect(multiplyWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
     })
 
     it('should set correct size attributes', () => {

@@ -207,6 +207,13 @@ export const commandGroups = {
         componentType: 'subtract',
         action: 'addComponent',
         params: ['subtract']
+      },
+      {
+        id: 'insert-multiply',
+        labelKey: 'commands.insert.multiply',
+        componentType: 'multiply',
+        action: 'addComponent',
+        params: ['multiply']
       }
     ]
   },
