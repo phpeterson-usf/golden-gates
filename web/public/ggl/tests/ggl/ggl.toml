@@ -318,7 +318,10 @@ rubric = 1
 [[tests]]
 name = "32bit-eq"
 input = ["python3", "$project_tests/32bit-eq.py"]
-expected = "1"
+expected = """
+0
+1
+"""
 rubric = 1
 
 [[tests]]

@@ -52,37 +52,40 @@ circuit0.connect(and0, output0)    # and0 -> output0
 # Export as a reusable component
 eight_bit_eq = circuit.Component(circuit0)
 
-c = circuit.Circuit(js_logging=True)
+circuit0 = circuit.Circuit(js_logging=True)
 
-a = io.Input(label="A", bits=32, js_id="input_1_1753736599077")
-a.value = 0
-b = io.Input(label="B", bits=32, js_id="input_2_1753736608641")
-b.value = 0
-s0 = wires.Splitter(bits=32, splits=[(0,7), (8,15), (16,23), (24,31)], js_id="splitter_1_1753736715151")
-s1 = wires.Splitter(bits=32, splits=[(0,7), (8,15), (16,23), (24,31)], js_id="splitter_2_1753736746869")
+input0 = io.Input(label="A", bits=32, js_id="input_1_1753736599077")
+input0.value = 100
+input1 = io.Input(label="B", bits=32, js_id="input_2_1753736608641")
+input1.value = 200
+splitter0 = wires.Splitter(bits=32, splits=[(0,7), (8,15), (16,23), (24,31)], js_id="splitter_1_1753736715151")
+splitter1 = wires.Splitter(bits=32, splits=[(0,7), (8,15), (16,23), (24,31)], js_id="splitter_2_1753736746869")
 eight_bit_eq_1 = eight_bit_eq()
 eight_bit_eq_2 = eight_bit_eq()
 eight_bit_eq_3 = eight_bit_eq()
 eight_bit_eq_4 = eight_bit_eq()
-and1 = logic.And(num_inputs=4, js_id="and-gate_1_1753736925634")
-eq = io.Output(label="EQ", bits=1, js_id="output_1_1753736958180")
+and0 = logic.And(num_inputs=4, js_id="and-gate_1_1753736925634")
+output0 = io.Output(label="EQ", bits=1, js_id="output_1_1753736958180")
 
-c.connect(s1.output("0"), eight_bit_eq_1.input("B"))    # splitter1 -> eight_bit_eq_1.in[1]
-c.connect(s1.output("1"), eight_bit_eq_2.input("B"))    # splitter1.out[1] -> eight_bit_eq_2.in[1]
-c.connect(s1.output("2"), eight_bit_eq_3.input("B"))    # splitter1.out[2] -> eight_bit_eq_3.in[1]
-c.connect(s1.output("3"), eight_bit_eq_4.input("B"))    # splitter1.out[3] -> eight_bit_eq_4.in[1]
-c.connect(s0.output("0"), eight_bit_eq_1.input("A"))    # splitter0 -> eight_bit_eq_1.in[0]
-c.connect(s0.output("1"), eight_bit_eq_2.input("A"))    # splitter0.out[1] -> eight_bit_eq_2.in[0]
-c.connect(s0.output("2"), eight_bit_eq_3.input("A"))    # splitter0.out[2] -> eight_bit_eq_3.in[0]
-c.connect(s0.output("3"), eight_bit_eq_4.input("A"))    # splitter0.out[3] -> eight_bit_eq_4.in[0]
-c.connect(a, s0)    # input0 -> splitter0
-c.connect(b, s1)    # input1 -> splitter1
-c.connect(eight_bit_eq_1.output("EQ"), and1.input("0"))    # eight_bit_eq_1 -> and0.in[0]
-c.connect(eight_bit_eq_2.output("EQ"), and1.input("1"))    # eight_bit_eq_2 -> and0.in[1]
-c.connect(eight_bit_eq_3.output("EQ"), and1.input("2"))    # eight_bit_eq_3 -> and0.in[2]
-c.connect(eight_bit_eq_4.output("EQ"), and1.input("3"))    # eight_bit_eq_4 -> and0.in[3]
-c.connect(and1, eq)    # and0 -> output0
+circuit0.connect(splitter1.output("0"), eight_bit_eq_1.input("B"))    # splitter1 -> eight_bit_eq_1.in[1]
+circuit0.connect(splitter1.output("1"), eight_bit_eq_2.input("B"))    # splitter1.out[1] -> eight_bit_eq_2.in[1]
+circuit0.connect(splitter1.output("2"), eight_bit_eq_3.input("B"))    # splitter1.out[2] -> eight_bit_eq_3.in[1]
+circuit0.connect(splitter1.output("3"), eight_bit_eq_4.input("B"))    # splitter1.out[3] -> eight_bit_eq_4.in[1]
+circuit0.connect(splitter0.output("0"), eight_bit_eq_1.input("A"))    # splitter0 -> eight_bit_eq_1.in[0]
+circuit0.connect(splitter0.output("1"), eight_bit_eq_2.input("A"))    # splitter0.out[1] -> eight_bit_eq_2.in[0]
+circuit0.connect(splitter0.output("2"), eight_bit_eq_3.input("A"))    # splitter0.out[2] -> eight_bit_eq_3.in[0]
+circuit0.connect(splitter0.output("3"), eight_bit_eq_4.input("A"))    # splitter0.out[3] -> eight_bit_eq_4.in[0]
+circuit0.connect(input0, splitter0)    # input0 -> splitter0
+circuit0.connect(input1, splitter1)    # input1 -> splitter1
+circuit0.connect(eight_bit_eq_1.output("EQ"), and0.input("0"))    # eight_bit_eq_1 -> and0.in[0]
+circuit0.connect(eight_bit_eq_2.output("EQ"), and0.input("1"))    # eight_bit_eq_2 -> and0.in[1]
+circuit0.connect(eight_bit_eq_3.output("EQ"), and0.input("2"))    # eight_bit_eq_3 -> and0.in[2]
+circuit0.connect(eight_bit_eq_4.output("EQ"), and0.input("3"))    # eight_bit_eq_4 -> and0.in[3]
+circuit0.connect(and0, output0)    # and0 -> output0
 
-c.run()
-
-print(eq.value)
+circuit0.run()
+print(output0.value)
+input0.value = 255
+input1.value = 255
+circuit0.step()
+print(output0.value)
