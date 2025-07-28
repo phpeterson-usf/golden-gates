@@ -1,5 +1,5 @@
-import { BaseComponentGenerator } from './BaseComponentGenerator'
-import type { ComponentData, GeneratedStatement } from '../types/ComponentGenerator'
+import { ArithmeticComponentGenerator } from './ArithmeticComponentGenerator'
+import type { ComponentData } from '../types/ComponentGenerator'
 
 interface ShiftComponentData extends ComponentData {
   type: 'shift'
@@ -11,29 +11,18 @@ interface ShiftComponentData extends ComponentData {
   }
 }
 
-export class ShiftGenerator extends BaseComponentGenerator {
-  protected bits: number
-  protected label: string
+export class ShiftGenerator extends ArithmeticComponentGenerator {
   protected mode: string
 
   constructor(componentData: ShiftComponentData) {
-    super(componentData)
-    this.bits = this.props.bits || 8
-    this.label = this.props.label || ''
+    super(componentData, { className: 'BarrelShifter', varPrefix: 'shft' })
     this.mode = this.props.mode || 'logical_left'
   }
 
-  generate(): GeneratedStatement {
-    const varName = this.generateVarName('shft')
-    const gglParams = this.buildGglParams({ 
+  protected getAdditionalParams(): Record<string, any> {
+    return { 
       bits: this.bits,
       mode: this.mode
-    })
-
-    return {
-      varName,
-      code: `${varName} = arithmetic.BarrelShifter(${gglParams})`,
-      imports: new Set(['arithmetic'])
     }
   }
 }

@@ -1,5 +1,5 @@
-import { BaseComponentGenerator } from './BaseComponentGenerator'
-import type { ComponentData, GeneratedStatement } from '../types/ComponentGenerator'
+import { ArithmeticComponentGenerator } from './ArithmeticComponentGenerator'
+import type { ComponentData } from '../types/ComponentGenerator'
 
 interface AdderComponentData extends ComponentData {
   type: 'adder'
@@ -10,24 +10,8 @@ interface AdderComponentData extends ComponentData {
   }
 }
 
-export class AdderGenerator extends BaseComponentGenerator {
-  protected bits: number
-  protected label: string
-
+export class AdderGenerator extends ArithmeticComponentGenerator {
   constructor(componentData: AdderComponentData) {
-    super(componentData)
-    this.bits = this.props.bits || 8
-    this.label = this.props.label || ''
-  }
-
-  generate(): GeneratedStatement {
-    const varName = this.generateVarName('adder')
-    const paramString = this.buildGglParams({ bits: this.bits })
-
-    return {
-      varName,
-      code: `${varName} = arithmetic.Adder(${paramString})`,
-      imports: new Set(['arithmetic'])
-    }
+    super(componentData, { className: 'Adder', varPrefix: 'adder' })
   }
 }

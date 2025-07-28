@@ -1,5 +1,5 @@
-import { BaseComponentGenerator } from './BaseComponentGenerator'
-import type { ComponentData, GeneratedStatement } from '../types/ComponentGenerator'
+import { ArithmeticComponentGenerator } from './ArithmeticComponentGenerator'
+import type { ComponentData } from '../types/ComponentGenerator'
 
 interface CompareComponentData extends ComponentData {
   type: 'compare'
@@ -10,24 +10,8 @@ interface CompareComponentData extends ComponentData {
   }
 }
 
-export class CompareGenerator extends BaseComponentGenerator {
-  protected bits: number
-  protected label: string
-
+export class CompareGenerator extends ArithmeticComponentGenerator {
   constructor(componentData: CompareComponentData) {
-    super(componentData)
-    this.bits = this.props.bits || 8
-    this.label = this.props.label || ''
-  }
-
-  generate(): GeneratedStatement {
-    const varName = this.generateVarName('comp')
-    const gglParams = this.buildGglParams({ bits: this.bits })
-
-    return {
-      varName,
-      code: `${varName} = arithmetic.Comparator(${gglParams})`,
-      imports: new Set(['arithmetic'])
-    }
+    super(componentData, { className: 'Comparator', varPrefix: 'comp' })
   }
 }
