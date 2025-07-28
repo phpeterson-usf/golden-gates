@@ -305,3 +305,9 @@ name = "registerclk"
 input = ["python3", "$project_tests/registerclk.py"]
 expected = "1"
 rubric = 1
+
+[[tests]]
+name = "d-flip-flop"
+input = ["python3", "$project_tests/d-flip-flop.py"]
+expected = "1"
+rubric = 1
