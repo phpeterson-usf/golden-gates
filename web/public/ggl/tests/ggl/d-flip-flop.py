@@ -84,6 +84,8 @@ d_flip_flop.connect(not0, d_latch_clr_2.input("CLK"))    # not0 -> d_latch_clr_2
 d_flip_flop.connect(d_latch_clr_1.output("Q"), mux0.input("0"))    # d_latch_clr_1 -> mux0.in[0]
 d_flip_flop.connect(d1, mux0.input("1"))    # d1 -> mux0.in[1]
 d_flip_flop.connect(en1, mux0.input("sel"))    # en1 -> mux0.in[2]
+d_flip_flop.connect(mux0, d_latch_clr_2.input("D"))    # mux0 -> d_latch_clr_2.in[1]
+
 d_flip_flop.connect(clr1, d_latch_clr_1.input("CLR"))    # clr1 -> d_latch_clr_1.in[2]
 d_flip_flop.connect(clk0, d_latch_clr_1.input("CLK"))    # clk0 -> d_latch_clr_1.in[0]
 d_flip_flop.connect(d_latch_clr_2.output("Q"), d_latch_clr_1.input("D"))    # d_latch_clr_2 -> d_latch_clr_1.in[1]
