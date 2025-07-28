@@ -48,14 +48,14 @@ export abstract class BaseComponentGenerator implements ComponentGenerator {
    */
   protected buildGglParams(additionalParams: Record<string, any> = {}): string {
     const params: string[] = []
-    
+
     // Add common parameters
     if (this.label) {
       // Escape quotes in label
       const escapedLabel = this.label.replace(/"/g, '\\"')
       params.push(`label="${escapedLabel}"`)
     }
-    
+
     // Add additional parameters from subclass
     for (const [key, value] of Object.entries(additionalParams)) {
       if (value !== undefined && value !== null) {
@@ -70,10 +70,10 @@ export abstract class BaseComponentGenerator implements ComponentGenerator {
         }
       }
     }
-    
+
     // Always add js_id for payload-based callbacks
     params.push(this.getJsIdParam())
-    
+
     return params.join(', ')
   }
 

@@ -10,7 +10,7 @@ export class ShiftGenerator extends ArithmeticComponentGenerator {
   }
 
   protected getAdditionalParams(): Record<string, any> {
-    return { 
+    return {
       bits: this.bits,
       mode: this.mode
     }

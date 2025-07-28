@@ -120,7 +120,9 @@ export function useCodeGenController() {
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
 
     // Header - import all GGL modules (unused imports are not an error in Python)
-    sections.push(`from ggl import arithmetic, circuit, component, io, logic, memory, plexers, wires`)
+    sections.push(
+      `from ggl import arithmetic, circuit, component, io, logic, memory, plexers, wires`
+    )
 
     // Import all circuit components used in this circuit
     const componentImports = findRequiredComponentImports(components, circuitManager)
@@ -277,7 +279,7 @@ export function useCodeGenController() {
             startPos: `(${wire.startConnection.x}, ${wire.startConnection.y})`,
             endPos: `(${wire.endConnection.x}, ${wire.endConnection.y})`
           }
-          
+
           // If source component exists but destination doesn't, mark source with error
           if (sourceComp && !destComp) {
             const sourceLabel = sourceComp.props?.label || sourceComp.label || 'unlabeled'
@@ -291,7 +293,7 @@ export function useCodeGenController() {
               }
             })
           }
-          
+
           // If destination exists but source doesn't, mark destination with error
           if (!sourceComp && destComp) {
             const destLabel = destComp.props?.label || destComp.label || 'unlabeled'
@@ -305,10 +307,12 @@ export function useCodeGenController() {
               }
             })
           }
-          
+
           // If neither exists, we can't mark anything - just log
           if (!sourceComp && !destComp) {
-            console.error(`Dangling wire: id=${wire.id}, from ${errorDetails.startPos} to ${errorDetails.endPos}`)
+            console.error(
+              `Dangling wire: id=${wire.id}, from ${errorDetails.startPos} to ${errorDetails.endPos}`
+            )
           }
         }
         continue
@@ -476,13 +480,15 @@ export function useCodeGenController() {
     const destConfig = componentRegistry[destComp.type]
 
     // Determine if we need to specify port names
-    const sourceRequiresNamedPorts = sourceComp.type === 'schematic-component' || 
-                                     sourceConfig?.requiresNamedPorts || 
-                                     sourceOutputs.length > 1
-    
-    const destRequiresNamedPorts = destComp.type === 'schematic-component' || 
-                                   destConfig?.requiresNamedPorts || 
-                                   destInputs.length > 1
+    const sourceRequiresNamedPorts =
+      sourceComp.type === 'schematic-component' ||
+      sourceConfig?.requiresNamedPorts ||
+      sourceOutputs.length > 1
+
+    const destRequiresNamedPorts =
+      destComp.type === 'schematic-component' ||
+      destConfig?.requiresNamedPorts ||
+      destInputs.length > 1
 
     if (sourceRequiresNamedPorts) {
       const outputName = getPortName(sourceOutputs, sourcePort, 'output')

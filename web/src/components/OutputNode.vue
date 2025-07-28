@@ -84,7 +84,8 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     // Track when value updates for animation
     const valueChanged = ref(false)

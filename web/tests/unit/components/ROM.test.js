@@ -32,7 +32,7 @@ describe('ROM', () => {
     it('renders A (address) input connection point', () => {
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs.length).toBeGreaterThanOrEqual(2)
-      
+
       const aInput = inputs.find(input => input.attributes('data-port') === '0')
       expect(aInput.exists()).toBe(true)
       expect(aInput.attributes('cx')).toBe('0')
@@ -41,7 +41,7 @@ describe('ROM', () => {
 
     it('renders sel (select) input connection point', () => {
       const inputs = wrapper.findAll('.connection-point.input')
-      
+
       const selInput = inputs.find(input => input.attributes('data-port') === '1')
       expect(selInput.exists()).toBe(true)
       expect(selInput.attributes('cx')).toBe('0')
@@ -51,7 +51,7 @@ describe('ROM', () => {
     it('renders D (data) output connection point', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(1)
-      
+
       const dOutput = outputs[0]
       expect(dOutput.attributes('data-port')).toBe('0')
       expect(dOutput.attributes('cx')).toBe(String(4 * GRID_SIZE)) // Right edge
@@ -61,7 +61,7 @@ describe('ROM', () => {
     it('renders input labels', () => {
       const texts = wrapper.findAll('text')
       const labels = texts.map(text => text.text())
-      
+
       expect(labels).toContain('A')
       expect(labels).toContain('sel')
       expect(labels).toContain('D')
@@ -70,7 +70,7 @@ describe('ROM', () => {
     it('renders component label when provided', () => {
       const texts = wrapper.findAll('text')
       const labels = texts.map(text => text.text())
-      
+
       expect(labels).toContain('ROM0')
     })
 
@@ -83,7 +83,7 @@ describe('ROM', () => {
   describe('Dynamic Sizing', () => {
     it('adjusts size based on address bits', async () => {
       await wrapper.setProps({ addressBits: 6 })
-      
+
       const rect = wrapper.find('rect')
       expect(rect.attributes('width')).toBe(String(Math.max(4, Math.ceil(6 / 2)) * GRID_SIZE))
       expect(rect.attributes('height')).toBe(String(Math.max(5, Math.ceil(6 / 2) + 1) * GRID_SIZE))
@@ -91,7 +91,7 @@ describe('ROM', () => {
 
     it('maintains minimum size', async () => {
       await wrapper.setProps({ addressBits: 1 })
-      
+
       const rect = wrapper.find('rect')
       expect(rect.attributes('width')).toBe(String(4 * GRID_SIZE)) // Min width 4
       expect(rect.attributes('height')).toBe(String(5 * GRID_SIZE)) // Min height 5
@@ -99,11 +99,11 @@ describe('ROM', () => {
 
     it('updates output position based on dynamic height', async () => {
       await wrapper.setProps({ addressBits: 8 })
-      
+
       const outputs = wrapper.findAll('.connection-point.output')
       const dOutput = outputs[0]
-      
-      const expectedHeight = Math.max(5, Math.ceil(8 / 2) + 1) // 5 grid units for 8 address bits  
+
+      const expectedHeight = Math.max(5, Math.ceil(8 / 2) + 1) // 5 grid units for 8 address bits
       expect(dOutput.attributes('cy')).toBe(String(Math.floor(expectedHeight / 2) * GRID_SIZE))
     })
   })
@@ -111,13 +111,13 @@ describe('ROM', () => {
   describe('Input Spacing', () => {
     it('maintains 2 grid unit spacing between A and sel inputs', () => {
       const inputs = wrapper.findAll('.connection-point.input')
-      
+
       const aInput = inputs.find(input => input.attributes('data-port') === '0')
       const selInput = inputs.find(input => input.attributes('data-port') === '1')
-      
+
       const aY = parseFloat(aInput.attributes('cy'))
       const selY = parseFloat(selInput.attributes('cy'))
-      
+
       expect(selY - aY).toBe(2 * GRID_SIZE) // Exactly 2 grid units apart
     })
   })
@@ -151,7 +151,7 @@ describe('ROM', () => {
     it('has mousedown event handler on rect', () => {
       const rect = wrapper.find('rect')
       expect(rect.exists()).toBe(true)
-      
+
       // Check that the rect has a mousedown handler attribute
       const rectHTML = rect.html()
       // The handler will be compiled by Vue, so we just verify the rect exists for interaction

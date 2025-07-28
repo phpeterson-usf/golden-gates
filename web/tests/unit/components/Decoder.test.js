@@ -32,7 +32,7 @@ describe('Decoder', () => {
     it('renders selector input connection point', () => {
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(1)
-      
+
       const selInput = inputs[0]
       expect(selInput.attributes('cx')).toBe(String(GRID_SIZE * 1)) // Center of 2-unit wide
       expect(selInput.attributes('cy')).toBe(String(8 * GRID_SIZE)) // Bottom position by default
@@ -42,12 +42,12 @@ describe('Decoder', () => {
     it('renders correct number of output connection points', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(4)
-      
+
       // Check first and last output positions
       expect(outputs[0].attributes('cx')).toBe(String(2 * GRID_SIZE))
       expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE)) // First at y=1
       expect(outputs[0].attributes('data-port')).toBe('0')
-      
+
       expect(outputs[3].attributes('cy')).toBe(String(7 * GRID_SIZE)) // Last at y=7 (1 + 3*2)
       expect(outputs[3].attributes('data-port')).toBe('3')
     })
@@ -83,7 +83,7 @@ describe('Decoder', () => {
       await wrapper.setProps({ numOutputs: 2 })
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(2)
-      
+
       // Component should have minimum height (check via computed property or visual result)
       // We can't easily test the path height, so just verify outputs are rendered
       expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE))
@@ -94,7 +94,7 @@ describe('Decoder', () => {
       await wrapper.setProps({ numOutputs: 16 })
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(16)
-      
+
       // Check that outputs are properly spaced
       expect(outputs[0].attributes('cy')).toBe(String(GRID_SIZE))
       expect(outputs[15].attributes('cy')).toBe(String(31 * GRID_SIZE)) // 1 + 15*2
@@ -103,11 +103,11 @@ describe('Decoder', () => {
     it('maintains 2 grid unit spacing between outputs', async () => {
       await wrapper.setProps({ numOutputs: 3 })
       const outputs = wrapper.findAll('.connection-point.output')
-      
+
       const y0 = parseInt(outputs[0].attributes('cy'))
       const y1 = parseInt(outputs[1].attributes('cy'))
       const y2 = parseInt(outputs[2].attributes('cy'))
-      
+
       expect(y1 - y0).toBe(2 * GRID_SIZE)
       expect(y2 - y1).toBe(2 * GRID_SIZE)
     })
@@ -116,14 +116,14 @@ describe('Decoder', () => {
   describe('Grid Alignment', () => {
     it('aligns all connection points to grid vertices', async () => {
       await wrapper.setProps({ numOutputs: 5 })
-      
+
       // Check selector input
       const input = wrapper.find('.connection-point.input')
       const inputX = parseInt(input.attributes('cx'))
       const inputY = parseInt(input.attributes('cy'))
       expect(inputX % GRID_SIZE).toBe(0)
       expect(inputY % GRID_SIZE).toBe(0)
-      
+
       // Check all outputs
       const outputs = wrapper.findAll('.connection-point.output')
       outputs.forEach(output => {
@@ -158,8 +158,8 @@ describe('Decoder', () => {
     it('rotates around component center', async () => {
       await wrapper.setProps({ rotation: 180 })
       const rotationGroup = wrapper.findAll('g')[1]
-      const centerX = 2 * GRID_SIZE / 2  // 2 grid units wide
-      const centerY = 8 * GRID_SIZE / 2
+      const centerX = (2 * GRID_SIZE) / 2 // 2 grid units wide
+      const centerY = (8 * GRID_SIZE) / 2
       expect(rotationGroup.attributes('transform')).toBe(`rotate(180, ${centerX}, ${centerY})`)
     })
   })
@@ -202,7 +202,7 @@ describe('Decoder', () => {
       expect(input.attributes('data-component-id')).toBe('decoder-1')
       expect(input.attributes('data-type')).toBe('input')
       expect(input.attributes('data-port')).toBe('0')
-      
+
       const outputs = wrapper.findAll('.connection-point.output')
       outputs.forEach((output, index) => {
         expect(output.attributes('data-component-id')).toBe('decoder-1')

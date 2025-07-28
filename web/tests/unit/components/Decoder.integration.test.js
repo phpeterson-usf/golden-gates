@@ -26,14 +26,14 @@ describe('Decoder Integration', () => {
     it('generates correct connections for decoder', () => {
       const config = componentRegistry.decoder
       const connections = config.getConnections({ numOutputs: 4 })
-      
+
       expect(connections.inputs).toHaveLength(1)
       expect(connections.inputs[0]).toEqual({
         name: 'sel',
         x: 1,
         y: 8
       })
-      
+
       expect(connections.outputs).toHaveLength(4)
       expect(connections.outputs[0]).toEqual({ name: '0', x: 2, y: 1 })
       expect(connections.outputs[1]).toEqual({ name: '1', x: 2, y: 3 })
@@ -43,17 +43,17 @@ describe('Decoder Integration', () => {
 
     it('calculates correct dimensions', () => {
       const config = componentRegistry.decoder
-      
+
       // Test with 4 outputs
       let dims = config.getDimensions({ numOutputs: 4 })
       expect(dims.width).toBe(30) // 2 * GRID_SIZE (15)
       expect(dims.height).toBe(120) // 8 * GRID_SIZE
-      
+
       // Test with 2 outputs (minimum)
       dims = config.getDimensions({ numOutputs: 2 })
       expect(dims.width).toBe(30)
       expect(dims.height).toBe(60) // Minimum 4 grid units * 15
-      
+
       // Test with 8 outputs
       dims = config.getDimensions({ numOutputs: 8 })
       expect(dims.width).toBe(30)
@@ -110,8 +110,10 @@ describe('Decoder Integration', () => {
       const code = result.code
 
       // Check decoder instantiation
-      expect(code).toContain('decoder0 = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")')
-      
+      expect(code).toContain(
+        'decoder0 = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")'
+      )
+
       // Check connections use named ports
       expect(code).toContain('circuit0.connect(input0, decoder0.input("sel"))')
       expect(code).toContain('circuit0.connect(decoder0.output("0"), output0)')
@@ -185,14 +187,14 @@ describe('Decoder Integration', () => {
   describe('Property Validation', () => {
     it('validates numOutputs property', () => {
       const config = componentRegistry.decoder
-      
+
       // Valid range
       expect(config.defaultProps.numOutputs).toBe(4)
-      
+
       // Component should handle edge cases
       const minConnections = config.getConnections({ numOutputs: 2 })
       expect(minConnections.outputs).toHaveLength(2)
-      
+
       const maxConnections = config.getConnections({ numOutputs: 16 })
       expect(maxConnections.outputs).toHaveLength(16)
     })

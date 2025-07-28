@@ -24,10 +24,13 @@ export class MergerGenerator extends WireComponentGenerator {
     const additionalParams = {
       bits: this.outputBits
     }
-    
+
     const baseParams = this.buildGglParams(additionalParams)
     // Insert merge_inputs parameter before js_id (which is always last)
-    const paramString = baseParams.replace(/, js_id=/, `, merge_inputs=${mergeInputsString}, js_id=`)
+    const paramString = baseParams.replace(
+      /, js_id=/,
+      `, merge_inputs=${mergeInputsString}, js_id=`
+    )
 
     return {
       varName,

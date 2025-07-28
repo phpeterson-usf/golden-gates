@@ -56,7 +56,7 @@ export function useBrowserCompatibility() {
       // Check for static import support (indirectly via script type="module")
       const script = document.createElement('script')
       const supportsModule = 'noModule' in script
-      
+
       // If we've gotten this far in a module-based app, we have module support
       // The app itself is loaded as a module, so if this code is running, modules work
       return supportsModule
@@ -114,7 +114,7 @@ export function useBrowserCompatibility() {
   const checkModernJS = () => {
     try {
       // Check for async/await
-      const AsyncFunction = (async function () {}).constructor
+      const AsyncFunction = async function () {}.constructor
       if (!AsyncFunction) return false
 
       // Check for arrow functions

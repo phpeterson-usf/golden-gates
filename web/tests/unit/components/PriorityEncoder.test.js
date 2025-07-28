@@ -29,12 +29,12 @@ describe('PriorityEncoder', () => {
     it('renders correct number of input connection points', () => {
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(4)
-      
+
       // Check first and last input positions
       expect(inputs[0].attributes('cx')).toBe('0')
       expect(inputs[0].attributes('cy')).toBe(String(GRID_SIZE)) // First at y=1
       expect(inputs[0].attributes('data-port')).toBe('0')
-      
+
       expect(inputs[3].attributes('cy')).toBe(String(7 * GRID_SIZE)) // Last at y=7 (1 + 3*2)
       expect(inputs[3].attributes('data-port')).toBe('3')
     })
@@ -42,11 +42,11 @@ describe('PriorityEncoder', () => {
     it('renders exactly two output connection points (inum and any)', () => {
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(2)
-      
+
       // Check output positions
       expect(outputs[0].attributes('cx')).toBe(String(3 * GRID_SIZE))
       expect(outputs[0].attributes('data-port')).toBe('0') // inum
-      
+
       expect(outputs[1].attributes('cx')).toBe(String(3 * GRID_SIZE))
       expect(outputs[1].attributes('data-port')).toBe('1') // any
     })
@@ -55,12 +55,12 @@ describe('PriorityEncoder', () => {
       const texts = wrapper.findAll('text')
       // Should have the component label plus two output labels
       expect(texts.length).toBeGreaterThanOrEqual(3)
-      
+
       // Find the output labels
       const inumLabel = texts.find(t => t.text() === 'inum')
       const anyLabel = texts.find(t => t.text() === 'any')
       const componentLabel = texts.find(t => t.text() === 'PE0')
-      
+
       expect(inumLabel.exists()).toBe(true)
       expect(anyLabel.exists()).toBe(true)
       expect(componentLabel.exists()).toBe(true)
@@ -88,7 +88,7 @@ describe('PriorityEncoder', () => {
       await wrapper.setProps({ numInputs: 2 })
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(2)
-      
+
       // Component should have minimum height (check via outputs spacing)
       expect(inputs[0].attributes('cy')).toBe(String(GRID_SIZE))
       expect(inputs[1].attributes('cy')).toBe(String(3 * GRID_SIZE))
@@ -98,7 +98,7 @@ describe('PriorityEncoder', () => {
       await wrapper.setProps({ numInputs: 16 })
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(16)
-      
+
       // Check that inputs are properly spaced
       expect(inputs[0].attributes('cy')).toBe(String(GRID_SIZE))
       expect(inputs[15].attributes('cy')).toBe(String(31 * GRID_SIZE)) // 1 + 15*2
@@ -107,7 +107,7 @@ describe('PriorityEncoder', () => {
     it('maintains 2 grid unit spacing between inputs', async () => {
       await wrapper.setProps({ numInputs: 3 })
       const inputs = wrapper.findAll('.connection-point.input')
-      
+
       expect(inputs[0].attributes('cy')).toBe(String(GRID_SIZE))
       expect(inputs[1].attributes('cy')).toBe(String(3 * GRID_SIZE))
       expect(inputs[2].attributes('cy')).toBe(String(5 * GRID_SIZE))
@@ -117,11 +117,11 @@ describe('PriorityEncoder', () => {
   describe('Grid Alignment', () => {
     it('aligns all connection points to grid vertices', () => {
       const allConnections = wrapper.findAll('.connection-point')
-      
+
       allConnections.forEach(connection => {
         const cx = parseInt(connection.attributes('cx'))
         const cy = parseInt(connection.attributes('cy'))
-        
+
         // All positions should be multiples of GRID_SIZE
         expect(cx % GRID_SIZE).toBe(0)
         expect(cy % GRID_SIZE).toBe(0)
@@ -132,13 +132,17 @@ describe('PriorityEncoder', () => {
   describe('Component Position', () => {
     it('positions priority encoder at correct grid coordinates', () => {
       const container = wrapper.find('g')
-      expect(container.attributes('transform')).toBe(`translate(${2 * GRID_SIZE}, ${3 * GRID_SIZE})`)
+      expect(container.attributes('transform')).toBe(
+        `translate(${2 * GRID_SIZE}, ${3 * GRID_SIZE})`
+      )
     })
 
     it('updates position when props change', async () => {
       await wrapper.setProps({ x: 5, y: 7 })
       const container = wrapper.find('g')
-      expect(container.attributes('transform')).toBe(`translate(${5 * GRID_SIZE}, ${7 * GRID_SIZE})`)
+      expect(container.attributes('transform')).toBe(
+        `translate(${5 * GRID_SIZE}, ${7 * GRID_SIZE})`
+      )
     })
   })
 
@@ -152,8 +156,8 @@ describe('PriorityEncoder', () => {
     it('rotates around component center', async () => {
       await wrapper.setProps({ rotation: 180 })
       const rotationGroup = wrapper.findAll('g')[1]
-      const centerX = 3 * GRID_SIZE / 2
-      const centerY = 8 * GRID_SIZE / 2
+      const centerX = (3 * GRID_SIZE) / 2
+      const centerY = (8 * GRID_SIZE) / 2
       expect(rotationGroup.attributes('transform')).toBe(`rotate(180, ${centerX}, ${centerY})`)
     })
   })
@@ -190,14 +194,14 @@ describe('PriorityEncoder', () => {
     it('sets correct data attributes on connection points', () => {
       const inputs = wrapper.findAll('.connection-point.input')
       const outputs = wrapper.findAll('.connection-point.output')
-      
+
       // Check input data attributes
       inputs.forEach((input, index) => {
         expect(input.attributes('data-component-id')).toBe('test-priority-encoder')
         expect(input.attributes('data-port')).toBe(String(index))
         expect(input.attributes('data-type')).toBe('input')
       })
-      
+
       // Check output data attributes
       outputs.forEach((output, index) => {
         expect(output.attributes('data-component-id')).toBe('test-priority-encoder')

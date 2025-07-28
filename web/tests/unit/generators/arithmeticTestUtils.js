@@ -15,13 +15,7 @@ import { describe, it, expect } from 'vitest'
  * @param {string} config.varPrefix - Variable prefix for naming (e.g., 'sub', 'mul')
  */
 export function createArithmeticGeneratorTests(config) {
-  const { 
-    GeneratorClass, 
-    componentType, 
-    gglClassName, 
-    varNamePattern, 
-    varPrefix 
-  } = config
+  const { GeneratorClass, componentType, gglClassName, varNamePattern, varPrefix } = config
 
   describe(`${GeneratorClass.name}`, () => {
     describe('generate()', () => {
@@ -31,12 +25,14 @@ export function createArithmeticGeneratorTests(config) {
           type: componentType,
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.varName).toMatch(varNamePattern)
-        expect(result.code).toBe(`${result.varName} = arithmetic.${gglClassName}(bits=8, js_id="${componentType}-1")`)
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.${gglClassName}(bits=8, js_id="${componentType}-1")`
+        )
         expect(result.imports).toEqual(new Set(['arithmetic']))
       })
 
@@ -48,11 +44,13 @@ export function createArithmeticGeneratorTests(config) {
             bits: 16
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toBe(`${result.varName} = arithmetic.${gglClassName}(bits=16, js_id="${componentType}-1")`)
+
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.${gglClassName}(bits=16, js_id="${componentType}-1")`
+        )
       })
 
       it('includes label when provided', () => {
@@ -64,11 +62,13 @@ export function createArithmeticGeneratorTests(config) {
             label: 'TEST0'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toBe(`${result.varName} = arithmetic.${gglClassName}(label="TEST0", bits=4, js_id="${componentType}-1")`)
+
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.${gglClassName}(label="TEST0", bits=4, js_id="${componentType}-1")`
+        )
       })
 
       it('generates unique variable names for multiple instances', () => {
@@ -77,19 +77,19 @@ export function createArithmeticGeneratorTests(config) {
           type: componentType,
           props: { label: 'TEST1' }
         }
-        
+
         const data2 = {
           id: `${componentType}-2`,
           type: componentType,
           props: { label: 'TEST2' }
         }
-        
+
         const gen1 = new GeneratorClass(data1)
         const gen2 = new GeneratorClass(data2)
-        
+
         const result1 = gen1.generate()
         const result2 = gen2.generate()
-        
+
         expect(result1.varName).not.toBe(result2.varName)
         expect(result1.varName).toMatch(varNamePattern)
         expect(result2.varName).toMatch(varNamePattern)
@@ -97,7 +97,7 @@ export function createArithmeticGeneratorTests(config) {
 
       it('handles all valid bit counts', () => {
         const bitCounts = [1, 4, 8, 16, 32]
-        
+
         bitCounts.forEach(bits => {
           const componentData = {
             id: `${componentType}-${bits}`,
@@ -106,10 +106,10 @@ export function createArithmeticGeneratorTests(config) {
               bits: bits
             }
           }
-          
+
           const generator = new GeneratorClass(componentData)
           const result = generator.generate()
-          
+
           expect(result.code).toContain(`bits=${bits}`)
         })
       })
@@ -122,10 +122,10 @@ export function createArithmeticGeneratorTests(config) {
             label: 'TEST "Quote" Label'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         // Should escape the quotes in the label
         expect(result.code).toContain('label="TEST \\"Quote\\" Label"')
       })
@@ -139,10 +139,10 @@ export function createArithmeticGeneratorTests(config) {
             // bits is missing
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         // Should use default bits of 8
         expect(result.code).toContain('bits=8')
       })
@@ -156,12 +156,16 @@ export function createArithmeticGeneratorTests(config) {
             bits: 4
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         // Parameters should be in order: label="TEST", bits=4, js_id="..."
-        expect(result.code).toMatch(new RegExp(`arithmetic\\.${gglClassName}\\(label="TEST", bits=4, js_id="${componentType}-1"\\)`))
+        expect(result.code).toMatch(
+          new RegExp(
+            `arithmetic\\.${gglClassName}\\(label="TEST", bits=4, js_id="${componentType}-1"\\)`
+          )
+        )
       })
 
       it('handles special characters in component id', () => {
@@ -172,10 +176,10 @@ export function createArithmeticGeneratorTests(config) {
             bits: 8
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain(`js_id="${componentType}-test_123"`)
       })
 
@@ -185,10 +189,10 @@ export function createArithmeticGeneratorTests(config) {
           type: componentType,
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.imports).toEqual(new Set(['arithmetic']))
       })
 
@@ -201,12 +205,14 @@ export function createArithmeticGeneratorTests(config) {
             bits: 4
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         // Should not include label parameter when empty
-        expect(result.code).toBe(`${result.varName} = arithmetic.${gglClassName}(bits=4, js_id="${componentType}-1")`)
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.${gglClassName}(bits=4, js_id="${componentType}-1")`
+        )
       })
 
       it(`generates correct class name ${gglClassName}`, () => {
@@ -218,10 +224,10 @@ export function createArithmeticGeneratorTests(config) {
             bits: 8
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain(`arithmetic.${gglClassName}(`)
       })
 
@@ -231,10 +237,10 @@ export function createArithmeticGeneratorTests(config) {
           type: componentType,
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.varName).toMatch(varNamePattern)
       })
     })
@@ -253,12 +259,14 @@ export function createShiftGeneratorTests(GeneratorClass) {
           type: 'shift',
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.varName).toMatch(/^shft\d+$/)
-        expect(result.code).toBe(`${result.varName} = arithmetic.BarrelShifter(bits=8, mode="logical_left", js_id="shift-1")`)
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.BarrelShifter(bits=8, mode="logical_left", js_id="shift-1")`
+        )
         expect(result.imports).toEqual(new Set(['arithmetic']))
       })
 
@@ -271,11 +279,13 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'logical_right'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toBe(`${result.varName} = arithmetic.BarrelShifter(bits=16, mode="logical_right", js_id="shift-1")`)
+
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.BarrelShifter(bits=16, mode="logical_right", js_id="shift-1")`
+        )
       })
 
       it('includes label when provided', () => {
@@ -288,16 +298,18 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'arithmetic_right'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toBe(`${result.varName} = arithmetic.BarrelShifter(label="SHIFTER0", bits=4, mode="arithmetic_right", js_id="shift-1")`)
+
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.BarrelShifter(label="SHIFTER0", bits=4, mode="arithmetic_right", js_id="shift-1")`
+        )
       })
 
       it('handles all valid shift modes', () => {
         const modes = ['logical_left', 'logical_right', 'arithmetic_right']
-        
+
         modes.forEach(mode => {
           const componentData = {
             id: `shift-${mode}`,
@@ -307,10 +319,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
               mode: mode
             }
           }
-          
+
           const generator = new GeneratorClass(componentData)
           const result = generator.generate()
-          
+
           expect(result.code).toContain(`mode="${mode}"`)
         })
       })
@@ -324,10 +336,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
             // mode not specified
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain('mode="logical_left"')
       })
 
@@ -338,19 +350,19 @@ export function createShiftGeneratorTests(GeneratorClass) {
           type: 'shift',
           props: { label: 'SHIFT1' }
         }
-        
+
         const data2 = {
           id: 'shift-2',
           type: 'shift',
           props: { label: 'SHIFT2' }
         }
-        
+
         const gen1 = new GeneratorClass(data1)
         const gen2 = new GeneratorClass(data2)
-        
+
         const result1 = gen1.generate()
         const result2 = gen2.generate()
-        
+
         expect(result1.varName).not.toBe(result2.varName)
         expect(result1.varName).toMatch(/^shft\d+$/)
         expect(result2.varName).toMatch(/^shft\d+$/)
@@ -358,7 +370,7 @@ export function createShiftGeneratorTests(GeneratorClass) {
 
       it('handles all valid bit counts', () => {
         const bitCounts = [1, 4, 8, 16, 32]
-        
+
         bitCounts.forEach(bits => {
           const componentData = {
             id: `shift-${bits}`,
@@ -368,10 +380,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
               mode: 'logical_left'
             }
           }
-          
+
           const generator = new GeneratorClass(componentData)
           const result = generator.generate()
-          
+
           expect(result.code).toContain(`bits=${bits}`)
         })
       })
@@ -385,10 +397,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'logical_right'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain('label="SHIFT \\"Test\\" Label"')
       })
 
@@ -402,10 +414,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
             // bits is missing
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain('bits=8')
       })
 
@@ -419,11 +431,13 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'logical_left'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toMatch(/arithmetic\.BarrelShifter\(label="TEST", bits=4, mode="logical_left", js_id="shift-1"\)/)
+
+        expect(result.code).toMatch(
+          /arithmetic\.BarrelShifter\(label="TEST", bits=4, mode="logical_left", js_id="shift-1"\)/
+        )
       })
 
       it('handles special characters in component id', () => {
@@ -435,10 +449,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'logical_right'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain('js_id="shift-test_123"')
       })
 
@@ -448,10 +462,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
           type: 'shift',
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.imports).toEqual(new Set(['arithmetic']))
       })
 
@@ -465,11 +479,13 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'arithmetic_right'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
-        expect(result.code).toBe(`${result.varName} = arithmetic.BarrelShifter(bits=4, mode="arithmetic_right", js_id="shift-1")`)
+
+        expect(result.code).toBe(
+          `${result.varName} = arithmetic.BarrelShifter(bits=4, mode="arithmetic_right", js_id="shift-1")`
+        )
       })
 
       it('generates correct class name BarrelShifter', () => {
@@ -482,10 +498,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
             mode: 'logical_left'
           }
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.code).toContain('arithmetic.BarrelShifter(')
       })
 
@@ -495,10 +511,10 @@ export function createShiftGeneratorTests(GeneratorClass) {
           type: 'shift',
           props: {}
         }
-        
+
         const generator = new GeneratorClass(componentData)
         const result = generator.generate()
-        
+
         expect(result.varName).toMatch(/^shft\d+$/)
       })
     })

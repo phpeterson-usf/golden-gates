@@ -24,7 +24,7 @@ export class MultiplexerGenerator extends BaseComponentGenerator {
     const additionalParams: Record<string, any> = {
       num_inputs: this.numInputs
     }
-    
+
     // Only add bits if it's not the default value of 1
     if (this.bits > 1) {
       additionalParams.bits = this.bits

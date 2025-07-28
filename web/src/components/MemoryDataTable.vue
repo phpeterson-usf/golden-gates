@@ -14,11 +14,7 @@
         >
           <i class="pi pi-upload"></i>
         </button>
-        <button
-          @click="clearData"
-          v-tooltip.top="'Clear Data'"
-          class="clear-button"
-        >
+        <button @click="clearData" v-tooltip.top="'Clear Data'" class="clear-button">
           <i class="pi pi-trash"></i>
         </button>
         <input
@@ -31,7 +27,7 @@
       </div>
     </div>
 
-    <div 
+    <div
       class="table-container"
       @dragover.prevent="handleDragOver"
       @drop.prevent="handleDrop"
@@ -52,7 +48,7 @@
                 @focus="handleCellFocus((row - 1) * 8 + (col - 1))"
                 @blur="handleCellBlur"
                 class="cell-input"
-                :class="{ 'active': activeCellIndex === (row - 1) * 8 + (col - 1) }"
+                :class="{ active: activeCellIndex === (row - 1) * 8 + (col - 1) }"
                 spellcheck="false"
               />
             </td>
@@ -82,12 +78,12 @@ const props = defineProps({
   addressBits: {
     type: Number,
     default: 4,
-    validator: (value) => value >= 1 && value <= 16
+    validator: value => value >= 1 && value <= 16
   },
   dataBits: {
     type: Number,
     default: 8,
-    validator: (value) => value >= 1 && value <= 32
+    validator: value => value >= 1 && value <= 32
   },
   highlightAddress: {
     type: Number,
@@ -117,22 +113,29 @@ if (data.value.length === 0) {
 }
 
 // Watch for external changes
-watch(() => props.modelValue, (newValue) => {
-  data.value = [...newValue]
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  newValue => {
+    data.value = [...newValue]
+  },
+  { deep: true }
+)
 
 // Watch for addressBits changes to resize array
-watch(() => props.addressBits, (newBits) => {
-  const newSize = Math.pow(2, newBits)
-  if (data.value.length < newSize) {
-    // Expand array
-    data.value = [...data.value, ...new Array(newSize - data.value.length).fill(0)]
-  } else if (data.value.length > newSize) {
-    // Truncate array
-    data.value = data.value.slice(0, newSize)
+watch(
+  () => props.addressBits,
+  newBits => {
+    const newSize = Math.pow(2, newBits)
+    if (data.value.length < newSize) {
+      // Expand array
+      data.value = [...data.value, ...new Array(newSize - data.value.length).fill(0)]
+    } else if (data.value.length > newSize) {
+      // Truncate array
+      data.value = data.value.slice(0, newSize)
+    }
+    emit('update:modelValue', data.value)
   }
-  emit('update:modelValue', data.value)
-})
+)
 
 // Methods
 function getDataAt(index) {
@@ -141,11 +144,11 @@ function getDataAt(index) {
 
 function updateDataAt(index, valueStr) {
   if (index >= totalCells.value) return
-  
+
   // Parse value based on current base
   let value = 0
   valueStr = valueStr.trim()
-  
+
   if (valueStr !== '') {
     if (displayBase.value === 2) {
       value = parseInt(valueStr, 2) || 0
@@ -155,10 +158,10 @@ function updateDataAt(index, valueStr) {
       value = parseInt(valueStr, 10) || 0
     }
   }
-  
+
   // Clamp to valid range
   value = Math.max(0, Math.min(value, maxDataValue.value))
-  
+
   // Update data
   const newData = [...data.value]
   newData[index] = value
@@ -168,7 +171,7 @@ function updateDataAt(index, valueStr) {
 
 function formatAddress(index) {
   if (index >= totalCells.value) return ''
-  
+
   const hexAddr = index.toString(16).toUpperCase()
   const padding = Math.ceil(props.addressBits / 4)
   return hexAddr.padStart(padding, '0')
@@ -233,13 +236,13 @@ async function importFile(file) {
   try {
     const text = await file.text()
     const values = parseJsonFile(text)
-    
+
     // Truncate or pad to match total cells
     const newData = new Array(totalCells.value).fill(0)
     for (let i = 0; i < Math.min(values.length, totalCells.value); i++) {
       newData[i] = Math.max(0, Math.min(values[i], maxDataValue.value))
     }
-    
+
     data.value = newData
     emit('update:modelValue', newData)
   } catch (error) {
@@ -250,19 +253,19 @@ async function importFile(file) {
 
 function parseJsonFile(text) {
   const jsonData = JSON.parse(text)
-  
+
   // Support both direct arrays and objects with a "data" property
   const array = Array.isArray(jsonData) ? jsonData : jsonData.data
-  
+
   if (!Array.isArray(array)) {
     throw new Error('JSON must contain an array of values')
   }
-  
+
   const values = []
-  
+
   for (const item of array) {
     let value = 0
-    
+
     if (typeof item === 'number') {
       value = item
     } else if (typeof item === 'string') {
@@ -280,12 +283,12 @@ function parseJsonFile(text) {
       // Try to convert to number
       value = Number(item)
     }
-    
+
     if (!isNaN(value)) {
       values.push(Math.floor(value)) // Ensure integer values
     }
   }
-  
+
   return values
 }
 </script>
@@ -360,7 +363,6 @@ function parseJsonFile(text) {
   border-collapse: collapse;
   font-size: 0.75rem;
 }
-
 
 .memory-cell {
   padding: 0.125rem;

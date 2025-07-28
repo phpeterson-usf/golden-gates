@@ -11,7 +11,7 @@
 
           <!-- Title -->
           <h1 class="compatibility-title">{{ $t('browserCompat.title') }}</h1>
-          
+
           <!-- Main message -->
           <p class="compatibility-message">{{ $t('browserCompat.message') }}</p>
 

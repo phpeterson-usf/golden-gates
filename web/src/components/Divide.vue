@@ -107,8 +107,8 @@
       <!-- Component label -->
       <text
         v-if="label"
-        :x="width * GRID_SIZE / 2"
-        :y="height * GRID_SIZE / 2"
+        :x="(width * GRID_SIZE) / 2"
+        :y="(height * GRID_SIZE) / 2"
         text-anchor="middle"
         dominant-baseline="middle"
         class="component-label"
@@ -147,7 +147,8 @@ export default defineComponent({
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,

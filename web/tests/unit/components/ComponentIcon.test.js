@@ -14,7 +14,7 @@ describe('ComponentIcon', () => {
 
       const path = wrapper.find('path')
       expect(path.exists()).toBe(true)
-      
+
       const pathData = path.attributes('d')
       expect(pathData).toBeDefined()
       expect(pathData).toContain('M') // Should start with move command
@@ -51,7 +51,7 @@ describe('ComponentIcon', () => {
 
       const smallPath = smallWrapper.find('path').attributes('d')
       const largePath = largeWrapper.find('path').attributes('d')
-      
+
       // Paths should be the same since we use fixed coordinates to fill the viewBox
       expect(smallPath).toBe(largePath)
       // But stroke width should still scale
@@ -105,7 +105,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -183,7 +183,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -260,7 +260,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -337,7 +337,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -414,7 +414,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -491,7 +491,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -568,7 +568,7 @@ describe('ComponentIcon', () => {
 
       const smallText = smallWrapper.find('text')
       const largeText = largeWrapper.find('text')
-      
+
       // Font sizes should be different for different icon sizes
       expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
     })
@@ -659,28 +659,28 @@ describe('ComponentIcon', () => {
       const divideText = divideWrapper.find('text')
       const shiftText = shiftWrapper.find('text')
       const compareText = compareWrapper.find('text')
-      
+
       // Should use same positioning
       expect(constantText.attributes('x')).toBe(adderText.attributes('x'))
       expect(constantText.attributes('y')).toBe(adderText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(adderText.attributes('font-size'))
-      
+
       expect(constantText.attributes('x')).toBe(subtractText.attributes('x'))
       expect(constantText.attributes('y')).toBe(subtractText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(subtractText.attributes('font-size'))
-      
+
       expect(constantText.attributes('x')).toBe(multiplyText.attributes('x'))
       expect(constantText.attributes('y')).toBe(multiplyText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(multiplyText.attributes('font-size'))
-      
+
       expect(constantText.attributes('x')).toBe(divideText.attributes('x'))
       expect(constantText.attributes('y')).toBe(divideText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(divideText.attributes('font-size'))
-      
+
       expect(constantText.attributes('x')).toBe(shiftText.attributes('x'))
       expect(constantText.attributes('y')).toBe(shiftText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(shiftText.attributes('font-size'))
-      
+
       expect(constantText.attributes('x')).toBe(compareText.attributes('x'))
       expect(constantText.attributes('y')).toBe(compareText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(compareText.attributes('font-size'))
@@ -743,7 +743,7 @@ describe('ComponentIcon', () => {
       const divideText = divideWrapper.find('text')
       const shiftText = shiftWrapper.find('text')
       const compareText = compareWrapper.find('text')
-      
+
       // Should use same CSS class
       expect(constantText.classes()).toEqual(adderText.classes())
       expect(constantText.classes()).toEqual(subtractText.classes())

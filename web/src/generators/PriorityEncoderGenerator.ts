@@ -16,12 +16,12 @@ export class PriorityEncoderGenerator extends BaseComponentGenerator {
 
   generate() {
     const varName = this.generateVarName('priorityEncoder')
-    
+
     // Build parameters using centralized method
     const paramString = this.buildGglParams({ num_inputs: this.numInputs })
-    
+
     const code = `${varName} = plexers.PriorityEncoder(${paramString})`
-    
+
     return {
       varName,
       code

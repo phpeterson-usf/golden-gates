@@ -25,33 +25,33 @@ describe('PriorityEncoder Integration', () => {
     it('generates correct connections for priority encoder', () => {
       const config = componentRegistry.priorityEncoder
       const connections = config.getConnections({ numInputs: 4 })
-      
+
       // Should have 4 inputs
       expect(connections.inputs).toHaveLength(4)
       expect(connections.inputs[0]).toEqual({ name: '0', x: 0, y: 1 })
       expect(connections.inputs[1]).toEqual({ name: '1', x: 0, y: 3 })
       expect(connections.inputs[2]).toEqual({ name: '2', x: 0, y: 5 })
       expect(connections.inputs[3]).toEqual({ name: '3', x: 0, y: 7 })
-      
+
       // Should have exactly 2 outputs (inum and any)
       expect(connections.outputs).toHaveLength(2)
       expect(connections.outputs[0]).toEqual({ name: 'inum', x: 3, y: 3 }) // 1/3 of height=8
-      expect(connections.outputs[1]).toEqual({ name: 'any', x: 3, y: 5 })   // 2/3 of height=8
+      expect(connections.outputs[1]).toEqual({ name: 'any', x: 3, y: 5 }) // 2/3 of height=8
     })
 
     it('calculates correct dimensions', () => {
       const config = componentRegistry.priorityEncoder
-      
+
       // Test with 4 inputs
       let dims = config.getDimensions({ numInputs: 4 })
       expect(dims.width).toBe(45) // 3 * GRID_SIZE (15)
       expect(dims.height).toBe(120) // 8 * GRID_SIZE
-      
+
       // Test with 2 inputs (minimum)
       dims = config.getDimensions({ numInputs: 2 })
       expect(dims.width).toBe(45)
       expect(dims.height).toBe(90) // Minimum 6 grid units * 15
-      
+
       // Test with 8 inputs
       dims = config.getDimensions({ numInputs: 8 })
       expect(dims.width).toBe(45)
@@ -70,7 +70,7 @@ describe('PriorityEncoder Integration', () => {
           props: { bits: 1, label: 'IN0' }
         },
         {
-          id: 'input-2', 
+          id: 'input-2',
           type: 'input',
           x: 0,
           y: 2,
@@ -92,7 +92,7 @@ describe('PriorityEncoder Integration', () => {
         },
         {
           id: 'output-2',
-          type: 'output', 
+          type: 'output',
           x: 10,
           y: 2,
           props: { bits: 1, label: 'ANY' }
@@ -130,8 +130,10 @@ describe('PriorityEncoder Integration', () => {
       const code = result.code
 
       // Check priority encoder instantiation
-      expect(code).toContain('priorityEncoder0 = plexers.PriorityEncoder(label="PE0", num_inputs=4, js_id="priorityEncoder-1")')
-      
+      expect(code).toContain(
+        'priorityEncoder0 = plexers.PriorityEncoder(label="PE0", num_inputs=4, js_id="priorityEncoder-1")'
+      )
+
       // Check connections use named ports
       expect(code).toContain('circuit0.connect(input0, priorityEncoder0.input("0"))')
       expect(code).toContain('circuit0.connect(input1, priorityEncoder0.input("1"))')
@@ -223,7 +225,7 @@ describe('PriorityEncoder Integration', () => {
       expect(code).toContain('circuit0.connect(input0, priorityEncoder0.input("0"))')
       expect(code).toContain('circuit0.connect(input1, priorityEncoder0.input("1"))')
       expect(code).toContain('circuit0.connect(input2, priorityEncoder0.input("2"))')
-      
+
       // Check all output connections
       expect(code).toContain('circuit0.connect(priorityEncoder0.output("inum"), output0)')
       expect(code).toContain('circuit0.connect(priorityEncoder0.output("any"), output1)')
@@ -233,15 +235,15 @@ describe('PriorityEncoder Integration', () => {
   describe('Property Validation', () => {
     it('validates numInputs property', () => {
       const config = componentRegistry.priorityEncoder
-      
+
       // Valid range
       expect(config.defaultProps.numInputs).toBe(4)
-      
+
       // Component should handle edge cases
       const minConnections = config.getConnections({ numInputs: 2 })
       expect(minConnections.inputs).toHaveLength(2)
       expect(minConnections.outputs).toHaveLength(2) // Always inum and any
-      
+
       const maxConnections = config.getConnections({ numInputs: 16 })
       expect(maxConnections.inputs).toHaveLength(16)
       expect(maxConnections.outputs).toHaveLength(2) // Always inum and any

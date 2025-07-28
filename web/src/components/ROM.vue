@@ -1,98 +1,97 @@
 <template>
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
-      <!-- ROM body (rectangle) -->
-      <rect
-        :x="0"
-        :y="0"
-        :width="width * GRID_SIZE"
-        :height="height * GRID_SIZE"
-        :fill="fillColor"
-        :stroke="strokeColor"
-        :stroke-width="strokeWidth"
-        :class="componentClasses"
-        @mousedown="handleMouseDown"
-      />
+    <!-- ROM body (rectangle) -->
+    <rect
+      :x="0"
+      :y="0"
+      :width="width * GRID_SIZE"
+      :height="height * GRID_SIZE"
+      :fill="fillColor"
+      :stroke="strokeColor"
+      :stroke-width="strokeWidth"
+      :class="componentClasses"
+      @mousedown="handleMouseDown"
+    />
 
-      <!-- Input labels and connection points -->
-      <!-- A (address) input -->
-      <text
-        :x="inputLabelX"
-        :y="aInputY"
-        text-anchor="start"
-        dominant-baseline="middle"
-        class="port-label"
-        font-size="10"
-      >
-        A
-      </text>
-      <circle
-        :cx="0"
-        :cy="aInputY"
-        :r="CONNECTION_DOT_RADIUS"
-        :fill="COLORS.connectionFill"
-        class="connection-point input"
-        :data-component-id="id"
-        data-port="0"
-        data-type="input"
-      />
+    <!-- Input labels and connection points -->
+    <!-- A (address) input -->
+    <text
+      :x="inputLabelX"
+      :y="aInputY"
+      text-anchor="start"
+      dominant-baseline="middle"
+      class="port-label"
+      font-size="10"
+    >
+      A
+    </text>
+    <circle
+      :cx="0"
+      :cy="aInputY"
+      :r="CONNECTION_DOT_RADIUS"
+      :fill="COLORS.connectionFill"
+      class="connection-point input"
+      :data-component-id="id"
+      data-port="0"
+      data-type="input"
+    />
 
-      <!-- sel (select/enable) input -->
-      <text
-        :x="inputLabelX"
-        :y="selInputY"
-        text-anchor="start"
-        dominant-baseline="middle"
-        class="port-label"
-        font-size="10"
-      >
-        sel
-      </text>
-      <circle
-        :cx="0"
-        :cy="selInputY"
-        :r="CONNECTION_DOT_RADIUS"
-        :fill="COLORS.connectionFill"
-        class="connection-point input"
-        :data-component-id="id"
-        data-port="1"
-        data-type="input"
-      />
+    <!-- sel (select/enable) input -->
+    <text
+      :x="inputLabelX"
+      :y="selInputY"
+      text-anchor="start"
+      dominant-baseline="middle"
+      class="port-label"
+      font-size="10"
+    >
+      sel
+    </text>
+    <circle
+      :cx="0"
+      :cy="selInputY"
+      :r="CONNECTION_DOT_RADIUS"
+      :fill="COLORS.connectionFill"
+      class="connection-point input"
+      :data-component-id="id"
+      data-port="1"
+      data-type="input"
+    />
 
-      <!-- D (data) output label and connection point -->
-      <text
-        :x="outputLabelX"
-        :y="dOutputY"
-        text-anchor="end"
-        dominant-baseline="middle"
-        class="port-label"
-        font-size="10"
-      >
-        D
-      </text>
-      <circle
-        :cx="width * GRID_SIZE"
-        :cy="dOutputY"
-        :r="CONNECTION_DOT_RADIUS"
-        :fill="COLORS.connectionFill"
-        class="connection-point output"
-        :data-component-id="id"
-        data-port="0"
-        data-type="output"
-      />
+    <!-- D (data) output label and connection point -->
+    <text
+      :x="outputLabelX"
+      :y="dOutputY"
+      text-anchor="end"
+      dominant-baseline="middle"
+      class="port-label"
+      font-size="10"
+    >
+      D
+    </text>
+    <circle
+      :cx="width * GRID_SIZE"
+      :cy="dOutputY"
+      :r="CONNECTION_DOT_RADIUS"
+      :fill="COLORS.connectionFill"
+      class="connection-point output"
+      :data-component-id="id"
+      data-port="0"
+      data-type="output"
+    />
 
-      <!-- Component label -->
-      <text
-        v-if="label"
-        :x="width * GRID_SIZE / 2"
-        :y="GRID_SIZE"
-        text-anchor="middle"
-        dominant-baseline="middle"
-        class="component-label"
-        font-size="12"
-      >
-        {{ label }}
-      </text>
-
+    <!-- Component label -->
+    <text
+      v-if="label"
+      :x="(width * GRID_SIZE) / 2"
+      :y="GRID_SIZE"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      class="component-label"
+      font-size="12"
+    >
+      {{ label }}
+    </text>
   </g>
 </template>
 
@@ -123,11 +122,12 @@ export default defineComponent({
     label: {
       type: String,
       default: 'ROM'
-    },
+    }
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,

@@ -224,7 +224,13 @@ describe('useCanvasController - Clipboard Integration', () => {
 
       it('should add pasted wires to the circuit', async () => {
         canvasController.clipboardController.hasClipboardData.value = true
-        const pastedWire = { id: 'wire_1', points: [{x: 0, y: 0}, {x: 10, y: 10}] }
+        const pastedWire = {
+          id: 'wire_1',
+          points: [
+            { x: 0, y: 0 },
+            { x: 10, y: 10 }
+          ]
+        }
         canvasController.clipboardController.pasteFromClipboard.mockReturnValue({
           components: [],
           wires: [pastedWire],
@@ -239,7 +245,7 @@ describe('useCanvasController - Clipboard Integration', () => {
 
       it('should add pasted junctions to the circuit', async () => {
         canvasController.clipboardController.hasClipboardData.value = true
-        const pastedJunction = { pos: {x: 5, y: 5}, connectedWireId: 'wire_1' }
+        const pastedJunction = { pos: { x: 5, y: 5 }, connectedWireId: 'wire_1' }
         canvasController.clipboardController.pasteFromClipboard.mockReturnValue({
           components: [],
           wires: [],
@@ -303,7 +309,13 @@ describe('useCanvasController - Clipboard Integration', () => {
       })
 
       it('should add duplicated wires to the circuit', () => {
-        const duplicatedWire = { id: 'wire_dup_1', points: [{x: 5, y: 5}, {x: 15, y: 15}] }
+        const duplicatedWire = {
+          id: 'wire_dup_1',
+          points: [
+            { x: 5, y: 5 },
+            { x: 15, y: 15 }
+          ]
+        }
         canvasController.clipboardController.deserializeElements.mockReturnValue({
           components: [],
           wires: [duplicatedWire],
@@ -317,7 +329,7 @@ describe('useCanvasController - Clipboard Integration', () => {
       })
 
       it('should add duplicated junctions to the circuit', () => {
-        const duplicatedJunction = { pos: {x: 10, y: 10}, connectedWireId: 'wire_dup_1' }
+        const duplicatedJunction = { pos: { x: 10, y: 10 }, connectedWireId: 'wire_dup_1' }
         canvasController.clipboardController.deserializeElements.mockReturnValue({
           components: [],
           wires: [],

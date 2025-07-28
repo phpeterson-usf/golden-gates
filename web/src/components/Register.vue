@@ -1,7 +1,7 @@
 <template>
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on component -->
-    <g :transform="`rotate(${rotation}, ${width * GRID_SIZE / 2}, ${height * GRID_SIZE / 2})`">
+    <g :transform="`rotate(${rotation}, ${(width * GRID_SIZE) / 2}, ${(height * GRID_SIZE) / 2})`">
       <!-- Register body (rectangle) -->
       <rect
         :x="0"
@@ -107,7 +107,7 @@
       <!-- Component label (positioned above center to avoid overlap with CLK) -->
       <text
         v-if="label"
-        :x="width * GRID_SIZE / 2"
+        :x="(width * GRID_SIZE) / 2"
         :y="GRID_SIZE * 2"
         text-anchor="middle"
         dominant-baseline="middle"
@@ -146,7 +146,8 @@ export default defineComponent({
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,

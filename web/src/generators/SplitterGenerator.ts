@@ -24,7 +24,7 @@ export class SplitterGenerator extends WireComponentGenerator {
     const additionalParams = {
       bits: this.inputBits
     }
-    
+
     const baseParams = this.buildGglParams(additionalParams)
     // Insert splits parameter before js_id (which is always last)
     const paramString = baseParams.replace(/, js_id=/, `, splits=${splitsString}, js_id=`)

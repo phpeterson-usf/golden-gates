@@ -56,9 +56,9 @@ describe('ClockNode', () => {
       })
 
       const path = wrapper.vm.squareWavePath
-      expect(path).toMatch(/^M\s+-?\d+\s+-?\d+/)  // Should start with 'M' command
-      expect(path).toContain('L')  // Should contain line commands
-      expect(path.split('L').length).toBeGreaterThan(8)  // Should have multiple line segments for square wave
+      expect(path).toMatch(/^M\s+-?\d+\s+-?\d+/) // Should start with 'M' command
+      expect(path).toContain('L') // Should contain line commands
+      expect(path.split('L').length).toBeGreaterThan(8) // Should have multiple line segments for square wave
     })
 
     it('should create square wave with alternating high and low levels', () => {
@@ -73,8 +73,8 @@ describe('ClockNode', () => {
 
       const path = wrapper.vm.squareWavePath
       // Check that path contains both high (-5) and low (5) Y coordinates
-      expect(path).toContain('-5')  // High level
-      expect(path).toContain('5')   // Low level (but not -5, so this checks low level)
+      expect(path).toContain('-5') // High level
+      expect(path).toContain('5') // Low level (but not -5, so this checks low level)
     })
   })
 
@@ -106,10 +106,10 @@ describe('ClockNode', () => {
 
       const waveform = wrapper.find('.clock-waveform')
       expect(waveform.exists()).toBe(true)
-      
+
       const path = wrapper.find('.clock-signal')
       expect(path.exists()).toBe(true)
-      expect(path.attributes('fill')).toBe('none')  // Path should be stroke only
+      expect(path.attributes('fill')).toBe('none') // Path should be stroke only
     })
 
     it('should have waveform with pointer-events disabled', () => {
@@ -136,7 +136,7 @@ describe('ClockNode', () => {
 
       const outputConnections = wrapper.findAll('[data-type="output"]')
       expect(outputConnections.length).toBe(1)
-      
+
       const output = outputConnections[0]
       expect(output.attributes('data-port')).toBe('0')
       expect(output.attributes('data-component-id')).toBe('clock1')
@@ -155,7 +155,7 @@ describe('ClockNode', () => {
       const frequencyText = wrapper.find('.component-value')
       expect(frequencyText.exists()).toBe(true)
       expect(frequencyText.text()).toBe('42Hz')
-      expect(frequencyText.attributes('y')).toBe('-15')  // Above component
+      expect(frequencyText.attributes('y')).toBe('-15') // Above component
     })
 
     it('should display label on the left side', () => {
@@ -171,7 +171,7 @@ describe('ClockNode', () => {
       const labelText = wrapper.find('.component-label')
       expect(labelText.exists()).toBe(true)
       expect(labelText.text()).toBe('TEST_CLK')
-      expect(labelText.attributes('text-anchor')).toBe('end')  // Right-aligned to appear on left
+      expect(labelText.attributes('text-anchor')).toBe('end') // Right-aligned to appear on left
     })
   })
 
@@ -241,7 +241,7 @@ describe('ClockNode', () => {
       })
 
       const rect = wrapper.find('rect')
-      
+
       // Mock the DOM element's closest method before triggering the event
       const mockSVG = {
         createSVGPoint: vi.fn(() => ({
@@ -254,15 +254,15 @@ describe('ClockNode', () => {
         })),
         querySelector: vi.fn(() => null)
       }
-      
+
       // Mock the closest method on the rect element
       vi.spyOn(rect.element, 'closest').mockReturnValue(mockSVG)
-      
+
       await rect.trigger('mousedown', {
         clientX: 100,
         clientY: 100
       })
-      
+
       expect(wrapper.emitted('startDrag')).toBeTruthy()
     })
 
@@ -278,7 +278,7 @@ describe('ClockNode', () => {
       // The waveform should have pointer-events: none, so this shouldn't trigger
       const waveform = wrapper.find('.clock-waveform path')
       await waveform.trigger('mousedown')
-      
+
       // Since pointer-events: none, the event should not be captured by the waveform
       // and the startDrag should not be emitted from the waveform specifically
       // (it would bubble to the rectangle instead)

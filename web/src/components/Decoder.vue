@@ -1,7 +1,7 @@
 <template>
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on component -->
-    <g :transform="`rotate(${rotation}, ${width * GRID_SIZE / 2}, ${height * GRID_SIZE / 2})`">
+    <g :transform="`rotate(${rotation}, ${(width * GRID_SIZE) / 2}, ${(height * GRID_SIZE) / 2})`">
       <!-- Decoder body (trapezoid - mirror of multiplexer) -->
       <path
         :d="decoderPath"
@@ -39,11 +39,11 @@
       </template>
 
       <!-- Output 0 label -->
-      <text 
-        :x="width * GRID_SIZE - 8" 
-        :y="getOutputY(0) + 4" 
-        text-anchor="middle" 
-        font-size="10" 
+      <text
+        :x="width * GRID_SIZE - 8"
+        :y="getOutputY(0) + 4"
+        text-anchor="middle"
+        font-size="10"
         class="component-label"
       >
         0
@@ -52,8 +52,8 @@
       <!-- Component label (centered) -->
       <text
         v-if="label"
-        :x="width * GRID_SIZE / 2"
-        :y="height * GRID_SIZE / 2"
+        :x="(width * GRID_SIZE) / 2"
+        :y="(height * GRID_SIZE) / 2"
         text-anchor="middle"
         dominant-baseline="middle"
         class="component-label"
@@ -96,7 +96,8 @@ export default defineComponent({
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,
@@ -128,7 +129,7 @@ export default defineComponent({
       const w = this.width * GRID_SIZE
       const h = this.totalHeight * GRID_SIZE
       const slant = GRID_SIZE / 2 // How much the diagonal slants inward
-      
+
       // Decoder shape: narrow on left, wide on right (mirror of multiplexer)
       // Multiplexer has vertical left, diagonal right: M 0 0, L w slant, L w (h-slant), L 0 h
       // Decoder should have diagonal left, vertical right: M 0 slant, L w 0, L w h, L 0 (h-slant)

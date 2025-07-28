@@ -415,7 +415,7 @@ export const componentRegistry = {
     getConnections: props => {
       const numOutputs = props.numOutputs || 4
       const selectorPosition = props.selectorPosition || 'bottom'
-      
+
       // Calculate height same as Vue component
       const outputSpacing = 2
       const baseHeight = (numOutputs - 1) * outputSpacing
@@ -476,12 +476,12 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'D', x: 0, y: 1 },    // Data input (top)
-        { name: 'CLK', x: 0, y: 3 },  // Clock input (middle)
-        { name: 'en', x: 0, y: 5 }    // Enable input (bottom)
+        { name: 'D', x: 0, y: 1 }, // Data input (top)
+        { name: 'CLK', x: 0, y: 3 }, // Clock input (middle)
+        { name: 'en', x: 0, y: 5 } // Enable input (bottom)
       ],
       outputs: [
-        { name: 'Q', x: 4, y: 3 }     // Output (right, center)
+        { name: 'Q', x: 4, y: 3 } // Output (right, center)
       ]
     },
     onCreate: (instance, index) => {
@@ -507,14 +507,14 @@ export const componentRegistry = {
       // Dynamic size based on address bits (min 4x5 to accommodate 2 grid unit spacing)
       const width = Math.max(4, Math.ceil(addressBits / 2))
       const height = Math.max(5, Math.ceil(addressBits / 2) + 1)
-      
+
       return {
         inputs: [
-          { name: 'A', x: 0, y: 1 },      // Address input (grid-aligned)
-          { name: 'sel', x: 0, y: 3 }     // Select input (2 grid units apart, grid-aligned)
+          { name: 'A', x: 0, y: 1 }, // Address input (grid-aligned)
+          { name: 'sel', x: 0, y: 3 } // Select input (2 grid units apart, grid-aligned)
         ],
         outputs: [
-          { name: 'D', x: width, y: Math.floor(height / 2) }  // Data output (center right, grid-aligned)
+          { name: 'D', x: width, y: Math.floor(height / 2) } // Data output (center right, grid-aligned)
         ]
       }
     },
@@ -523,7 +523,7 @@ export const componentRegistry = {
       // Dynamic size based on address bits (min 4x4)
       const width = Math.max(4, Math.ceil(addressBits / 2))
       const height = Math.max(4, Math.ceil(addressBits / 2))
-      
+
       return {
         width: width * GRID_SIZE,
         height: height * GRID_SIZE
@@ -554,13 +554,13 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'a', x: 0, y: 1 },      // a input (top)
-        { name: 'b', x: 0, y: 3 },      // b input (middle)  
-        { name: 'cin', x: 0, y: 5 }     // cin input (bottom)
+        { name: 'a', x: 0, y: 1 }, // a input (top)
+        { name: 'b', x: 0, y: 3 }, // b input (middle)
+        { name: 'cin', x: 0, y: 5 } // cin input (bottom)
       ],
       outputs: [
-        { name: 'sum', x: 4, y: 2 },    // sum output (top)
-        { name: 'cout', x: 4, y: 4 }    // cout output (bottom)
+        { name: 'sum', x: 4, y: 2 }, // sum output (top)
+        { name: 'cout', x: 4, y: 4 } // cout output (bottom)
       ]
     },
     onCreate: (instance, index) => {
@@ -588,13 +588,13 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'a', x: 0, y: 1 },      // a input (top)
-        { name: 'b', x: 0, y: 3 },      // b input (middle)  
-        { name: 'cin', x: 0, y: 5 }     // cin input (bottom)
+        { name: 'a', x: 0, y: 1 }, // a input (top)
+        { name: 'b', x: 0, y: 3 }, // b input (middle)
+        { name: 'cin', x: 0, y: 5 } // cin input (bottom)
       ],
       outputs: [
-        { name: 's', x: 4, y: 2 },      // s output (top)
-        { name: 'cout', x: 4, y: 4 }    // cout output (bottom)
+        { name: 's', x: 4, y: 2 }, // s output (top)
+        { name: 'cout', x: 4, y: 4 } // cout output (bottom)
       ]
     },
     onCreate: (instance, index) => {
@@ -622,11 +622,11 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'a', x: 0, y: 1 },      // a input (top)
-        { name: 'b', x: 0, y: 3 }       // b input (bottom)
+        { name: 'a', x: 0, y: 1 }, // a input (top)
+        { name: 'b', x: 0, y: 3 } // b input (bottom)
       ],
       outputs: [
-        { name: 'mul', x: 4, y: 2 }     // mul output (center)
+        { name: 'mul', x: 4, y: 2 } // mul output (center)
       ]
     },
     onCreate: (instance, index) => {
@@ -654,12 +654,12 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'a', x: 0, y: 1 },      // a input (top)
-        { name: 'b', x: 0, y: 3 }       // b input (bottom)
+        { name: 'a', x: 0, y: 1 }, // a input (top)
+        { name: 'b', x: 0, y: 3 } // b input (bottom)
       ],
       outputs: [
-        { name: 'q', x: 4, y: 1 },      // q output (quotient - top)
-        { name: 'r', x: 4, y: 3 }       // r output (remainder - bottom)
+        { name: 'q', x: 4, y: 1 }, // q output (quotient - top)
+        { name: 'r', x: 4, y: 3 } // r output (remainder - bottom)
       ]
     },
     onCreate: (instance, index) => {
@@ -688,11 +688,11 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'in', x: 0, y: 1 },     // in input (top)
-        { name: 'shift', x: 0, y: 3 }   // shift input (bottom)
+        { name: 'in', x: 0, y: 1 }, // in input (top)
+        { name: 'shift', x: 0, y: 3 } // shift input (bottom)
       ],
       outputs: [
-        { name: 'out', x: 4, y: 2 }     // out output (center)
+        { name: 'out', x: 4, y: 2 } // out output (center)
       ]
     },
     onCreate: (instance, index) => {
@@ -720,13 +720,13 @@ export const componentRegistry = {
     },
     connections: {
       inputs: [
-        { name: 'a', x: 0, y: 2 },      // a input (top)
-        { name: 'b', x: 0, y: 4 }       // b input (bottom)
+        { name: 'a', x: 0, y: 2 }, // a input (top)
+        { name: 'b', x: 0, y: 4 } // b input (bottom)
       ],
       outputs: [
-        { name: 'lt', x: 4, y: 1 },     // lt output (less than - top)
-        { name: 'eq', x: 4, y: 3 },     // eq output (equal - middle)
-        { name: 'gt', x: 4, y: 5 }      // gt output (greater than - bottom)
+        { name: 'lt', x: 4, y: 1 }, // lt output (less than - top)
+        { name: 'eq', x: 4, y: 3 }, // eq output (equal - middle)
+        { name: 'gt', x: 4, y: 5 } // gt output (greater than - bottom)
       ]
     },
     onCreate: (instance, index) => {
@@ -750,7 +750,7 @@ export const componentRegistry = {
     },
     getConnections: props => {
       const numInputs = props.numInputs || 4
-      
+
       // Calculate height same as Vue component
       const inputSpacing = 2
       const baseHeight = (numInputs - 1) * inputSpacing
@@ -776,7 +776,7 @@ export const componentRegistry = {
         },
         {
           name: 'any',
-          x: 3, // Right edge of 3-unit wide component  
+          x: 3, // Right edge of 3-unit wide component
           y: Math.round((totalHeight * 2) / 3) // 2/3 height
         }
       ]

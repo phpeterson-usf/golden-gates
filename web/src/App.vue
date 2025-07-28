@@ -34,63 +34,69 @@
       />
 
       <div class="main-content">
-      <div
-        class="circuit-container"
-        :class="{ 'drag-over': isDraggingOver }"
-        :data-drop-message="$t('ui.dropFileHere')"
-        @dragover.prevent="handleDragOver"
-        @drop.prevent="handleDrop"
-        @dragenter.prevent="handleDragEnter"
-        @dragleave.prevent="handleDragLeave"
-      >
-        <CircuitCanvas
-          ref="canvas"
-          :circuitManager="circuitManager"
-          @selectionChanged="handleSelectionChanged"
-        />
+        <div
+          class="circuit-container"
+          :class="{ 'drag-over': isDraggingOver }"
+          :data-drop-message="$t('ui.dropFileHere')"
+          @dragover.prevent="handleDragOver"
+          @drop.prevent="handleDrop"
+          @dragenter.prevent="handleDragEnter"
+          @dragleave.prevent="handleDragLeave"
+        >
+          <CircuitCanvas
+            ref="canvas"
+            :circuitManager="circuitManager"
+            @selectionChanged="handleSelectionChanged"
+          />
 
-        <!-- Circuit Navigation Breadcrumbs -->
-        <div v-if="$refs.canvas?.breadcrumbs?.length > 1" class="circuit-breadcrumbs">
-          <template v-for="(crumb, index) in $refs.canvas?.breadcrumbs" :key="crumb.id">
-            <i v-if="index > 0" class="pi pi-angle-right breadcrumb-separator"></i>
-            <Button
-              :label="crumb.name"
-              :class="[
-                'breadcrumb-button',
-                { active: index === $refs.canvas?.breadcrumbs.length - 1 }
-              ]"
-              @click="$refs.canvas?.navigateToCircuit(crumb.id)"
-              text
-            />
-          </template>
+          <!-- Circuit Navigation Breadcrumbs -->
+          <div v-if="$refs.canvas?.breadcrumbs?.length > 1" class="circuit-breadcrumbs">
+            <template v-for="(crumb, index) in $refs.canvas?.breadcrumbs" :key="crumb.id">
+              <i v-if="index > 0" class="pi pi-angle-right breadcrumb-separator"></i>
+              <Button
+                :label="crumb.name"
+                :class="[
+                  'breadcrumb-button',
+                  { active: index === $refs.canvas?.breadcrumbs.length - 1 }
+                ]"
+                @click="$refs.canvas?.navigateToCircuit(crumb.id)"
+                text
+              />
+            </template>
+          </div>
         </div>
-      </div>
 
-      <div v-if="inspectorVisible" class="inspector-panel" :style="inspectorPanelStyle">
-        <div class="inspector-header">
-          <button class="inspector-expand" @click="inspectorExpanded = !inspectorExpanded" :title="inspectorExpanded ? 'Collapse Inspector' : 'Expand Inspector'">
-            <i :class="inspectorExpanded ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"></i>
-          </button>
-          <button class="inspector-close" @click="inspectorVisible = false">
-            <i class="pi pi-times"></i>
-          </button>
+        <div v-if="inspectorVisible" class="inspector-panel" :style="inspectorPanelStyle">
+          <div class="inspector-header">
+            <button
+              class="inspector-expand"
+              @click="inspectorExpanded = !inspectorExpanded"
+              :title="inspectorExpanded ? 'Collapse Inspector' : 'Expand Inspector'"
+            >
+              <i :class="inspectorExpanded ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"></i>
+            </button>
+            <button class="inspector-close" @click="inspectorVisible = false">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <ComponentInspector
+            :component="selectedComponent"
+            :circuit="selectedCircuit"
+            @update:component="updateComponent"
+            @update:circuit="updateCircuit"
+            @action="handleInspectorAction"
+          />
         </div>
-        <ComponentInspector
-          :component="selectedComponent"
-          :circuit="selectedCircuit"
-          @update:component="updateComponent"
-          @update:circuit="updateCircuit"
-          @action="handleInspectorAction"
-        />
-      </div>
 
-      <!-- Subtle simulation loading indicator -->
-      <div v-if="isRunning || isPyodideLoading" class="simulation-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ isPyodideLoading ? $t('simulation.initializing') : $t('simulation.running') }}</span>
+        <!-- Subtle simulation loading indicator -->
+        <div v-if="isRunning || isPyodideLoading" class="simulation-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{
+            isPyodideLoading ? $t('simulation.initializing') : $t('simulation.running')
+          }}</span>
+        </div>
       </div>
     </div>
-  </div>
   </BrowserCompatibilityGuard>
 </template>
 
@@ -232,7 +238,7 @@ export default {
   },
   computed: {
     inspectorPanelStyle() {
-      const width = this.inspectorExpanded ? 440 : 220  // Exactly double the normal width
+      const width = this.inspectorExpanded ? 440 : 220 // Exactly double the normal width
       return {
         width: width + 'px'
       }
@@ -604,8 +610,7 @@ export default {
       if (!this.selectedComponent && newCircuit) {
         this.selectedCircuit = newCircuit
       }
-    },
-
+    }
   },
 
   beforeUnmount() {

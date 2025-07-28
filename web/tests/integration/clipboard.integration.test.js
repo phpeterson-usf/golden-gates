@@ -24,7 +24,7 @@ describe('Clipboard Integration Tests', () => {
     // Create minimal mocks for canvas operations
     const mockCanvasOperations = {
       getMousePos: () => ({ x: 100, y: 200 }),
-      snapToGrid: (pos) => ({ x: Math.round(pos.x / 15) * 15, y: Math.round(pos.y / 15) * 15 }),
+      snapToGrid: pos => ({ x: Math.round(pos.x / 15) * 15, y: Math.round(pos.y / 15) * 15 }),
       gridSize: 15
     }
 
@@ -50,8 +50,8 @@ describe('Clipboard Integration Tests', () => {
       startSelection: () => {},
       updateSelectionEnd: () => {},
       endSelection: () => {},
-      selectComponent: (id) => mockSelection.selectedComponents.value.add(id),
-      selectWire: (index) => mockSelection.selectedWires.value.add(index),
+      selectComponent: id => mockSelection.selectedComponents.value.add(id),
+      selectWire: index => mockSelection.selectedWires.value.add(index),
       clearSelection: () => {
         mockSelection.selectedComponents.value.clear()
         mockSelection.selectedWires.value.clear()
@@ -105,7 +105,7 @@ describe('Clipboard Integration Tests', () => {
 
       // Verify the circuit now has 2 components
       expect(activeCircuit.value.components.length).toBe(2)
-      
+
       // Verify the pasted component has different ID but same properties
       const pastedComponent = activeCircuit.value.components[1]
       expect(pastedComponent.id).not.toBe('test_input_1')
@@ -124,7 +124,7 @@ describe('Clipboard Integration Tests', () => {
       // Verify the pasted component exists and has different position or ID
       const originalComponent = activeCircuit.value.components[0]
       const pastedComponent = activeCircuit.value.components[1]
-      
+
       // Either the position should be different OR the component should be offset
       // (depending on positioning logic implementation)
       expect(pastedComponent.id).not.toBe(originalComponent.id)
@@ -161,11 +161,11 @@ describe('Clipboard Integration Tests', () => {
 
       // Verify the circuit now has 2 components
       expect(activeCircuit.value.components.length).toBe(2)
-      
+
       // Verify the duplicated component has different ID but same properties
       const originalComponent = activeCircuit.value.components[0]
       const duplicatedComponent = activeCircuit.value.components[1]
-      
+
       expect(duplicatedComponent.id).not.toBe(originalComponent.id)
       expect(duplicatedComponent.type).toBe(originalComponent.type)
       expect(duplicatedComponent.props.label).toBe(originalComponent.props.label)
@@ -179,7 +179,7 @@ describe('Clipboard Integration Tests', () => {
       // Verify the duplicated component exists and has different ID
       const originalComponent = activeCircuit.value.components[0]
       const duplicatedComponent = activeCircuit.value.components[1]
-      
+
       expect(duplicatedComponent.id).not.toBe(originalComponent.id)
       expect(duplicatedComponent.type).toBe(originalComponent.type)
     })
@@ -196,10 +196,13 @@ describe('Clipboard Integration Tests', () => {
         props: { label: 'R', bits: 1 }
       }
       circuitModel.addComponent(outputComponent)
-      
+
       const wire = {
         id: 'wire_1',
-        points: [{ x: 15, y: 10 }, { x: 30, y: 10 }],
+        points: [
+          { x: 15, y: 10 },
+          { x: 30, y: 10 }
+        ],
         startConnection: { componentId: 'test_input_1', port: '0' },
         endConnection: { componentId: 'test_output_1', port: '0' }
       }
@@ -232,10 +235,10 @@ describe('Clipboard Integration Tests', () => {
 
       // Paste multiple times
       await canvasController.pasteFromClipboard()
-      
+
       // Wait to avoid debounce
       await new Promise(resolve => setTimeout(resolve, 150))
-      
+
       await canvasController.pasteFromClipboard()
 
       // Verify we have 3 components total
@@ -247,10 +250,10 @@ describe('Clipboard Integration Tests', () => {
     it('should handle paste with no clipboard data', async () => {
       // Override the clipboard mock to return empty/null data for this test
       global.navigator.clipboard.readText = vi.fn().mockResolvedValue('')
-      
+
       // Don't copy anything first
       const result = await canvasController.pasteFromClipboard()
-      
+
       expect(result).toBe(false)
       expect(activeCircuit.value.components.length).toBe(1) // Original component only
     })
@@ -260,7 +263,7 @@ describe('Clipboard Integration Tests', () => {
       mockSelection.clearSelection()
 
       const result = canvasController.duplicateSelected()
-      
+
       expect(result).toBe(false)
       expect(activeCircuit.value.components.length).toBe(1) // Original component only
     })

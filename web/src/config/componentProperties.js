@@ -334,10 +334,7 @@ export const componentPropertySchema = {
   // Register properties
   register: {
     title: 'Register Properties',
-    properties: [
-      { ...commonProperties.label, default: 'REG' },
-      commonProperties.bits
-    ]
+    properties: [{ ...commonProperties.label, default: 'REG' }, commonProperties.bits]
   },
 
   // Adder properties

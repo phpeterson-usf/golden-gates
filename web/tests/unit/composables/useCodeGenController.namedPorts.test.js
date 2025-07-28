@@ -14,7 +14,7 @@ describe('Named Ports Code Generation', () => {
       // Verify decoder has the property
       expect(componentRegistry.decoder.requiresNamedPorts).toBe(true)
       expect(componentRegistry.register.requiresNamedPorts).toBe(true)
-      
+
       // Components without the property
       expect(componentRegistry.input?.requiresNamedPorts).toBeUndefined()
       expect(componentRegistry.output?.requiresNamedPorts).toBeUndefined()
@@ -181,34 +181,37 @@ describe('Named Ports Code Generation', () => {
       const inputConfig = componentRegistry.input
       const notConfig = componentRegistry['not-gate']
       const outputConfig = componentRegistry.output
-      
+
       const inputConnections = inputConfig.connections || { outputs: [{ x: 1, y: 0 }] }
-      const notConnections = notConfig.connections || { inputs: [{ x: 0, y: 0 }], outputs: [{ x: 1, y: 0 }] }
+      const notConnections = notConfig.connections || {
+        inputs: [{ x: 0, y: 0 }],
+        outputs: [{ x: 1, y: 0 }]
+      }
       const outputConnections = outputConfig.connections || { inputs: [{ x: 0, y: 0 }] }
-      
+
       const wires = [
         {
-          startConnection: { 
-            pos: { x: 0 + inputConnections.outputs[0].x, y: 0 + inputConnections.outputs[0].y }, 
-            portIndex: 0, 
-            portType: 'output' 
+          startConnection: {
+            pos: { x: 0 + inputConnections.outputs[0].x, y: 0 + inputConnections.outputs[0].y },
+            portIndex: 0,
+            portType: 'output'
           },
-          endConnection: { 
-            pos: { x: 4 + notConnections.inputs[0].x, y: 0 + notConnections.inputs[0].y }, 
-            portIndex: 0, 
-            portType: 'input' 
+          endConnection: {
+            pos: { x: 4 + notConnections.inputs[0].x, y: 0 + notConnections.inputs[0].y },
+            portIndex: 0,
+            portType: 'input'
           }
         },
         {
-          startConnection: { 
-            pos: { x: 4 + notConnections.outputs[0].x, y: 0 + notConnections.outputs[0].y }, 
-            portIndex: 0, 
-            portType: 'output' 
+          startConnection: {
+            pos: { x: 4 + notConnections.outputs[0].x, y: 0 + notConnections.outputs[0].y },
+            portIndex: 0,
+            portType: 'output'
           },
-          endConnection: { 
-            pos: { x: 8 + outputConnections.inputs[0].x, y: 0 + outputConnections.inputs[0].y }, 
-            portIndex: 0, 
-            portType: 'input' 
+          endConnection: {
+            pos: { x: 8 + outputConnections.inputs[0].x, y: 0 + outputConnections.inputs[0].y },
+            portIndex: 0,
+            portType: 'input'
           }
         }
       ]
@@ -258,31 +261,33 @@ describe('Named Ports Code Generation', () => {
 
       // Get decoder connections
       const decoderConnections = componentRegistry.decoder.getConnections({ numOutputs: 4 })
-      const notConnections = componentRegistry['not-gate'].connections || { inputs: [{ x: 0, y: 0 }] }
-      
+      const notConnections = componentRegistry['not-gate'].connections || {
+        inputs: [{ x: 0, y: 0 }]
+      }
+
       const wires = [
         {
-          startConnection: { 
-            pos: { x: 1, y: 0 }, 
-            portIndex: 0, 
-            portType: 'output' 
+          startConnection: {
+            pos: { x: 1, y: 0 },
+            portIndex: 0,
+            portType: 'output'
           },
-          endConnection: { 
-            pos: { x: 4 + decoderConnections.inputs[0].x, y: 0 + decoderConnections.inputs[0].y }, 
-            portIndex: 0, 
-            portType: 'input' 
+          endConnection: {
+            pos: { x: 4 + decoderConnections.inputs[0].x, y: 0 + decoderConnections.inputs[0].y },
+            portIndex: 0,
+            portType: 'input'
           }
         },
         {
-          startConnection: { 
-            pos: { x: 4 + decoderConnections.outputs[0].x, y: 0 + decoderConnections.outputs[0].y }, 
-            portIndex: 0, 
-            portType: 'output' 
+          startConnection: {
+            pos: { x: 4 + decoderConnections.outputs[0].x, y: 0 + decoderConnections.outputs[0].y },
+            portIndex: 0,
+            portType: 'output'
           },
-          endConnection: { 
-            pos: { x: 10 + notConnections.inputs[0].x, y: 0 + notConnections.inputs[0].y }, 
-            portIndex: 0, 
-            portType: 'input' 
+          endConnection: {
+            pos: { x: 10 + notConnections.inputs[0].x, y: 0 + notConnections.inputs[0].y },
+            portIndex: 0,
+            portType: 'input'
           }
         }
       ]
@@ -301,7 +306,7 @@ describe('Named Ports Code Generation', () => {
       // Decoder uses named ports
       expect(code).toContain('decoder0.input("sel")')
       expect(code).toContain('decoder0.output("0")')
-      
+
       // NOT gate uses simple connection
       expect(code).toContain(', not0)')
     })

@@ -14,7 +14,7 @@
         <template #messageicon>
           <!-- Empty template to hide the icon -->
         </template>
-        <div style="padding-left: 12px;">{{ notification.message }}</div>
+        <div style="padding-left: 12px">{{ notification.message }}</div>
       </Message>
     </div>
     <!-- Grid background -->
@@ -424,7 +424,7 @@ export default {
           })
         }
       })
-      
+
       const result = generateGglProgram(
         components.value,
         wires.value,
@@ -433,7 +433,7 @@ export default {
         componentInstances.value,
         props.circuitManager
       )
-      
+
       // Handle component errors - mark components with visual error state and show notifications
       if (result.errors && result.errors.length > 0) {
         result.errors.forEach(error => {
@@ -449,13 +449,13 @@ export default {
                 errorDetails: error.error.details
               }
             })
-            
+
             // Show error notification
             showErrorNotification(error.error.message)
           }
         })
       }
-      
+
       // Return just the code for backward compatibility
       return result.code
     }
@@ -489,17 +489,17 @@ export default {
         message: message
       }
       errorNotifications.value.push(notification)
-      
+
       // Auto-dismiss after 10 seconds
       window.setTimeout(() => {
         removeNotification(notification.id)
       }, 10000)
     }
-    
+
     function clearAllNotifications() {
       errorNotifications.value = []
     }
-    
+
     function removeNotification(notificationId) {
       const index = errorNotifications.value.findIndex(n => n.id === notificationId)
       if (index !== -1) {
@@ -684,7 +684,9 @@ export default {
 }
 
 .error-notification {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 6px;
 }
 

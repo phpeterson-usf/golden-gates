@@ -1,7 +1,7 @@
 <template>
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
     <!-- Rotation group centered on component -->
-    <g :transform="`rotate(${rotation}, ${width * GRID_SIZE / 2}, ${height * GRID_SIZE / 2})`">
+    <g :transform="`rotate(${rotation}, ${(width * GRID_SIZE) / 2}, ${(height * GRID_SIZE) / 2})`">
       <!-- Priority Encoder body (rectangle) -->
       <rect
         :width="width * GRID_SIZE"
@@ -38,7 +38,7 @@
         data-port="0"
         data-type="output"
       />
-      
+
       <circle
         :cx="width * GRID_SIZE"
         :cy="getAnyOutputY()"
@@ -51,21 +51,21 @@
       />
 
       <!-- Output labels (right-justified) -->
-      <text 
-        :x="width * GRID_SIZE - 4" 
-        :y="getInumOutputY() + 4" 
-        text-anchor="end" 
-        font-size="10" 
+      <text
+        :x="width * GRID_SIZE - 4"
+        :y="getInumOutputY() + 4"
+        text-anchor="end"
+        font-size="10"
         class="component-label"
       >
         inum
       </text>
-      
-      <text 
-        :x="width * GRID_SIZE - 4" 
-        :y="getAnyOutputY() + 4" 
-        text-anchor="end" 
-        font-size="10" 
+
+      <text
+        :x="width * GRID_SIZE - 4"
+        :y="getAnyOutputY() + 4"
+        text-anchor="end"
+        font-size="10"
         class="component-label"
       >
         any
@@ -74,8 +74,8 @@
       <!-- Component label (centered) -->
       <text
         v-if="label"
-        :x="width * GRID_SIZE / 2"
-        :y="height * GRID_SIZE / 2"
+        :x="(width * GRID_SIZE) / 2"
+        :y="(height * GRID_SIZE) / 2"
         text-anchor="middle"
         dominant-baseline="middle"
         class="component-label"
@@ -113,7 +113,8 @@ export default defineComponent({
   },
   emits: ['startDrag'],
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,

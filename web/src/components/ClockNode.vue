@@ -74,19 +74,19 @@ export default defineComponent({
       // Create a square wave pattern inside the bounding box
       // Box dimensions: width = GRID_SIZE + 5, height = GRID_SIZE + 5
       // Centered at (0, 0), so box goes from x=-5 to x=GRID_SIZE, y=-(GRID_SIZE+5)/2 to y=(GRID_SIZE+5)/2
-      
+
       const boxWidth = GRID_SIZE + 5
       const boxHeight = GRID_SIZE + 5
       const startX = -3 // Start 2px inside left edge
       const endX = GRID_SIZE - 2 // End 2px before right edge
       const width = endX - startX
-      
+
       const topY = -5 // High voltage (5px from center, inside box)
       const bottomY = 5 // Low voltage (5px from center, inside box)
-      
+
       // Create square wave with 2 full cycles
       const quarterWave = width / 8 // 2 cycles = 8 quarter waves
-      
+
       const path = [
         `M ${startX} ${bottomY}`, // Start low
         `L ${startX + quarterWave} ${bottomY}`, // Stay low
@@ -99,12 +99,13 @@ export default defineComponent({
         `L ${startX + 7 * quarterWave} ${bottomY}`, // Falling edge
         `L ${endX} ${bottomY}` // End low
       ]
-      
+
       return path.join(' ')
     }
   },
   setup(props, { emit }) {
-    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,

@@ -135,17 +135,19 @@ export function useAppController(circuitManager) {
       await executeHierarchicalCircuit(circuitManager, mainCircuitGglProgram)
     } catch (err) {
       console.error('Hierarchical circuit simulation error:', err)
-      
+
       // Check if the error message contains our exception
       const isCircuitComponentError = err.message && err.message.includes('CircuitComponentError')
-      
+
       if (isCircuitComponentError) {
         // Try to extract component info from the error message
         // Format: "ggl.errors.CircuitComponentError: And and-gate_1_1753544247799: inputNotConnected (port: 1)"
-        const match = err.message.match(/CircuitComponentError: (\w+) ([^:]+): (\w+)(?:\s*\(port:\s*([^)]+)\))?/)
+        const match = err.message.match(
+          /CircuitComponentError: (\w+) ([^:]+): (\w+)(?:\s*\(port:\s*([^)]+)\))?/
+        )
         if (match) {
           const [, componentType, componentId, errorCode, portName] = match
-          
+
           const errorData = {
             component_id: componentId,
             component_type: componentType,
@@ -195,7 +197,7 @@ export function useAppController(circuitManager) {
   function setupPythonVueUpdateCallback(canvasRef) {
     window.__vueUpdateCallback = (eventType, componentId, value) => {
       console.log(`Callback: ${componentId} = ${value}`)
-      
+
       if (!canvasRef) {
         console.error('No canvasRef available')
         return
@@ -203,7 +205,11 @@ export function useAppController(circuitManager) {
 
       const component = canvasRef.components.find(c => c.id === componentId)
       if (!component) {
-        console.error(`Component not found: ${componentId}`, 'Available components:', canvasRef.components.map(c => c.id))
+        console.error(
+          `Component not found: ${componentId}`,
+          'Available components:',
+          canvasRef.components.map(c => c.id)
+        )
         return
       }
 
@@ -253,7 +259,7 @@ export function useAppController(circuitManager) {
     // For now, treat stepData as a boolean for active/inactive
     // Future: could be an object with { active: true, style: 'processing', duration: 500 }
     const isActive = typeof stepData === 'boolean' ? stepData : stepData.active
-    
+
     const updatedComponent = {
       ...component,
       props: {
@@ -319,21 +325,19 @@ export function useAppController(circuitManager) {
     // Show global error notification
     if (canvasRef?.showErrorNotification) {
       const componentLabel = component.props?.label || component.label
-      
+
       // Get localized error message
       const errorMessageKey = `simulation.errors.${errorData.error_code}`
       const errorMessage = t(errorMessageKey, {
         inputName: errorData.port_name || 'unknown'
       })
-      
+
       // Format the error message with or without label
-      const componentDescription = componentLabel 
+      const componentDescription = componentLabel
         ? `${errorData.component_type} "${componentLabel}"`
         : errorData.component_type
-      
-      canvasRef.showErrorNotification(
-        `Error in ${componentDescription}: ${errorMessage}`
-      )
+
+      canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
     }
   }
 
@@ -344,7 +348,7 @@ export function useAppController(circuitManager) {
     // For now, treat errorData as a simple error message string
     // Future: could be an object with { severity: 'error', messageId: 'INPUT_NOT_CONNECTED', details: {} }
     const isError = typeof errorData === 'string' || errorData.severity === 'error'
-    
+
     const updatedComponent = {
       ...component,
       props: {
@@ -369,7 +373,7 @@ export function useAppController(circuitManager) {
         `Error in ${component.type} "${componentLabel}": ${errorMessage}`
       )
     }
-    
+
     console.error(`Component ${component.id} error:`, errorData)
   }
 

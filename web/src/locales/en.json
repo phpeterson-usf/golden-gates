@@ -139,7 +139,7 @@
   "memory": {
     "importData": "Import Data",
     "dropFileHere": "Drop file here to import"
-  },  
+  },
   "commands": {
     "groups": {
       "file": "File",

@@ -21,7 +21,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >1</text>
+      >
+        1
+      </text>
     </template>
 
     <!-- Special handling for adder with text -->
@@ -32,7 +34,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >+</text>
+      >
+        +
+      </text>
     </template>
 
     <!-- Special handling for subtract with text -->
@@ -43,7 +47,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >-</text>
+      >
+        -
+      </text>
     </template>
 
     <!-- Special handling for multiply with text -->
@@ -54,7 +60,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >*</text>
+      >
+        *
+      </text>
     </template>
 
     <!-- Special handling for divide with text -->
@@ -65,7 +73,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >/</text>
+      >
+        /
+      </text>
     </template>
 
     <!-- Special handling for shift with text -->
@@ -76,7 +86,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >&lt;&lt;</text>
+      >
+        &lt;&lt;
+      </text>
     </template>
 
     <!-- Special handling for compare with text -->
@@ -87,7 +99,9 @@
         :font-size="iconTextFontSize"
         class="component-icon-text"
         :fill="color"
-      >=</text>
+      >
+        =
+      </text>
     </template>
 
     <!-- Render other components as single path -->
@@ -205,10 +219,10 @@ export default {
         const centerY = 15
         const highY = 3 // Near top of 30-unit height
         const lowY = 27 // Near bottom of 30-unit height
-        
+
         // Create square wave with 2 full cycles - using almost the full viewBox
         const quarterWave = width / 8
-        
+
         return `
           M ${startX} ${lowY}
           L ${startX + quarterWave} ${lowY}
@@ -220,7 +234,9 @@ export default {
           L ${startX + 7 * quarterWave} ${highY}
           L ${startX + 7 * quarterWave} ${lowY}
           L ${endX} ${lowY}
-        `.replace(/\s+/g, ' ').trim()
+        `
+          .replace(/\s+/g, ' ')
+          .trim()
       }
 
       if (this.componentType === 'splitter') {
