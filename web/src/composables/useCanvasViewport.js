@@ -1,8 +1,12 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { GRID_SIZE } from '../utils/constants'
 
 export function useCanvasViewport() {
-  // Canvas dimensions
+  // Container dimensions (viewport size)
+  const containerWidth = ref(800)
+  const containerHeight = ref(600)
+
+  // Canvas dimensions (content size - can be larger than container)
   const canvasWidth = ref(800)
   const canvasHeight = ref(600)
 
@@ -14,6 +18,91 @@ export function useCanvasViewport() {
   const minZoom = ref(0.5)
   const maxZoom = ref(2)
   const zoomStep = ref(0.25)
+
+  // Pan settings for two-finger gesture support
+  const panX = ref(0)
+  const panY = ref(0)
+  const isPanning = ref(false)
+
+  // Calculate dynamic canvas bounds based on circuit elements
+  function calculateCanvasBounds(components, wires, wireJunctions, padding = 150) {
+    // Start with container dimensions as minimum bounds
+    let minX = 0
+    let minY = 0
+    let maxX = containerWidth.value
+    let maxY = containerHeight.value
+
+    // Check component bounds
+    if (components && components.length > 0) {
+      components.forEach(component => {
+        const compMinX = component.x * gridSize.value
+        const compMinY = component.y * gridSize.value
+        const compMaxX = compMinX + (component.width || 4) * gridSize.value
+        const compMaxY = compMinY + (component.height || 4) * gridSize.value
+
+        minX = Math.min(minX, compMinX)
+        minY = Math.min(minY, compMinY)
+        maxX = Math.max(maxX, compMaxX)
+        maxY = Math.max(maxY, compMaxY)
+      })
+    }
+
+    // Check wire bounds
+    if (wires && wires.length > 0) {
+      wires.forEach(wire => {
+        if (wire.points && wire.points.length > 0) {
+          wire.points.forEach(point => {
+            const wireX = point.x * gridSize.value
+            const wireY = point.y * gridSize.value
+
+            minX = Math.min(minX, wireX)
+            minY = Math.min(minY, wireY)
+            maxX = Math.max(maxX, wireX)
+            maxY = Math.max(maxY, wireY)
+          })
+        }
+      })
+    }
+
+    // Check junction bounds
+    if (wireJunctions && wireJunctions.length > 0) {
+      wireJunctions.forEach(junction => {
+        if (junction.pos) {
+          const junctionX = junction.pos.x * gridSize.value
+          const junctionY = junction.pos.y * gridSize.value
+
+          minX = Math.min(minX, junctionX)
+          minY = Math.min(minY, junctionY)
+          maxX = Math.max(maxX, junctionX)
+          maxY = Math.max(maxY, junctionY)
+        }
+      })
+    }
+
+    // Add padding and ensure minimum size
+    const paddedMinX = minX - padding
+    const paddedMinY = minY - padding
+    const paddedMaxX = maxX + padding
+    const paddedMaxY = maxY + padding
+
+    return {
+      width: Math.max(containerWidth.value, paddedMaxX - paddedMinX),
+      height: Math.max(containerHeight.value, paddedMaxY - paddedMinY)
+    }
+  }
+
+  // Update canvas dimensions based on content
+  function updateCanvasDimensions(components, wires, wireJunctions) {
+    const bounds = calculateCanvasBounds(components, wires, wireJunctions)
+
+    // Only update if dimensions actually changed
+    if (bounds.width !== canvasWidth.value || bounds.height !== canvasHeight.value) {
+      canvasWidth.value = bounds.width
+      canvasHeight.value = bounds.height
+    }
+
+    return bounds
+  }
 
   // Resize canvas to fit container
   function resizeCanvas(containerRef) {
@@ -123,6 +212,8 @@ export function useCanvasViewport() {
 
   return {
     // State
+    containerWidth,
+    containerHeight,
     canvasWidth,
     canvasHeight,
     gridSize,
@@ -130,6 +221,9 @@ export function useCanvasViewport() {
     minZoom,
     maxZoom,
     zoomStep,
+    panX,
+    panY,
+    isPanning,
 
     // Methods
     resizeCanvas,
@@ -138,6 +232,7 @@ export function useCanvasViewport() {
     resetZoom,
     snapToGrid,
     getMousePos,
-    setupResizeObserver
+    setupResizeObserver,
+    updateCanvasDimensions
   }
 }

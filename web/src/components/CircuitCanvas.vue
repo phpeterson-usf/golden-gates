@@ -1,5 +1,9 @@
 <template>
-  <div class="circuit-canvas-container" ref="container">
+  <div
+    class="circuit-canvas-container"
+    ref="container"
+    :class="{ dragging: isDragging() || isSelecting }"
+  >
     <!-- Error notifications -->
     <div class="error-notifications">
       <Message
@@ -17,132 +21,148 @@
         <div style="padding-left: 12px">{{ notification.message }}</div>
       </Message>
     </div>
-    <!-- Grid background -->
-    <svg class="grid-canvas" :width="canvasWidth" :height="canvasHeight">
-      <defs>
-        <pattern
-          id="grid"
-          :width="gridSize * zoom"
-          :height="gridSize * zoom"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle
-            :cx="gridSize * zoom"
-            :cy="gridSize * zoom"
-            :r="dotSize * zoom"
-            :fill="COLORS.gridDot"
+
+    <!-- Scrollable canvas container -->
+    <div class="canvas-scroll-container" ref="scrollContainer">
+      <!-- Grid background - large grid that covers entire scrollable area -->
+      <svg
+        class="grid-canvas"
+        :width="Math.max(canvasWidth, 10000)"
+        :height="Math.max(canvasHeight, 10000)"
+      >
+        <defs>
+          <pattern
+            id="grid"
+            :width="gridSize * zoom"
+            :height="gridSize * zoom"
+            patternUnits="userSpaceOnUse"
+          >
+            <circle
+              :cx="gridSize * zoom"
+              :cy="gridSize * zoom"
+              :r="dotSize * zoom"
+              :fill="COLORS.gridDot"
+            />
+          </pattern>
+        </defs>
+        <!-- Rect that always covers entire SVG area -->
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+
+      <!-- Circuit elements -->
+      <svg
+        class="circuit-canvas"
+        :class="{
+          dragging: isDragging() || isSelecting,
+          'wire-drawing': drawingWire,
+          'junction-mode': isJunctionMode
+        }"
+        :width="Math.max(canvasWidth, 10000)"
+        :height="Math.max(canvasHeight, 10000)"
+        @click="handleCanvasClick"
+        @mousedown="handleCanvasMouseDown"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @keydown="handleKeyDown"
+        @keyup="handleKeyUp"
+        @touchstart="handleTouchStart"
+        @touchmove="handleTouchMove"
+        @touchend="handleTouchEnd"
+        tabindex="0"
+      >
+        <g :transform="`translate(${panX}, ${panY}) scale(${zoom})`">
+          <!-- Wires -->
+          <Wire
+            v-for="(wire, index) in wires"
+            :key="`wire-${index}`"
+            :points="wire.points"
+            :selected="selectedWires.has(index)"
+            :data-wire-index="index"
+            @click="handleWireClick(index, $event)"
+            @mousedown="handleWireMouseDown(index, $event)"
           />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#grid)" />
-    </svg>
 
-    <!-- Circuit elements -->
-    <svg
-      class="circuit-canvas"
-      :class="{
-        dragging: isDragging() || isSelecting,
-        'wire-drawing': drawingWire,
-        'junction-mode': isJunctionMode
-      }"
-      :width="canvasWidth"
-      :height="canvasHeight"
-      @click="handleCanvasClick"
-      @mousedown="handleCanvasMouseDown"
-      @mousemove="handleMouseMove"
-      @mouseup="handleMouseUp"
-      @keydown="handleKeyDown"
-      @keyup="handleKeyUp"
-      tabindex="0"
-    >
-      <g :transform="`scale(${zoom})`">
-        <!-- Wires -->
-        <Wire
-          v-for="(wire, index) in wires"
-          :key="`wire-${index}`"
-          :points="wire.points"
-          :selected="selectedWires.has(index)"
-          :data-wire-index="index"
-          @click="handleWireClick(index, $event)"
-          @mousedown="handleWireMouseDown(index, $event)"
-        />
+          <!-- Wire preview during drawing -->
+          <Wire
+            v-if="drawingWire && wirePoints.length > 0"
+            :points="previewPoints"
+            :preview="true"
+          />
 
-        <!-- Wire preview during drawing -->
-        <Wire v-if="drawingWire && wirePoints.length > 0" :points="previewPoints" :preview="true" />
+          <!-- Junction points -->
+          <circle
+            v-for="(junction, index) in wireJunctions"
+            :key="`junction-${index}`"
+            :cx="gridToPixel(junction.pos).x"
+            :cy="gridToPixel(junction.pos).y"
+            :r="CONNECTION_DOT_RADIUS"
+            :fill="COLORS.connectionFill"
+            class="wire-junction"
+            pointer-events="none"
+          />
 
-        <!-- Junction points -->
-        <circle
-          v-for="(junction, index) in wireJunctions"
-          :key="`junction-${index}`"
-          :cx="gridToPixel(junction.pos).x"
-          :cy="gridToPixel(junction.pos).y"
-          :r="CONNECTION_DOT_RADIUS"
-          :fill="COLORS.connectionFill"
-          class="wire-junction"
-          pointer-events="none"
-        />
+          <!-- Junction preview point when Alt is held -->
+          <circle
+            v-if="junctionPreview"
+            :cx="gridToPixel(junctionPreview).x"
+            :cy="gridToPixel(junctionPreview).y"
+            :r="CONNECTION_DOT_RADIUS + 2"
+            fill="#3b82f6"
+            stroke="white"
+            stroke-width="2"
+            class="junction-preview"
+            pointer-events="none"
+          >
+            <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
+          </circle>
 
-        <!-- Junction preview point when Alt is held -->
-        <circle
-          v-if="junctionPreview"
-          :cx="gridToPixel(junctionPreview).x"
-          :cy="gridToPixel(junctionPreview).y"
-          :r="CONNECTION_DOT_RADIUS + 2"
-          fill="#3b82f6"
-          stroke="white"
-          stroke-width="2"
-          class="junction-preview"
-          pointer-events="none"
-        >
-          <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
-        </circle>
+          <!-- Connection preview point when hovering during wire drawing -->
+          <circle
+            v-if="connectionPreview"
+            :cx="connectionPreview.x"
+            :cy="connectionPreview.y"
+            :r="CONNECTION_DOT_RADIUS + 2"
+            fill="#3b82f6"
+            stroke="white"
+            stroke-width="2"
+            class="connection-preview"
+            pointer-events="none"
+          >
+            <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
+          </circle>
 
-        <!-- Connection preview point when hovering during wire drawing -->
-        <circle
-          v-if="connectionPreview"
-          :cx="connectionPreview.x"
-          :cy="connectionPreview.y"
-          :r="CONNECTION_DOT_RADIUS + 2"
-          fill="#3b82f6"
-          stroke="white"
-          stroke-width="2"
-          class="connection-preview"
-          pointer-events="none"
-        >
-          <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
-        </circle>
+          <!-- Components -->
+          <component
+            v-for="comp in components"
+            :key="comp.id"
+            :ref="el => setComponentRef(comp.id, el)"
+            :is="getComponentType(comp.type)"
+            :id="comp.id"
+            :x="comp.x"
+            :y="comp.y"
+            :selected="selectedComponents.has(comp.id)"
+            :circuitManager="comp.type === 'schematic-component' ? circuitManager : undefined"
+            v-bind="comp.props"
+            @startDrag="handleStartDrag"
+            @editSubcircuit="handleEditSubcircuit"
+          />
 
-        <!-- Components -->
-        <component
-          v-for="comp in components"
-          :key="comp.id"
-          :ref="el => setComponentRef(comp.id, el)"
-          :is="getComponentType(comp.type)"
-          :id="comp.id"
-          :x="comp.x"
-          :y="comp.y"
-          :selected="selectedComponents.has(comp.id)"
-          :circuitManager="comp.type === 'schematic-component' ? circuitManager : undefined"
-          v-bind="comp.props"
-          @startDrag="handleStartDrag"
-          @editSubcircuit="handleEditSubcircuit"
-        />
-
-        <!-- Rubber-band selection rectangle -->
-        <rect
-          v-if="isSelecting && selectionRect"
-          :x="selectionRect.x"
-          :y="selectionRect.y"
-          :width="selectionRect.width"
-          :height="selectionRect.height"
-          fill="rgba(59, 130, 246, 0.1)"
-          stroke="rgb(59, 130, 246)"
-          stroke-width="1"
-          stroke-dasharray="4 2"
-          pointer-events="none"
-        />
-      </g>
-    </svg>
+          <!-- Rubber-band selection rectangle -->
+          <rect
+            v-if="isSelecting && selectionRect"
+            :x="selectionRect.x"
+            :y="selectionRect.y"
+            :width="selectionRect.width"
+            :height="selectionRect.height"
+            fill="rgba(59, 130, 246, 0.1)"
+            stroke="rgb(59, 130, 246)"
+            stroke-width="1"
+            stroke-dasharray="4 2"
+            pointer-events="none"
+          />
+        </g>
+      </svg>
+    </div>
 
     <!-- Zoom controls -->
     <div class="zoom-controls">
@@ -158,6 +178,19 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted, watch, getCurrentInstance } from 'vue'
+
+// Simple debounce utility
+function debounce(func, wait) {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func.apply(this, args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
 import { componentRegistry } from '../utils/componentRegistry'
 import { DOT_SIZE, COLORS, CONNECTION_DOT_RADIUS, gridToPixel } from '../utils/constants'
 import Wire from './Wire.vue'
@@ -184,21 +217,28 @@ export default {
   emits: ['selectionChanged'],
   setup(props, { emit }) {
     const container = ref(null)
+    const scrollContainer = ref(null)
     const componentRefs = ref({})
 
     // Canvas operations
     const {
+      containerWidth,
+      containerHeight,
       canvasWidth,
       canvasHeight,
       gridSize,
       zoom,
       minZoom,
       maxZoom,
+      panX,
+      panY,
+      isPanning,
       zoomIn,
       zoomOut,
       snapToGrid,
       getMousePos,
-      setupResizeObserver
+      setupResizeObserver,
+      updateCanvasDimensions
     } = useCanvasViewport()
 
     // Use the passed circuit manager instead of creating our own
@@ -325,7 +365,7 @@ export default {
     // Canvas interactions (controller layer) - must come after selection and dragAndDrop
     const canvasInteractions = useCanvasController(
       props.circuitManager,
-      { getMousePos, snapToGrid, gridSize },
+      { getMousePos, snapToGrid, gridSize, panX, panY, isPanning },
       wireManagement,
       selection,
       dragAndDrop
@@ -345,6 +385,9 @@ export default {
       handleWindowBlur,
       handleWireClick,
       handleWireMouseDown,
+      handleTouchStart,
+      handleTouchMove,
+      handleTouchEnd,
       addComponentAtSmartPosition
     } = canvasInteractions
 
@@ -472,6 +515,77 @@ export default {
       { deep: true }
     )
 
+    // Watch for dragging state and manage body class
+    watch(
+      () => isDragging() || isSelecting,
+      isDraggingOrSelecting => {
+        if (isDraggingOrSelecting) {
+          document.body.classList.add('dragging-mode')
+        } else {
+          document.body.classList.remove('dragging-mode')
+        }
+      },
+      { immediate: true }
+    )
+
+    // Watch for circuit element changes and update canvas dimensions
+    watch(
+      [components, wires, wireJunctions],
+      () => {
+        updateCanvasDimensions(components.value, wires.value, wireJunctions.value)
+      },
+      { deep: true, immediate: true }
+    )
+
+    // Save and restore scroll position
+    const SCROLL_POSITION_KEY = 'golden-gates-scroll-position'
+
+    function saveScrollPosition() {
+      if (scrollContainer.value) {
+        const scrollData = {
+          scrollLeft: scrollContainer.value.scrollLeft,
+          scrollTop: scrollContainer.value.scrollTop,
+          timestamp: Date.now()
+        }
+        localStorage.setItem(SCROLL_POSITION_KEY, JSON.stringify(scrollData))
+      }
+    }
+
+    function restoreScrollPosition() {
+      try {
+        const savedData = localStorage.getItem(SCROLL_POSITION_KEY)
+        if (savedData && scrollContainer.value) {
+          const { scrollLeft, scrollTop } = JSON.parse(savedData)
+          scrollContainer.value.scrollLeft = scrollLeft
+          scrollContainer.value.scrollTop = scrollTop
+        }
+      } catch (error) {
+        console.warn('Failed to restore scroll position:', error)
+      }
+    }
+
+    // Debounced scroll position saving
+    const debouncedSaveScroll = debounce(saveScrollPosition, 500)
+
+    onMounted(() => {
+      // Restore scroll position after canvas is ready
+      setTimeout(restoreScrollPosition, 100)
+
+      // Save scroll position when user scrolls
+      if (scrollContainer.value) {
+        scrollContainer.value.addEventListener('scroll', debouncedSaveScroll)
+
+        // Cleanup on unmount
+        onUnmounted(() => {
+          if (scrollContainer.value) {
+            scrollContainer.value.removeEventListener('scroll', debouncedSaveScroll)
+          }
+          // Clean up body class
+          document.body.classList.remove('dragging-mode')
+        })
+      }
+    })
+
     // Add wire directly (for loading from file)
     function addWire(wireData) {
       activeCircuit.value?.wires.push(wireData)
@@ -529,14 +643,20 @@ export default {
     return {
       // Template refs
       container,
+      scrollContainer,
 
       // State
+      containerWidth,
+      containerHeight,
       canvasWidth,
       canvasHeight,
       gridSize,
       zoom,
       minZoom,
       maxZoom,
+      panX,
+      panY,
+      isPanning,
       dotSize,
       components,
       wires,
@@ -609,6 +729,15 @@ export default {
   overflow: hidden;
 }
 
+.canvas-scroll-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
 .grid-canvas,
 .circuit-canvas {
   position: absolute;
@@ -628,6 +757,26 @@ export default {
 
 .circuit-canvas.dragging {
   cursor: move;
+}
+
+/* Prevent text selection globally when dragging or selecting */
+.circuit-canvas-container.dragging {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Add global style when dragging to prevent text selection on body */
+body {
+  transition: user-select 0s;
+}
+
+body.dragging-mode {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .zoom-controls {

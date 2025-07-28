@@ -14,7 +14,7 @@ export function useCanvasController(
   selection,
   dragAndDrop
 ) {
-  const { getMousePos, snapToGrid, gridSize } = canvasOperations
+  const { getMousePos, snapToGrid, gridSize, panX, panY, isPanning } = canvasOperations
   const { clearSelection, selectComponent, deleteSelected, checkAndClearJustFinished } = selection
   const { startWireDrawing, completeWire, addWireWaypoint, cancelWireDrawing, drawingWire } =
     wireManagement
@@ -40,6 +40,11 @@ export function useCanvasController(
 
   // Store the last hovered wire for re-evaluation when mode changes
   let lastHoveredWireIndex = null
+
+  // Touch pan tracking
+  let lastTouchDistance = null
+  let lastPanPosition = null
+  let activeTouches = []
 
   // Debounce mechanism to prevent duplicate operations
   const OPERATION_DEBOUNCE_MS = 100
@@ -685,6 +690,84 @@ export function useCanvasController(
   }
 
   /**
+   * Get center point between two touches
+   */
+  function getTouchCenter(touch1, touch2) {
+    return {
+      x: (touch1.clientX + touch2.clientX) / 2,
+      y: (touch1.clientY + touch2.clientY) / 2
+    }
+  }
+
+  /**
+   * Get distance between two touches
+   */
+  function getTouchDistance(touch1, touch2) {
+    const dx = touch1.clientX - touch2.clientX
+    const dy = touch1.clientY - touch2.clientY
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  /**
+   * Handle touch start events
+   */
+  function handleTouchStart(event) {
+    activeTouches = Array.from(event.touches)
+
+    if (activeTouches.length === 2) {
+      // Two-finger gesture - start panning
+      event.preventDefault()
+      isPanning.value = true
+
+      const touch1 = activeTouches[0]
+      const touch2 = activeTouches[1]
+
+      lastPanPosition = getTouchCenter(touch1, touch2)
+      lastTouchDistance = getTouchDistance(touch1, touch2)
+    }
+  }
+
+  /**
+   * Handle touch move events
+   */
+  function handleTouchMove(event) {
+    if (activeTouches.length === 2 && isPanning.value) {
+      event.preventDefault()
+
+      const touch1 = event.touches[0]
+      const touch2 = event.touches[1]
+
+      const currentCenter = getTouchCenter(touch1, touch2)
+
+      if (lastPanPosition) {
+        // Calculate pan delta
+        const deltaX = currentCenter.x - lastPanPosition.x
+        const deltaY = currentCenter.y - lastPanPosition.y
+
+        // Update pan position
+        panX.value += deltaX
+        panY.value += deltaY
+      }
+
+      lastPanPosition = currentCenter
+    }
+  }
+
+  /**
+   * Handle touch end events
+   */
+  function handleTouchEnd(event) {
+    activeTouches = Array.from(event.touches)
+
+    if (activeTouches.length < 2) {
+      // End panning when less than 2 fingers
+      isPanning.value = false
+      lastPanPosition = null
+      lastTouchDistance = null
+    }
+  }
+
+  /**
    * Update junction preview
    */
   function updateJunctionPreview(event, mousePos) {
@@ -863,6 +946,9 @@ export function useCanvasController(
     handleWindowBlur,
     handleWireClick,
     handleWireMouseDown,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
 
     // Component operations
     addComponentAtSmartPosition: addComponentAtSmartPositionWithSelection,

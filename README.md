@@ -25,10 +25,11 @@ We would like to keep the door open to sythesizing student designs onto an FPGA.
 
 1. Golden Gates has a minimalist user interface, where commands are grouped in the Command Palette, somewhat similar to VS Code.
 1. To access the command palette, click on the Golden Gates icon at the upper left, or simply type "G" as a shortcut.
-1. You can use autocomplete to type a few characters of the name of the command, or circuit component you want to insert. For example, type "xor" to insert an XOR gate
+1. You can use autocomplete to type a few characters of the name of the command, or circuit component you want to insert. For example, type "xor" to insert an XOR gate.
 1. You can use the clipboard to cut, copy, paste, and duplicate selected circuit components, using the standard keyboard shortcuts on your computer. Duplicate is Cmd-D on MacOS and Ctrl-D on Windows.
-1. You can edit the properties of a circuit component using the property inspector on the right side of the app. For example, if you want an AND gate with four inputs, you can select an AND gate, and then modify its properties
+1. You can edit the properties of a circuit component using the property inspector on the right side of the app. For example, if you want an AND gate with four inputs, you can select an AND gate, and then modify its properties.
 1. New subcircuits will appear as tabs in the the toolbar. For example, you can create subcircuits for an SR-Latch, save that as a Component, and then create a D-latch, where you can insert SR-Latches as subcircuits.
+1. You can scroll/pan the circuit viewport using two-finger drag (if you have a trackpad) or scroll-wheel drag (if you have a mouse).
 
 ### Creating a Circuit
 
