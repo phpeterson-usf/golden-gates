@@ -15,7 +15,6 @@ export class MergerGenerator extends WireComponentGenerator {
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('merger')
-    const mergeInputs = this.formatRanges()
 
     // Format merge_inputs as tuples: [(0,1), (2,3), (4,5), (6,7)]
     const mergeInputsString = `[${this.ranges.map(range => `(${range.start},${range.end})`).join(', ')}]`
