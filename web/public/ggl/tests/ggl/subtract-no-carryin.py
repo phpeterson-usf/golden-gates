@@ -22,7 +22,7 @@ difference = io.Output(bits=4, label="difference")
 c.connect(a, sub.input('a'))
 c.connect(b, sub.input('b'))
 c.connect(cin, sub.input('cin'))
-c.connect(sub.output('diff'), difference)
+c.connect(sub.output('s'), difference)
 
 c.run()
 print(difference.value)

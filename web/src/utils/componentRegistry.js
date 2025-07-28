@@ -16,6 +16,7 @@ import PriorityEncoder from '../components/PriorityEncoder.vue'
 import SchematicComponent from '../components/SchematicComponent.vue'
 import ROM from '../components/ROM.vue'
 import Adder from '../components/Adder.vue'
+import Subtract from '../components/Subtract.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -562,6 +563,40 @@ export const componentRegistry = {
       // Don't override if it already has a label (including default '+')
       if (!instance.props.label || instance.props.label === '') {
         instance.props.label = '+'
+      }
+    }
+  },
+
+  subtract: {
+    component: Subtract,
+    label: 'Subtract',
+    icon: 'pi pi-minus',
+    category: 'arithmetic',
+    requiresNamedPorts: true,
+    defaultProps: {
+      bits: 8,
+      label: '-',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 6
+    },
+    connections: {
+      inputs: [
+        { name: 'a', x: 0, y: 1 },      // a input (top)
+        { name: 'b', x: 0, y: 3 },      // b input (middle)  
+        { name: 'cin', x: 0, y: 5 }     // cin input (bottom)
+      ],
+      outputs: [
+        { name: 's', x: 4, y: 2 },      // s output (top)
+        { name: 'cout', x: 4, y: 4 }    // cout output (bottom)
+      ]
+    },
+    onCreate: (instance, index) => {
+      // Don't override if it already has a label (including default '-')
+      if (!instance.props.label || instance.props.label === '') {
+        instance.props.label = '-'
       }
     }
   },

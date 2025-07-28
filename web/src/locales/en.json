@@ -181,7 +181,8 @@
       "priorityEncoder": "Priority Encoder",
       "register": "Register",
       "rom": "ROM",
-      "adder": "Adder"
+      "adder": "Adder",
+      "subtract": "Subtract"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",

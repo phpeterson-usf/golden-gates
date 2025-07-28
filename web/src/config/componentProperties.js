@@ -349,6 +349,16 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+
+  // Subtract properties
+  subtract: {
+    title: 'Subtract Properties',
+    properties: [
+      { ...commonProperties.label, default: '-' },
+      { ...commonProperties.bits, default: 8 },
+      commonProperties.rotation
+    ]
+  },
   // ROM properties
   rom: {
     title: 'ROM Properties',

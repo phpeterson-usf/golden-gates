@@ -13,7 +13,7 @@ b = io.Input(bits=4, label="b")
 cin = io.Input(bits=1, label="cin")
 a.value = 9     # 0b1001
 b.value = 6     # 0b0110
-c.value = 0
+cin.value = 0
 
 adder = arithmetic.Adder(bits=4, label="adder")
 

@@ -12,6 +12,7 @@ import { PriorityEncoderGenerator } from './PriorityEncoderGenerator'
 import { RegisterGenerator } from './RegisterGenerator'
 import { ROMGenerator } from './ROMGenerator'
 import { AdderGenerator } from './AdderGenerator'
+import { SubtractGenerator } from './SubtractGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -63,6 +64,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'adder':
       return new AdderGenerator(componentData)
+
+    case 'subtract':
+      return new SubtractGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

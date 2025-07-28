@@ -200,6 +200,13 @@ export const commandGroups = {
         componentType: 'adder',
         action: 'addComponent',
         params: ['adder']
+      },
+      {
+        id: 'insert-subtract',
+        labelKey: 'commands.insert.subtract',
+        componentType: 'subtract',
+        action: 'addComponent',
+        params: ['subtract']
       }
     ]
   },

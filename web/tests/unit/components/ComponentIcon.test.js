@@ -139,6 +139,83 @@ describe('ComponentIcon', () => {
     })
   })
 
+  describe('Subtract icon', () => {
+    it('should render "-" character as text for subtract component', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.exists()).toBe(true)
+      expect(text.text()).toBe('-')
+      expect(text.classes()).toContain('component-icon-text')
+    })
+
+    it('should use shared CSS class for consistent styling', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.classes()).toContain('component-icon-text')
+    })
+
+    it('should scale font size for different icon sizes', () => {
+      const smallWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
+      const largeWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 32
+        }
+      })
+
+      const smallText = smallWrapper.find('text')
+      const largeText = largeWrapper.find('text')
+      
+      // Font sizes should be different for different icon sizes
+      expect(smallText.attributes('font-size')).not.toBe(largeText.attributes('font-size'))
+    })
+
+    it('should use specified color for text fill', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16,
+          color: '#ff0000'
+        }
+      })
+
+      const text = wrapper.find('text')
+      expect(text.attributes('fill')).toBe('#ff0000')
+    })
+
+    it('should center the text properly', () => {
+      const wrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
+      const text = wrapper.find('text')
+      // Text centering is handled by CSS class, but we can verify positioning
+      expect(text.attributes('x')).toBe('30') // Center of viewBox
+      expect(text.attributes('y')).toBe('15') // Center of viewBox
+    })
+  })
+
   describe('Adder icon', () => {
     it('should render "+" character as text for adder component', () => {
       const wrapper = mount(ComponentIcon, {
@@ -217,7 +294,7 @@ describe('ComponentIcon', () => {
   })
 
   describe('Text-based icons (shared functionality)', () => {
-    it('should use same positioning for constant and adder', () => {
+    it('should use same positioning for constant, adder, and subtract', () => {
       const constantWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'constant',
@@ -232,16 +309,28 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const subtractWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
       const constantText = constantWrapper.find('text')
       const adderText = adderWrapper.find('text')
+      const subtractText = subtractWrapper.find('text')
       
       // Should use same positioning
       expect(constantText.attributes('x')).toBe(adderText.attributes('x'))
       expect(constantText.attributes('y')).toBe(adderText.attributes('y'))
       expect(constantText.attributes('font-size')).toBe(adderText.attributes('font-size'))
+      
+      expect(constantText.attributes('x')).toBe(subtractText.attributes('x'))
+      expect(constantText.attributes('y')).toBe(subtractText.attributes('y'))
+      expect(constantText.attributes('font-size')).toBe(subtractText.attributes('font-size'))
     })
 
-    it('should use same CSS class for constant and adder', () => {
+    it('should use same CSS class for constant, adder, and subtract', () => {
       const constantWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'constant',
@@ -256,17 +345,26 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const subtractWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
       const constantText = constantWrapper.find('text')
       const adderText = adderWrapper.find('text')
+      const subtractText = subtractWrapper.find('text')
       
       // Should use same CSS class
       expect(constantText.classes()).toEqual(adderText.classes())
+      expect(constantText.classes()).toEqual(subtractText.classes())
       expect(constantText.classes()).toContain('component-icon-text')
     })
   })
 
   describe('SVG properties', () => {
-    it('should set correct viewBox for clock, constant, and adder icons', () => {
+    it('should set correct viewBox for clock, constant, adder, and subtract icons', () => {
       const clockWrapper = mount(ComponentIcon, {
         props: {
           componentType: 'clock',
@@ -288,10 +386,18 @@ describe('ComponentIcon', () => {
         }
       })
 
+      const subtractWrapper = mount(ComponentIcon, {
+        props: {
+          componentType: 'subtract',
+          size: 16
+        }
+      })
+
       // All should use standard viewBox
       expect(clockWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
       expect(constantWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
       expect(adderWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
+      expect(subtractWrapper.find('svg').attributes('viewBox')).toBe('0 0 60 30')
     })
 
     it('should set correct size attributes', () => {

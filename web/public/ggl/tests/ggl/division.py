@@ -10,7 +10,7 @@ c = circuit.Circuit()
 
 a = io.Input(bits=4, label="a")
 b = io.Input(bits=4, label="b")
-a.value = 12  
+a.value = 12
 b.value = 8    
 
 div = arithmetic.Division(bits=4, label="div")

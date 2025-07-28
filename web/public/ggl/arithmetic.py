@@ -65,7 +65,7 @@ class Subtract(Arithmetic):
     a = 'a'
     b = 'b'
     carryIn = 'cin'
-    difference = 'diff'
+    difference = 's'
     carryOut = 'cout'
 
     def __init__(self, js_id='', label='', bits=1):
@@ -149,6 +149,8 @@ class Division(Arithmetic):
     def propagate(self, output_name='0', value=0):
         a = self.safe_read_input(Division.a)
         b = self.safe_read_input(Division.b)
+        print(f'Label: {self.label} {self.inputs.get_edge('b').value}')
+
         quotient, remainder = self.operator(a, b)
         new_work = super().propagate(output_name=Division.quotient, value=quotient)
         new_work += super().propagate(output_name=Division.remainder, value=remainder)
