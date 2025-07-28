@@ -19,7 +19,7 @@ sll = arithmetic.BarrelShifter(bits=4, direction='left', mode='logical', label='
 out = io.Output(bits=4, label="out")
 
 
-c.connect(a, sll.input('a'))  # value to shift
+c.connect(a, sll.input('in'))  # value to shift
 c.connect(b, sll.input('shift'))  # amount to shift
 c.connect(sll.output('out'), out)
 
@@ -31,7 +31,7 @@ srl = arithmetic.BarrelShifter(bits=4, direction='right', mode='logical', label=
 outSRL = io.Output(bits=4, label="out_right")
 
 
-c.connect(a, srl.input('a'))
+c.connect(a, srl.input('in'))
 c.connect(b, srl.input('shift'))
 c.connect(srl.output('out'), outSRL)
 
@@ -42,7 +42,7 @@ sra = arithmetic.BarrelShifter(bits=4, direction='right', mode='arithmetic', lab
 outSRA = io.Output(bits=4, label="out_right")
 
 
-c.connect(a, sra.input('a'))
+c.connect(a, sra.input('in'))
 c.connect(b, sra.input('shift'))
 c.connect(sra.output('out'), outSRA)
 
