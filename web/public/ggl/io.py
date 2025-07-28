@@ -116,11 +116,17 @@ class Clock(IONode):
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0
-            # toggle between 0 and 1
             new_val = 1 - self.value
             self.prev_value = self.value
             self.value = new_val
+
+            logger.info(f"Clock '{self.label}' toggled to {self.value}")
+
             if self.prev_value == 0 and new_val == 1:
-                # rising edge occurred: return list to indicate clock node
-                return [self]
+                super().propagate(output_name=output_name, value=new_val)
+                return [self]  # rising edge
+            else:
+                # toggle the value downstream with no rising edge
+                super().propagate(output_name=output_name, value=new_val)
+
         return []
