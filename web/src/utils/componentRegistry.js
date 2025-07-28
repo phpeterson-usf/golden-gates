@@ -18,6 +18,7 @@ import ROM from '../components/ROM.vue'
 import Adder from '../components/Adder.vue'
 import Subtract from '../components/Subtract.vue'
 import Multiply from '../components/Multiply.vue'
+import Divide from '../components/Divide.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -630,6 +631,39 @@ export const componentRegistry = {
       // Don't override if it already has a label (including default '×')
       if (!instance.props.label || instance.props.label === '') {
         instance.props.label = '×'
+      }
+    }
+  },
+
+  divide: {
+    component: Divide,
+    label: 'Divide',
+    icon: 'pi pi-divide',
+    category: 'arithmetic',
+    requiresNamedPorts: true,
+    defaultProps: {
+      bits: 8,
+      label: '÷',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 4
+    },
+    connections: {
+      inputs: [
+        { name: 'a', x: 0, y: 1 },      // a input (top)
+        { name: 'b', x: 0, y: 3 }       // b input (bottom)
+      ],
+      outputs: [
+        { name: 'q', x: 4, y: 1 },      // q output (quotient - top)
+        { name: 'r', x: 4, y: 3 }       // r output (remainder - bottom)
+      ]
+    },
+    onCreate: (instance, index) => {
+      // Don't override if it already has a label (including default '÷')
+      if (!instance.props.label || instance.props.label === '') {
+        instance.props.label = '÷'
       }
     }
   },

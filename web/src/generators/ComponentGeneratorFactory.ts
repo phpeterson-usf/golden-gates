@@ -14,6 +14,7 @@ import { ROMGenerator } from './ROMGenerator'
 import { AdderGenerator } from './AdderGenerator'
 import { SubtractGenerator } from './SubtractGenerator'
 import { MultiplyGenerator } from './MultiplyGenerator'
+import { DivideGenerator } from './DivideGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -71,6 +72,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'multiply':
       return new MultiplyGenerator(componentData)
+
+    case 'divide':
+      return new DivideGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

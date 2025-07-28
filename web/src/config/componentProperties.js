@@ -369,6 +369,16 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+
+  // Divide properties
+  divide: {
+    title: 'Divide Properties',
+    properties: [
+      { ...commonProperties.label, default: '÷' },
+      { ...commonProperties.bits, default: 8 },
+      commonProperties.rotation
+    ]
+  },
   // ROM properties
   rom: {
     title: 'ROM Properties',

@@ -130,8 +130,8 @@ class Division(Arithmetic):
     kind = 'Division'
     a = 'a'
     b = 'b'
-    quotient = 'quot'
-    remainder = 'rem'
+    quotient = 'q'
+    remainder = 'r'
 
     def __init__(self, js_id='', label='', bits=1):
         super().__init__(

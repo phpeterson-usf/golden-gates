@@ -214,6 +214,13 @@ export const commandGroups = {
         componentType: 'multiply',
         action: 'addComponent',
         params: ['multiply']
+      },
+      {
+        id: 'insert-divide',
+        labelKey: 'commands.insert.divide',
+        componentType: 'divide',
+        action: 'addComponent',
+        params: ['divide']
       }
     ]
   },

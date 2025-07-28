@@ -182,7 +182,9 @@
       "register": "Register",
       "rom": "ROM",
       "adder": "Adder",
-      "subtract": "Subtract"
+      "subtract": "Subtract",
+      "multiply": "Multiply",
+      "divide": "Divide"
     },
     "commandPalette": {
       "placeholder": "Type a command or search...",
