@@ -15,6 +15,7 @@ import { AdderGenerator } from './AdderGenerator'
 import { SubtractGenerator } from './SubtractGenerator'
 import { MultiplyGenerator } from './MultiplyGenerator'
 import { DivideGenerator } from './DivideGenerator'
+import { ShiftGenerator } from './ShiftGenerator'
 
 /**
  * Factory function to create the appropriate component generator
@@ -75,6 +76,9 @@ export function createComponentGenerator(componentData: ComponentData): Componen
 
     case 'divide':
       return new DivideGenerator(componentData)
+
+    case 'shift':
+      return new ShiftGenerator(componentData)
 
     default:
       throw new Error(`Unknown component type: ${componentData.type}`)

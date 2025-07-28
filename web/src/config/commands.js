@@ -221,6 +221,13 @@ export const commandGroups = {
         componentType: 'divide',
         action: 'addComponent',
         params: ['divide']
+      },
+      {
+        id: 'insert-shift',
+        labelKey: 'commands.insert.shift',
+        componentType: 'shift',
+        action: 'addComponent',
+        params: ['shift']
       }
     ]
   },

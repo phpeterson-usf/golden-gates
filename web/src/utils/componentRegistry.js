@@ -19,6 +19,7 @@ import Adder from '../components/Adder.vue'
 import Subtract from '../components/Subtract.vue'
 import Multiply from '../components/Multiply.vue'
 import Divide from '../components/Divide.vue'
+import Shift from '../components/Shift.vue'
 
 // Registry of all available circuit components
 export const componentRegistry = {
@@ -664,6 +665,39 @@ export const componentRegistry = {
       // Don't override if it already has a label (including default '÷')
       if (!instance.props.label || instance.props.label === '') {
         instance.props.label = '÷'
+      }
+    }
+  },
+
+  shift: {
+    component: Shift,
+    label: 'Shift',
+    icon: 'pi pi-arrow-left',
+    category: 'arithmetic',
+    requiresNamedPorts: true,
+    defaultProps: {
+      bits: 8,
+      label: '<<',
+      mode: 'logical_left',
+      rotation: 0
+    },
+    dimensions: {
+      width: GRID_SIZE * 4,
+      height: GRID_SIZE * 4
+    },
+    connections: {
+      inputs: [
+        { name: 'in', x: 0, y: 1 },     // in input (top)
+        { name: 'shift', x: 0, y: 3 }   // shift input (bottom)
+      ],
+      outputs: [
+        { name: 'out', x: 4, y: 2 }     // out output (center)
+      ]
+    },
+    onCreate: (instance, index) => {
+      // Don't override if it already has a label (including default '<<')
+      if (!instance.props.label || instance.props.label === '') {
+        instance.props.label = '<<'
       }
     }
   },

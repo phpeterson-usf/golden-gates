@@ -199,7 +199,7 @@ class Comparator(Arithmetic):
 class BarrelShifter(Arithmetic):
     """Shift a 'b' amount of times to either the right or left"""
     kind = 'BarrelShifter'
-    a = 'a'
+    a = 'in'
     b = 'shift'
     result = 'out'
 

@@ -379,6 +379,27 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+
+  // Shift properties
+  shift: {
+    title: 'Shift Properties',
+    properties: [
+      { ...commonProperties.label, default: '<<' },
+      { ...commonProperties.bits, default: 8 },
+      {
+        name: 'mode',
+        type: 'dropdown',
+        label: 'Mode',
+        default: 'logical_left',
+        options: [
+          { label: 'Logical Left', value: 'logical_left' },
+          { label: 'Logical Right', value: 'logical_right' },
+          { label: 'Arithmetic Right', value: 'arithmetic_right' }
+        ]
+      },
+      commonProperties.rotation
+    ]
+  },
   // ROM properties
   rom: {
     title: 'ROM Properties',
