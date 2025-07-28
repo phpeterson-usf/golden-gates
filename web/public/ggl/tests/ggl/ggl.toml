@@ -316,6 +316,12 @@ expected = """
 rubric = 1
 
 [[tests]]
+name = "32bit-eq"
+input = ["python3", "$project_tests/32bit-eq.py"]
+expected = "1"
+rubric = 1
+
+[[tests]]
 name = "d-flip-flop"
 input = ["python3", "$project_tests/d-flip-flop.py"]
 expected = "1"
