@@ -325,6 +325,15 @@ expected = """
 rubric = 1
 
 [[tests]]
+name = "analyze_decode"
+input = ["python3", "$project_tests/analyze_decode.py"]
+expected = """
+0
+1
+"""
+rubric = 1
+
+[[tests]]
 name = "d-flip-flop"
 input = ["python3", "$project_tests/d-flip-flop.py"]
 expected = "1"
