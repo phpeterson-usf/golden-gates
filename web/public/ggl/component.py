@@ -49,6 +49,13 @@ class ComponentInputProxy(Node):
 
     def propagate(self, output_name='0', value=0):
         """Receive value from external connection and forward to wrapped input"""
+        # Check if we have an input edge (we might not if we're nested inside another component)
+        edge = self.get_input_edge(ComponentInputProxy.inport)
+        if edge is None:
+            # No input edge means we're not connected yet - this can happen with nested components
+            logger.debug(f"InputProxy {self.label} has no input edge, skipping propagation")
+            return []
+        
         # Get value from our input edge
         v = self.inputs.read_value(ComponentInputProxy.inport)
         # Set the wrapped input's value and add it to the work queue
@@ -318,10 +325,9 @@ class ComponentInstance:
             raise ValueError(f"Component has no input named '{name}'. "
                              f"Available inputs: {list(self._input_proxies.keys())}")
 
-        # Return connector to the proxy node - external circuits connect TO the proxy
+        # Return ComponentConnector to the proxy node - external circuits connect TO the proxy
         proxy = self._input_proxies[name]
-        from .node import Connector
-        return Connector(proxy, '0')
+        return ComponentConnector(proxy, '0', self, is_input=True)
 
     def output(self, name):
         """
@@ -337,10 +343,9 @@ class ComponentInstance:
             raise ValueError(f"Component has no output named '{name}'. "
                              f"Available outputs: {list(self._output_proxies.keys())}")
 
-        # Return connector to the proxy node - external circuits connect FROM the proxy
+        # Return ComponentConnector to the proxy node - external circuits connect FROM the proxy
         proxy = self._output_proxies[name]
-        from .node import Connector
-        return Connector(proxy, '0')
+        return ComponentConnector(proxy, '0', self, is_input=False)
 
     @property
     def inputs(self):

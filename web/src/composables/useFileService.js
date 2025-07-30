@@ -8,17 +8,56 @@ export function useFileService() {
     nextCircuitId = 1
   ) => {
     try {
-      // Filter out runtime value attribute from output components
+      // Filter out transient properties that should not be persisted
       const sanitizedComponents = (components || []).map(component => {
-        if (component.type === 'output') {
-          const { value, ...propsWithoutValue } = component.props || {}
+        // Remove js_id from all components (it's generated fresh each simulation)
+        const { js_id, ...componentWithoutJsId } = component || {}
+        
+        // Remove transient properties from input/output components
+        if (component.type === 'input' || component.type === 'output') {
+          const { value, lastUpdate, ...propsWithoutTransient } = component.props || {}
           return {
-            ...component,
-            props: propsWithoutValue
+            ...componentWithoutJsId,
+            props: propsWithoutTransient
           }
         }
-        return component
+        
+        return componentWithoutJsId
       })
+
+      // Also sanitize schematic components (sub-circuit definitions)
+      const sanitizedSchematicComponents = {}
+      for (const [circuitId, schematicData] of Object.entries(schematicComponents || {})) {
+        // Sanitize components in the circuit property (where the actual components are stored)
+        let sanitizedCircuit = schematicData.circuit
+        if (sanitizedCircuit && sanitizedCircuit.components) {
+          const sanitizedComponents = sanitizedCircuit.components.map(component => {
+            // Remove js_id from all components
+            const { js_id, ...componentWithoutJsId } = component || {}
+            
+            // Remove transient properties from input/output components
+            if (component.type === 'input' || component.type === 'output') {
+              const { value, lastUpdate, ...propsWithoutTransient } = component.props || {}
+              return {
+                ...componentWithoutJsId,
+                props: propsWithoutTransient
+              }
+            }
+            
+            return componentWithoutJsId
+          })
+          
+          sanitizedCircuit = {
+            ...sanitizedCircuit,
+            components: sanitizedComponents
+          }
+        }
+        
+        sanitizedSchematicComponents[circuitId] = {
+          ...schematicData,
+          circuit: sanitizedCircuit
+        }
+      }
 
       // Create the circuit data object with consistent top-level structure
       const circuitData = {
@@ -35,7 +74,7 @@ export function useFileService() {
         wires: wires || [],
         wireJunctions: wireJunctions || [],
         // Schematic component definitions for hierarchical circuits
-        schematicComponents: schematicComponents || {}
+        schematicComponents: sanitizedSchematicComponents
       }
 
       // Convert to JSON string with nice formatting

@@ -8,57 +8,54 @@ export function useCodeGenController() {
 
   // Helper function to get component outputs (handles both registry and schematic components)
   function getComponentOutputs(component, circuitManager) {
-    if (component.type === 'schematic-component') {
-      const circuitId = component.props?.circuitId || component.circuitId
-      const componentDef = circuitManager?.getComponentDefinition?.(circuitId)
-      return componentDef?.interface?.outputs || []
-    } else {
-      const config = componentRegistry[component.type]
-      if (config?.getConnections) {
-        // Use dynamic connections for components like splitter/merger
-        const connections = config.getConnections(component.props || {})
-        return connections.outputs || []
-      }
-      return config?.connections?.outputs || []
+    const config = componentRegistry[component.type]
+    if (config?.getConnections) {
+      // Use dynamic connections for components like splitter/merger and schematic components
+      const connections = config.getConnections(component.props || {}, circuitManager)
+      return connections.outputs || []
     }
+    return config?.connections?.outputs || []
   }
 
   // Helper function to get component inputs (handles both registry and schematic components)
   function getComponentInputs(component, circuitManager) {
-    if (component.type === 'schematic-component') {
-      const circuitId = component.props?.circuitId || component.circuitId
-      const componentDef = circuitManager?.getComponentDefinition?.(circuitId)
-      return componentDef?.interface?.inputs || []
-    } else {
-      const config = componentRegistry[component.type]
-      if (config?.getConnections) {
-        // Use dynamic connections for components like splitter/merger
-        const connections = config.getConnections(component.props || {})
-        return connections.inputs || []
-      }
-      return config?.connections?.inputs || []
+    const config = componentRegistry[component.type]
+    if (config?.getConnections) {
+      // Use dynamic connections for components like splitter/merger and schematic components
+      const connections = config.getConnections(component.props || {}, circuitManager)
+      return connections.inputs || []
     }
+    return config?.connections?.inputs || []
   }
 
   // Helper function to get port name from port index
   function getPortName(ports, portIndex, portType) {
-    if (ports && ports[portIndex]) {
+    if (ports && Array.isArray(ports) && portIndex >= 0 && portIndex < ports.length) {
       const port = ports[portIndex]
 
-      // For schematic components, use the label from the interface
-      if (port.label) {
-        return port.label
-      }
+      if (port && typeof port === 'object') {
+        // For schematic components, use the label from the interface
+        if (port.label) {
+          return port.label
+        }
 
-      // For components with named ports (like splitter/merger), use the name
-      if (port.name) {
-        return port.name
-      }
+        // For components with named ports (like splitter/merger), use the name
+        if (port.name) {
+          return port.name
+        }
 
-      // Fallback to port id if no label
-      if (port.id) {
-        return port.id
+        // Fallback to port id if no label
+        if (port.id) {
+          return port.id
+        }
       }
+    }
+
+    // Enhanced error reporting when port name cannot be resolved
+    if (ports && Array.isArray(ports)) {
+      console.warn(`getPortName: Port index ${portIndex} out of bounds for ${portType} ports array of length ${ports.length}. Available ports:`, ports.map(p => p?.label || p?.name || p?.id || 'unnamed'))
+    } else {
+      console.warn(`getPortName: Invalid ports array for ${portType}:`, ports)
     }
 
     // Fallback to port index for regular components or when no name is found
@@ -118,6 +115,7 @@ export function useCodeGenController() {
 
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
+    
 
     // Header - import all GGL modules (unused imports are not an error in Python)
     sections.push(
@@ -231,7 +229,7 @@ export function useCodeGenController() {
         } else {
           // Use TypeScript factory to generate code from component data
           try {
-            const generator = createComponentGenerator(component)
+            const generator = createComponentGenerator(component, { isMainCircuit: includeRun })
             const generated = generator.generate()
             componentVarNames[component.id] = generated.varName
             sections.push(generated.code)
@@ -566,6 +564,7 @@ ${componentName} = circuit.Component(circuit0)
 
     return Array.from(imports).join('\n')
   }
+
 
   return {
     generateGglProgram,

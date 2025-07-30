@@ -477,6 +477,21 @@ export default {
         props.circuitManager
       )
 
+      // Store the hierarchy mapping for callback handling
+      if (result.hierarchyMapping && window.ggComponentHierarchy) {
+        console.log('Storing hierarchy mapping:', result.hierarchyMapping)
+        // Update the global hierarchy mapping with the current circuit's mapping
+        result.hierarchyMapping.forEach((parentId, nestedId) => {
+          window.ggComponentHierarchy.set(nestedId, parentId)
+          console.log(`Mapped nested component ${nestedId} -> parent ${parentId}`)
+        })
+      } else {
+        console.log('No hierarchy mapping to store:', { 
+          hasMapping: !!result.hierarchyMapping, 
+          hasRegistry: !!window.ggComponentHierarchy 
+        })
+      }
+
       // Handle component errors - mark components with visual error state and show notifications
       if (result.errors && result.errors.length > 0) {
         result.errors.forEach(error => {

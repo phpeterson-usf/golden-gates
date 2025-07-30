@@ -195,6 +195,7 @@ export function useAppController(circuitManager) {
    * Set up the callback for Python to update Vue components
    */
   function setupPythonVueUpdateCallback(canvasRef) {
+
     window.__vueUpdateCallback = (eventType, componentId, value) => {
       console.log(`Callback: ${componentId} = ${value}`)
 
@@ -203,28 +204,27 @@ export function useAppController(circuitManager) {
         return
       }
 
+      // First, try to find the component in the main circuit
       const component = canvasRef.components.find(c => c.id === componentId)
-      if (!component) {
-        console.error(
-          `Component not found: ${componentId}`,
-          'Available components:',
-          canvasRef.components.map(c => c.id)
-        )
-        return
-      }
-
-      switch (eventType) {
-        case 'value':
-          handleValueUpdate(canvasRef, component, value)
-          break
-        case 'step':
-          handleStepUpdate(canvasRef, component, value)
-          break
-        case 'error':
-          handleErrorUpdate(canvasRef, component, value)
-          break
-        default:
-          console.warn(`Unknown event type: ${eventType}`)
+      
+      if (component) {
+        // This is a top-level component - handle normally
+        switch (eventType) {
+          case 'value':
+            handleValueUpdate(canvasRef, component, value)
+            break
+          case 'step':
+            handleStepUpdate(canvasRef, component, value)
+            break
+          case 'error':
+            handleErrorUpdate(canvasRef, component, value)
+            break
+          default:
+            console.warn(`Unknown event type: ${eventType}`)
+        }
+      } else {
+        // Log the callback but don't error - this allows us to see nested component activity
+        console.log(`Nested component callback: ${componentId} = ${value} (no parent mapped)`)
       }
     }
 
@@ -233,6 +233,7 @@ export function useAppController(circuitManager) {
       window.__vueUpdateCallback('value', componentId, value)
     }
   }
+
 
   /**
    * Handle value update events

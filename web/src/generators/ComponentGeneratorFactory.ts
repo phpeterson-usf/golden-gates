@@ -19,13 +19,23 @@ import { ShiftGenerator } from './ShiftGenerator'
 import { CompareGenerator } from './CompareGenerator'
 
 /**
+ * Options for component generation
+ */
+export interface ComponentGeneratorOptions {
+  isMainCircuit?: boolean // true for main circuit, false for component modules
+}
+
+/**
  * Factory function to create the appropriate component generator
  * This is the single place where we switch on component type
  */
-export function createComponentGenerator(componentData: ComponentData): ComponentGenerator {
+export function createComponentGenerator(
+  componentData: ComponentData, 
+  options: ComponentGeneratorOptions = {}
+): ComponentGenerator {
   switch (componentData.type) {
     case 'input':
-      return new InputGenerator(componentData)
+      return new InputGenerator(componentData, options)
 
     case 'output':
       return new OutputGenerator(componentData)

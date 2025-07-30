@@ -891,7 +891,13 @@ export const componentRegistry = {
               }
               // 0° rotation stays at left edge (default)
 
-              return connectionPoint
+              // Preserve the label information for code generation
+              return {
+                ...connectionPoint,
+                label: input.label,
+                id: input.id,
+                bits: input.bits
+              }
             })
 
       const outputConnections =
@@ -928,7 +934,13 @@ export const componentRegistry = {
               }
               // 0° rotation stays at right edge (default)
 
-              return connectionPoint
+              // Preserve the label information for code generation
+              return {
+                ...connectionPoint,
+                label: output.label,
+                id: output.id,
+                bits: output.bits
+              }
             })
 
       return {
