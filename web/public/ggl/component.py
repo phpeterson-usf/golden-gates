@@ -26,7 +26,7 @@ class ComponentConnector(Connector):
         self.is_input = is_input  # True for component inputs, False for outputs
 
 
-class ComponentInputProxy:
+class ComponentInputProxy(Node):
     """
     A proxy that wraps a component's Input node to make it externally connectable.
     It looks like a normal node with inputs, but forwards values to the wrapped Input node.
@@ -35,22 +35,17 @@ class ComponentInputProxy:
 
     def __init__(self, wrapped_input, instance_id):
         self.wrapped_input = wrapped_input
-        self.kind = 'ComponentInputProxy'
-        self.label = f"proxy_{wrapped_input.label}"
-
-        # Create inputs so external nodes can connect TO this proxy
-        from .node import NodeInputs, NodeOutputs
-        self.inputs = NodeInputs(['0'], self)
-        # Proxy outputs go to wrapped input
-        self.outputs = NodeOutputs(['0'], self)
-
-        # Connect our output to the wrapped input's value
-        self._connect_to_wrapped()
-
-    def _connect_to_wrapped(self):
-        """Create internal connection to wrapped input"""
-        # This proxy's output feeds the wrapped input's value
-        pass  # We'll handle this in propagate()
+        
+        # Initialize as a Node with one input and one output
+        super().__init__(
+            kind='ComponentInputProxy',
+            js_id='',
+            innames=['0'],
+            outnames=['0'],
+            label=f"proxy_{wrapped_input.label}"
+        )
+        
+        self._instance_id = instance_id
 
     def propagate(self, output_name='0', value=0):
         """Receive value from external connection and forward to wrapped input"""
@@ -64,16 +59,13 @@ class ComponentInputProxy:
         # Return the wrapped input to be processed in the next iteration
         return [self.wrapped_input]
 
-    def set_input_edge(self, name, edge):
-        """Accept external connections"""
-        self.inputs.set_edge(name, edge)
-
-    def append_output_edge(self, name, edge):
-        """Required for node interface"""
-        self.outputs.append_edge(name, edge)
+    def clone(self, instance_id):
+        """Clone a ComponentInputProxy with the same wrapped input"""
+        # Create a new proxy with the same wrapped input but new instance ID
+        return ComponentInputProxy(self.wrapped_input, instance_id)
 
 
-class ComponentOutputProxy:
+class ComponentOutputProxy(Node):
     """
     A proxy that wraps a component's Output node to make it externally connectable.
     It receives values from the wrapped Output node and provides them as outputs.
@@ -82,33 +74,30 @@ class ComponentOutputProxy:
 
     def __init__(self, wrapped_output, instance_id):
         self.wrapped_output = wrapped_output
-        self.kind = 'ComponentOutputProxy'
-        self.label = f"proxy_{wrapped_output.label}"
-
-        # Create outputs so external nodes can connect FROM this proxy
-        from .node import NodeInputs, NodeOutputs
-        self.inputs = NodeInputs(['0'], self)    # Receive from wrapped output
-        # Provide to external connections
-        self.outputs = NodeOutputs(['0'], self)
-
-        # We'll create the connection during component instantiation
+        
+        # Initialize as a Node with one input and one output
+        super().__init__(
+            kind='ComponentOutputProxy',
+            js_id='',
+            innames=['0'],
+            outnames=['0'],
+            label=f"proxy_{wrapped_output.label}"
+        )
+        
+        self._instance_id = instance_id
 
     def propagate(self, output_name='0', value=0):
         """Receive value from wrapped output and propagate to external connections"""
         # Get the value from our input (which comes from the wrapped output)
         v = self.inputs.read_value(ComponentOutputProxy.outport)
 
-        # Propagate to external connections
-        new_work = self.outputs.write_value(ComponentOutputProxy.outport, v)
-        return new_work
+        # Propagate to external connections using Node's built-in method
+        return super().propagate(output_name=ComponentOutputProxy.outport, value=v)
 
-    def set_input_edge(self, name, edge):
-        """Accept connection from wrapped output"""
-        self.inputs.set_edge(name, edge)
-
-    def append_output_edge(self, name, edge):
-        """Accept external connections FROM this proxy"""
-        self.outputs.append_edge(name, edge)
+    def clone(self, instance_id):
+        """Clone a ComponentOutputProxy with the same wrapped output"""
+        # Create a new proxy with the same wrapped output but new instance ID
+        return ComponentOutputProxy(self.wrapped_output, instance_id)
 
 
 class ComponentTemplate:
