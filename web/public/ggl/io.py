@@ -142,3 +142,10 @@ class Clock(IONode):
                 super().propagate(output_name=output_name, value=new_val)
 
         return []
+
+    def clone(self, instance_id):
+        """Clone a Clock node"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        # Don't clone js_id - it's specific to the original instance
+        return Clock(label=new_label, frequency=self.frequency, js_id=None)
+
