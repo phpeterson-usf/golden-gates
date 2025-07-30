@@ -412,31 +412,31 @@ export function useAppController(circuitManager) {
           }
         : {}
 
-      // Collect all schematic component definitions used in this circuit
-      const usedSchematicComponents = {}
-      components.forEach(component => {
-        if (component.type === 'schematic-component') {
-          const circuitId = component.props?.circuitId || component.circuitId
-          const componentDef = circuitManager.getComponentDefinition(circuitId)
-          if (componentDef) {
-            // Get the full circuit definition
-            const circuit = circuitManager.getCircuit(circuitId)
-            if (circuit) {
-              usedSchematicComponents[circuitId] = {
-                definition: componentDef,
-                circuit: circuit
-              }
+      // Collect ALL available schematic component definitions (not just used ones)
+      // This ensures that components saved with "Save as Component" are preserved
+      const allSchematicComponents = {}
+      
+      // Include all components from availableComponents Map
+      for (const [circuitId, componentDef] of circuitManager.availableComponents.value) {
+        if (componentDef && componentDef.type === 'circuit-component') {
+          // Get the full circuit definition
+          const circuit = circuitManager.getCircuit(circuitId)
+          if (circuit) {
+            allSchematicComponents[circuitId] = {
+              definition: componentDef,
+              circuit: circuit
             }
           }
         }
-      })
+      }
 
       await saveCircuitFile(
         components,
         wires,
         wireJunctions,
         circuitMetadata,
-        usedSchematicComponents
+        allSchematicComponents,
+        circuitManager.exportState().nextCircuitId
       )
     } catch (error) {
       console.error('Error saving circuit:', error)
@@ -479,7 +479,7 @@ export function useAppController(circuitManager) {
   function loadCircuitData(canvasRef, circuitData) {
     if (!canvasRef) return
 
-    // Clear existing circuit
+    // Clear existing circuit canvas
     canvasRef.clearCircuit()
 
     // For v1.1+ format, restore schematic component definitions first
@@ -507,6 +507,17 @@ export function useAppController(circuitManager) {
           console.warn(`Failed to restore schematic component ${circuitId}:`, error)
         }
       })
+    }
+
+    // Restore nextCircuitId to prevent ID collisions
+    if (circuitData.nextCircuitId) {
+      // Get current state, update nextCircuitId, and restore it
+      const currentState = circuitManager.exportState()
+      currentState.nextCircuitId = Math.max(
+        currentState.nextCircuitId,
+        circuitData.nextCircuitId
+      )
+      circuitManager.importState(currentState)
     }
 
     // Ensure we're loading into the correct circuit context
@@ -586,9 +597,44 @@ export function useAppController(circuitManager) {
           title: 'Replace Circuit?',
           message: 'This will replace your current circuit. Are you sure you want to continue?',
           type: 'warning',
-          onAccept: () => loadCircuitData(canvasRef, circuitData)
+          onAccept: () => {
+            // Complete replacement: clear all schematic components to prevent ID conflicts
+            circuitManager.availableComponents.value.clear()
+            
+            // Also clear any other circuits that might have conflicting IDs
+            // Keep only the currently active circuit, but clear its contents
+            const activeCircuitId = circuitManager.activeTabId.value
+            if (activeCircuitId) {
+              const activeCircuit = circuitManager.getCircuit(activeCircuitId)
+              if (activeCircuit) {
+                // Clear all other circuits except the active one
+                for (const [circuitId] of circuitManager.allCircuits.value) {
+                  if (circuitId !== activeCircuitId) {
+                    circuitManager.allCircuits.value.delete(circuitId)
+                  }
+                }
+              }
+            }
+            
+            loadCircuitData(canvasRef, circuitData)
+          }
         })
       } else {
+        // Complete replacement even when no existing circuit
+        circuitManager.availableComponents.value.clear()
+        
+        const activeCircuitId = circuitManager.activeTabId.value
+        if (activeCircuitId) {
+          const activeCircuit = circuitManager.getCircuit(activeCircuitId)
+          if (activeCircuit) {
+            for (const [circuitId] of circuitManager.allCircuits.value) {
+              if (circuitId !== activeCircuitId) {
+                circuitManager.allCircuits.value.delete(circuitId)
+              }
+            }
+          }
+        }
+        
         loadCircuitData(canvasRef, circuitData)
       }
     } catch (error) {

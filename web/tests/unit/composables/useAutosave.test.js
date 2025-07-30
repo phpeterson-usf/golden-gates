@@ -49,7 +49,18 @@ describe('useAutosave', () => {
       ),
       availableComponents: ref(new Map()),
       activeTabId: ref('circuit_1'),
-      openTabs: ref([{ id: 'circuit_1' }, { id: 'circuit_2' }])
+      openTabs: ref([{ id: 'circuit_1' }, { id: 'circuit_2' }]),
+      exportState: vi.fn(() => ({
+        nextCircuitId: 3,
+        allCircuits: {
+          circuit_1: circuit1,
+          circuit_2: circuit2
+        },
+        availableComponents: {},
+        activeTabId: 'circuit_1',
+        openTabs: [{ id: 'circuit_1' }, { id: 'circuit_2' }]
+      })),
+      importState: vi.fn()
     }
 
     autosave = useAutosave(mockCircuitManager)
@@ -90,7 +101,7 @@ describe('useAutosave', () => {
       const data = JSON.parse(dataString)
 
       expect(key).toMatch(/^golden-gates-autosave-\d+$/)
-      expect(data).toHaveProperty('version', '1.1')
+      expect(data).toHaveProperty('version', '1.2')
       expect(data).toHaveProperty('activeTabId', 'circuit_1')
       expect(data).toHaveProperty('allCircuits')
       expect(data).toHaveProperty('openTabs')

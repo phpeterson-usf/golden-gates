@@ -4,7 +4,8 @@ export function useFileService() {
     wires,
     wireJunctions,
     circuitMetadata = {},
-    schematicComponents = {}
+    schematicComponents = {},
+    nextCircuitId = 1
   ) => {
     try {
       // Filter out runtime value attribute from output components
@@ -21,12 +22,14 @@ export function useFileService() {
 
       // Create the circuit data object with consistent top-level structure
       const circuitData = {
-        version: '1.2', // Grid unit coordinate system
+        version: '1.3', // Bump version to include nextCircuitId
         timestamp: new Date().toISOString(),
         // Circuit-level properties at top level for consistency with version/timestamp
         name: circuitMetadata.name || 'Untitled Circuit',
         label: circuitMetadata.label || circuitMetadata.name || 'Untitled Circuit',
         interface: circuitMetadata.interface,
+        // Circuit ID counter for unique ID generation
+        nextCircuitId: nextCircuitId,
         // Component instances and structure
         components: sanitizedComponents,
         wires: wires || [],
@@ -213,6 +216,16 @@ export function useFileService() {
     const needsMigration = !circuitData.version || circuitData.version < '1.2'
 
     if (!needsMigration) {
+      // Even if no coordinate migration is needed, ensure nextCircuitId is present
+      if (!circuitData.nextCircuitId) {
+        // For files without nextCircuitId, calculate a safe starting value
+        const maxCircuitId = Math.max(
+          ...Object.keys(circuitData.schematicComponents || {})
+            .map(id => id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0),
+          1
+        )
+        circuitData.nextCircuitId = maxCircuitId + 1
+      }
       return circuitData
     }
 
@@ -275,8 +288,19 @@ export function useFileService() {
       })
     }
 
+    // Calculate nextCircuitId for migrated data
+    if (!migratedData.nextCircuitId) {
+      // For migrated files, calculate a safe starting value
+      const maxCircuitId = Math.max(
+        ...Object.keys(migratedData.schematicComponents || {})
+          .map(id => id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0),
+        1
+      )
+      migratedData.nextCircuitId = maxCircuitId + 1
+    }
+
     // Update version to indicate migration
-    migratedData.version = '1.2'
+    migratedData.version = '1.3'
 
     return migratedData
   }

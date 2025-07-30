@@ -132,10 +132,11 @@ export function useAutosave(circuitManager) {
 
       // Prepare complete workspace state
       const autosaveData = {
-        version: '1.1', // Bumped version for new openTabs field
+        version: '1.2', // Bumped version for nextCircuitId field
         timestamp: getTimestamp(),
         activeTabId: circuitManager.activeTabId.value,
         openTabs: circuitManager.openTabs.value, // Save tab state
+        nextCircuitId: circuitManager.exportState().nextCircuitId, // Save circuit ID counter
         allCircuits: Object.fromEntries(circuitManager.allCircuits.value),
         availableComponents: Object.fromEntries(circuitManager.availableComponents.value),
         metadata: {
@@ -292,6 +293,13 @@ export function useAutosave(circuitManager) {
       } else if (circuitManager.openTabs.value.length > 0) {
         // Fallback to first tab if saved active tab doesn't exist
         circuitManager.activeTabId.value = circuitManager.openTabs.value[0].id
+      }
+
+      // Restore nextCircuitId counter (version 1.2+)
+      if (data.nextCircuitId) {
+        const currentState = circuitManager.exportState()
+        currentState.nextCircuitId = data.nextCircuitId
+        circuitManager.importState(currentState)
       }
 
       // Restored workspace successfully
