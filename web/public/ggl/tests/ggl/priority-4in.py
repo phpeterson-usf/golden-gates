@@ -16,7 +16,7 @@ in1.value = 1
 
 in2 = io.Input(label='in2')
 circuit0.connect(in2, decoder0.input("2"))
-in2.value = 0
+in2.value = 1
 
 in3 = io.Input(label='in3')
 circuit0.connect(in3, decoder0.input("3"))
@@ -35,6 +35,6 @@ print(any.value)
 
 """
 expected
-1
+2
 1
 """

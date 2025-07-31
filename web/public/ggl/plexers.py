@@ -1,6 +1,4 @@
-import logging
-
-from .node import BitsNode
+from .node import Node, BitsNode
 from .ggl_logging import new_logger
 
 logger = new_logger(__name__)
@@ -84,10 +82,10 @@ class Decoder(Plexer):
         # Don't need to implement clone() since Decoder has no unique state
 
 
-class PriorityEncoder(BitsNode):
+class PriorityEncoder(Node):
     """
-    PriorityEncoder is a plexer but does not need a 'sel' input, so it derives
-    from BitsNode rather than plexer.
+    PriorityEncoder derives from Node because we don't want the BitsNode
+    behavior of truncating propagated values to self.bits wide.
 
     Its function is to look at its 1-bit inputs and output the ordinal number
     for that input. Priority is bottom-up, so input '1' is higher priority than
@@ -100,11 +98,12 @@ class PriorityEncoder(BitsNode):
     any = 'any'
 
     def __init__(self, js_id='', num_inputs=0, label=''):
+        innames = [str(i) for i in range(num_inputs)]
         super().__init__(
             PriorityEncoder.kind,
             js_id=js_id,
-            num_inputs=num_inputs,
-            named_outputs=[PriorityEncoder.inum, PriorityEncoder.any],
+            innames=innames,
+            outnames=[PriorityEncoder.inum, PriorityEncoder.any],
             label=label)
 
     def propagate(self, output_name='0', value=0):

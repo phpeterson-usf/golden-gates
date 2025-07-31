@@ -178,7 +178,7 @@ rubric = 1
 name = "priority-4in"
 input = ["python3", "$project_tests/priority-4in.py"]
 expected = """
-1
+2
 1
 """
 rubric = 1
