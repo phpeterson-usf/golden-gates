@@ -45,7 +45,7 @@ class Input(IONode):
     def value(self, new_value):
         if self._value != new_value:
             self._value = new_value
-            if self.circuit and getattr(self.circuit, 'auto_propagate', False):
+            if self.circuit and self.circuit.auto_propagate and self.circuit.running:
                 self.circuit.step()
 
     def propagate(self, output_name='0', value=0):

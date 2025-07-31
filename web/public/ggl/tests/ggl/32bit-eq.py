@@ -87,5 +87,5 @@ circuit0.run()
 print(output0.value)
 input0.value = 255
 input1.value = 255
-circuit0.step()
+circuit0.run()
 print(output0.value)

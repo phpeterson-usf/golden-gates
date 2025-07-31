@@ -31,7 +31,7 @@ dlatchclr = circuit.Circuit()
 
 
 # inputs
-clk = io.Clock(frequency=1,label="CLK")
+clk = io.Input(bits=1, label="CLK")
 clk.value = 1
 d = io.Input(bits=1, label="D")
 d.value = 1
