@@ -159,21 +159,14 @@ circuit0.connect(biteq7_6.output("EQ"), priorityEncoder0.input("5"))    # biteq7
 circuit0.connect(biteq7_6.output("EQ"), jalr) 
 circuit0.connect(biteq7_7.output("EQ"), priorityEncoder0.input("6"))    # biteq7_7 -> priorityEncoder0.in[6]
 circuit0.connect(biteq7_7.output("EQ"), jtype) 
+circuit0.connect(biteq7_7.output("EQ"), and0.input("0"))    # biteq7_7 -> and0.in[0]
 circuit0.connect(and0, priorityEncoder0.input("7"))    # and0 -> priorityEncoder0.in[7]
 circuit0.connect(priorityEncoder0.output("inum"), output0)    # priorityEncoder0 -> output0
 circuit0.connect(priorityEncoder0.output("any"), output1)    # priorityEncoder0 -> output0
 circuit0.connect(input0, splitter0)    # input0 -> splitter0
-circuit0.connect(splitter0.output("0"), biteq7_1.input("A"))    # splitter0 -> biteq7_1.in[0]
-circuit0.connect(biteq7_7.output("EQ"), and0.input("0"))    # biteq7_7 -> and0.in[0]
+
+
 
 # Export as a reusable component
 circuit0.run()
-print("INUM: ", output0.value)
-print("Any: ", output1.value)
-print("Itype: ", itype.value)
-print("Rtype: ",rtype.value)
-print("Loadtype: ",load.value)
-print("Stype: ",stype.value)
-print("Btype: ",btype.value)
-print("JALRtype: ",jalr.value)
-print("Jtype: ",jtype.value)
+print(output0.value)

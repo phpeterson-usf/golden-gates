@@ -72,6 +72,14 @@ class Output(IONode):
             num_outputs=0,
             label=label,
             bits=bits)
+    
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
     def propagate(self, output_name='0', value=0):
         self.value = self.safe_read_input('0')
