@@ -327,7 +327,22 @@ rubric = 1
 [[tests]]
 name = "analyze_decode"
 input = ["python3", "$project_tests/analyze_decode.py"]
-expected = "5"
+expected = """
+0
+1
+0
+0
+4
+0
+0
+6
+7
+0
+1
+0
+1
+5
+"""
 rubric = 1
 
 [[tests]]

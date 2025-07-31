@@ -166,7 +166,8 @@ circuit0.connect(priorityEncoder0.output("any"), output1)    # priorityEncoder0 
 circuit0.connect(input0, splitter0)    # input0 -> splitter0
 
 
-
-# Export as a reusable component
-circuit0.run()
-print(output0.value)
+get_bitseq = [0x40B602B3, 0x128293, 0x4000393, 0x729863, 0x50313, 0xFFF00393, 0x140006F, 0xB55333, 0x100393, 0x5393B3, 0xFFF38393, 0x737533,0x8067,0xC0001073]
+for iw in get_bitseq:
+    input0.value = iw
+    circuit0.step()
+    print(output0.value)
