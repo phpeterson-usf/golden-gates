@@ -117,7 +117,7 @@ class Constant(Input):
 class Clock(IONode):
     kind = 'Clock'
 
-    def __init__(self, js_id='', label='', frequency=0):
+    def __init__(self, js_id='', label='', frequency=0, mode="manual"):
         super().__init__(
             Clock.kind,
             js_id=js_id,
@@ -131,25 +131,39 @@ class Clock(IONode):
         # tick counter since last clock toggle
         self.ticks = 0
         self.prev_value = 0
+        self.mode = mode
 
     def propagate(self, output_name='0', value=0):
+        if self.mode != 'auto':
+            # skip propagation in run() if clock is manual
+            return []
+
         self.ticks += 1
         if self.frequency > 0 and self.ticks >= self.frequency:
             self.ticks = 0
-            new_val = 1 - self._value
-            self.prev_value = self._value
-            self.value = new_val
-
-            logger.info(f"Clock '{self.label}' toggled to {self.value}")
-
-            if self.prev_value == 0 and new_val == 1:
-                super().propagate(output_name=output_name, value=new_val)
-                return [self]  # rising edge
-            else:
-                # toggle the value downstream with no rising edge
-                super().propagate(output_name=output_name, value=new_val)
-
+            return self.toggleCLK(output_name)
         return []
+    
+    def toggleCLK(self, output_name):
+        new_val = 1 - self._value
+        self.prev_value = self._value
+        self.value = new_val
+
+        logger.info(f"Clock '{self.label}' toggled to {self.value}")
+
+        super().propagate(output_name=output_name, value=new_val)
+
+        if self.prev_value == 0 and new_val == 1:
+            return [self]  # Rising edge
+        return []
+
+    def tick(self):
+        """
+        Manually toggle the clock when it is assigned as mode = manual
+        """
+        if self.mode != 'manual':
+            logger.warning("tick() is only for clocks in manual mode")
+        return self.toggleCLK(output_name='0')
 
     def clone(self, instance_id):
         """Clone a Clock node"""

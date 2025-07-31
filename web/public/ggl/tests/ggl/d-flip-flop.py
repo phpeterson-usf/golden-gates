@@ -75,7 +75,7 @@ mux0 = plexers.Multiplexer(num_inputs=2, js_id="multiplexer_1_1753687440528")
 d_latch_clr_1 = d_latch_clr()
 d_latch_clr_2 = d_latch_clr()
 output0 = io.Output(label="Q", bits=1, js_id="output_1_1753687420425")
-clk0 = io.Clock(frequency=1, js_id="clock_1_1753687084421")
+clk0 = io.Clock(frequency=1,js_id="clock_1_1753687084421")
 not0 = logic.Not(num_inputs=1, js_id="not-gate_1_1753687214640")
 
 d_flip_flop.connect(clk0, not0)    # clk0 -> not0
@@ -94,3 +94,4 @@ d_flip_flop.connect(d_latch_clr_1.output("Q"), output0)    # d_latch_clr_1 -> ou
 d_flip_flop.run()
 
 print(output0.value)
+

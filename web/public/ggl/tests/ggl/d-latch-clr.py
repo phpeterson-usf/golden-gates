@@ -31,7 +31,7 @@ def make_d_latch_clr(d_val, clk_val, clr_val):
 
 
     # inputs
-    clk = io.Clock(frequency=1,label="CLK")
+    clk = io.Clock(frequency=1,label="CLK", mode="auto")
     clk.value = clk_val
     d = io.Input(bits=1, label="D")
     d.value = d_val
