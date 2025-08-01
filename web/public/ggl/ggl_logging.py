@@ -78,16 +78,17 @@ def set_global_js_logging(use_js):
 
 
 def new_logger(name, level=None):
-    env_var = os.getenv('ggloglevel')
-    match env_var:  # type: ignore pylance error on match
-        case 'logging.ERROR':
-            level = logging.ERROR
-        case 'logging.DEBUG':
-            level = logging.DEBUG
-        case 'logging.INFO':
-            level = logging.INFO
-        case _:
-            level = logging.WARN
+    if not level:
+        env_var = os.getenv('ggloglevel')
+        match env_var:  # type: ignore pylance error on match
+            case 'logging.ERROR':
+                level = logging.ERROR
+            case 'logging.DEBUG':
+                level = logging.DEBUG
+            case 'logging.INFO':
+                level = logging.INFO
+            case _:
+                level = logging.WARN
 
     """Get a logger instance with the current global settings"""
     return GGLLogger(name, level, use_js=_global_use_js)

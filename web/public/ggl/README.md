@@ -28,7 +28,7 @@ import ggl
 - `edge.py` - Edge class for connections
 - `io.py` - Input/Output node classes
 - `logic.py` - Logic gate implementations (AND, OR, NOT, NAND, NOR, XOR)
-- `config.toml` - Configuration file
+- `config.toml` - Autograder configuration file
 
 ## Coding Style
 
@@ -60,12 +60,26 @@ import ggl
   updateCallback('step', component_js_id, {'active': True, 'style': 'processing', 'duration':
   500})
 
-  ### For errors
-  updateCallback('error', component_js_id, {'severity': 'error', 'messageId': 'SOME_ERROR',
-  'details': {}})
-  
-  ### Or simple string error:
-  updateCallback('error', component_js_id, "Error message string")
 
-  The value parameter can be a Python dict that gets converted to a JavaScript object when
-  passed across the Pyodide boundary.
+## Logging
+
+The default log level is `logging.WARN`. Our `logger` objects propagate to the browser console when running under Pyodide.
+
+To change the log level in a GGL source file:
+
+```python
+import logging
+logger = new_logger(__name__, logging.INFO)
+```
+
+If you're working in GGL without Pyodide you can use an environment variable to avoid changing code:
+
+```sh
+export ggloglevel='logging.INFO'; grade test
+```
+
+## Errors
+
+1. Use the Exception class in `errors.py` to bubble errors up to the front-end. 
+1. Errors do not use the Vue callback mechanism. 
+1. Error strings are stored in the locale file(s) in the front-end, and referred to using string IDs which are shared between the front-end and GGL

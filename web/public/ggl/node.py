@@ -141,7 +141,7 @@ class Node:
         invert, truncation) have been done by propagate() in derived classes
         """
         assert (output_name in self.outputs.points)
-        logger.info(
+        logger.debug(
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value)
 

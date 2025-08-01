@@ -197,7 +197,7 @@ export function useAppController(circuitManager) {
   function setupPythonVueUpdateCallback(canvasRef) {
 
     window.__vueUpdateCallback = (eventType, componentId, value) => {
-      console.log(`Callback: ${componentId} = ${value}`)
+      //console.log(`Callback: ${componentId} = ${value}`)
 
       if (!canvasRef) {
         console.error('No canvasRef available')
