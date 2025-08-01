@@ -1,390 +1,214 @@
-"""
-Component template system for GGL subcircuits.
-
-This module provides the infrastructure for creating reusable component templates
-that can be instantiated multiple times with isolated state.
-"""
-
 from .node import Node, Connector
-from .io import Input, Output
 from .ggl_logging import new_logger
-import copy
 
 logger = new_logger(__name__)
 
 
-class ComponentConnector(Connector):
+class CircuitNode(Node):
     """
-    A special connector that tracks which component instance it belongs to.
-    This allows the Circuit.connect() method to automatically register
-    component nodes when they're first connected.
+    A CircuitNode wraps a Circuit instance to make it behave like a Node.
+    This enables circuits to be composed hierarchically as components within other circuits.
+    Each CircuitNode maintains its own state.
     """
-
-    def __init__(self, node, name, component_instance, is_input=False):
-        super().__init__(node, name)
-        self.component_instance = component_instance
-        self.is_input = is_input  # True for component inputs, False for outputs
-
-
-class ComponentInputProxy(Node):
-    """
-    A proxy that wraps a component's Input node to make it externally connectable.
-    It looks like a normal node with inputs, but forwards values to the wrapped Input node.
-    """
-    inport = '0'
-
-    def __init__(self, wrapped_input, instance_id):
-        self.wrapped_input = wrapped_input
+    
+    def __init__(self, template, instance_id):
+        """
+        Create a CircuitNode that wraps a cloned circuit instance.        
+        """
+        # Clone the circuit to ensure independent state
+        self.circuit = self._clone_circuit(template, instance_id)
+        self._instance_id = instance_id
         
-        # Initialize as a Node with one input and one output
+        # Extract input and output names from the ORIGINAL template (not cloned circuit)
+        # This ensures the external interface uses the original names
+        input_names = [inp.label for inp in template.inputs]
+        output_names = [out.label for out in template.outputs]
+        
+        # Initialize as a Node with the circuit's interface
         super().__init__(
-            kind='ComponentInputProxy',
+            kind='CircuitNode',
             js_id='',
-            innames=['0'],
-            outnames=['0'],
-            label=f"proxy_{wrapped_input.label}"
+            innames=input_names,
+            outnames=output_names,
+            label=f"{template.label}_{instance_id}" if template.label else f"circuit_{instance_id}"
         )
         
-        self._instance_id = instance_id
-
-    def propagate(self, output_name='0', value=0):
-        """Receive value from external connection and forward to wrapped input"""
-        # Check if we have an input edge (we might not if we're nested inside another component)
-        edge = self.get_input_edge(ComponentInputProxy.inport)
-        if edge is None:
-            # No input edge means we're not connected yet - this can happen with nested components
-            logger.debug(f"InputProxy {self.label} has no input edge, skipping propagation")
-            return []
+        # Create mapping from original names to cloned node names for internal use
+        self._input_mapping = {i.label: f"{i.label}_{instance_id}" for i in template.inputs}
+        self._output_mapping = {o.label: f"{o.label}_{instance_id}" for o in template.outputs}
         
-        # Get value from our input edge
-        v = self.inputs.read_value(ComponentInputProxy.inport)
-        # Set the wrapped input's value and add it to the work queue
-        # Don't propagate the wrapped input immediately - let the simulation handle it
-        self.wrapped_input.value = v
-        logger.debug(
-            f"InputProxy {self.label} setting wrapped input {self.wrapped_input.label} value to {v}")
-        # Return the wrapped input to be processed in the next iteration
-        return [self.wrapped_input]
-
-    def clone(self, instance_id):
-        """Clone a ComponentInputProxy with the same wrapped input"""
-        # Create a new proxy with the same wrapped input but new instance ID
-        return ComponentInputProxy(self.wrapped_input, instance_id)
-
-
-class ComponentOutputProxy(Node):
-    """
-    A proxy that wraps a component's Output node to make it externally connectable.
-    It receives values from the wrapped Output node and provides them as outputs.
-    """
-    outport = '0'
-
-    def __init__(self, wrapped_output, instance_id):
-        self.wrapped_output = wrapped_output
+    
+    def _clone_circuit(self, template, instance_id):
+        """
+        Create a deep copy of the template circuit with independent state.
+        """
+        # Import here to avoid circular dependency
+        from .circuit import Circuit
         
-        # Initialize as a Node with one input and one output
-        super().__init__(
-            kind='ComponentOutputProxy',
-            js_id='',
-            innames=['0'],
-            outnames=['0'],
-            label=f"proxy_{wrapped_output.label}"
-        )
+        # Create new circuit instance
+        cloned_circuit = Circuit(label=f"{template.label}_{instance_id}")
         
-        self._instance_id = instance_id
-
-    def propagate(self, output_name='0', value=0):
-        """Receive value from wrapped output and propagate to external connections"""
-        # Get the value from our input (which comes from the wrapped output)
-        v = self.inputs.read_value(ComponentOutputProxy.outport)
-
-        # Propagate to external connections using Node's built-in method
-        return super().propagate(output_name=ComponentOutputProxy.outport, value=v)
-
-    def clone(self, instance_id):
-        """Clone a ComponentOutputProxy with the same wrapped output"""
-        # Create a new proxy with the same wrapped output but new instance ID
-        return ComponentOutputProxy(self.wrapped_output, instance_id)
-
-
-class ComponentTemplate:
-    """
-    A ComponentTemplate captures the structure of a circuit that can be
-    instantiated multiple times as a reusable component.
-    """
-
-    def __init__(self, circuit):
-        """
-        Create a component template from a circuit definition.
-
-        Args:
-            circuit: A Circuit instance containing the component definition
-        """
-        self.circuit = circuit
-        self._analyze_io()
-
-    def _analyze_io(self):
-        """
-        Analyze the circuit to identify input and output nodes.
-        These become the external interface of the component.
-        """
-        self.input_nodes = {}
-        self.output_nodes = {}
-        self.internal_nodes = []
-
-        for node in self.circuit.all_nodes:
-            if isinstance(node, Input):
-                # Input nodes become component inputs
-                self.input_nodes[node.label] = node
-            elif isinstance(node, Output):
-                # Output nodes become component outputs
-                self.output_nodes[node.label] = node
-            else:
-                # Everything else is internal
-                self.internal_nodes.append(node)
-
-        logger.info(f"Template created with {len(self.input_nodes)} inputs, "
-                    f"{len(self.output_nodes)} outputs, {len(self.internal_nodes)} internal nodes")
-
-    def __call__(self):
-        """
-        Create a fresh instance of this component.
-
-        Returns:
-            ComponentInstance: A new instance with isolated state
-        """
-        return ComponentInstance(self)
-
-
-class ComponentInstance:
-    """
-    A ComponentInstance represents a specific instantiation of a ComponentTemplate.
-    Each instance has its own isolated state and can be wired independently.
-    """
-
-    def __init__(self, template):
-        """
-        Create a new component instance from a template.
-
-        Args:
-            template: ComponentTemplate to instantiate
-        """
-        self.template = template
-        self._instance_id = id(self)
-
-        # Maps from template nodes to instance nodes
-        self._node_map = {}
-
-        # External interface - these are what parent circuits connect to
-        self._input_nodes = {}
-        self._output_nodes = {}
-
-        # Proxy nodes for external connections
-        self._input_proxies = {}   # Proxy nodes that wrap Input nodes
-        self._output_proxies = {}  # Proxy nodes that wrap Output nodes
-
-        # Internal nodes - these are hidden from parent circuits
-        self._internal_nodes = []
-
-        self._create_instance()
-
-    def _create_instance(self):
-        """
-        Create fresh instances of all nodes and recreate connections.
-        """
-        # Step 1: Create fresh instances of all nodes
-        self._clone_nodes()
-
-        # Step 2: Recreate all connections using the fresh nodes
-        self._clone_connections()
-
-        # Step 3: Wire up output proxies to receive from output nodes
-        self._connect_output_proxies()
-
-        logger.info(f"Component instance {self._instance_id} created")
-
-    def _clone_nodes(self):
-        """
-        Create fresh instances of all nodes with unique labels.
-        """
-        # Clone input nodes and create proxies
-        for label, template_node in self.template.input_nodes.items():
-            instance_node = Input(
-                label=f"{label}_{self._instance_id}",
-                bits=template_node.bits
-            )
-            self._node_map[template_node] = instance_node
-            self._input_nodes[label] = instance_node
-
-            # Create a proxy that external circuits can connect to
-            proxy = ComponentInputProxy(instance_node, self._instance_id)
-            self._input_proxies[label] = proxy
-
-        # Clone output nodes and create proxies
-        for label, template_node in self.template.output_nodes.items():
-            instance_node = Output(
-                label=f"{label}_{self._instance_id}",
-                bits=template_node.bits
-            )
-            self._node_map[template_node] = instance_node
-            self._output_nodes[label] = instance_node
-
-            # Create a proxy that external circuits can connect from
-            proxy = ComponentOutputProxy(instance_node, self._instance_id)
-            self._output_proxies[label] = proxy
-
-        # Clone internal nodes
-        for template_node in self.template.internal_nodes:
-            instance_node = self._clone_node(template_node)
-            self._node_map[template_node] = instance_node
-            self._internal_nodes.append(instance_node)
-
-    def _clone_node(self, template_node):
-        """
-        Create a fresh instance of a node with the same type and properties.
-
-        Args:
-            template_node: The node to clone
-
-        Returns:
-            Node: A fresh instance of the same type
-        """
-        # Use the node's clone method - proper OOP!
-        return template_node.clone(self._instance_id)
-
-    def _clone_connections(self):
-        """
-        Recreate all connections from the template using the fresh node instances.
-        """
-        # We need to rebuild the connections by examining the template circuit
-        # Since edges are stored in nodes, we iterate through all template nodes
-        # and recreate their output connections
-
-        for template_node in self.template.circuit.all_nodes:
-            instance_node = self._node_map[template_node]
-
-            # For each output of the template node
+        # Maps from template nodes to cloned nodes
+        node_map = {}
+        
+        # Clone all nodes with unique labels
+        for template_node in template.all_nodes:
+            cloned_node = template_node.clone(instance_id)
+            node_map[template_node] = cloned_node
+            cloned_circuit.all_nodes.add(cloned_node)
+            
+            # Update circuit's input/output lists
+            if template_node in template.inputs:
+                cloned_circuit.inputs.append(cloned_node)
+                cloned_node.circuit = cloned_circuit
+            if template_node in template.outputs:
+                cloned_circuit.outputs.append(cloned_node)
+        
+        # Clone all connections
+        for template_node in template.all_nodes:
+            cloned_node = node_map[template_node]
+            
+            # Recreate output connections
             for output_name, template_edges in template_node.outputs.points.items():
                 for template_edge in template_edges:
-                    # Get the destination from the edge's destpoints
-                    # An edge can have multiple destinations, but in our case each edge
-                    # connects to exactly one destination
-                    dest_points = template_edge.destpoints.points
-                    if dest_points:
-                        # Get first (and should be only) destination
-                        dest_point = dest_points[0]
+                    # Find destination points
+                    for dest_point in template_edge.destpoints.points:
                         dest_template_node = dest_point.node
                         dest_name = dest_point.name
-
-                        # Find corresponding instance node
-                        dest_instance_node = self._node_map[dest_template_node]
-
-                        # Create new edge connecting instance nodes
+                        dest_cloned_node = node_map[dest_template_node]
+                        
+                        # Create new edge
                         from .edge import Edge
-                        new_edge = Edge(
-                            instance_node, output_name,
-                            dest_instance_node, dest_name
-                        )
-
-                        # Connect the edge
-                        instance_node.append_output_edge(output_name, new_edge)
-                        dest_instance_node.set_input_edge(dest_name, new_edge)
-
-    def _connect_output_proxies(self):
+                        new_edge = Edge(cloned_node, output_name, dest_cloned_node, dest_name)
+                        cloned_node.append_output_edge(output_name, new_edge)
+                        dest_cloned_node.set_input_edge(dest_name, new_edge)
+        
+        return cloned_circuit
+    
+    def propagate(self, output_name='0', value=0):
         """
-        Connect output proxies to receive values from their wrapped output nodes.
-        We connect the proxies to the same sources that feed the output nodes.
+        Propagate values through this circuit node:
+        1. Update input values from connected edges
+        2. Run one circuit step to process the inputs
+        3. Read output values and propagate them to connected nodes
+        
+        Returns:
+            List[Node]: Nodes that need further propagation
         """
-        for label, proxy in self._output_proxies.items():
-            output_node = self._output_nodes[label]
-
-            # Find what feeds the output node
-            input_edge = output_node.get_input_edge('0')
-            if input_edge:
-                # Connect the same source to feed our proxy
-                source_node = input_edge.srcpoint.node
-                source_port = input_edge.srcpoint.name
-
-                # Create edge from source to proxy (in parallel with the output node)
-                from .edge import Edge
-                proxy_edge = Edge(source_node, source_port, proxy, '0')
-                source_node.append_output_edge(source_port, proxy_edge)
-                proxy.set_input_edge('0', proxy_edge)
-
+        logger.debug(f"{self.kind} {self.label} propagate() called")
+        
+        # Step 1: Update circuit input values from our input edges using name mapping
+        logger.debug(f"{self.kind} {self.label}: Step 1 - Reading input values from edges")
+        for original_name, cloned_name in self._input_mapping.items():
+            if original_name in self.inputs.points:
+                edge = self.get_input_edge(original_name)
+                if edge is not None:
+                    input_value = edge.value
+                    # Find the cloned input node and set its value
+                    for input_node in self.circuit.inputs:
+                        if input_node.label == cloned_name:
+                            logger.debug(f"{self.kind} {self.label}: Setting input '{original_name}' -> '{cloned_name}' = 0x{input_value:02x}")
+                            input_node.value = input_value
+                            break
+                else:
+                    logger.debug(f"{self.kind} {self.label}: Input '{original_name}' has no edge")
+        
+        # Step 2: Show internal circuit state before running step
+        logger.debug(f"{self.kind} {self.label}: Step 2 - Internal circuit state before step()")
+        internal_circuit_nodes = [n for n in self.circuit.all_nodes if isinstance(n, CircuitNode)]
+        logger.debug(f"{self.kind} {self.label}: Internal circuit has {len(internal_circuit_nodes)} nested CircuitNodes")
+        for i, cn in enumerate(internal_circuit_nodes):
+            logger.debug(f"{self.kind} {self.label}: Nested CircuitNode {i}: {cn.label}")
+            # Show the input edges of nested CircuitNodes
+            for input_name in cn.inputs.points.keys():
+                nested_edge = cn.get_input_edge(input_name)
+                if nested_edge:
+                    logger.debug(f"{self.kind} {self.label}: Nested {cn.label} input '{input_name}' edge value = 0x{nested_edge.value:02x}")
+                else:
+                    logger.debug(f"{self.kind} {self.label}: Nested {cn.label} input '{input_name}' has no edge")
+        
+        # Step 2: Manually propagate input nodes to edges
+        logger.debug(f"{self.kind} {self.label}: Manually propagating internal INPUT nodes first")
+        for input_node in self.circuit.inputs:
+            input_node.propagate()
+        
+        # Step 3: Run one simulation step on the wrapped circuit
+        logger.debug(f"{self.kind} {self.label}: Running internal circuit.step()")
+        self.circuit.step(rising_edge=False)
+        
+        # Step 4: Show internal circuit state after running step
+        logger.debug(f"{self.kind} {self.label}: Step 4 - Internal circuit state after step()")
+        for output_node in self.circuit.outputs:
+            logger.debug(f"{self.kind} {self.label}: Internal output '{output_node.label}' = 0x{getattr(output_node, 'value', 0)}")
+        
+        # Step 5: Propagate output values using original names
+        logger.debug(f"{self.kind} {self.label}: Step 5 - Propagating outputs")
+        propagation_work = []
+        for original_name, cloned_name in self._output_mapping.items():
+            if original_name in self.outputs.points:
+                # Find the cloned output node and get its value
+                for output_node in self.circuit.outputs:
+                    if output_node.label == cloned_name and hasattr(output_node, 'value'):
+                        output_value = output_node.value
+                        logger.debug(f"{self.kind} {self.label}: Propagating output '{cloned_name}' -> '{original_name}' = 0x{output_value:02x}")
+                        
+                        # Use Node's propagate method with original name
+                        work = super().propagate(output_name=original_name, value=output_value)
+                        propagation_work.extend(work)
+                        break
+        
+        logger.debug(f"{self.kind} {self.label}: propagate() complete, returning {len(propagation_work)} nodes")
+        return propagation_work
+    
     def input(self, name):
-        """
-        Get a named input connector for this component instance.
-
-        Args:
-            name: Name of the input (from original circuit definition)
-
-        Returns:
-            Connector: Connector to the input proxy node
-        """
-        if name not in self._input_proxies:
-            raise ValueError(f"Component has no input named '{name}'. "
-                             f"Available inputs: {list(self._input_proxies.keys())}")
-
-        # Return ComponentConnector to the proxy node - external circuits connect TO the proxy
-        proxy = self._input_proxies[name]
-        return ComponentConnector(proxy, '0', self, is_input=True)
-
+        """Get a connector for the named input"""
+        return Connector(self, name)
+    
     def output(self, name):
+        """Get a connector for the named output"""
+        return Connector(self, name)
+    
+    def clone(self, instance_id):
         """
-        Get a named output connector for this component instance.
-
-        Args:
-            name: Name of the output (from original circuit definition)
-
-        Returns:
-            Connector: Connector to the output proxy node
+        Clone this CircuitNode with a new instance ID
+        Create a new instance of the template but preserve input/output names
         """
-        if name not in self._output_proxies:
-            raise ValueError(f"Component has no output named '{name}'. "
-                             f"Available outputs: {list(self._output_proxies.keys())}")
-
-        # Return ComponentConnector to the proxy node - external circuits connect FROM the proxy
-        proxy = self._output_proxies[name]
-        return ComponentConnector(proxy, '0', self, is_input=False)
-
-    @property
-    def inputs(self):
-        """
-        Get inputs by index (for array-style access like fa0.inputs[0]).
-
-        Returns:
-            List[ComponentConnector]: List of input connectors in alphabetical order
-        """
-        sorted_names = sorted(self._input_nodes.keys())
-        return [self.input(name) for name in sorted_names]
-
-    @property
-    def outputs(self):
-        """
-        Get outputs by index (for array-style access like fa0.outputs[0]).
-
-        Returns:
-            List[ComponentConnector]: List of output connectors in alphabetical order
-        """
-        sorted_names = sorted(self._output_nodes.keys())
-        return [self.output(name) for name in sorted_names]
-
-    def get_all_nodes(self):
-        """
-        Get all nodes in this component instance (for adding to parent circuit).
-
-        Returns:
-            List[Node]: All nodes that should be added to the parent circuit
-        """
-        all_nodes = []
-        # Internal Input nodes
-        all_nodes.extend(self._input_nodes.values())
-        # Internal Output nodes
-        all_nodes.extend(self._output_nodes.values())
-        # Internal logic nodes
-        all_nodes.extend(self._internal_nodes)
-        # External input proxy nodes
-        all_nodes.extend(self._input_proxies.values())
-        # External output proxy nodes
-        all_nodes.extend(self._output_proxies.values())
-        return all_nodes
+        # For CircuitNode, we want to 
+        
+        # Create a brand new CircuitNode with the same template circuit
+        # This will give it a fresh internal circuit but the same interface
+        new_label = f"{self.label}_{instance_id}" if self.label else f"circuit_{instance_id}"
+        
+        # Create new CircuitNode - but we need to bypass the template interface extraction
+        # and preserve our current external interface exactly
+        cloned_node = object.__new__(CircuitNode)
+        
+        # Initialize the Node base class with our exact current interface
+        from .node import Node
+        Node.__init__(cloned_node, 
+                     kind=self.kind,
+                     js_id=self.js_id,
+                     innames=list(self.inputs.points.keys()),
+                     outnames=list(self.outputs.points.keys()),
+                     label=new_label)
+        
+        # Clone the internal circuit 
+        cloned_node.circuit = self._clone_circuit(self.circuit, instance_id)
+        cloned_node._instance_id = instance_id
+        
+        # Update the input/output mappings to use the new instance_id
+        # The cloned circuit has nodes with double instance IDs (original_id_new_id)
+        cloned_node._input_mapping = {}
+        cloned_node._output_mapping = {}
+        
+        for original_name, old_cloned_name in self._input_mapping.items():
+            # Update mapping to point to the double-cloned node name
+            new_cloned_name = f"{old_cloned_name}_{instance_id}"
+            cloned_node._input_mapping[original_name] = new_cloned_name
+            
+        for original_name, old_cloned_name in self._output_mapping.items():
+            # Update mapping to point to the double-cloned node name  
+            new_cloned_name = f"{old_cloned_name}_{instance_id}"
+            cloned_node._output_mapping[original_name] = new_cloned_name
+        
+        return cloned_node

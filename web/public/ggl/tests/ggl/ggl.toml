@@ -356,3 +356,9 @@ name = "8bit-reg-clr-en"
 input = ["python3", "$project_tests/8bit-reg-clr-en.py"]
 expected = "1"
 rubric = 1
+
+[[tests]]
+name = "component.8bit-rca"
+input = ["python3", "$project_tests/component.8bit-rca.py"]
+expected = "0x46"
+rubric = 1

@@ -180,11 +180,19 @@ class BitsNode(Node):
     def clone(self, instance_id):
         """Clone a BitsNode - subclasses may override for more specific behavior"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
+        
+        # Simply preserve the exact port names that already exist
+        # Pass them as named ports (with num_inputs/outputs=0) to avoid any numbering
+        input_names = list(self.inputs.points.keys())
+        output_names = list(self.outputs.points.keys())
+        
         return self.__class__(
             kind=self.kind,
             js_id=self.js_id,
-            num_inputs=len(self.inputs.points),
-            num_outputs=len(self.outputs.points),
+            num_inputs=0,
+            num_outputs=0,
+            named_inputs=input_names,
+            named_outputs=output_names,
             label=new_label,
             bits=self.bits
         )
