@@ -63,7 +63,6 @@ class Splitter(WireNode):
 
         return new_work
 
-
     def clone(self, instance_id):
         """Override to match Splitter constructor args"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -104,7 +103,6 @@ class Merger(WireNode):
             output_val |= (masked << low)
         return super().propagate(value=output_val)
 
-
     def clone(self, instance_id):
         """Override to match Merger constructor args"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -113,6 +111,7 @@ class Merger(WireNode):
             label=new_label,
             bits=self.bits
         )
+
 
 class Tunnel(WireNode):
     """

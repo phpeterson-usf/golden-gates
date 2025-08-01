@@ -36,7 +36,7 @@ class Input(IONode):
             num_outputs=1,
             label=label,
             bits=bits)
-    
+
     @property
     def value(self):
         return self._value
@@ -72,7 +72,7 @@ class Output(IONode):
             num_outputs=0,
             label=label,
             bits=bits)
-    
+
     @property
     def value(self):
         return self._value
@@ -143,7 +143,7 @@ class Clock(IONode):
             self.ticks = 0
             return self.toggleCLK(output_name)
         return []
-    
+
     def toggleCLK(self, output_name):
         new_val = 1 - self._value
         self.prev_value = self._value
@@ -170,4 +170,3 @@ class Clock(IONode):
         new_label = f"{self.label}_{instance_id}" if self.label else ""
         # Don't clone js_id - it's specific to the original instance
         return Clock(label=new_label, frequency=self.frequency, js_id=None)
-

@@ -152,7 +152,8 @@ class Division(Arithmetic):
     def propagate(self, output_name='0', value=0):
         a = self.safe_read_input(Division.a)
         b = self.safe_read_input(Division.b)
-        logger.info(f'propagating {self.label}: b = {self.safe_read_input(Division.b)}')
+        logger.info(
+            f'propagating {self.label}: b = {self.safe_read_input(Division.b)}')
 
         quotient, remainder = self.operator(a, b)
         new_work = super().propagate(output_name=Division.quotient, value=quotient)

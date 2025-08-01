@@ -56,14 +56,14 @@ class Circuit:
                 for n in new_work:
                     if n not in visited:
                         work.append(n)
-    
+
     def stop(self):
         """
         Stop the long running circuit loop using boolean self.running
         """
         logger.info("Circuit stop() called: long running circuit will stop")
         self.running = False
-    
+
     def run(self):
         """
         Circuit simulation supporting combinational, sequential, and cyclic logic
@@ -110,7 +110,8 @@ class Circuit:
                 if prev_outputs == now_outputs:
                     break
             else:
-                logger.warning("Post-clock combinational logic did not stabilize")
+                logger.warning(
+                    "Post-clock combinational logic did not stabilize")
 
             # track and check outputs for stability
             output_vals = {node.label: node.value for node in self.outputs}
@@ -118,7 +119,8 @@ class Circuit:
             output_history.append(output_vals)
 
             if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
-                logger.info("Circuit stabilized with constant outputs for 10 iterations.")
+                logger.info(
+                    "Circuit stabilized with constant outputs for 10 iterations.")
                 break
 
     def connect(self, src, dest):
@@ -186,10 +188,10 @@ def Component(circuit):
         # Create a new CircuitNode instance from the circuit template
         from .component import CircuitNode
         import time
-        
+
         # Use timestamp + id for unique instance IDs
         instance_id = int(time.time() * 1000000) % 1000000
         return CircuitNode(circuit, instance_id)
-    
+
     # Return a constructor that creates CircuitNode instances
     return create_component_instance
