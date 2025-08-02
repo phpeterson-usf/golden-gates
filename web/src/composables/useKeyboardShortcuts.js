@@ -1,7 +1,9 @@
 import { onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getAllCommands, getDynamicComponentCommands } from '../config/commands'
 
 export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
+  const { t } = useI18n()
   // Detect platform
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
@@ -55,8 +57,17 @@ export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
     // Handle single-key shortcuts
     const key = event.key.toLowerCase()
 
-    // Handle "A" for "Again" - execute top recently used command
-    if (key === 'a') {
+    // Get localized shortcut keys
+    const shortcuts = {
+      run: t('shortcuts.run').toLowerCase(),
+      save: t('shortcuts.save').toLowerCase(),
+      open: t('shortcuts.open').toLowerCase(),
+      stop: t('shortcuts.stop').toLowerCase(),
+      again: t('shortcuts.again').toLowerCase()
+    }
+
+    // Handle "Again" - execute top recently used command
+    if (key === shortcuts.again) {
       event.preventDefault()
       // Get recent commands from localStorage or a global store
       const recentCommandIds = JSON.parse(localStorage.getItem('recentCommands') || '[]')
@@ -78,12 +89,12 @@ export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
       return
     }
 
-    // Get all commands with shortcuts
-    const commands = getAllCommands().filter(cmd => cmd.shortcut)
-
-    // Check if any command matches (now just single keys)
+    // Get all commands with shortcut keys and check if any match
+    const commands = getAllCommands().filter(cmd => cmd.shortcutKey)
+    
     for (const command of commands) {
-      if (key === command.shortcut.toLowerCase()) {
+      const shortcutKey = shortcuts[command.shortcutKey]
+      if (shortcutKey && key === shortcutKey) {
         event.preventDefault()
         handleCommand({
           action: command.action,

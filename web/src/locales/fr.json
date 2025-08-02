@@ -1,0 +1,19 @@
+{
+  "shortcuts": {
+    "run": "e",
+    "save": "s", 
+    "open": "o",
+    "stop": "a",
+    "again": "a"
+  },
+  "commands": {
+    "simulation": {
+      "run": "Exécuter",
+      "stop": "Arrêter"
+    },
+    "file": {
+      "saveCircuit": "Sauvegarder Circuit",
+      "openCircuit": "Ouvrir Circuit"
+    }
+  }
+}

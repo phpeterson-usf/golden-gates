@@ -197,6 +197,13 @@
       "againHint": "Press A to repeat"
     }
   },
+  "shortcuts": {
+    "run": "r",
+    "save": "s",
+    "open": "o",
+    "stop": "t",
+    "again": "a"
+  },
   "ui": {
     "toggleInspector": "Toggle Inspector",
     "dropFileHere": "Drop JSON circuit file here",
