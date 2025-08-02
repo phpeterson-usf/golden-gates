@@ -44,6 +44,20 @@
   pointer-events: none;
 }
 
+/* Wire state visualization */
+.wire-high:not(.selected) {
+  stroke: #10b981; /* Bright green for high (1) */
+}
+
+.wire-low:not(.selected) {
+  stroke: #374151; /* Black/dark gray for low (0) */
+}
+
+/* Selected wires always show blue, regardless of state */
+.wire.selected {
+  stroke: #3b82f6; /* Blue for selected */
+}
+
 /* Splitter/merger body styles */
 .splitter-body,
 .merger-body {

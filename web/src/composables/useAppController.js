@@ -197,8 +197,6 @@ export function useAppController(circuitManager) {
   function setupPythonVueUpdateCallback(canvasRef) {
 
     window.__vueUpdateCallback = (eventType, componentId, value) => {
-      //console.log(`Callback: ${componentId} = ${value}`)
-
       if (!canvasRef) {
         console.error('No canvasRef available')
         return
@@ -223,8 +221,14 @@ export function useAppController(circuitManager) {
             console.warn(`Unknown event type: ${eventType}`)
         }
       } else {
-        // Log the callback but don't error - this allows us to see nested component activity
-        console.log(`Nested component callback: ${componentId} = ${value} (no parent mapped)`)
+        // Check if it's a wire ID
+        const wireIdPattern = /^wire_\d+$/
+        if (wireIdPattern.test(componentId) && eventType === 'step') {
+          handleWireStepUpdate(canvasRef, componentId, value)
+        } else {
+          // Log the callback but don't error - this allows us to see nested component activity
+          console.log(`Nested component callback: ${componentId} = ${value} (no parent mapped)`)
+        }
       }
     }
 
@@ -289,6 +293,27 @@ export function useAppController(circuitManager) {
         }
       }, duration)
     }
+  }
+
+  /**
+   * Handle wire step update events
+   */
+  function handleWireStepUpdate(canvasRef, wireId, stepData) {
+    const activeCircuit = canvasRef?.circuitManager?.activeCircuit?.value
+    if (!activeCircuit?.wires) return
+
+    const wireIndex = activeCircuit.wires.findIndex(w => w.id === wireId)
+    if (wireIndex === -1) return
+
+    // Convert Pyodide Proxy and extract data
+    const jsStepData = stepData.toJs?.() || stepData
+    
+    // Update wire state directly
+    activeCircuit.wires.splice(wireIndex, 1, {
+      ...activeCircuit.wires[wireIndex],
+      stepActive: jsStepData.active,
+      stepStyle: jsStepData.style || 'processing'
+    })
   }
 
   /**

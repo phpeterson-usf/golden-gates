@@ -20,7 +20,12 @@
       stroke-linejoin="round"
       stroke-linecap="round"
       class="wire wire-segment"
-      :class="{ preview: preview, selected: selected }"
+      :class="{ 
+        preview: preview, 
+        selected: selected,
+        'wire-high': stepActive && stepStyle === 'processing',
+        'wire-low': !stepActive && stepStyle === 'processing'
+      }"
     />
   </g>
 </template>
@@ -43,10 +48,19 @@ export default {
     selected: {
       type: Boolean,
       default: false
+    },
+    stepActive: {
+      type: Boolean,
+      default: false
+    },
+    stepStyle: {
+      type: String,
+      default: 'processing'
     }
   },
   emits: ['click', 'mousedown'],
   setup(props, { emit }) {
+
     const pointsString = computed(() => {
       return props.points
         .map(p => {
@@ -58,7 +72,9 @@ export default {
 
     const strokeColor = computed(() => {
       if (props.preview) return COLORS.wirePreview
-      return props.selected ? COLORS.wireSelected : COLORS.wire
+      if (props.selected) return COLORS.wireSelected
+      // Wire state colors are now handled by CSS classes
+      return COLORS.wire
     })
 
     const strokeWidth = computed(() => {
@@ -93,6 +109,7 @@ export default {
   pointer-events: stroke;
   cursor: move;
 }
+
 
 .wire.preview {
   opacity: 0.6;

@@ -44,7 +44,7 @@ class Edge:
     Edges (wires) are connections which carry values between Nodes
     """
 
-    def __init__(self, srcnode, srcname, dstnode, dstname):
+    def __init__(self, srcnode, srcname, dstnode, dstname, js_id=None):
         """
         __init__() initializes an Edge with the object and endpoint name
         for the output (source) Node and the input (dest) Node.
@@ -53,16 +53,29 @@ class Edge:
         self.destpoints = EdgePoints(dstnode, dstname)
         self.value = 0
         self.prev_value = None                  # track previous value
+        self.js_id = js_id
 
     def get_dest_nodes(self):
         return self.destpoints.get_dest_nodes()
 
-    def propagate(self, value=0, output_name='0'):
+    def propagate(self, value=0, output_name='0', bits=0):
         """
         Edges simply carry the value
         The reason Edges don't propagate to their outpoints (as Nodes do)
         is that would create a depth-first traversal, and the Circuit 
         simulation runs a work queue which is populated breadth-first
         """
+
+        if self.js_id is not None:
+            try:
+                import builtins
+                # If we have a JS object ID and we're running under pyodide,
+                # use the pyodide API to update the value of the JS object
+                if self.js_id and hasattr(builtins, 'updateCallback'):
+                    active = value == 1
+                    updateCallback = builtins.updateCallback
+                    updateCallback('step', self.js_id, {'active': active, 'style': 'processing'})
+            except Exception as e:
+                logger.error(f'Callback failed: {e}')
         self.value = value
         return self.get_dest_nodes()

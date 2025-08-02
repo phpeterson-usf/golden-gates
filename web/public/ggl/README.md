@@ -57,8 +57,7 @@ import ggl
   updateCallback('value', component_js_id, new_value)
 
   ### For step highlighting
-  updateCallback('step', component_js_id, {'active': True, 'style': 'processing', 'duration':
-  500})
+  updateCallback('step', component_js_id, {'active': True, 'style': 'processing'})
 
 
 ## Logging

@@ -123,7 +123,7 @@ class Circuit:
                     "Circuit stabilized with constant outputs for 10 iterations.")
                 break
 
-    def connect(self, src, dest):
+    def connect(self, src, dest, js_id=None):
         """
         Connect nodes using connectors or nodes directly.
         - For nodes with single outputs/inputs, can pass the node directly
@@ -158,7 +158,7 @@ class Circuit:
             raise TypeError("Destination must be a Node or Connector")
 
         # Create the edge
-        edge = Edge(srcnode, srcname, destnode, destname)
+        edge = Edge(srcnode, srcname, destnode, destname, js_id=js_id)
         srcnode.append_output_edge(srcname, edge)
         destnode.set_input_edge(destname, edge)
 

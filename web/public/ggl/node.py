@@ -73,12 +73,12 @@ class NodeOutputs:
     def get_names(self):
         return self.points.keys()
 
-    def write_value(self, name, value):
+    def write_value(self, name, value, bits):
         # Write the given value to all edges connected to the named outpoint
         # Add all nodes connectes to those edges to the simulator work list
         new_work = []
         for edge in self.points[name]:
-            new_work += edge.propagate(value)
+            new_work += edge.propagate(value=value, bits=bits)
         return new_work
 
     def __getitem__(self, index):
@@ -134,7 +134,7 @@ class Node:
         """Returns a Connector for the named output"""
         return Connector(self, name)
 
-    def propagate(self, output_name='0', value=0):
+    def propagate(self, output_name='0', value=0, bits=0):
         """
         The base Node propagate() method fans out the given value to the
         given output_name, assuming all necessary transformations (e.g.
@@ -143,7 +143,7 @@ class Node:
         assert (output_name in self.outputs.points)
         logger.debug(
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
-        return self.outputs.write_value(output_name, value)
+        return self.outputs.write_value(output_name, value, bits)
 
     def clone(self, instance_id):
         """
@@ -204,4 +204,4 @@ class BitsNode(Node):
     def propagate(self, output_name='0', value=0):
         # Truncate the output to self.bits wide
         value &= self.mask()
-        return super().propagate(output_name=output_name, value=value)
+        return super().propagate(output_name=output_name, value=value, bits=self.bits)

@@ -410,6 +410,7 @@ export function useCodeGenController() {
 
                 // Create a virtual wire representing the junction connection
                 const virtualWire = {
+                  id: junctionWire.id, // Use the junction wire's ID
                   startConnection: sourceWire.startConnection,
                   endConnection: junctionWire.endConnection
                 }
@@ -508,7 +509,7 @@ export function useCodeGenController() {
       comment += `.in[${destPort}]`
     }
 
-    return `${circuitVarName}.connect(${sourceExpr}, ${destExpr})    ${comment}`
+    return `${circuitVarName}.connect(${sourceExpr}, ${destExpr}, js_id="${wire.id}")    ${comment}`
   }
 
   /**

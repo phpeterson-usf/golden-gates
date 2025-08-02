@@ -54,7 +54,8 @@ export const COLORS = {
   // Wire colors
   wire: '#374151',
   wireSelected: '#3b82f6',
-  wirePreview: '#6b7280'
+  wirePreview: '#6b7280',
+  wireProcessing: '#10b981'
 }
 
 // Stroke widths

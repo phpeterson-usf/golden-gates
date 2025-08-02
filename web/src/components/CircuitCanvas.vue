@@ -77,6 +77,8 @@
             :key="`wire-${index}`"
             :points="wire.points"
             :selected="selectedWires.has(index)"
+            :step-active="wire.stepActive || false"
+            :step-style="wire.stepStyle || 'processing'"
             :data-wire-index="index"
             @click="handleWireClick(index, $event)"
             @mousedown="handleWireMouseDown(index, $event)"
