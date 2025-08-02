@@ -323,5 +323,4 @@ class BitCounter(Arithmetic):
     def propagate(self, output_name='0', value=0):
         v = self.safe_read_input(BitCounter.inport)
         count = self.operator(v)
-        new_work = self.outputs.write_value(BitCounter.outport, value=count)
-        return new_work
+        return super().propagate(output_name=BitCounter.outport, value=count)
