@@ -509,7 +509,9 @@ export function useCodeGenController() {
       comment += `.in[${destPort}]`
     }
 
-    return `${circuitVarName}.connect(${sourceExpr}, ${destExpr}, js_id="${wire.id}")    ${comment}`
+    // Only include js_id if wire has a valid ID
+    const jsIdParam = wire.id && wire.id !== 'undefined' ? `, js_id="${wire.id}"` : ''
+    return `${circuitVarName}.connect(${sourceExpr}, ${destExpr}${jsIdParam})    ${comment}`
   }
 
   /**
