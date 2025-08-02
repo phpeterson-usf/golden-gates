@@ -20,7 +20,7 @@
         <input
           ref="fileInput"
           type="file"
-          accept=".hex"
+          accept=".json"
           @change="handleFileInput"
           style="display: none"
         />
