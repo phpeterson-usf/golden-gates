@@ -21,7 +21,7 @@ export class ClockGenerator extends IOComponentGenerator {
     const gglParams = this.buildGglParams({
       frequency: this.frequency,
       mode: this.mode
-      //js_id: this.jsId
+      js_id: this.jsId
     })
 
     const code = `${varName} = io.Clock(${gglParams})`
