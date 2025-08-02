@@ -66,16 +66,17 @@ d_latch_clr = circuit.Component(dlatchclr)
 d_flip_flop = circuit.Circuit(js_logging=True)
 
 d1 = io.Input(label="D", bits=1, js_id="input_1_1753687049207")
-d1.value = 0
+d1.value = 1
 en1 = io.Input(label="EN", bits=1, js_id="input_2_1753687058028")
-en1.value = 0
+en1.value = 1
 clr1 = io.Input(label="CLR", bits=1, js_id="input_3_1753687058247")
-clr1.value = 0
+clr1.value = 1
 mux0 = plexers.Multiplexer(num_inputs=2, js_id="multiplexer_1_1753687440528")
 d_latch_clr_1 = d_latch_clr()
 d_latch_clr_2 = d_latch_clr()
 output0 = io.Output(label="Q", bits=1, js_id="output_1_1753687420425")
 clk0 = io.Clock(frequency=1,js_id="clock_1_1753687084421")
+clk.value = 0
 not0 = logic.Not(num_inputs=1, js_id="not-gate_1_1753687214640")
 
 d_flip_flop.connect(clk0, not0)    # clk0 -> not0
@@ -91,7 +92,27 @@ d_flip_flop.connect(clk0, d_latch_clr_1.input("CLK"))    # clk0 -> d_latch_clr_1
 d_flip_flop.connect(d_latch_clr_2.output("Q"), d_latch_clr_1.input("D"))    # d_latch_clr_2 -> d_latch_clr_1.in[1]
 d_flip_flop.connect(d_latch_clr_1.output("Q"), output0)    # d_latch_clr_1 -> output0
 
-d_flip_flop.run()
 
-print(output0.value)
+tests = [
+    (1, 1, 1),  # Test 1
+    (0, 1, 1),  # Test 2
+    (1, 0, 1),  # Test 3
+    (1, 1, 0),  # Test 4
+    (1, 0, 0),  # Test 5
+    (0, 0, 1),  # Test 6
+    (0, 1, 0),  # Test 7
+    (1, 1, 1),  # Test 8
+]
 
+clk0.value = 0
+
+for i, (d_val, en_val, clr_val) in enumerate(tests, 1):
+    d1.value = d_val
+    en1.value = en_val
+    clr1.value = clr_val
+
+    # Simulate clock rising edge: 0 -> 1
+    clk0.tick()
+    d_flip_flop.run()
+
+    print(f"Test {i}: D={d_val}, EN={en_val}, CLR={clr_val} => Q={output0.value}")

@@ -348,7 +348,16 @@ rubric = 1
 [[tests]]
 name = "d-flip-flop"
 input = ["python3", "$project_tests/d-flip-flop.py"]
-expected = "1"
+expected = """
+Test 1: D=1, EN=1, CLR=1 => Q=1
+Test 2: D=0, EN=1, CLR=1 => Q=0
+Test 3: D=1, EN=0, CLR=1 => Q=0
+Test 4: D=1, EN=1, CLR=0 => Q=0
+Test 5: D=1, EN=0, CLR=0 => Q=0
+Test 6: D=0, EN=0, CLR=1 => Q=0
+Test 7: D=0, EN=1, CLR=0 => Q=0
+Test 8: D=1, EN=1, CLR=1 => Q=1
+"""
 rubric = 1
 
 [[tests]]
@@ -361,4 +370,29 @@ rubric = 1
 name = "component.8bit-rca"
 input = ["python3", "$project_tests/component.8bit-rca.py"]
 expected = "0x46"
+rubric = 1
+
+[[tests]]
+name = "8bit-counter"
+input = ["python3", "$project_tests/8bit-counter.py"]
+expected = """
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+"""
+rubric = 1
+
+[[tests]]
+name = "project05"
+input = ["python3", "$project_tests/project05.py"]
+expected = "[0,1,2,3,4,5,6,7,8,9,10,11]"
 rubric = 1
