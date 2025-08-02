@@ -7,10 +7,12 @@ import type { IOComponentData, GeneratedStatement } from '../types/ComponentGene
  */
 export class ClockGenerator extends IOComponentGenerator {
   private frequency: number
+  private mode: 'auto' | 'manual'
 
   constructor(componentData: IOComponentData) {
     super(componentData)
     this.frequency = this.props.frequency || 1
+    this.mode = (this.props.mode as 'auto' | 'manual') || 'auto'
   }
 
   generate(): GeneratedStatement {
@@ -18,7 +20,8 @@ export class ClockGenerator extends IOComponentGenerator {
 
     const gglParams = this.buildGglParams({
       frequency: this.frequency,
-      js_id: this.jsId
+      mode: this.mode
+      //js_id: this.jsId
     })
 
     const code = `${varName} = io.Clock(${gglParams})`

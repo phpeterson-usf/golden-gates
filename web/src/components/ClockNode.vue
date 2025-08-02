@@ -63,7 +63,8 @@ export default defineComponent({
     // Clock props
     label: { type: String, default: 'CLK' },
     frequency: { type: Number, default: 1 },
-    rotation: { type: Number, default: 0 }
+    rotation: { type: Number, default: 0 },
+    mode: { type: String as () => 'auto' | 'manual', default: 'auto' }
   },
   emits: ['startDrag'],
   computed: {
@@ -115,7 +116,8 @@ export default defineComponent({
       componentClasses,
       COLORS,
       CONNECTION_DOT_RADIUS,
-      GRID_SIZE
+      GRID_SIZE,
+      mode: props.mode
     }
   }
 })
