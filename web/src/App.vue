@@ -173,16 +173,8 @@ export default {
     // Initialize command palette
     const { isVisible: commandPaletteVisible } = useCommandPalette()
 
-    // Command handler for keyboard shortcuts
-    const handleCommand = ({ action, params }) => {
-      // Dispatch to mounted component methods via custom event
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('circuitCommand', { detail: { action, params } }))
-      }
-    }
-
-    // Set up keyboard shortcuts with dynamic component support
-    useKeyboardShortcuts(handleCommand, availableComponentsArray)
+    // Set up keyboard shortcuts - we'll set command actions in mounted
+    const { setCommandActions } = useKeyboardShortcuts(null, availableComponentsArray)
 
     return {
       // Circuit manager
@@ -216,7 +208,8 @@ export default {
       pyodide,
       showConfirmDialog,
       confirmDialog,
-      commandPaletteVisible
+      commandPaletteVisible,
+      setCommandActions
     }
   },
   data() {
@@ -241,7 +234,7 @@ export default {
   },
   methods: {
     handleCommand({ action, params }) {
-      // Handle different command actions
+      // Handle command palette commands by calling the appropriate method directly
       switch (action) {
         case 'addComponent':
           this.addComponent(...params)
@@ -590,9 +583,39 @@ export default {
       this.selectedCircuit = this.activeCircuit
     }
 
-    // Set up command event listener for keyboard shortcuts
-    this.commandEventHandler = event => this.handleCommand(event.detail)
-    window.addEventListener('circuitCommand', this.commandEventHandler)
+    // Set up keyboard shortcuts with direct method calls
+    const commandActions = {
+      addComponent: (type) => {
+        this.addComponent(type)
+      },
+      addCircuitComponent: (circuitId) => {
+        this.addCircuitComponent(circuitId)
+      },
+      createNewCircuit: () => {
+        this.createNewCircuit()
+      },
+      openCircuit: () => {
+        this.openCircuitFile()
+      },
+      saveCircuit: () => {
+        this.saveCircuitFile()
+      },
+      runSimulation: () => {
+        this.runSimulation(this.$refs.canvas)
+      },
+      stopSimulation: () => {
+        this.stopSimulation()
+      },
+      clearCircuit: () => {
+        this.clearCircuit()
+      },
+      restoreAutosave: () => {
+        this.showManualRestoreDialog()
+      }
+    }
+
+    // Set up keyboard shortcuts with command actions
+    this.setCommandActions(commandActions)
   },
 
   watch: {
@@ -605,10 +628,7 @@ export default {
   },
 
   beforeUnmount() {
-    // Clean up the command event handler
-    if (this.commandEventHandler) {
-      window.removeEventListener('circuitCommand', this.commandEventHandler)
-    }
+    // Keyboard shortcuts cleanup is handled automatically by useKeyboardShortcuts
   }
 }
 </script>

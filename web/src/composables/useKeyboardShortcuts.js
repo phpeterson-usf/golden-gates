@@ -2,8 +2,11 @@ import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAllCommands, getDynamicComponentCommands } from '../config/commands'
 
-export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
+export function useKeyboardShortcuts(commandActions, availableComponents = []) {
   const { t } = useI18n()
+  
+  // Store command actions reference that can be updated later
+  let currentCommandActions = commandActions
   // Detect platform
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
@@ -79,11 +82,9 @@ export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
         const dynamicCommands = getDynamicComponentCommands(componentsArray)
         const allCommands = [...staticCommands, ...dynamicCommands]
         const topRecentCommand = allCommands.find(cmd => cmd.id === recentCommandIds[0])
-        if (topRecentCommand) {
-          handleCommand({
-            action: topRecentCommand.action,
-            params: topRecentCommand.params || []
-          })
+        if (topRecentCommand && currentCommandActions?.[topRecentCommand.action]) {
+          const params = topRecentCommand.params || []
+          currentCommandActions[topRecentCommand.action](...params)
         }
       }
       return
@@ -94,12 +95,10 @@ export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
     
     for (const command of commands) {
       const shortcutKey = shortcuts[command.shortcutKey]
-      if (shortcutKey && key === shortcutKey) {
+      if (shortcutKey && key === shortcutKey && currentCommandActions?.[command.action]) {
         event.preventDefault()
-        handleCommand({
-          action: command.action,
-          params: command.params || []
-        })
+        const params = command.params || []
+        currentCommandActions[command.action](...params)
         break
       }
     }
@@ -114,7 +113,13 @@ export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
     window.removeEventListener('keydown', handleGlobalKeyDown)
   })
 
+  // Function to update command actions (called from mounted)
+  function setCommandActions(actions) {
+    currentCommandActions = actions
+  }
+
   return {
-    isMac
+    isMac,
+    setCommandActions
   }
 }

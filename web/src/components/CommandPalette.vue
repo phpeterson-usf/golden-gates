@@ -53,8 +53,8 @@
               />
               <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
               <span class="command-label">{{ getCommandLabel(command) }}</span>
-              <span v-if="command.shortcut" class="command-shortcut">{{
-                formatShortcut(command.shortcut)
+              <span v-if="getCommandShortcut(command)" class="command-shortcut">{{
+                formatShortcut(getCommandShortcut(command))
               }}</span>
             </div>
           </div>
@@ -83,8 +83,8 @@
               />
               <i v-else-if="command.icon" :class="command.icon" class="command-icon"></i>
               <span class="command-label">{{ getCommandLabel(command) }}</span>
-              <span v-if="command.shortcut" class="command-shortcut">{{
-                formatShortcut(command.shortcut)
+              <span v-if="getCommandShortcut(command)" class="command-shortcut">{{
+                formatShortcut(getCommandShortcut(command))
               }}</span>
             </div>
           </div>
@@ -208,10 +208,26 @@ export default {
     // Detect platform
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
+    // Get localized shortcut for a command
+    function getCommandShortcut(command) {
+      if (!command.shortcutKey) return null
+      
+      // Map shortcutKey to localized shortcut
+      const shortcuts = {
+        run: t('shortcuts.run'),
+        save: t('shortcuts.save'),
+        open: t('shortcuts.open'),
+        stop: t('shortcuts.stop'),
+        again: t('shortcuts.again')
+      }
+      
+      return shortcuts[command.shortcutKey]
+    }
+
     // Format keyboard shortcut for display
     function formatShortcut(shortcut) {
       // For single-key shortcuts, just return the key
-      if (shortcut.length === 1) {
+      if (shortcut && shortcut.length === 1) {
         return shortcut.toUpperCase()
       }
 
@@ -378,6 +394,7 @@ export default {
       groupedCommands,
       getCommandLabel,
       formatShortcut,
+      getCommandShortcut,
       getGlobalIndex,
       handleKeyDown,
       executeCommand,
