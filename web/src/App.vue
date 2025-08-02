@@ -181,8 +181,8 @@ export default {
       }
     }
 
-    // Set up keyboard shortcuts
-    useKeyboardShortcuts(handleCommand)
+    // Set up keyboard shortcuts with dynamic component support
+    useKeyboardShortcuts(handleCommand, availableComponentsArray)
 
     return {
       // Circuit manager

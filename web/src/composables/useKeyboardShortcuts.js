@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue'
-import { getAllCommands } from '../config/commands'
+import { getAllCommands, getDynamicComponentCommands } from '../config/commands'
 
-export function useKeyboardShortcuts(handleCommand) {
+export function useKeyboardShortcuts(handleCommand, availableComponents = []) {
   // Detect platform
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
@@ -61,7 +61,12 @@ export function useKeyboardShortcuts(handleCommand) {
       // Get recent commands from localStorage or a global store
       const recentCommandIds = JSON.parse(localStorage.getItem('recentCommands') || '[]')
       if (recentCommandIds.length > 0) {
-        const allCommands = getAllCommands()
+        // Include both static and dynamic commands in search
+        const staticCommands = getAllCommands()
+        // Ensure availableComponents is an array (handle reactive computed values)
+        const componentsArray = Array.isArray(availableComponents) ? availableComponents : (availableComponents?.value || [])
+        const dynamicCommands = getDynamicComponentCommands(componentsArray)
+        const allCommands = [...staticCommands, ...dynamicCommands]
         const topRecentCommand = allCommands.find(cmd => cmd.id === recentCommandIds[0])
         if (topRecentCommand) {
           handleCommand({
