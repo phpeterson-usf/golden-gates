@@ -14,7 +14,7 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       expect(result.varName).toMatch(/^clk\d+$/)
-      expect(result.code).toBe(`${result.varName} = io.Clock(frequency=1, js_id="clock-1")`)
+      expect(result.code).toBe(`${result.varName} = io.Clock(frequency=1, mode="auto", js_id="clock-1")`)
       expect(result.imports).toBeUndefined() // No imports needed for clock
     })
 
@@ -47,7 +47,7 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        `${result.varName} = io.Clock(label="SYSCLK", frequency=50, js_id="clock-1")`
+        `${result.varName} = io.Clock(label="SYSCLK", frequency=50, mode="auto, js_id="clock-1")`
       )
     })
 
