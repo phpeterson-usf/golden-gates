@@ -76,7 +76,7 @@ class Decoder(Plexer):
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
-            new_work += super().propagate(output_name=oname, value=v, bits=1)
+            new_work += Node.propagate(self, output_name=oname, value=v)
         return new_work
 
         # Don't need to implement clone() since Decoder has no unique state
@@ -117,5 +117,5 @@ class PriorityEncoder(Node):
                 any = 1
                 break
         new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum)
-        new_work += super().propagate(output_name=PriorityEncoder.any, value=any, bits=1)
+        new_work += Node.propagate(self, output_name=PriorityEncoder.any, value=any, bits=1)
         return new_work

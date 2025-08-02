@@ -1,4 +1,4 @@
-from .node import BitsNode
+from .node import Node, BitsNode
 from .ggl_logging import new_logger
 
 logger = new_logger(__name__)
@@ -55,7 +55,7 @@ class Adder(Arithmetic):
         sum, carryOut = self.operator(a, b, carryIn)
 
         new_work = super().propagate(output_name=Adder.sum, value=sum)
-        new_work += super().propagate(output_name=Adder.carryOut, value=carryOut, bits=1)
+        new_work += Node.propagate(self, output_name=Adder.carryOut, value=carryOut, bits=1)
         return new_work
 
 
@@ -93,7 +93,7 @@ class Subtract(Arithmetic):
 
         difference, carryOut = self.operator(a, b, carryIn)
         new_work = super().propagate(output_name=Subtract.difference, value=difference)
-        new_work += super().propagate(output_name=Subtract.carryOut, value=carryOut, bits=1)
+        new_work += Node.propagate(self, output_name=Subtract.carryOut, value=carryOut, bits=1)
         return new_work
 
 
@@ -194,9 +194,9 @@ class Comparator(Arithmetic):
         a = self.safe_read_input(Comparator.a)
         b = self.safe_read_input(Comparator.b)
         gt, eq, lt = self.operator(a, b)
-        new_work = super().propagate(output_name=Comparator.gt, value=gt, bits=1)
-        new_work += super().propagate(output_name=Comparator.eq, value=eq, bits=1)
-        new_work += super().propagate(output_name=Comparator.lt, value=lt, bits=1)
+        new_work = Node.propagate(self, output_name=Comparator.gt, value=gt, bits=1)
+        new_work += Node.propagate(self, output_name=Comparator.eq, value=eq, bits=1)
+        new_work += Node.propagate(self, output_name=Comparator.lt, value=lt, bits=1)
         return new_work
 
 
@@ -323,5 +323,5 @@ class BitCounter(Arithmetic):
     def propagate(self, output_name='0', value=0):
         v = self.safe_read_input(BitCounter.inport)
         count = self.operator(v)
-        new_work = self.outputs.write_value(BitCounter.outport, value=count)
+        new_work = super().propagate(output_name=BitCounter.outport, value=count)
         return new_work
