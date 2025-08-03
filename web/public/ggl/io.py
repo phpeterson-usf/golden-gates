@@ -9,14 +9,15 @@ class IONode(BitsNode):
     IONode is an abstract class which encapsulates the value of an I/O node
     """
 
-    def __init__(self, kind, num_inputs, num_outputs, js_id='', label='', bits=1):
+    def __init__(self, kind, num_inputs, num_outputs, js_id='', label='', bits=1, **kwargs):
         super().__init__(
             kind=kind,
             js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=num_outputs,
             label=label,
-            bits=bits)
+            bits=bits,
+            **kwargs)
         self._value = 0
         self.circuit = None
 
@@ -28,14 +29,15 @@ class Input(IONode):
 
     kind = 'Input'
 
-    def __init__(self, js_id='', label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1, **kwargs):
         super().__init__(
             kind=Input.kind,
             js_id=js_id,
             num_inputs=0,
             num_outputs=1,
             label=label,
-            bits=bits)
+            bits=bits,
+            **kwargs)
 
     @property
     def value(self):
@@ -64,14 +66,15 @@ class Output(IONode):
 
     kind = 'Output'
 
-    def __init__(self, js_id='', label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1, **kwargs):
         super().__init__(
             kind=Output.kind,
             js_id=js_id,
             num_inputs=1,
             num_outputs=0,
             label=label,
-            bits=bits)
+            bits=bits,
+            **kwargs)
 
     @property
     def value(self):

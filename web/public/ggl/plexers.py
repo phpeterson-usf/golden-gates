@@ -10,7 +10,7 @@ class Plexer(BitsNode):
     """
     sel = "sel"
 
-    def __init__(self, kind, js_id='', num_inputs=2, num_outputs=1, label='', bits=1):
+    def __init__(self, kind, js_id='', num_inputs=2, num_outputs=1, label='', bits=1, **kwargs):
         super().__init__(
             kind=kind,
             js_id=js_id,
@@ -18,7 +18,8 @@ class Plexer(BitsNode):
             num_outputs=num_outputs,
             label=label,
             bits=bits,
-            named_inputs=[Plexer.sel])
+            named_inputs=[Plexer.sel],
+            **kwargs)
 
 
 class Multiplexer(Plexer):
@@ -27,14 +28,15 @@ class Multiplexer(Plexer):
     """
     kind = 'Multiplexer'
 
-    def __init__(self, js_id='', num_inputs=2, label='', bits=1):
+    def __init__(self, js_id='', num_inputs=2, label='', bits=1, **kwargs):
         super().__init__(
             Multiplexer.kind,
             js_id=js_id,
             num_inputs=num_inputs,
             num_outputs=1,
             label=label,
-            bits=bits)
+            bits=bits,
+            **kwargs)
 
     def propagate(self, output_name='0', value=0):
         """
@@ -46,7 +48,15 @@ class Multiplexer(Plexer):
         v = self.safe_read_input(input_name)
         return super().propagate(value=v)
 
-    # Don't need to implement clone() since Multiplexer has no unique state
+    def clone(self, instance_id):
+        """Clone a Multiplexer with proper parameters"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return Multiplexer(
+            js_id=self.js_id,
+            num_inputs=self.num_inputs,
+            label=new_label,
+            bits=self.bits
+        )
 
 
 class Decoder(Plexer):
@@ -76,10 +86,18 @@ class Decoder(Plexer):
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
-            new_work += Node.propagate(self, output_name=oname, value=v)
+            new_work += self.propagate_1bit(output_name=oname, value=v)
         return new_work
 
-        # Don't need to implement clone() since Decoder has no unique state
+    def clone(self, instance_id):
+        """Clone a Decoder with proper parameters"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return Decoder(
+            js_id=self.js_id,
+            num_outputs=self.num_outputs,
+            label=new_label,
+            bits=self.bits
+        )
 
 
 class PriorityEncoder(Node):
@@ -117,5 +135,5 @@ class PriorityEncoder(Node):
                 any = 1
                 break
         new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum)
-        new_work += Node.propagate(self, output_name=PriorityEncoder.any, value=any, bits=1)
+        new_work += self.propagate_1bit(output_name=PriorityEncoder.any, value=any)
         return new_work

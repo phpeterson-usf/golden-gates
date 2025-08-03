@@ -145,16 +145,19 @@ class Node:
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value, bits)
 
+    def propagate_1bit(self, output_name='0', value=0):
+        """
+        We need this helper function because subclasses of BitsNode need
+        both a self.bits value and also a 1-bit output, like Adder.cout, or 
+        PriorityEncoder.any
+        """
+        value &= 1
+        return Node.propagate(self, output_name=output_name, value=value, bits=1)
+
     def clone(self, instance_id):
         """
         Create a copy of this node with a new instance ID.
         Subclasses should override this to handle their specific parameters.
-
-        Args:
-            instance_id: Unique identifier to append to labels
-
-        Returns:
-            Node: A new instance with the same configuration
         """
         raise NotImplementedError(
             f"clone() must be implemented by {self.__class__.__name__}")
@@ -180,21 +183,14 @@ class BitsNode(Node):
     def clone(self, instance_id):
         """Clone a BitsNode - subclasses may override for more specific behavior"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
-
-        # Simply preserve the exact port names that already exist
-        # Pass them as named ports (with num_inputs/outputs=0) to avoid any numbering
-        input_names = list(self.inputs.points.keys())
-        output_names = list(self.outputs.points.keys())
-
         return self.__class__(
-            kind=self.kind,
             js_id=self.js_id,
-            num_inputs=0,
-            num_outputs=0,
-            named_inputs=input_names,
-            named_outputs=output_names,
+            num_inputs=self.num_inputs,
+            num_outputs=self.num_outputs,
             label=new_label,
-            bits=self.bits
+            bits=self.bits,
+            named_inputs=self.named_inputs,
+            named_outputs=self.named_outputs
         )
 
     def mask(self):
