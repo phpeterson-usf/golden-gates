@@ -29,7 +29,7 @@ class Adder(Arithmetic):
     sum = 'sum'
     carryOut = 'cout'
 
-    def __init__(self, js_id='', label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1, **kwargs):
         super().__init__(
             kind=Adder.kind,
             js_id=js_id,
@@ -170,7 +170,7 @@ class Comparator(Arithmetic):
     eq = 'eq'
     lt = 'lt'
 
-    def __init__(self, js_id='', label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1, **kwargs):
         super().__init__(
             kind=Comparator.kind,
             js_id=js_id,
@@ -323,5 +323,4 @@ class BitCounter(Arithmetic):
     def propagate(self, output_name='0', value=0):
         v = self.safe_read_input(BitCounter.inport)
         count = self.operator(v)
-        new_work = super().propagate(output_name=BitCounter.outport, value=count)
-        return new_work
+        return super().propagate(output_name=BitCounter.outport, value=count)

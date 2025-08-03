@@ -11,7 +11,7 @@ class Register(BitsNode):
     Q = 'Q'
     kind = 'Register'
 
-    def __init__(self, js_id='', label='', bits=32):
+    def __init__(self, js_id='', label='', bits=32, **kwargs):
         super().__init__(
             kind=Register.kind,
             js_id=js_id,

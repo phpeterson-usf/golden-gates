@@ -180,6 +180,12 @@ class BitsNode(Node):
         super().__init__(kind, js_id=js_id, innames=innames, outnames=outnames, label=label)
         self.bits = bits
 
+        # Save these for later clone() implementations
+        self.num_inputs = num_inputs
+        self.num_outputs = num_outputs
+        self.named_inputs = named_inputs.copy()
+        self.named_outputs = named_outputs.copy()
+
     def clone(self, instance_id):
         """Clone a BitsNode - subclasses may override for more specific behavior"""
         new_label = f"{self.label}_{instance_id}" if self.label else ""
@@ -197,7 +203,8 @@ class BitsNode(Node):
         # Builds the bit mask for the number of data bits for this gate
         return (1 << self.bits) - 1
 
-    def propagate(self, output_name='0', value=0):
-        # Truncate the output to self.bits wide
-        value &= self.mask()
-        return super().propagate(output_name=output_name, value=value, bits=self.bits)
+    def propagate(self, output_name='0', value=0, bits=None):
+        # Use provided bits if specified, otherwise default to self.bits
+        bits = self.bits if bits is None else bits
+        value &= (1 << bits) - 1
+        return super().propagate(output_name=output_name, value=value, bits=bits)

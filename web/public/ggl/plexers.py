@@ -116,6 +116,7 @@ class PriorityEncoder(Node):
     any = 'any'
 
     def __init__(self, js_id='', num_inputs=0, label=''):
+        self.num_inputs = num_inputs
         innames = [str(i) for i in range(num_inputs)]
         super().__init__(
             PriorityEncoder.kind,
@@ -137,3 +138,12 @@ class PriorityEncoder(Node):
         new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum)
         new_work += self.propagate_1bit(output_name=PriorityEncoder.any, value=any)
         return new_work
+
+    def clone(self, instance_id):
+        """Clone a PriorityEncoder with proper parameters"""
+        new_label = f"{self.label}_{instance_id}" if self.label else ""
+        return PriorityEncoder(
+            js_id=self.js_id,
+            num_inputs=self.num_inputs,
+            label=new_label
+        )

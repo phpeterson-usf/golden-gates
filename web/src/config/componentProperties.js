@@ -123,6 +123,16 @@ export const componentPropertySchema = {
         step: 1,
         showButtons: true
       },
+      {
+        name: 'mode',
+        type: 'dropdown',
+        label: 'Clock Mode',
+        default: 'auto',
+        options: [
+          { label: 'Auto', value: 'auto' },
+          { label: 'Manual', value: 'manual' }
+        ]
+      },
       commonProperties.rotation
     ]
   },
