@@ -376,6 +376,7 @@ rubric = 1
 name = "8bit-counter"
 input = ["python3", "$project_tests/8bit-counter.py"]
 expected = """
+0
 1
 2
 3
@@ -387,12 +388,22 @@ expected = """
 9
 10
 11
-12
 """
 rubric = 1
 
 [[tests]]
 name = "project05"
 input = ["python3", "$project_tests/project05.py"]
-expected = "[0,1,2,3,4,5,6,7,8,9,10,11]"
+expected = """
+Program 3
+Total: 6
+Itype: 0
+Rtype: 5
+Load: 0
+Stype: 0
+Btype: 0
+JALR: 1
+J: 0
+JAL: 0
+"""
 rubric = 1

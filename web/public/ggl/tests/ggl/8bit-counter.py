@@ -25,5 +25,5 @@ circuit0.connect(reg.output("Q"), adder.input("a"))
 values = []
 for _ in range(12):
     clk.tick()
-    circuit0.step()
+    circuit0.step(rising_edge=True)
     print(out.value)

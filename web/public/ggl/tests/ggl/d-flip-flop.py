@@ -76,7 +76,7 @@ mux0 = plexers.Multiplexer(num_inputs=2, js_id="multiplexer_1_1753687440528")
 dlatchclr_1 = dlatchclr()
 dlatchclr_2 = dlatchclr()
 output0 = io.Output(label="Q", bits=1, js_id="output_1_1753687420425")
-clk0 = io.Clock(frequency=1, mode="auto", js_id="clock_1_1753687084421")
+clk0 = io.Clock(frequency=1, mode="manual", js_id="clock_1_1753687084421")
 not0 = logic.Not(num_inputs=1, js_id="not-gate_1_1753687214640")
 
 circuit0.connect(input0, mux0.input("1"), js_id="wire_1753687506207")    # input0 -> mux0.in[1]
@@ -112,6 +112,14 @@ for i, (d_val, en_val, clr_val) in enumerate(tests, 1):
 
     # Simulate clock rising edge: 0 -> 1
     #clk0.tick()
-    circuit0.run()
+    #circuit0.run()
+    circuit0.step()
+
+# Tick the clock manually (rising edge)
+    clk0.tick()
+    circuit0.step(rising_edge=True)
+
+    # Step again to stabilize any output change
+    #circuit0.step()
 
     print(f"Test {i}: D={d_val}, EN={en_val}, CLR={clr_val} => Q={output0.value}")

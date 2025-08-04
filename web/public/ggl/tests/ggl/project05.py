@@ -28,13 +28,13 @@ circuit0 = circuit.Circuit(js_logging=True)
 input0 = io.Input(label="iw", bits=32, js_id="input_1_1754161168829")
 splitter0 = wires.Splitter(bits=32, splits=[(0,6), (7,11)], js_id="splitter_1_1754161490198")
 comp0 = arithmetic.Comparator(label="=", bits=7, js_id="compare_1_1754161071079")
-comp1 = arithmetic.Comparator(label="=", bits=8, js_id="compare_2_1754161091914")
-comp2 = arithmetic.Comparator(label="=", bits=8, js_id="compare_3_1754161093116")
-comp3 = arithmetic.Comparator(label="=", bits=8, js_id="compare_4_1754161093679")
-comp4 = arithmetic.Comparator(label="=", bits=8, js_id="compare_5_1754161094116")
+comp1 = arithmetic.Comparator(label="=", bits=7, js_id="compare_2_1754161091914")
+comp2 = arithmetic.Comparator(label="=", bits=7, js_id="compare_3_1754161093116")
+comp3 = arithmetic.Comparator(label="=", bits=7, js_id="compare_4_1754161093679")
+comp4 = arithmetic.Comparator(label="=", bits=7, js_id="compare_5_1754161094116")
 comp5 = arithmetic.Comparator(label="=", bits=7, js_id="compare_6_1754161094510")
-comp6 = arithmetic.Comparator(label="=", bits=8, js_id="compare_7_1754161094943")
-comp7 = arithmetic.Comparator(label="=", bits=8, js_id="compare_9_1754161095898")
+comp6 = arithmetic.Comparator(label="=", bits=7, js_id="compare_7_1754161094943")
+comp7 = arithmetic.Comparator(label="=", bits=5, js_id="compare_9_1754161095898")
 priorityEncoder0 = plexers.PriorityEncoder(label="PE", num_inputs=8, js_id="priorityEncoder_1_1754161650546")
 and0 = logic.And(js_id="and-gate_1_1754161704314")
 output0 = io.Output(label="inum", bits=1, js_id="output_1_1754161794853")
@@ -90,7 +90,7 @@ analyze_decode = circuit.Component(circuit0)
 circuit0 = circuit.Circuit(js_logging=True)
 
 input0 = io.Input(label="A", bits=8, js_id="input_1_1754161943439")
-input1 = io.Input(label="PN", bits=1, js_id="input_2_1754162103961")
+input1 = io.Input(label="PN", bits=2, js_id="input_2_1754162103961")
 rom0 = memory.ROM(label="fib_rec", address_bits=8, data_bits=32, data=[1049235, 10667107, 32871, 4269867283, 1126435, 10564643, 4294247699, 4267700463, 10565667, 8467715, 4293199123, 4250923247, 16855811, 6620467, 77955, 25231635, 32871, 3221229683, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], js_id="rom_1_1754161954030")
 rom1 = memory.ROM(label="is_pal", address_bits=8, data_bits=32, data=[12961379, 1049875, 62914671, 11862707, 164483, 12911411, 197379, 6456931, 1299, 33554543, 4286644499, 1126435, 1410451, 4294313491, 4238340335, 77955, 8454419, 32871, 3221229683, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], js_id="rom_2_1754161955088")
 rom2 = memory.ROM(label="get_bitseq", address_bits=8, data_bits=32, data=[1085670067, 1213075, 67109779, 7510115, 328467, 4293919635, 20971631, 11883315, 1049491, 5477299, 4294149011, 7566643, 32871, 3221229683, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], js_id="rom_3_1754161955462")
@@ -122,7 +122,7 @@ circuit0 = circuit.Circuit(js_logging=True)
 
 input0 = io.Input(label="PN", bits=2, js_id="input_1_1754163895356")
 input0.value = 3
-input1 = io.Input(label="CLK", bits=1, js_id="input_2_1754199853071")
+input1 = io.Clock(label="CLK",mode="manual", frequency=1, js_id="input_2_1754199853071")
 input1.value = 1
 instruction_memory_1 = instruction_memory()
 and0 = logic.And(inverted_inputs=[1], js_id="and-gate_1_1754195063561")
@@ -133,11 +133,11 @@ inum = io.Output(label="inum", bits=3)
 counter_8bit_1 = counter_8bit()
 reg0 = memory.Register(label="REG", bits=8, js_id="register_8_1754164301625")
 reg1 = memory.Register(label="REG", bits=8, js_id="register_1_1754164265627")
-reg2 = memory.Register(label="REG", bits=1, js_id="register_2_1754164285939")
+reg2 = memory.Register(label="REG", bits=8, js_id="register_2_1754164285939")
 reg3 = memory.Register(label="REG", bits=8, js_id="register_3_1754164288706")
-reg4 = memory.Register(label="REG", bits=1, js_id="register_4_1754164290422")
+reg4 = memory.Register(label="REG", bits=8, js_id="register_4_1754164290422")
 reg5 = memory.Register(label="REG", bits=8, js_id="register_5_1754164292136")
-reg6 = memory.Register(label="REG", bits=1, js_id="register_6_1754164293790")
+reg6 = memory.Register(label="REG", bits=8, js_id="register_6_1754164293790")
 reg7 = memory.Register(label="REG", bits=8, js_id="register_7_1754164299897")
 output1 = io.Output(label="DONE", bits=1, js_id="output_10_1754167094638")
 mux0 = plexers.Multiplexer(num_inputs=8, bits=8, js_id="multiplexer_1_1754164043134")
@@ -154,16 +154,17 @@ output10 = io.Output(label="JAL", bits=8, js_id="output_7_1754164725876")
 adder0 = arithmetic.Adder(label="+", bits=8, js_id="adder_1_1754166628535")
 constant0 = io.Constant(bits=8, js_id="constant_1_1754166647891")
 constant0.value = 1
-constant1 = io.Constant(bits=8, js_id="constant_2_1754166667931")
+constant1 = io.Constant(bits=1, js_id="constant_2_1754166667931")
 constant1.value = 0
 constant2 = io.Constant(bits=32, js_id="constant_3_1754167067804")
 constant2.value = 0xC0001073
 
 circuit0.connect(constant0, adder0.input("a"), js_id="wire_1754166665071")    # constant0 -> adder0.in[0]
 circuit0.connect(constant1, adder0.input("cin"), js_id="wire_1754166672579")    # constant1 -> adder0.in[2]
-circuit0.connect(constant2, comp0.input("a"), js_id="wire_1754167090763")    # constant2 -> comp0.in[0]
+circuit0.connect(instruction_memory_1.output("D"), comp0.input("b"), js_id="wire_1754197739509")    # instruction_memory_1 -> comp0.in[1]
 circuit0.connect(comp0.output("eq"), output1, js_id="wire_1754167104334")    # comp0.out[1] -> output1
 circuit0.connect(comp0.output("eq"), and0.input("1"), js_id="wire_1754195145910")    # comp0.out[1] -> and0.in[1]
+circuit0.connect(constant2, comp0.input("a"), js_id="wire_1754167090763")    # constant2 -> comp0.in[0]
 circuit0.connect(adder0.output("sum"), reg1.input("D"), js_id="wire_1754195414231")    # adder0 -> reg1.in[0]
 circuit0.connect(decoder0.output("0"), reg1.input("en"), js_id="wire_1754196616095")    # decoder0 -> reg1.in[2]
 circuit0.connect(decoder0.output("1"), reg2.input("en"), js_id="wire_1754196626510")    # decoder0.out[1] -> reg2.in[2]
@@ -206,7 +207,6 @@ circuit0.connect(input1, and0.input("0"), js_id="wire_1754199858160")    # input
 circuit0.connect(instruction_memory_1.output("D"), output0, js_id="wire_1754197758998")    # instruction_memory_1 -> output0
 circuit0.connect(adder0.output("sum"), reg3.input("D"), js_id="wire_1754197707264")    # adder0 -> reg3.in[0]
 circuit0.connect(adder0.output("sum"), reg2.input("D"), js_id="wire_1754197712866")    # adder0 -> reg2.in[0]
-circuit0.connect(instruction_memory_1.output("D"), comp0.input("b"), js_id="wire_1754197739509")    # instruction_memory_1 -> comp0.in[1]
 circuit0.connect(instruction_memory_1.output("D"), analyze_decode_1.input("iw"), js_id="wire_1754197752844")    # instruction_memory_1 -> analyze_decode_1
 circuit0.connect(counter_8bit_1.output("count"), instruction_memory_1.input("A"), js_id="wire_1754197845802")    # counter_8bit_1 -> instruction_memory_1.in[0]
 circuit0.connect(input0, instruction_memory_1.input("PN"), js_id="wire_1754197848304")    # input0 -> instruction_memory_1.in[1]
@@ -218,18 +218,20 @@ circuit0.connect(and0, reg0.input("CLK"), js_id="wire_1754198485632")    # and0 
 circuit0.connect(and0, reg1.input("CLK"), js_id="wire_1754198494659")    # and0 -> reg1.in[1]
 
 
-while output1.value != 1:
-    input1.value = 0
-    circuit0.step()  # settle combinational
-    input1.value = 1
-    circuit0.step(rising_edge=True)  # clock update
+while True:
+    iw = output0.value
+    if iw == 0xC0001073:
+        break
+    input1.tick()
+    circuit0.step(rising_edge=True)
 
-print("Total: ", output2.value)
+print("Program", input0.value)
+print("Total:", output2.value)
+print("Itype:", output4.value)
+print("Rtype:", output5.value)
+print("Load:", output6.value)
+print("Stype:", output7.value)
+print("Btype:", output8.value)
+print("JALR:", output9.value)
 print("J:", output3.value)
-print("Itype: ", output4.value)
-print("Rtype: ", output5.value)
-print("Load: ", output6.value)
-print("Stype: ", output7.value)
-print("Btype: ", output8.value)
-print("JALR: ", output9.value)
-print("JAL: ", output10.value)
+print("JAL:", output10.value)
