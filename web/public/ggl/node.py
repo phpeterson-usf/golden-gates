@@ -1,3 +1,5 @@
+import copy
+
 from .ggl_logging import new_logger
 from .errors import CircuitComponentError, ERROR_INPUT_NOT_CONNECTED
 
@@ -156,11 +158,38 @@ class Node:
 
     def clone(self, instance_id):
         """
-        Create a copy of this node with a new instance ID.
-        Subclasses should override this to handle their specific parameters.
+        Create a deep copy of this node with a new instance ID.
+        Uses deepcopy to preserve all state, then updates label and clears connections.
         """
-        raise NotImplementedError(
-            f"clone() must be implemented by {self.__class__.__name__}")
+        
+        # Create a deep copy to preserve all configuration and state
+        node = copy.deepcopy(self)
+        
+        # Update the label with instance_id suffix
+        if hasattr(node, 'label') and node.label:
+            node.label = f"{node.label}_{instance_id}"
+        
+        # Clear js_id as it's specific to the original instance
+        if hasattr(node, 'js_id'):
+            node.js_id = ""
+        
+        # Reinitialize connections - preserve structure but clear edge references
+        for oname in node.outputs.points:
+            node.outputs.points[oname] = []
+        for input_name in node.inputs.points:
+            node.inputs.points[input_name] = None
+
+        return node
+
+
+    def _reinitialize_connections(self, node):
+        """
+        Clear edge references while preserving input/output structure.
+        This allows Circuit.connect() to recreate edges with correct references.
+        """
+        # Clear output edges
+        
+        # Clear input edges
 
 
 class BitsNode(Node):
@@ -180,24 +209,6 @@ class BitsNode(Node):
         super().__init__(kind, js_id=js_id, innames=innames, outnames=outnames, label=label)
         self.bits = bits
 
-        # Save these for later clone() implementations
-        self.num_inputs = num_inputs
-        self.num_outputs = num_outputs
-        self.named_inputs = named_inputs.copy()
-        self.named_outputs = named_outputs.copy()
-
-    def clone(self, instance_id):
-        """Clone a BitsNode - subclasses may override for more specific behavior"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            js_id=self.js_id,
-            num_inputs=self.num_inputs,
-            num_outputs=self.num_outputs,
-            label=new_label,
-            bits=self.bits,
-            named_inputs=self.named_inputs,
-            named_outputs=self.named_outputs
-        )
 
     def mask(self):
         # Builds the bit mask for the number of data bits for this gate

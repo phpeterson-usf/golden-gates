@@ -19,15 +19,6 @@ class WireNode(BitsNode):
             bits=bits
         )
 
-    def clone(self, instance_id):
-        """Clone a WireNode - subclasses may override"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            num_inputs=len(self.inputs.points),
-            num_outputs=len(self.outputs.points),
-            label=new_label,
-            bits=self.bits
-        )
 
 
 class Splitter(WireNode):
@@ -63,14 +54,6 @@ class Splitter(WireNode):
 
         return new_work
 
-    def clone(self, instance_id):
-        """Override to match Splitter constructor args"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            splits=self.splits.copy(),
-            label=new_label,
-            bits=self.bits
-        )
 
 
 class Merger(WireNode):
@@ -103,14 +86,6 @@ class Merger(WireNode):
             output_val |= (masked << low)
         return super().propagate(value=output_val)
 
-    def clone(self, instance_id):
-        """Override to match Merger constructor args"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            merge_inputs=self.merge_inputs.copy(),
-            label=new_label,
-            bits=self.bits
-        )
 
 
 class Tunnel(WireNode):

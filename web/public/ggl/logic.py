@@ -19,17 +19,6 @@ class Gate(BitsNode):
             bits=bits)
         self.inverted_inputs = inverted_inputs or []
 
-    def clone(self, instance_id):
-        """Clone a Gate with proper parameters"""
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return self.__class__(
-            js_id=self.js_id,
-            num_inputs=len(self.inputs.points),
-            num_outputs=len(self.outputs.points),
-            label=new_label,
-            bits=self.bits,
-            inverted_inputs=self.inverted_inputs.copy() if self.inverted_inputs else None
-        )
 
     def logic(self, v1, v2):
         logger.error(f'Gate logic() must be implemented for {self.kind}')

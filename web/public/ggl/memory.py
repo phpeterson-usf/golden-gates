@@ -11,7 +11,7 @@ class Register(BitsNode):
     Q = 'Q'
     kind = 'Register'
 
-    def __init__(self, js_id='', label='', bits=32, **kwargs):
+    def __init__(self, js_id='', label='', bits=32):
         super().__init__(
             kind=Register.kind,
             js_id=js_id,
@@ -74,15 +74,6 @@ class ROM(BitsNode):
             f"{ROM} '{self.label}' address={address}, sel={selected}")
         return super().propagate(output_name=output_name, value=v)
 
-    def clone(self, instance_id):
-        new_label = f"{self.label}_{instance_id}" if self.label else ""
-        return ROM(
-            js_id=self.js_id,
-            address_bits=self.address_bits,
-            data_bits=self.data_bits,
-            data=self.memory.copy(),  # Deep copy the data
-            label=new_label
-        )
 
     def load_data(self, data):
         """
