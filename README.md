@@ -1,5 +1,7 @@
 # Golden Gates
 
+![1bit-full-adder](./fa-1bit.png)
+
 ## Background
 
 ### What is it?
@@ -9,7 +11,7 @@ Golden Gates is a schematic circuit design tool intended to support CS 315 - Com
 ### Do we need another circuit simulator? 
 
 1. We understand that many HDL projects exist, though most (Verilog, etc.) are more EE/CE-oriented than we intend. 
-1. We intend to provide a modern, accessible tool to demystify the chain from compiler to microarchitecture, for an audience of Computer Science students. (that is, we don't care about calculating propagation delay)
+1. We intend to provide a modern, accessible tool to demystify the chain from compiler to microarchitecture, for an audience of Computer Science students. (that is, we don't calculate propagation delay)
 
 ### Long-term vision
 
@@ -17,13 +19,13 @@ We would like to include support for a (RISC-V) C compiler and machine code to t
 
 ### Non-goals
 
-We would like to keep the door open to sythesizing student designs onto an FPGA. However, our current class projects are too complex to synthesize onto a reasonably-priced FPGA. Maybe someday.
+We would like to keep the door open to sythesizing student designs onto an FPGA. However, our current class projects are too complex to synthesize onto a reasonably-priced FPGA. 
 
 ## Usage
 
 ### The User Interface
 
-1. Golden Gates has a minimalist user interface, where commands are grouped in the Command Palette, somewhat similar to VS Code.
+1. Golden Gates has a minimalist user interface, where commands are grouped in the Command Palette, somewhat similar to VS Code or Spotlight.
 1. To access the command palette, click on the Golden Gates icon at the upper left, or simply type "G" as a shortcut.
 1. You can use autocomplete to type a few characters of the name of the command, or circuit component you want to insert. For example, type "xor" to insert an XOR gate.
 1. You can use the clipboard to cut, copy, paste, and duplicate selected circuit components, using the standard keyboard shortcuts on your computer. Duplicate is Cmd-D on MacOS and Ctrl-D on Windows.
@@ -33,7 +35,7 @@ We would like to keep the door open to sythesizing student designs onto an FPGA.
 
 ### Creating a Circuit
 
-1. You'll want to use Input and Output components to design your circuit
+1. Start with Input and Output components to design your circuit
 1. You can use any combination of logic gates, I/O, plexers, wires, memory, or arithmetic components to develop your circuit. We assume the specifications of your circuits are covered in a classroom similar to USF's Computer Architecture course.
 1. Circuit components must be connected with wires between the output port(s) of one component and the input port(s) of other components.
 1. You can create a junction (a wire whose source is another wire) by using the Option (on MacOS) or Alt (on Windows) key. Hold down that key and click on a wire to form a junction and start drawing the new wire.
@@ -90,7 +92,7 @@ If you want to develop for Golden Gates, the tool chain works like this:
 1. Changes to some JS/CSS components can be hot-reloaded using [vite](https://vite.dev). However, changes to GGL Python code require a restart of the server (CTRL-C and `npm run dev` again) due to pyodide's case.
 1. Unit test cases are developed using [vitest](https://vitest.dev), and can be run automatically during development using `npm run test`
 1. Human-readable strings are managed using `i18n` and locale files. New translations are welcome.
-1. At this time, the whole system runs in the browser, with no server (or "server-less" software)
+1. At this time, the whole system runs in the browser, with no server (or "server-less") software
 
 
 ### GGL
