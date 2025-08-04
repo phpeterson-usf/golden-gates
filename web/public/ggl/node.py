@@ -182,16 +182,6 @@ class Node:
         return node
 
 
-    def _reinitialize_connections(self, node):
-        """
-        Clear edge references while preserving input/output structure.
-        This allows Circuit.connect() to recreate edges with correct references.
-        """
-        # Clear output edges
-        
-        # Clear input edges
-
-
 class BitsNode(Node):
     """
     BitsNode is a Node which has a bit width, e.g. Gates, plexers, registers
