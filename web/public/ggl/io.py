@@ -108,7 +108,7 @@ class Constant(Input):
 class Clock(IONode):
     kind = 'Clock'
 
-    def __init__(self, js_id='', label='', frequency=0, mode="manual"):
+    def __init__(self, js_id='', label='', frequency=0, mode="auto"):
         super().__init__(
             Clock.kind,
             js_id=js_id,

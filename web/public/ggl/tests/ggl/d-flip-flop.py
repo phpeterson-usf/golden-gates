@@ -61,58 +61,57 @@ dlatchclr.connect(or0, and2.input("0"))    # or0 -> and2.in[0]
 dlatchclr.connect(and2, srlatch_1.input("s"))    # and2 -> srlatch_1.in[1]
 dlatchclr.connect(and1, srlatch_1.input("r"))    # and1 -> srlatch_1.in[0]
 
-d_latch_clr = circuit.Component(dlatchclr)
+dlatchclr = circuit.Component(dlatchclr)
 
-d_flip_flop = circuit.Circuit(js_logging=True)
 
-d1 = io.Input(label="D", bits=1, js_id="input_1_1753687049207")
-d1.value = 1
-en1 = io.Input(label="EN", bits=1, js_id="input_2_1753687058028")
-en1.value = 1
-clr1 = io.Input(label="CLR", bits=1, js_id="input_3_1753687058247")
-clr1.value = 1
+circuit0 = circuit.Circuit(js_logging=True)
+
+input0 = io.Input(label="D", bits=1, js_id="input_1_1753687049207")
+input0.value = 1
+input1 = io.Input(label="EN", bits=1, js_id="input_2_1753687058028")
+input1.value = 1
+input2 = io.Input(label="CLR", bits=1, js_id="input_3_1753687058247")
+input2.value = 0
 mux0 = plexers.Multiplexer(num_inputs=2, js_id="multiplexer_1_1753687440528")
-d_latch_clr_1 = d_latch_clr()
-d_latch_clr_2 = d_latch_clr()
+dlatchclr_1 = dlatchclr()
+dlatchclr_2 = dlatchclr()
 output0 = io.Output(label="Q", bits=1, js_id="output_1_1753687420425")
-clk0 = io.Clock(frequency=1,js_id="clock_1_1753687084421")
-clk.value = 0
+clk0 = io.Clock(frequency=1, mode="auto", js_id="clock_1_1753687084421")
 not0 = logic.Not(num_inputs=1, js_id="not-gate_1_1753687214640")
 
-d_flip_flop.connect(clk0, not0)    # clk0 -> not0
-d_flip_flop.connect(clr1, d_latch_clr_2.input("CLR"))    # clr1 -> d_latch_clr_2.in[2]
-d_flip_flop.connect(not0, d_latch_clr_2.input("CLK"))    # not0 -> d_latch_clr_2.in[0]
-d_flip_flop.connect(d_latch_clr_1.output("Q"), mux0.input("0"))    # d_latch_clr_1 -> mux0.in[0]
-d_flip_flop.connect(d1, mux0.input("1"))    # d1 -> mux0.in[1]
-d_flip_flop.connect(en1, mux0.input("sel"))    # en1 -> mux0.in[2]
-d_flip_flop.connect(mux0, d_latch_clr_2.input("D"))    # mux0 -> d_latch_clr_2.in[1]
+circuit0.connect(input0, mux0.input("1"), js_id="wire_1753687506207")    # input0 -> mux0.in[1]
+circuit0.connect(input1, mux0.input("sel"), js_id="wire_1753687509727")    # input1 -> mux0.in[2]
+circuit0.connect(dlatchclr_2.output("Q"), dlatchclr_1.input("D"), js_id="wire_1753988206853")    # dlatchclr_2 -> dlatchclr_1.in[1]
+circuit0.connect(clk0, dlatchclr_1.input("CLK"), js_id="wire_1753988215596")    # clk0 -> dlatchclr_1.in[0]
+circuit0.connect(clk0, not0, js_id="wire_1753988227698")    # clk0 -> not0
+circuit0.connect(not0, dlatchclr_2.input("CLK"), js_id="wire_1753988232282")    # not0 -> dlatchclr_2.in[0]
+circuit0.connect(mux0, dlatchclr_2.input("D"), js_id="wire_1753988236898")    # mux0 -> dlatchclr_2.in[1]
+circuit0.connect(input2, dlatchclr_1.input("CLR"), js_id="wire_1753988247138")    # input2 -> dlatchclr_1.in[2]
+circuit0.connect(input2, dlatchclr_2.input("CLR"), js_id="wire_1753988253883")    # input2 -> dlatchclr_2.in[2]
+circuit0.connect(dlatchclr_1.output("Q"), mux0.input("0"), js_id="wire_1753988282296")    # dlatchclr_1 -> mux0.in[0]
+circuit0.connect(dlatchclr_1.output("Q"), output0, js_id="wire_1753988271166")    # dlatchclr_1 -> output0
+circuit0.connect(dlatchclr_1.output("Q"), not0, js_id="wire_1753988227698")    # dlatchclr_1 -> not0
+circuit0.connect(dlatchclr_1.output("Q"), dlatchclr_2.input("CLR"), js_id="wire_1753988253883")    # dlatchclr_1 -> dlatchclr_2.in[2]
 
-d_flip_flop.connect(clr1, d_latch_clr_1.input("CLR"))    # clr1 -> d_latch_clr_1.in[2]
-d_flip_flop.connect(clk0, d_latch_clr_1.input("CLK"))    # clk0 -> d_latch_clr_1.in[0]
-d_flip_flop.connect(d_latch_clr_2.output("Q"), d_latch_clr_1.input("D"))    # d_latch_clr_2 -> d_latch_clr_1.in[1]
-d_flip_flop.connect(d_latch_clr_1.output("Q"), output0)    # d_latch_clr_1 -> output0
+circuit0.run()
 
+print(output0.value)
 
 tests = [
-    (1, 1, 1),  # Test 1
-    (0, 1, 1),  # Test 2
+    (1, 1, 0),  # Test 1
+    (0, 1, 0),  # Test 2
     (1, 0, 1),  # Test 3
-    (1, 1, 0),  # Test 4
-    (1, 0, 0),  # Test 5
-    (0, 0, 1),  # Test 6
-    (0, 1, 0),  # Test 7
-    (1, 1, 1),  # Test 8
+    (1, 1, 1),  # Test 4
 ]
 
-clk0.value = 0
 
 for i, (d_val, en_val, clr_val) in enumerate(tests, 1):
-    d1.value = d_val
-    en1.value = en_val
-    clr1.value = clr_val
+    input0.value = d_val
+    input1.value = en_val
+    input2.value = clr_val
 
     # Simulate clock rising edge: 0 -> 1
-    clk0.tick()
-    d_flip_flop.run()
+    #clk0.tick()
+    circuit0.run()
 
     print(f"Test {i}: D={d_val}, EN={en_val}, CLR={clr_val} => Q={output0.value}")

@@ -6,7 +6,7 @@ from ggl import circuit, io, memory
 c = circuit.Circuit()
 
 d = io.Input(bits=1, label='D')
-clk = io.Clock(label='CLK')
+clk = io.Clock(label='CLK', mode="manual")
 en = io.Input(bits=1, label='EN')
 r = memory.Register(bits=1)
 q = io.Output(bits=1, label='Q')

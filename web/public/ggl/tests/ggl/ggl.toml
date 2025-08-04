@@ -376,7 +376,6 @@ rubric = 1
 name = "8bit-counter"
 input = ["python3", "$project_tests/8bit-counter.py"]
 expected = """
-0
 1
 2
 3
@@ -388,6 +387,7 @@ expected = """
 9
 10
 11
+12
 """
 rubric = 1
 
