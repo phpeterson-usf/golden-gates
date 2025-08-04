@@ -89,7 +89,7 @@ If you want to develop for Golden Gates, the tool chain works like this:
     1. Install node.js, and `npm install`
     1. run `npm run dev` to install the packages in the lockfile
     1. browse to localhost:3000 to run the single-page app
-1. Changes to some JS/CSS components can be hot-reloaded using [vite](https://vite.dev). However, changes to GGL Python code require a restart of the server (CTRL-C and `npm run dev` again) due to pyodide's case.
+1. Changes to some JS/CSS components can be hot-reloaded using [vite](https://vite.dev). However, changes to GGL Python code require a page reload.
 1. Unit test cases are developed using [vitest](https://vitest.dev), and can be run automatically during development using `npm run test`
 1. Human-readable strings are managed using `i18n` and locale files. New translations are welcome.
 1. At this time, the whole system runs in the browser, with no server (or "server-less") software
