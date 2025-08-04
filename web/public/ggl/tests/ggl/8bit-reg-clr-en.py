@@ -1,14 +1,15 @@
 import sys
 sys.path.append('../')
-from ggl import circuit, logic, io, wires, plexers
 
-from ggl import arithmetic, circuit, component, io, logic, memory, plexers, wires
+from ggl import circuit, io, memory, wires
 
 circuit0 = circuit.Circuit(js_logging=True)
 
 input0 = io.Input(label="en", bits=1, js_id="input_1_1753942793773")
+input0.value = 1  # en = 1
 input1 = io.Clock(label="CLK", frequency=1, mode="auto",js_id="input_2_1753942797910")
 input3 = io.Input(label="D", bits=8, js_id="input_4_1753942799097")
+input3.value = 1  # D = 1
 d_flip_flop_1 = memory.Register(bits=8)
 d_flip_flop_2 = memory.Register(bits=8)
 d_flip_flop_3 = memory.Register(bits=8)
@@ -19,7 +20,7 @@ d_flip_flop_7 = memory.Register(bits=8)
 d_flip_flop_8 = memory.Register(bits=8)
 splitter0 = wires.Splitter(bits=8, splits=[(0,0), (1,1), (2,2), (3,3), (4,4), (5,5), (6,6), (7,7)], js_id="splitter_1_1753942944504")
 merger0 = wires.Merger(bits=8, merge_inputs=[(0,0), (1,1), (2,2), (3,3), (4,4), (5,5), (6,6), (7,7)], js_id="merger_1_1753943555286")
-output0 = io.Output(label="Q", bits=1, js_id="output_1_1753943670102")
+output0 = io.Output(label="Q", bits=8, js_id="output_1_1753943670102")
 
 circuit0.connect(input1, d_flip_flop_1.input("CLK"))    # input1 -> d_flip_flop_1.in[3]
 circuit0.connect(input0, d_flip_flop_1.input("en"))    # input0 -> d_flip_flop_1.in[1]
@@ -58,4 +59,4 @@ circuit0.connect(merger0, output0)    # merger0 -> output0
 
 circuit0.run()
 
-print(output0.value)
+print(output0.value)  # expected: 1
