@@ -31,6 +31,7 @@ export function useCircuitModel() {
         components: [],
         wires: [],
         wireJunctions: [],
+        hasUnsavedChanges: false,
         properties: {
           name: 'Circuit1',
           label: 'Circuit 1'
@@ -73,17 +74,6 @@ export function useCircuitModel() {
     })
   })
 
-  // Computed: Get breadcrumbs for navigation
-  const breadcrumbs = computed(() => {
-    return navigationHistory.value.map(circuitId => {
-      const circuit = allCircuits.value.get(circuitId)
-      return {
-        id: circuitId,
-        name: circuit?.name || 'Unknown',
-        isMain: circuit?.isMain || false
-      }
-    })
-  })
 
   // Create a new circuit
   function createCircuit(name, options = {}) {
@@ -97,6 +87,8 @@ export function useCircuitModel() {
       components: [],
       wires: [],
       wireJunctions: [],
+      // Track if circuit has unsaved changes
+      hasUnsavedChanges: options.hasUnsavedChanges !== undefined ? options.hasUnsavedChanges : false,
       // Circuit properties that appear in inspector
       properties: {
         name: name || `Circuit${nextCircuitId.value - 1}`,
@@ -117,6 +109,22 @@ export function useCircuitModel() {
     allCircuits.value.set(id, circuit)
     openTab(id) // Automatically open new circuits in tabs
     return circuit
+  }
+
+  // Mark a circuit as having unsaved changes
+  function markCircuitAsModified(circuitId) {
+    const circuit = allCircuits.value.get(circuitId)
+    if (circuit) {
+      circuit.hasUnsavedChanges = true
+    }
+  }
+
+  // Mark a circuit as saved (no unsaved changes)
+  function markCircuitAsSaved(circuitId) {
+    const circuit = allCircuits.value.get(circuitId)
+    if (circuit) {
+      circuit.hasUnsavedChanges = false
+    }
   }
 
   // Tab management
@@ -162,7 +170,7 @@ export function useCircuitModel() {
     return true
   }
 
-  // Navigate to a circuit
+  // Navigate to a circuit (opens in tab bar)
   function navigateToCircuit(circuitId) {
     const circuit = allCircuits.value.get(circuitId)
     if (!circuit) {
@@ -170,17 +178,15 @@ export function useCircuitModel() {
       return false
     }
 
-    activeTabId.value = circuitId
-
-    // Update navigation history
-    const currentIndex = navigationHistory.value.indexOf(circuitId)
-    if (currentIndex !== -1) {
-      // If circuit is already in history, trim to that point
-      navigationHistory.value = navigationHistory.value.slice(0, currentIndex + 1)
-    } else {
-      // Add to history
-      navigationHistory.value.push(circuitId)
+    // Check if tab is already open
+    const existingTab = openTabs.value.find(tab => tab.id === circuitId)
+    if (!existingTab) {
+      // Open new tab for this circuit
+      openTabs.value.push({ id: circuitId })
     }
+
+    // Switch to the tab
+    activeTabId.value = circuitId
 
     return true
   }
@@ -453,7 +459,17 @@ export function useCircuitModel() {
 
   // Import state from saved data
   function importState(state) {
-    allCircuits.value = new Map(Object.entries(state.circuits))
+    // Import circuits and ensure they have the hasUnsavedChanges property
+    const circuits = new Map()
+    for (const [id, circuit] of Object.entries(state.circuits)) {
+      // Ensure imported circuits start as "saved" (not dirty)
+      circuits.set(id, {
+        ...circuit,
+        hasUnsavedChanges: circuit.hasUnsavedChanges !== undefined ? circuit.hasUnsavedChanges : false
+      })
+    }
+    allCircuits.value = circuits
+    
     availableComponents.value = new Map(Object.entries(state.availableComponents || {}))
     activeTabId.value = state.activeTabId || null
     openTabs.value = state.openTabs || []
@@ -502,7 +518,6 @@ export function useCircuitModel() {
     circuitsArray,
     availableComponentsArray,
     tabs,
-    breadcrumbs,
 
     // Circuit management
     createCircuit,
@@ -510,6 +525,8 @@ export function useCircuitModel() {
     getCircuitByName,
     renameCircuit,
     deleteCircuit,
+    markCircuitAsModified,
+    markCircuitAsSaved,
 
     // Tab management
     openTab,

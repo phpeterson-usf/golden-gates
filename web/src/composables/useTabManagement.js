@@ -72,7 +72,12 @@ export function useTabManagement() {
     const circuit = circuitManager.getCircuit(circuitId)
     if (!circuit) return false
 
-    // Check if circuit has any components or wires
+    // Use the hasUnsavedChanges flag if available, otherwise fall back to old logic
+    if (circuit.hasUnsavedChanges !== undefined) {
+      return circuit.hasUnsavedChanges
+    }
+
+    // Fallback: Check if circuit has any components or wires (old behavior)
     const hasComponents = circuit.components && circuit.components.length > 0
     const hasWires = circuit.wires && circuit.wires.length > 0
 

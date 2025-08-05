@@ -48,22 +48,6 @@
             :circuitManager="circuitManager"
             @selectionChanged="handleSelectionChanged"
           />
-
-          <!-- Circuit Navigation Breadcrumbs -->
-          <div v-if="$refs.canvas?.breadcrumbs?.length > 1" class="circuit-breadcrumbs">
-            <template v-for="(crumb, index) in $refs.canvas?.breadcrumbs" :key="crumb.id">
-              <i v-if="index > 0" class="pi pi-angle-right breadcrumb-separator"></i>
-              <Button
-                :label="crumb.name"
-                :class="[
-                  'breadcrumb-button',
-                  { active: index === $refs.canvas?.breadcrumbs.length - 1 }
-                ]"
-                @click="$refs.canvas?.navigateToCircuit(crumb.id)"
-                text
-              />
-            </template>
-          </div>
         </div>
 
         <div v-if="inspectorVisible" class="inspector-panel" :style="inspectorPanelStyle">
@@ -810,50 +794,6 @@ body {
 .inspector-close:hover {
   background-color: #f3f4f6;
   color: #374151;
-}
-
-/* Circuit breadcrumb navigation */
-.circuit-breadcrumbs {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.5rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.breadcrumb-separator {
-  color: #6b7280;
-  font-size: 0.75rem;
-}
-
-.breadcrumb-button {
-  padding: 0.25rem 0.5rem !important;
-  font-size: 0.75rem !important;
-  min-height: auto !important;
-  height: auto !important;
-  border-radius: 4px !important;
-  color: #6b7280 !important;
-  font-weight: 500 !important;
-}
-
-.breadcrumb-button:hover {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
-}
-
-.breadcrumb-button.active {
-  color: #1f2937 !important;
-  font-weight: 600 !important;
-}
-
-.breadcrumb-button.active:hover {
-  background-color: #e5e7eb !important;
 }
 
 /* Subtle simulation loading indicator */

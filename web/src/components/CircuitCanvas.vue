@@ -250,8 +250,7 @@ export default {
       removeComponent,
       updateComponent,
       clearCurrentCircuit,
-      navigateToCircuit,
-      breadcrumbs
+      navigateToCircuit
     } = props.circuitManager
 
     // Use current circuit components and wires directly
@@ -691,7 +690,6 @@ export default {
 
       // Hierarchical circuit state
       activeCircuit,
-      breadcrumbs,
 
       // Error notifications
       errorNotifications,
