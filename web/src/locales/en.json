@@ -150,7 +150,7 @@
       "plexers": "Plexers",
       "arithmetic": "Arithmetic",
       "memory": "Memory",
-      "insert": "Circuits"
+      "insert": "Components"
     },
     "file": {
       "newCircuit": "New Circuit",
