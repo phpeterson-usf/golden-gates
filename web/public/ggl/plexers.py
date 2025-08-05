@@ -1,7 +1,6 @@
 from .node import Node, BitsNode
 from .ggl_logging import new_logger
-import logging
-logger = new_logger(__name__, logging.INFO)
+logger = new_logger(__name__)
 
 
 class Plexer(BitsNode):
