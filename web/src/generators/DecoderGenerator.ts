@@ -6,16 +6,17 @@ import type { ComponentData, GeneratedStatement } from '../types/ComponentGenera
  * Generates GGL code for decoder components
  */
 export class DecoderGenerator extends BaseComponentGenerator {
-  protected numOutputs: number
+  protected selectorBits: number
 
   constructor(componentData: ComponentData) {
     super(componentData)
-    this.numOutputs = this.props.numOutputs || 4
+    this.selectorBits = this.props.selectorBits || 2
   }
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('decoder')
-    const paramString = this.buildGglParams({ num_outputs: this.numOutputs })
+    
+    const paramString = this.buildGglParams({ selector_bits: this.selectorBits })
 
     return {
       varName,

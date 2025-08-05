@@ -16,7 +16,7 @@ describe('PriorityEncoder Integration', () => {
       expect(config.label).toBe('Priority Encoder')
       expect(config.requiresNamedPorts).toBe(true)
       expect(config.defaultProps).toEqual({
-        numInputs: 4,
+        selectorBits: 2,
         label: 'PE',
         rotation: 0
       })
@@ -24,7 +24,7 @@ describe('PriorityEncoder Integration', () => {
 
     it('generates correct connections for priority encoder', () => {
       const config = componentRegistry.priorityEncoder
-      const connections = config.getConnections({ numInputs: 4 })
+      const connections = config.getConnections({ selectorBits: 2 })
 
       // Should have 4 inputs
       expect(connections.inputs).toHaveLength(4)
@@ -42,18 +42,18 @@ describe('PriorityEncoder Integration', () => {
     it('calculates correct dimensions', () => {
       const config = componentRegistry.priorityEncoder
 
-      // Test with 4 inputs
-      let dims = config.getDimensions({ numInputs: 4 })
+      // Test with 4 inputs (2 selector bits)
+      let dims = config.getDimensions({ selectorBits: 2 })
       expect(dims.width).toBe(45) // 3 * GRID_SIZE (15)
       expect(dims.height).toBe(120) // 8 * GRID_SIZE
 
-      // Test with 2 inputs (minimum)
-      dims = config.getDimensions({ numInputs: 2 })
+      // Test with 2 inputs (1 selector bit)
+      dims = config.getDimensions({ selectorBits: 1 })
       expect(dims.width).toBe(45)
       expect(dims.height).toBe(90) // Minimum 6 grid units * 15
 
-      // Test with 8 inputs
-      dims = config.getDimensions({ numInputs: 8 })
+      // Test with 8 inputs (3 selector bits)
+      dims = config.getDimensions({ selectorBits: 3 })
       expect(dims.width).toBe(45)
       expect(dims.height).toBe(240) // ((8-1)*2 + 2) * GRID_SIZE = 16 * 15
     })
@@ -81,7 +81,7 @@ describe('PriorityEncoder Integration', () => {
           type: 'priorityEncoder',
           x: 4,
           y: 0,
-          props: { numInputs: 4, label: 'PE0' }
+          props: { selectorBits: 2, label: 'PE0' }
         },
         {
           id: 'output-1',
@@ -131,7 +131,7 @@ describe('PriorityEncoder Integration', () => {
 
       // Check priority encoder instantiation
       expect(code).toContain(
-        'priorityEncoder0 = plexers.PriorityEncoder(label="PE0", num_inputs=4, js_id="priorityEncoder-1")'
+        'priorityEncoder0 = plexers.PriorityEncoder(label="PE0", selector_bits=2, js_id="priorityEncoder-1")'
       )
 
       // Check connections use named ports
@@ -148,7 +148,7 @@ describe('PriorityEncoder Integration', () => {
           type: 'priorityEncoder',
           x: 4,
           y: 0,
-          props: { numInputs: 3, label: 'PE' }
+          props: { selectorBits: 2, label: 'PE' }
         },
         {
           id: 'input-1',
@@ -170,6 +170,13 @@ describe('PriorityEncoder Integration', () => {
           x: 0,
           y: 4,
           props: { label: 'I2' }
+        },
+        {
+          id: 'input-4',
+          type: 'input',
+          x: 0,
+          y: 6,
+          props: { label: 'I3' }
         },
         {
           id: 'output-1',
@@ -201,11 +208,15 @@ describe('PriorityEncoder Integration', () => {
           endConnection: { pos: { x: 4, y: 5 }, portIndex: 2, portType: 'input' }
         },
         {
-          startConnection: { pos: { x: 7, y: 2 }, portIndex: 0, portType: 'output' },
+          startConnection: { pos: { x: 1, y: 6 }, portIndex: 0, portType: 'output' },
+          endConnection: { pos: { x: 4, y: 7 }, portIndex: 3, portType: 'input' }
+        },
+        {
+          startConnection: { pos: { x: 7, y: 3 }, portIndex: 0, portType: 'output' },
           endConnection: { pos: { x: 10, y: 0 }, portIndex: 0, portType: 'input' }
         },
         {
-          startConnection: { pos: { x: 7, y: 4 }, portIndex: 1, portType: 'output' },
+          startConnection: { pos: { x: 7, y: 5 }, portIndex: 1, portType: 'output' },
           endConnection: { pos: { x: 10, y: 2 }, portIndex: 0, portType: 'input' }
         }
       ]
@@ -225,6 +236,7 @@ describe('PriorityEncoder Integration', () => {
       expect(code).toContain('circuit0.connect(input0, priorityEncoder0.input("0"))')
       expect(code).toContain('circuit0.connect(input1, priorityEncoder0.input("1"))')
       expect(code).toContain('circuit0.connect(input2, priorityEncoder0.input("2"))')
+      expect(code).toContain('circuit0.connect(input3, priorityEncoder0.input("3"))')
 
       // Check all output connections
       expect(code).toContain('circuit0.connect(priorityEncoder0.output("inum"), output0)')
@@ -233,18 +245,18 @@ describe('PriorityEncoder Integration', () => {
   })
 
   describe('Property Validation', () => {
-    it('validates numInputs property', () => {
+    it('validates selectorBits property', () => {
       const config = componentRegistry.priorityEncoder
 
       // Valid range
-      expect(config.defaultProps.numInputs).toBe(4)
+      expect(config.defaultProps.selectorBits).toBe(2)
 
       // Component should handle edge cases
-      const minConnections = config.getConnections({ numInputs: 2 })
+      const minConnections = config.getConnections({ selectorBits: 1 })
       expect(minConnections.inputs).toHaveLength(2)
       expect(minConnections.outputs).toHaveLength(2) // Always inum and any
 
-      const maxConnections = config.getConnections({ numInputs: 16 })
+      const maxConnections = config.getConnections({ selectorBits: 4 })
       expect(maxConnections.inputs).toHaveLength(16)
       expect(maxConnections.outputs).toHaveLength(2) // Always inum and any
     })

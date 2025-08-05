@@ -3,7 +3,7 @@ import { DecoderGenerator } from '@/generators/DecoderGenerator'
 
 describe('DecoderGenerator', () => {
   describe('generate()', () => {
-    it('generates basic decoder code with default outputs', () => {
+    it('generates basic decoder code with default selector bits', () => {
       const componentData = {
         id: 'decoder-1',
         type: 'decoder',
@@ -15,17 +15,17 @@ describe('DecoderGenerator', () => {
 
       expect(result.varName).toMatch(/^decoder\d+$/)
       expect(result.code).toBe(
-        `${result.varName} = plexers.Decoder(num_outputs=4, js_id="decoder-1")`
+        `${result.varName} = plexers.Decoder(selector_bits=2, js_id="decoder-1")`
       )
       expect(result.imports).toBeUndefined() // No imports needed for decoder
     })
 
-    it('generates decoder with custom number of outputs', () => {
+    it('generates decoder with custom selector bits', () => {
       const componentData = {
         id: 'decoder-1',
         type: 'decoder',
         props: {
-          numOutputs: 8
+          selectorBits: 3
         }
       }
 
@@ -33,7 +33,7 @@ describe('DecoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        `${result.varName} = plexers.Decoder(num_outputs=8, js_id="decoder-1")`
+        `${result.varName} = plexers.Decoder(selector_bits=3, js_id="decoder-1")`
       )
     })
 
@@ -42,7 +42,7 @@ describe('DecoderGenerator', () => {
         id: 'decoder-1',
         type: 'decoder',
         props: {
-          numOutputs: 4,
+          selectorBits: 2,
           label: 'DEC0'
         }
       }
@@ -51,7 +51,7 @@ describe('DecoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        `${result.varName} = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")`
+        `${result.varName} = plexers.Decoder(label="DEC0", selector_bits=2, js_id="decoder-1")`
       )
     })
 
@@ -79,22 +79,22 @@ describe('DecoderGenerator', () => {
       expect(result2.varName).toMatch(/^decoder\d+$/)
     })
 
-    it('handles all valid output counts', () => {
-      const outputCounts = [2, 4, 8, 16]
+    it('handles all valid selector bit counts', () => {
+      const selectorBitCounts = [1, 2, 3, 4]
 
-      outputCounts.forEach(count => {
+      selectorBitCounts.forEach(count => {
         const componentData = {
           id: `decoder-${count}`,
           type: 'decoder',
           props: {
-            numOutputs: count
+            selectorBits: count
           }
         }
 
         const generator = new DecoderGenerator(componentData)
         const result = generator.generate()
 
-        expect(result.code).toContain(`num_outputs=${count}`)
+        expect(result.code).toContain(`selector_bits=${count}`)
       })
     })
 

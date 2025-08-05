@@ -6,13 +6,13 @@ import type { MultiplexerComponentData, GeneratedStatement } from '../types/Comp
  * Generates GGL code for multiplexer components
  */
 export class MultiplexerGenerator extends BaseComponentGenerator {
-  protected numInputs: number
+  protected selectorBits: number
   protected bits: number
   protected selectorPosition: string
 
   constructor(componentData: MultiplexerComponentData) {
     super(componentData)
-    this.numInputs = this.props.numInputs || 4
+    this.selectorBits = this.props.selectorBits || 2
     this.bits = this.props.bits || 1
     this.selectorPosition = this.props.selectorPosition || 'bottom'
   }
@@ -22,7 +22,7 @@ export class MultiplexerGenerator extends BaseComponentGenerator {
 
     // Build parameters using centralized method
     const additionalParams: Record<string, any> = {
-      num_inputs: this.numInputs
+      selector_bits: this.selectorBits
     }
 
     // Only add bits if it's not the default value of 1

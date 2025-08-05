@@ -37,6 +37,15 @@ const commonProperties = {
     type: 'inverted-inputs-selector',
     label: 'Inverted Inputs',
     default: []
+  },
+  selectorBits: {
+    name: 'selectorBits',
+    type: 'number',
+    label: 'Selector Bits',
+    default: 2,
+    min: 1,
+    max: 8,
+    showButtons: true
   }
 }
 
@@ -268,15 +277,7 @@ export const componentPropertySchema = {
     title: 'Multiplexer Properties',
     properties: [
       { ...commonProperties.label, default: 'MUX' },
-      {
-        name: 'numInputs',
-        type: 'number',
-        label: 'Number of Inputs',
-        default: 4,
-        min: 2,
-        max: 8,
-        showButtons: true
-      },
+      commonProperties.selectorBits,
       commonProperties.bits,
       {
         name: 'selectorPosition',
@@ -297,16 +298,7 @@ export const componentPropertySchema = {
     title: 'Decoder Properties',
     properties: [
       { ...commonProperties.label, default: 'DEC' },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Number of Outputs',
-        default: 4,
-        min: 2,
-        max: 16,
-        step: 1,
-        reactive: true
-      },
+      commonProperties.selectorBits,
       {
         name: 'selectorPosition',
         type: 'dropdown',
@@ -327,16 +319,7 @@ export const componentPropertySchema = {
     title: 'Priority Encoder Properties',
     properties: [
       { ...commonProperties.label, default: 'PE' },
-      {
-        name: 'numInputs',
-        type: 'number',
-        label: 'Number of Inputs',
-        default: 4,
-        min: 2,
-        max: 16,
-        step: 1,
-        reactive: true
-      },
+      commonProperties.selectorBits,
       commonProperties.rotation
     ]
   },

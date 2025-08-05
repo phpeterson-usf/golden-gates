@@ -16,7 +16,7 @@ describe('Decoder Integration', () => {
       expect(config.label).toBe('Decoder')
       expect(config.requiresNamedPorts).toBe(true)
       expect(config.defaultProps).toEqual({
-        numOutputs: 4,
+        selectorBits: 2,
         label: 'DEC',
         selectorPosition: 'bottom',
         rotation: 0
@@ -25,7 +25,7 @@ describe('Decoder Integration', () => {
 
     it('generates correct connections for decoder', () => {
       const config = componentRegistry.decoder
-      const connections = config.getConnections({ numOutputs: 4 })
+      const connections = config.getConnections({ selectorBits: 2 })
 
       expect(connections.inputs).toHaveLength(1)
       expect(connections.inputs[0]).toEqual({
@@ -44,18 +44,18 @@ describe('Decoder Integration', () => {
     it('calculates correct dimensions', () => {
       const config = componentRegistry.decoder
 
-      // Test with 4 outputs
-      let dims = config.getDimensions({ numOutputs: 4 })
+      // Test with 4 outputs (2 selector bits)
+      let dims = config.getDimensions({ selectorBits: 2 })
       expect(dims.width).toBe(30) // 2 * GRID_SIZE (15)
       expect(dims.height).toBe(120) // 8 * GRID_SIZE
 
-      // Test with 2 outputs (minimum)
-      dims = config.getDimensions({ numOutputs: 2 })
+      // Test with 2 outputs (1 selector bit)
+      dims = config.getDimensions({ selectorBits: 1 })
       expect(dims.width).toBe(30)
       expect(dims.height).toBe(60) // Minimum 4 grid units * 15
 
-      // Test with 8 outputs
-      dims = config.getDimensions({ numOutputs: 8 })
+      // Test with 8 outputs (3 selector bits)
+      dims = config.getDimensions({ selectorBits: 3 })
       expect(dims.width).toBe(30)
       expect(dims.height).toBe(240) // ((8-1)*2 + 2) * GRID_SIZE
     })
@@ -76,7 +76,7 @@ describe('Decoder Integration', () => {
           type: 'decoder',
           x: 4,
           y: 0,
-          props: { numOutputs: 4, label: 'DEC0' }
+          props: { selectorBits: 2, label: 'DEC0' }
         },
         {
           id: 'output-1',
@@ -111,7 +111,7 @@ describe('Decoder Integration', () => {
 
       // Check decoder instantiation
       expect(code).toContain(
-        'decoder0 = plexers.Decoder(label="DEC0", num_outputs=4, js_id="decoder-1")'
+        'decoder0 = plexers.Decoder(label="DEC0", selector_bits=2, js_id="decoder-1")'
       )
 
       // Check connections use named ports
@@ -126,7 +126,7 @@ describe('Decoder Integration', () => {
           type: 'decoder',
           x: 4,
           y: 0,
-          props: { numOutputs: 3, label: 'DEC' }
+          props: { selectorBits: 2, label: 'DEC' }
         },
         {
           id: 'output-1',
@@ -185,17 +185,17 @@ describe('Decoder Integration', () => {
   })
 
   describe('Property Validation', () => {
-    it('validates numOutputs property', () => {
+    it('validates selectorBits property', () => {
       const config = componentRegistry.decoder
 
       // Valid range
-      expect(config.defaultProps.numOutputs).toBe(4)
+      expect(config.defaultProps.selectorBits).toBe(2)
 
       // Component should handle edge cases
-      const minConnections = config.getConnections({ numOutputs: 2 })
+      const minConnections = config.getConnections({ selectorBits: 1 })
       expect(minConnections.outputs).toHaveLength(2)
 
-      const maxConnections = config.getConnections({ numOutputs: 16 })
+      const maxConnections = config.getConnections({ selectorBits: 4 })
       expect(maxConnections.outputs).toHaveLength(16)
     })
   })

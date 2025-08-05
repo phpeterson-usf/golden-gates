@@ -8,7 +8,7 @@ describe('PriorityEncoderGenerator', () => {
         id: 'priorityEncoder-1',
         type: 'priorityEncoder',
         props: {
-          numInputs: 4,
+          selectorBits: 2,
           label: 'PE0'
         }
       }
@@ -18,16 +18,16 @@ describe('PriorityEncoderGenerator', () => {
 
       expect(result.varName).toBe('priorityEncoder0')
       expect(result.code).toBe(
-        'priorityEncoder0 = plexers.PriorityEncoder(label="PE0", num_inputs=4, js_id="priorityEncoder-1")'
+        'priorityEncoder0 = plexers.PriorityEncoder(label="PE0", selector_bits=2, js_id="priorityEncoder-1")'
       )
     })
 
-    it('generates code with different input counts', () => {
+    it('generates code with different selector bits', () => {
       const componentData = {
         id: 'priorityEncoder-2',
         type: 'priorityEncoder',
         props: {
-          numInputs: 8,
+          selectorBits: 3,
           label: 'PE1'
         }
       }
@@ -36,16 +36,16 @@ describe('PriorityEncoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        'priorityEncoder1 = plexers.PriorityEncoder(label="PE1", num_inputs=8, js_id="priorityEncoder-2")'
+        'priorityEncoder1 = plexers.PriorityEncoder(label="PE1", selector_bits=3, js_id="priorityEncoder-2")'
       )
     })
 
-    it('handles minimum input count', () => {
+    it('handles minimum selector bits', () => {
       const componentData = {
         id: 'priorityEncoder-3',
         type: 'priorityEncoder',
         props: {
-          numInputs: 2,
+          selectorBits: 1,
           label: 'PE_MIN'
         }
       }
@@ -54,16 +54,16 @@ describe('PriorityEncoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        'priorityEncoder2 = plexers.PriorityEncoder(label="PE_MIN", num_inputs=2, js_id="priorityEncoder-3")'
+        'priorityEncoder2 = plexers.PriorityEncoder(label="PE_MIN", selector_bits=1, js_id="priorityEncoder-3")'
       )
     })
 
-    it('handles maximum input count', () => {
+    it('handles maximum selector bits', () => {
       const componentData = {
         id: 'priorityEncoder-4',
         type: 'priorityEncoder',
         props: {
-          numInputs: 16,
+          selectorBits: 4,
           label: 'PE_MAX'
         }
       }
@@ -72,7 +72,7 @@ describe('PriorityEncoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        'priorityEncoder3 = plexers.PriorityEncoder(label="PE_MAX", num_inputs=16, js_id="priorityEncoder-4")'
+        'priorityEncoder3 = plexers.PriorityEncoder(label="PE_MAX", selector_bits=4, js_id="priorityEncoder-4")'
       )
     })
 
@@ -87,7 +87,7 @@ describe('PriorityEncoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        'priorityEncoder4 = plexers.PriorityEncoder(label="PE", num_inputs=4, js_id="priorityEncoder-5")'
+        'priorityEncoder4 = plexers.PriorityEncoder(label="PE", selector_bits=2, js_id="priorityEncoder-5")'
       )
     })
 
@@ -96,7 +96,7 @@ describe('PriorityEncoderGenerator', () => {
         id: 'priorityEncoder-6',
         type: 'priorityEncoder',
         props: {
-          numInputs: 4,
+          selectorBits: 2,
           label: 'PE"special"'
         }
       }
@@ -105,7 +105,7 @@ describe('PriorityEncoderGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        'priorityEncoder5 = plexers.PriorityEncoder(label="PE\\"special\\"", num_inputs=4, js_id="priorityEncoder-6")'
+        'priorityEncoder5 = plexers.PriorityEncoder(label="PE\\"special\\"", selector_bits=2, js_id="priorityEncoder-6")'
       )
     })
   })

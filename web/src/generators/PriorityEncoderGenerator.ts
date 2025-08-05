@@ -5,12 +5,12 @@ import { BaseComponentGenerator } from './BaseComponentGenerator'
  * Creates GGL code for priority encoders with multiple inputs and two outputs (inum, any)
  */
 export class PriorityEncoderGenerator extends BaseComponentGenerator {
-  private numInputs: number
+  private selectorBits: number
   private label: string
 
   constructor(componentData: any) {
     super(componentData)
-    this.numInputs = componentData.props?.numInputs || 4
+    this.selectorBits = componentData.props?.selectorBits || 2
     this.label = componentData.props?.label || 'PE'
   }
 
@@ -18,7 +18,7 @@ export class PriorityEncoderGenerator extends BaseComponentGenerator {
     const varName = this.generateVarName('priorityEncoder')
 
     // Build parameters using centralized method
-    const paramString = this.buildGglParams({ num_inputs: this.numInputs })
+    const paramString = this.buildGglParams({ selector_bits: this.selectorBits })
 
     const code = `${varName} = plexers.PriorityEncoder(${paramString})`
 

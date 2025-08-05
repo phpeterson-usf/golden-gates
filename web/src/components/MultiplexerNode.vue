@@ -80,10 +80,10 @@ export default defineComponent({
   props: {
     ...draggableProps,
     // Multiplexer props
-    numInputs: {
+    selectorBits: {
       type: Number,
-      default: 4,
-      validator: (value: number) => value >= 2 && value <= 8
+      default: 2,
+      validator: (value: number) => value >= 1 && value <= 8
     },
     bits: {
       type: Number,
@@ -119,6 +119,10 @@ export default defineComponent({
     }
   },
   computed: {
+    // Calculate number of inputs from selector bits
+    numInputs() {
+      return Math.pow(2, this.selectorBits)
+    },
     // Total height to accommodate all inputs on grid vertices
     totalHeight() {
       // Ensure inputs are spaced 2 grid units apart (like logic gates)

@@ -331,7 +331,7 @@ export const componentRegistry = {
     icon: 'pi pi-share-alt',
     category: 'components',
     defaultProps: {
-      numInputs: 4,
+      selectorBits: 2,
       bits: 1,
       label: '',
       selectorPosition: 'bottom',
@@ -341,9 +341,9 @@ export const componentRegistry = {
       width: GRID_SIZE * 2,
       height: GRID_SIZE * 3
     },
-    // Dynamic connections based on numInputs
+    // Dynamic connections based on selectorBits
     getConnections: props => {
-      const numInputs = props.numInputs || 4
+      const numInputs = Math.pow(2, props.selectorBits || 2)
 
       // Calculate height same as Vue component
       const inputSpacing = 2 // 2 grid units between inputs
@@ -381,7 +381,7 @@ export const componentRegistry = {
       return { inputs, outputs }
     },
     getDimensions: props => {
-      const numInputs = props.numInputs || 4
+      const numInputs = Math.pow(2, props.selectorBits || 2)
 
       // Calculate height same as Vue component and getConnections
       const inputSpacing = 2 // 2 grid units between inputs
@@ -407,13 +407,13 @@ export const componentRegistry = {
     category: 'components',
     requiresNamedPorts: true,
     defaultProps: {
-      numOutputs: 4,
+      selectorBits: 2,
       label: 'DEC',
       selectorPosition: 'bottom',
       rotation: 0
     },
     getConnections: props => {
-      const numOutputs = props.numOutputs || 4
+      const numOutputs = Math.pow(2, props.selectorBits || 2)
       const selectorPosition = props.selectorPosition || 'bottom'
 
       // Calculate height same as Vue component
@@ -444,7 +444,7 @@ export const componentRegistry = {
       return { inputs, outputs }
     },
     getDimensions: props => {
-      const numOutputs = props.numOutputs || 4
+      const numOutputs = Math.pow(2, props.selectorBits || 2)
       const outputSpacing = 2
       const baseHeight = (numOutputs - 1) * outputSpacing
       const totalHeight = Math.max(baseHeight + 2, 4)
@@ -744,12 +744,12 @@ export const componentRegistry = {
     category: 'components',
     requiresNamedPorts: true,
     defaultProps: {
-      numInputs: 4,
+      selectorBits: 2,
       label: 'PE',
       rotation: 0
     },
     getConnections: props => {
-      const numInputs = props.numInputs || 4
+      const numInputs = Math.pow(2, props.selectorBits || 2)
 
       // Calculate height same as Vue component
       const inputSpacing = 2
@@ -784,7 +784,7 @@ export const componentRegistry = {
       return { inputs, outputs }
     },
     getDimensions: props => {
-      const numInputs = props.numInputs || 4
+      const numInputs = Math.pow(2, props.selectorBits || 2)
       const inputSpacing = 2
       const baseHeight = (numInputs - 1) * inputSpacing
       const totalHeight = Math.max(baseHeight + 2, 6)
