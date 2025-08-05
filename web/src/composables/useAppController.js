@@ -703,6 +703,54 @@ export function useAppController(circuitManager) {
     return components.length > 0 || wires.length > 0
   }
 
+  /**
+   * Handle inspector action events
+   */
+  function handleInspectorAction(event) {
+    const { action, circuit } = event
+    
+    switch (action) {
+      case 'saveAsComponent':
+        if (circuit) {
+          const success = circuitManager.saveCircuitAsComponent(circuit.id)
+          if (success) {
+            console.log(`Circuit ${circuit.name} saved as component`)
+          }
+        }
+        break
+        
+      case 'deleteComponent':
+        if (circuit) {
+          // Check if this circuit is saved as a component
+          const isComponent = Array.from(circuitManager.availableComponents.value.values()).some(
+            comp => comp.circuitId === circuit.id
+          )
+          
+          if (isComponent) {
+            // Show confirmation dialog
+            showConfirmation({
+              title: 'Delete Component',
+              message: `Are you sure you want to delete the component "${circuit.name || circuit.label}"? This will remove it from the available components list.`,
+              type: 'warning',
+              acceptLabel: 'Delete',
+              showCancel: true,
+              onAccept: () => {
+                // Delete the component
+                circuitManager.removeCircuitComponent(circuit.id)
+                console.log(`Component ${circuit.name} deleted`)
+              }
+            })
+          } else {
+            console.warn('This circuit is not saved as a component')
+          }
+        }
+        break
+        
+      default:
+        console.warn('Unknown inspector action:', action)
+    }
+  }
+
   return {
     // Simulation state
     isRunning,

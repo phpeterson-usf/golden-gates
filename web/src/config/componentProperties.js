@@ -455,6 +455,12 @@ export const componentPropertySchema = {
         label: 'Save as Component',
         type: 'button',
         help: 'Save this circuit as a reusable component'
+      },
+      {
+        name: 'deleteComponent',
+        label: 'Delete Component',
+        type: 'button',
+        help: 'Remove this circuit from available components'
       }
     ]
   }
