@@ -254,6 +254,7 @@ export function useCircuitModel() {
     const circuit = allCircuits.value.get(circuitId)
     if (circuit) {
       circuit.components.push(component)
+      markCircuitAsModified(circuitId)
       return true
     }
     return false
@@ -271,6 +272,7 @@ export function useCircuitModel() {
       const index = circuit.components.findIndex(comp => comp.id === componentId)
       if (index !== -1) {
         circuit.components.splice(index, 1)
+        markCircuitAsModified(circuitId)
         return true
       }
     }
@@ -287,6 +289,7 @@ export function useCircuitModel() {
     const circuit = allCircuits.value.get(circuitId)
     if (circuit) {
       circuit.wires.push(wire)
+      markCircuitAsModified(circuitId)
       return true
     }
     return false
@@ -305,6 +308,7 @@ export function useCircuitModel() {
       if (index !== -1) {
         const removedWire = circuit.wires[index]
         circuit.wires.splice(index, 1)
+        markCircuitAsModified(circuitId)
         return removedWire
       }
     }
@@ -323,6 +327,7 @@ export function useCircuitModel() {
       const index = circuit.components.findIndex(comp => comp.id === updatedComponent.id)
       if (index !== -1) {
         circuit.components[index] = updatedComponent
+        markCircuitAsModified(circuitId)
         return true
       }
     }

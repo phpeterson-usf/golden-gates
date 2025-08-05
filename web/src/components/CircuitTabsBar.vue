@@ -21,11 +21,18 @@
       >
         <template #default>
           <span>{{ tab.name }}</span>
-          <i
-            class="pi pi-times tab-close"
-            @click.stop="handleCloseTab(tab.id)"
+          <div
             v-if="circuitTabs.length > 1"
-          ></i>
+            class="tab-close-container"
+            @click.stop="handleCloseTab(tab.id)"
+            :class="{ 'has-unsaved-changes': hasCircuitUnsavedWork(tab.id, circuitManager) }"
+          >
+            <!-- Show dot for unsaved changes, X shown via CSS pseudo-element -->
+            <i
+              v-if="hasCircuitUnsavedWork(tab.id, circuitManager)"
+              class="unsaved-dot"
+            ></i>
+          </div>
         </template>
       </Button>
     </div>
@@ -127,7 +134,8 @@ export default {
       tabsContainer,
       scrollTabs,
       switchToTab,
-      handleCloseTab
+      handleCloseTab,
+      hasCircuitUnsavedWork
     }
   }
 }
@@ -209,15 +217,72 @@ export default {
   font-weight: 500 !important;
 }
 
-.circuit-tab .tab-close {
+/* Tab close button container */
+.tab-close-container {
   margin-left: 0.5rem;
-  font-size: 0.625rem;
-  opacity: 0.6;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
 }
 
-.circuit-tab .tab-close:hover {
+.tab-close-container:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Tab close icon (X) - use pseudo-element for consistent sizing */
+.tab-close-container:not(.has-unsaved-changes)::after {
+  content: '×';
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #6b7280;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transition: opacity 0.2s ease;
+}
+
+.tab-close-container:not(.has-unsaved-changes):hover::after {
   opacity: 1;
-  color: #ef4444 !important;
+}
+
+/* Unsaved changes dot */
+.unsaved-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6b7280;
+  opacity: 1 !important;
+  transition: all 0.2s ease;
+}
+
+.circuit-tab.active .unsaved-dot {
+  background-color: #1f2937;
+}
+
+/* Show X instead of dot on hover */
+.tab-close-container.has-unsaved-changes:hover .unsaved-dot {
+  display: none;
+}
+
+.tab-close-container.has-unsaved-changes:hover::after {
+  content: '×';
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 16px;
+  height: 16px;
 }
 </style>

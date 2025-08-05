@@ -463,6 +463,11 @@ export function useAppController(circuitManager) {
         allSchematicComponents,
         circuitManager.exportState().nextCircuitId
       )
+      
+      // Mark the active circuit as saved (no unsaved changes)
+      if (activeCircuit) {
+        circuitManager.markCircuitAsSaved(activeCircuit.id)
+      }
     } catch (error) {
       console.error('Error saving circuit:', error)
       alert('Error saving circuit: ' + error.message)
