@@ -157,6 +157,31 @@ class Node:
         """Returns a Connector for the named output"""
         return Connector(self, name)
 
+    def __getattribute__(self, name):
+        """
+        Enable attribute-style access to inputs and outputs.
+        Examples: mux.sel instead of mux.input("sel"), adder.sum instead of adder.output("sum")
+        
+        Port names take priority over class attributes.
+        """
+        # Check if this is a port name first (prioritize ports over attributes)
+        try:
+            # This wonky syntax is required to prevent infinite recursion on
+            # self.inputs calling self.__getattribute__()
+            inputs = object.__getattribute__(self, 'inputs')
+            outputs = object.__getattribute__(self, 'outputs')
+            
+            if name in inputs.get_names():
+                return Connector(self, name)
+            elif name in outputs.get_names():
+                return Connector(self, name)
+        except AttributeError:
+            # During construction, inputs/outputs might not exist yet
+            pass
+        
+        # Not a port name, use normal attribute access
+        return object.__getattribute__(self, name)
+
     def propagate(self, output_name='0', value=0, bits=0):
         """
         The base Node propagate() method fans out the given value to the

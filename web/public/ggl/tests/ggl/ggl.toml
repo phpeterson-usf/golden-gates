@@ -407,3 +407,33 @@ J: 0
 JAL: 0
 """
 rubric = 1
+
+[[tests]]
+name = "attribute-syntax-arithmetic"
+input = ["python3", "$project_tests/attribute-syntax-arithmetic.py"]
+expected = """
+25
+0
+"""
+rubric = 1
+
+[[tests]]
+name = "attribute-syntax-plexers"
+input = ["python3", "$project_tests/attribute-syntax-plexers.py"]
+expected = """
+10
+30
+"""
+rubric = 1
+
+[[tests]]
+name = "attribute-syntax-memory"
+input = ["python3", "$project_tests/attribute-syntax-memory.py"]
+expected = "0xab"
+rubric = 1
+
+[[tests]]
+name = "attribute-syntax-mixed"
+input = ["python3", "$project_tests/attribute-syntax-mixed.py"]
+expected = "151"
+rubric = 1
