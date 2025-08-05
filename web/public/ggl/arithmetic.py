@@ -55,7 +55,7 @@ class Adder(Arithmetic):
         sum, carryOut = self.operator(a, b, carryIn)
 
         new_work = super().propagate(output_name=Adder.sum, value=sum)
-        new_work += self.propagate_1bit(output_name=Adder.carryOut, value=carryOut)
+        new_work += super().propagate(output_name=Adder.carryOut, value=carryOut, bits=1)
         return new_work
 
 
@@ -93,7 +93,7 @@ class Subtract(Arithmetic):
 
         difference, carryOut = self.operator(a, b, carryIn)
         new_work = super().propagate(output_name=Subtract.difference, value=difference)
-        new_work += self.propagate_1bit(output_name=Subtract.carryOut, value=carryOut)
+        new_work += super().propagate(output_name=Subtract.carryOut, value=carryOut, bits=1)
         return new_work
 
 
@@ -194,9 +194,9 @@ class Comparator(Arithmetic):
         a = self.safe_read_input(Comparator.a)
         b = self.safe_read_input(Comparator.b)
         gt, eq, lt = self.operator(a, b)
-        new_work = self.propagate_1bit(output_name=Comparator.gt, value=gt)
-        new_work += self.propagate_1bit(output_name=Comparator.eq, value=eq)
-        new_work += self.propagate_1bit(output_name=Comparator.lt, value=lt)
+        new_work = super().propagate(output_name=Comparator.gt, value=gt, bits=1)
+        new_work += super().propagate(output_name=Comparator.eq, value=eq, bits=1)
+        new_work += super().propagate(output_name=Comparator.lt, value=lt, bits=1)
         return new_work
 
 

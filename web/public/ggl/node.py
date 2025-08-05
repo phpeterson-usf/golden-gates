@@ -168,15 +168,6 @@ class Node:
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value, bits)
 
-    def propagate_1bit(self, output_name='0', value=0):
-        """
-        We need this helper function because subclasses of BitsNode need
-        both a self.bits value and also a 1-bit output, like Adder.cout, or 
-        PriorityEncoder.any
-        """
-        value &= 1
-        return Node.propagate(self, output_name=output_name, value=value, bits=1)
-
     def clone(self, instance_id):
         """
         Create a deep copy of this node with a new instance ID.
@@ -221,14 +212,15 @@ class BitsNode(Node):
         self.bits = bits
 
 
-    def mask(self):
+    def mask(self, bits):
         # Builds the bit mask for the number of data bits for this gate
-        return (1 << self.bits) - 1
+        return (1 << bits) - 1
 
     def propagate(self, output_name='0', value=0, bits=None):
         # Use provided bits if specified, otherwise default to self.bits
-        bits = self.bits if bits is None else bits
-        value &= (1 << bits) - 1
+        if bits is None:
+            bits = self.bits
+        value &= self.mask(bits)
         return super().propagate(output_name=output_name, value=value, bits=bits)
 
     def safe_read_input(self, iname, bits=None):
