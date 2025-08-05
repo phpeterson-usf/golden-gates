@@ -2,6 +2,7 @@ from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
 from collections import deque
+import time
 
 logger = new_logger(__name__)
 
@@ -85,9 +86,23 @@ class Circuit:
         output_history = deque(maxlen=10)
         iteration = 0
 
+        clock_timers = {}
+        for clock in getattr(self, 'clocks', []):
+            if clock.mode == 'auto':
+                clock_timers[clock] = time.time()
+
         while self.running:
             iteration += 1
-            logger.info(f"=== Simulation Iteration {iteration} ===")
+
+            now = time.time()
+            rising_edges = []
+            for clock in getattr(self, 'clocks', []):
+                if clock.mode == 'auto' and clock.frequency > 0:
+                    interval = 1.0 / (clock.frequency * 2)  # half-period
+                    if now - clock_timers[clock] >= interval:
+                        clock_timers[clock] = now
+                        edge_nodes = clock.toggleCLK('0')
+                        rising_edges.extend(edge_nodes)
 
             # propagate combinational logic until stable
             for _ in range(MAX_ITERATIONS):
@@ -110,8 +125,7 @@ class Circuit:
                 if prev_outputs == now_outputs:
                     break
             else:
-                logger.warning(
-                    "Post-clock combinational logic did not stabilize")
+                logger.warning("Post-clock combinational logic did not stabilize")
 
             # track and check outputs for stability
             output_vals = {node.label: node.value for node in self.outputs}
@@ -119,9 +133,10 @@ class Circuit:
             output_history.append(output_vals)
 
             if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
-                logger.info(
-                    "Circuit stabilized with constant outputs for 10 iterations.")
+                logger.info("Circuit stabilized with constant outputs for 10 iterations.")
                 break
+
+            time.sleep(0.001)
 
     def connect(self, src, dest, js_id=None):
         """
@@ -195,3 +210,5 @@ def Component(circuit):
 
     # Return a constructor that creates CircuitNode instances
     return create_component_instance
+
+

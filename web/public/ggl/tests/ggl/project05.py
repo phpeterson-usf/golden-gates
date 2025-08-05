@@ -114,125 +114,124 @@ circuit0.connect(input0, rom1.input("A"), js_id="wire_1754162859822")    # input
 circuit0.connect(input0, rom2.input("A"), js_id="wire_1754162866768")    # input0 -> rom2.in[0]
 circuit0.connect(input0, rom3.input("A"), js_id="wire_1754162873227")    # input0 -> rom3.in[0]
 circuit0.connect(input0, rom0.input("A"), js_id="wire_1754162853338")    # input0 -> rom0.in[0]
-
 # Export as a reusable component
 instruction_memory = circuit.Component(circuit0)
+
 
 circuit0 = circuit.Circuit(js_logging=True)
 
 input0 = io.Input(label="PN", bits=2, js_id="input_1_1754163895356")
-input0.value = 0
+input0.value = 3
+input1 = io.Clock(label="CLK",mode="manual", frequency=1, js_id="input_2_1754199853071")
+input1.value = 1
 instruction_memory_1 = instruction_memory()
-analyze_decode_1 = analyze_decode()
+and0 = logic.And(inverted_inputs=[1], js_id="and-gate_1_1754195063561")
 comp0 = arithmetic.Comparator(label="=", bits=32, js_id="compare_1_1754166982615")
-decoder0 = plexers.Decoder(label="DEC", selector_bits=3, js_id="decoder_1_1754164072211")
-mux0 = plexers.Multiplexer(selector_bits=3, bits=8, js_id="multiplexer_1_1754164043134")
-output0 = io.Output(label="DONE", bits=1, js_id="output_10_1754167094638")
-reg0 = memory.Register(label="REG", bits=8, js_id="register_1_1754164265627")
-reg1 = memory.Register(label="REG", bits=8, js_id="register_2_1754164285939")
-reg2 = memory.Register(label="REG", bits=8, js_id="register_3_1754164288706")
-reg3 = memory.Register(label="REG", bits=8, js_id="register_4_1754164290422")
-reg4 = memory.Register(label="REG", bits=8, js_id="register_5_1754164292136")
-reg5 = memory.Register(label="REG", bits=8, js_id="register_6_1754164293790")
-reg6 = memory.Register(label="REG", bits=8, js_id="register_7_1754164299897")
-reg7 = memory.Register(label="REG", bits=8, js_id="register_8_1754164301625")
-adder0 = arithmetic.Adder(label="+", bits=8, js_id="adder_1_1754166628535")
-output1 = io.Output(label="ITYPE", bits=8, js_id="output_1_1754164719058")
-output2 = io.Output(label="RTYPE", bits=8, js_id="output_2_1754164723134")
-output3 = io.Output(label="LOAD", bits=8, js_id="output_3_1754164723796")
-output4 = io.Output(label="STYPE", bits=8, js_id="output_4_1754164724628")
-output5 = io.Output(label="BTYPE", bits=8, js_id="output_5_1754164724989")
-output6 = io.Output(label="JALR", bits=8, js_id="output_6_1754164725453")
-output7 = io.Output(label="JAL", bits=8, js_id="output_7_1754164725876")
-output8 = io.Output(label="J", bits=8, js_id="output_8_1754164726376")
+analyze_decode_1 = analyze_decode()
+output0 = io.Output(label="iw", bits=32, js_id="output_11_1754197476382")
+inum = io.Output(label="inum", bits=3)
 counter_8bit_1 = counter_8bit()
-output9 = io.Output(label="TOTAL", bits=8, js_id="output_9_1754164726948")
+reg0 = memory.Register(label="REG", bits=8, js_id="register_8_1754164301625")
+reg1 = memory.Register(label="REG", bits=8, js_id="register_1_1754164265627")
+reg2 = memory.Register(label="REG", bits=8, js_id="register_2_1754164285939")
+reg3 = memory.Register(label="REG", bits=8, js_id="register_3_1754164288706")
+reg4 = memory.Register(label="REG", bits=8, js_id="register_4_1754164290422")
+reg5 = memory.Register(label="REG", bits=8, js_id="register_5_1754164292136")
+reg6 = memory.Register(label="REG", bits=8, js_id="register_6_1754164293790")
+reg7 = memory.Register(label="REG", bits=8, js_id="register_7_1754164299897")
+output1 = io.Output(label="DONE", bits=1, js_id="output_10_1754167094638")
+mux0 = plexers.Multiplexer(selector_bits=3, bits=8, js_id="multiplexer_1_1754164043134")
+decoder0 = plexers.Decoder(label="DEC", selector_bits=3, js_id="decoder_1_1754164072211")
+output2 = io.Output(label="TOTAL", bits=8, js_id="output_9_1754164726948")
+output3 = io.Output(label="J", bits=8, js_id="output_8_1754164726376")
+output4 = io.Output(label="ITYPE", bits=8, js_id="output_1_1754164719058")
+output5 = io.Output(label="RTYPE", bits=8, js_id="output_2_1754164723134")
+output6 = io.Output(label="LOAD", bits=8, js_id="output_3_1754164723796")
+output7 = io.Output(label="STYPE", bits=8, js_id="output_4_1754164724628")
+output8 = io.Output(label="BTYPE", bits=8, js_id="output_5_1754164724989")
+output9 = io.Output(label="JALR", bits=8, js_id="output_6_1754164725453")
+output10 = io.Output(label="JAL", bits=8, js_id="output_7_1754164725876")
+adder0 = arithmetic.Adder(label="+", bits=8, js_id="adder_1_1754166628535")
 constant0 = io.Constant(bits=8, js_id="constant_1_1754166647891")
 constant0.value = 1
 constant1 = io.Constant(bits=1, js_id="constant_2_1754166667931")
 constant1.value = 0
 constant2 = io.Constant(bits=32, js_id="constant_3_1754167067804")
 constant2.value = 0xC0001073
-clk0 = io.Clock(frequency=1, js_id="clock_1_1754167312574", mode = "manual")
 
-circuit0.connect(input0, instruction_memory_1.input("PN"), js_id="wire_1754163899506")    # input0 -> instruction_memory_1.in[1]
-circuit0.connect(decoder0.output("0"), reg0.input("en"), js_id="wire_1754164331688")    # decoder0 -> reg0.in[2]
-circuit0.connect(decoder0.output("1"), reg1.input("en"), js_id="wire_1754164339096")    # decoder0.out[1] -> reg1.in[2]
-circuit0.connect(decoder0.output("2"), reg2.input("en"), js_id="wire_1754164345321")    # decoder0.out[2] -> reg2.in[2]
-circuit0.connect(decoder0.output("3"), reg3.input("en"), js_id="wire_1754164352331")    # decoder0.out[3] -> reg3.in[2]
-circuit0.connect(decoder0.output("4"), reg4.input("en"), js_id="wire_1754164359810")    # decoder0.out[4] -> reg4.in[2]
-circuit0.connect(decoder0.output("5"), reg5.input("en"), js_id="wire_1754164375530")    # decoder0.out[5] -> reg5.in[2]
-circuit0.connect(decoder0.output("6"), reg6.input("en"), js_id="wire_1754164381358")    # decoder0.out[6] -> reg6.in[2]
-circuit0.connect(decoder0.output("7"), reg7.input("en"), js_id="wire_1754164388895")    # decoder0.out[7] -> reg7.in[2]
-circuit0.connect(reg0.output("Q"), output1, js_id="wire_1754164914550")    # reg0 -> output1
-circuit0.connect(reg1.output("Q"), output2, js_id="wire_1754164917861")    # reg1 -> output2
-circuit0.connect(reg2.output("Q"), output3, js_id="wire_1754164921617")    # reg2 -> output3
-circuit0.connect(reg3.output("Q"), output4, js_id="wire_1754164925000")    # reg3 -> output4
-circuit0.connect(reg4.output("Q"), output5, js_id="wire_1754164928247")    # reg4 -> output5
-circuit0.connect(reg5.output("Q"), output6, js_id="wire_1754164931331")    # reg5 -> output6
-circuit0.connect(reg6.output("Q"), output7, js_id="wire_1754164935314")    # reg6 -> output7
-circuit0.connect(reg7.output("Q"), output8, js_id="wire_1754164937904")    # reg7 -> output8
-circuit0.connect(counter_8bit_1.output("count"), output9, js_id="wire_1754165038601")    # counter_8bit_1 -> output9
-circuit0.connect(reg0.output("Q"), mux0.input("0"), js_id="wire_1754166408084")    # reg0 -> mux0.in[0]
-circuit0.connect(reg1.output("Q"), mux0.input("1"), js_id="wire_1754166433105")    # reg1 -> mux0.in[1]
 circuit0.connect(constant0, adder0.input("a"), js_id="wire_1754166665071")    # constant0 -> adder0.in[0]
 circuit0.connect(constant1, adder0.input("cin"), js_id="wire_1754166672579")    # constant1 -> adder0.in[2]
-circuit0.connect(adder0.output("sum"), reg0.input("D"), js_id="wire_1754166785505")    # adder0 -> reg0.in[0]
-circuit0.connect(mux0, adder0.input("b"), js_id="wire_1754166800494")    # mux0 -> adder0.in[1]
-circuit0.connect(adder0.output("sum"), reg4.input("D"), js_id="wire_1754166867078")    # adder0 -> reg4.in[0]
-circuit0.connect(adder0.output("sum"), reg1.input("D"), js_id="wire_1754166878836")    # adder0 -> reg1.in[0]
-circuit0.connect(adder0.output("sum"), reg2.input("D"), js_id="wire_1754166889179")    # adder0 -> reg2.in[0]
-circuit0.connect(adder0.output("sum"), reg3.input("D"), js_id="wire_1754166900463")    # adder0 -> reg3.in[0]
-circuit0.connect(adder0.output("sum"), reg5.input("D"), js_id="wire_1754166913006")    # adder0 -> reg5.in[0]
-circuit0.connect(adder0.output("sum"), reg7.input("D"), js_id="wire_1754166934692")    # adder0 -> reg7.in[0]
-circuit0.connect(instruction_memory_1.output("D"), comp0.input("b"), js_id="wire_1754167060241")    # instruction_memory_1 -> comp0.in[1]
-circuit0.connect(comp0.output("eq"), output0, js_id="wire_1754167104334")    # comp0.out[1] -> output0
-circuit0.connect(analyze_decode_1.output("inum"), mux0.input("sel"), js_id="wire_1754167459363")    # analyze_decode_1 -> mux0.in[8]
-circuit0.connect(clk0, reg3.input("CLK"), js_id="wire_1754167514140")    # clk0 -> reg3.in[1]
-circuit0.connect(clk0, reg5.input("CLK"), js_id="wire_1754167525605")    # clk0 -> reg5.in[1]
-circuit0.connect(clk0, reg6.input("CLK"), js_id="wire_1754167531841")    # clk0 -> reg6.in[1]
-circuit0.connect(clk0, reg0.input("CLK"), js_id="wire_1754167536974")    # clk0 -> reg0.in[1]
-circuit0.connect(counter_8bit_1.output("count"), instruction_memory_1.input("A"), js_id="wire_1754163885017")    # counter_8bit_1 -> instruction_memory_1.in[0]
-circuit0.connect(reg2.output("Q"), mux0.input("2"), js_id="wire_1754166448000")    # reg2 -> mux0.in[2]
-circuit0.connect(reg2.output("Q"), mux0.input("0"), js_id="wire_1754166408084")    # reg2 -> mux0.in[0]
-circuit0.connect(reg3.output("Q"), mux0.input("3"), js_id="wire_1754166463191")    # reg3 -> mux0.in[3]
-circuit0.connect(reg3.output("Q"), mux0.input("1"), js_id="wire_1754166433105")    # reg3 -> mux0.in[1]
-circuit0.connect(reg4.output("Q"), mux0.input("4"), js_id="wire_1754166478104")    # reg4 -> mux0.in[4]
-circuit0.connect(reg4.output("Q"), mux0.input("2"), js_id="wire_1754166448000")    # reg4 -> mux0.in[2]
-circuit0.connect(reg5.output("Q"), mux0.input("5"), js_id="wire_1754166492873")    # reg5 -> mux0.in[5]
-circuit0.connect(reg5.output("Q"), mux0.input("3"), js_id="wire_1754166463191")    # reg5 -> mux0.in[3]
-circuit0.connect(reg6.output("Q"), mux0.input("6"), js_id="wire_1754166508600")    # reg6 -> mux0.in[6]
-circuit0.connect(reg6.output("Q"), mux0.input("4"), js_id="wire_1754166478104")    # reg6 -> mux0.in[4]
-circuit0.connect(reg7.output("Q"), mux0.input("7"), js_id="wire_1754166522244")    # reg7 -> mux0.in[7]
-circuit0.connect(reg7.output("Q"), mux0.input("5"), js_id="wire_1754166492873")    # reg7 -> mux0.in[5]
-circuit0.connect(analyze_decode_1.output("inum"), decoder0.input("sel"), js_id="wire_1754166601094")    # analyze_decode_1 -> decoder0
-circuit0.connect(analyze_decode_1.output("inum"), mux0.input("6"), js_id="wire_1754166508600")    # analyze_decode_1 -> mux0.in[6]
-circuit0.connect(instruction_memory_1.output("D"), analyze_decode_1.input("iw"), js_id="wire_1754166610065")    # instruction_memory_1 -> analyze_decode_1
-circuit0.connect(instruction_memory_1.output("D"), mux0.input("7"), js_id="wire_1754166522244")    # instruction_memory_1 -> mux0.in[7]
+circuit0.connect(instruction_memory_1.output("D"), comp0.input("b"), js_id="wire_1754197739509")    # instruction_memory_1 -> comp0.in[1]
+circuit0.connect(comp0.output("eq"), output1, js_id="wire_1754167104334")    # comp0.out[1] -> output1
+circuit0.connect(comp0.output("eq"), and0.input("1"), js_id="wire_1754195145910")    # comp0.out[1] -> and0.in[1]
 circuit0.connect(constant2, comp0.input("a"), js_id="wire_1754167090763")    # constant2 -> comp0.in[0]
-circuit0.connect(constant2, reg4.input("D"), js_id="wire_1754166867078")    # constant2 -> reg4.in[0]
-circuit0.connect(clk0, reg2.input("CLK"), js_id="wire_1754167508762")    # clk0 -> reg2.in[1]
-circuit0.connect(clk0, reg1.input("D"), js_id="wire_1754166878836")    # clk0 -> reg1.in[0]
-circuit0.connect(clk0, reg2.input("D"), js_id="wire_1754166889179")    # clk0 -> reg2.in[0]
-circuit0.connect(clk0, reg3.input("D"), js_id="wire_1754166900463")    # clk0 -> reg3.in[0]
-circuit0.connect(clk0, reg7.input("CLK"), js_id="wire_1754167492974")    # clk0 -> reg7.in[1]
-circuit0.connect(clk0, reg5.input("D"), js_id="wire_1754166913006")    # clk0 -> reg5.in[0]
-circuit0.connect(clk0, reg4.input("CLK"), js_id="wire_1754167520131")    # clk0 -> reg4.in[1]
-circuit0.connect(clk0, reg6.input("D"), js_id="wire_1754166920973")    # clk0 -> reg6.in[0]
-circuit0.connect(clk0, reg7.input("D"), js_id="wire_1754166934692")    # clk0 -> reg7.in[0]
-circuit0.connect(adder0.output("sum"), reg6.input("D"), js_id="wire_1754166920973")    # adder0 -> reg6.in[0]
-circuit0.connect(clk0, reg1.input("CLK"), js_id="wire_1754167540000")    # clk0 -> reg1.in[1]
-circuit0.connect(clk0, counter_8bit_1.input("CLK"), js_id="wire_1754167317998")    # clk0 -> counter_8bit_1
-circuit0.run()
+circuit0.connect(adder0.output("sum"), reg1.input("D"), js_id="wire_1754195414231")    # adder0 -> reg1.in[0]
+circuit0.connect(decoder0.output("0"), reg1.input("en"), js_id="wire_1754196616095")    # decoder0 -> reg1.in[2]
+circuit0.connect(decoder0.output("1"), reg2.input("en"), js_id="wire_1754196626510")    # decoder0.out[1] -> reg2.in[2]
+circuit0.connect(decoder0.output("2"), reg3.input("en"), js_id="wire_1754196633742")    # decoder0.out[2] -> reg3.in[2]
+circuit0.connect(decoder0.output("3"), reg4.input("en"), js_id="wire_1754196640066")    # decoder0.out[3] -> reg4.in[2]
+circuit0.connect(decoder0.output("5"), reg6.input("en"), js_id="wire_1754196654434")    # decoder0.out[5] -> reg6.in[2]
+circuit0.connect(decoder0.output("6"), reg7.input("en"), js_id="wire_1754196661229")    # decoder0.out[6] -> reg7.in[2]
+circuit0.connect(decoder0.output("7"), reg0.input("en"), js_id="wire_1754196668251")    # decoder0.out[7] -> reg0.in[2]
+circuit0.connect(reg1.output("Q"), output4, js_id="wire_1754197134131")    # reg1 -> output4
+circuit0.connect(reg2.output("Q"), output5, js_id="wire_1754197137387")    # reg2 -> output5
+circuit0.connect(reg3.output("Q"), output6, js_id="wire_1754197141128")    # reg3 -> output6
+circuit0.connect(reg4.output("Q"), output7, js_id="wire_1754197144254")    # reg4 -> output7
+circuit0.connect(reg5.output("Q"), output8, js_id="wire_1754197148020")    # reg5 -> output8
+circuit0.connect(reg6.output("Q"), output9, js_id="wire_1754197151017")    # reg6 -> output9
+circuit0.connect(reg7.output("Q"), output10, js_id="wire_1754197153997")    # reg7 -> output10
+circuit0.connect(reg0.output("Q"), output3, js_id="wire_1754197158224")    # reg0 -> output3
+circuit0.connect(reg1.output("Q"), mux0.input("0"), js_id="wire_1754197170339")    # reg1 -> mux0.in[0]
+circuit0.connect(reg2.output("Q"), mux0.input("1"), js_id="wire_1754197184130")    # reg2 -> mux0.in[1]
+circuit0.connect(reg3.output("Q"), mux0.input("2"), js_id="wire_1754197193411")    # reg3 -> mux0.in[2]
+circuit0.connect(reg4.output("Q"), mux0.input("3"), js_id="wire_1754197203404")    # reg4 -> mux0.in[3]
+circuit0.connect(reg5.output("Q"), mux0.input("4"), js_id="wire_1754197222630")    # reg5 -> mux0.in[4]
+circuit0.connect(reg6.output("Q"), mux0.input("5"), js_id="wire_1754197248333")    # reg6 -> mux0.in[5]
+circuit0.connect(reg7.output("Q"), mux0.input("6"), js_id="wire_1754197259110")    # reg7 -> mux0.in[6]
+circuit0.connect(reg0.output("Q"), mux0.input("7"), js_id="wire_1754197286594")    # reg0 -> mux0.in[7]
+circuit0.connect(mux0, adder0.input("b"), js_id="wire_1754197366246")    # mux0 -> adder0.in[1]
+circuit0.connect(analyze_decode_1.output("inum"), mux0.input("sel"), js_id="wire_1754197397939")    # analyze_decode_1 -> mux0.in[8]
+circuit0.connect(analyze_decode_1.output("inum"), decoder0.input("sel"), js_id="wire_1754197416548")    # analyze_decode_1 -> decoder0
+circuit0.connect(analyze_decode_1.output("inum"), inum)
+circuit0.connect(adder0.output("sum"), reg0.input("D"), js_id="wire_1754197662935")    # adder0 -> reg0.in[0]
+circuit0.connect(adder0.output("sum"), reg7.input("D"), js_id="wire_1754197678591")    # adder0 -> reg7.in[0]
+circuit0.connect(adder0.output("sum"), reg6.input("D"), js_id="wire_1754197684147")    # adder0 -> reg6.in[0]
+circuit0.connect(adder0.output("sum"), reg5.input("D"), js_id="wire_1754197689855")    # adder0 -> reg5.in[0]
+circuit0.connect(adder0.output("sum"), reg4.input("D"), js_id="wire_1754197697103")    # adder0 -> reg4.in[0]
+circuit0.connect(and0, counter_8bit_1.input("CLK"), js_id="wire_1754198449807")    # and0 -> counter_8bit_1
+circuit0.connect(and0, reg3.input("CLK"), js_id="wire_1754198512489")    # and0 -> reg3.in[1]
+circuit0.connect(and0, reg4.input("CLK"), js_id="wire_1754198536362")    # and0 -> reg4.in[1]
+circuit0.connect(and0, reg5.input("CLK"), js_id="wire_1754198545609")    # and0 -> reg5.in[1]
+circuit0.connect(and0, reg7.input("CLK"), js_id="wire_1754198557600")    # and0 -> reg7.in[1]
+circuit0.connect(input1, and0.input("0"), js_id="wire_1754199858160")    # input1 -> and0.in[0]
+circuit0.connect(instruction_memory_1.output("D"), output0, js_id="wire_1754197758998")    # instruction_memory_1 -> output0
+circuit0.connect(adder0.output("sum"), reg3.input("D"), js_id="wire_1754197707264")    # adder0 -> reg3.in[0]
+circuit0.connect(adder0.output("sum"), reg2.input("D"), js_id="wire_1754197712866")    # adder0 -> reg2.in[0]
+circuit0.connect(instruction_memory_1.output("D"), analyze_decode_1.input("iw"), js_id="wire_1754197752844")    # instruction_memory_1 -> analyze_decode_1
+circuit0.connect(counter_8bit_1.output("count"), instruction_memory_1.input("A"), js_id="wire_1754197845802")    # counter_8bit_1 -> instruction_memory_1.in[0]
+circuit0.connect(input0, instruction_memory_1.input("PN"), js_id="wire_1754197848304")    # input0 -> instruction_memory_1.in[1]
+circuit0.connect(counter_8bit_1.output("count"), output2, js_id="wire_1754197869166")    # counter_8bit_1 -> output2
+circuit0.connect(and0, reg6.input("CLK"), js_id="wire_1754198551957")    # and0 -> reg6.in[1]
+circuit0.connect(decoder0.output("4"), reg5.input("en"), js_id="wire_1754196646513")    # decoder0.out[4] -> reg5.in[2]
+circuit0.connect(and0, reg2.input("CLK"), js_id="wire_1754198502505")    # and0 -> reg2.in[1]
+circuit0.connect(and0, reg0.input("CLK"), js_id="wire_1754198485632")    # and0 -> reg0.in[1]
+circuit0.connect(and0, reg1.input("CLK"), js_id="wire_1754198494659")    # and0 -> reg1.in[1]
 
-while output0.value != 1:
-    clk0.tick()
-    circuit0.step()
-    print(output1.value)
-    print(output2.value)
-    print(output3.value)
-    print(output4.value)
-    print(output5.value)
-    print(output6.value)
-    print(output7.value)
-    print(output8.value)
+
+while True:
+    iw = output0.value
+    if iw == 0xC0001073:
+        break
+    input1.tick()
+    circuit0.step(rising_edge=True)
+
+print("Program", input0.value)
+print("Total:", output2.value)
+print("Itype:", output4.value)
+print("Rtype:", output5.value)
+print("Load:", output6.value)
+print("Stype:", output7.value)
+print("Btype:", output8.value)
+print("JALR:", output9.value)
+print("J:", output3.value)
+print("JAL:", output10.value)
