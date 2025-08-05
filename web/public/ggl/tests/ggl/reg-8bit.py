@@ -18,7 +18,7 @@ clk = io.Input(label='CLK', bits=1)
 clk.value = 1
 cir0.connect(clk, reg0.input('CLK'))
 
-q = io.Output(label='Q')
+q = io.Output(label='Q', bits=8)
 cir0.connect(reg0.output('Q'), q)
 
 cir0.run()

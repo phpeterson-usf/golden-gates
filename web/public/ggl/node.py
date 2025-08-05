@@ -1,10 +1,15 @@
 import copy
 
 from .ggl_logging import new_logger
-from .errors import CircuitComponentError, ERROR_INPUT_NOT_CONNECTED
+from .errors import CircuitError
 
 logger = new_logger(__name__)
 
+class BitWidthMismatch(Exception):
+    """Carry these details internally to GGL exception handler"""
+    def __init__(self, expected, actual):
+        self.expected = expected
+        self.actual = actual
 
 class Connector:
     """Represents a specific input or output point on a node"""
@@ -43,9 +48,12 @@ class NodeInputs:
     def get_names(self):
         return self.points.keys()
 
-    def read_value(self, name):
+    def read_value(self, name, bits):
         # Read the value from the edge connected to the named inpoint
         edge = self.points[name]
+        # edge.bits is None means unvisited, so don't raise for that
+        if edge.bits is not None and bits != edge.bits:
+            raise BitWidthMismatch(bits, edge.bits)
         return edge.value
 
     def __getitem__(self, index):
@@ -113,17 +121,30 @@ class Node:
     def set_input_edge(self, name, edge):
         self.inputs.set_edge(name, edge)
 
-    def safe_read_input(self, iname):
+    def safe_read_input(self, iname, bits=1):
         """If iname is not connected raise an exception through to the UI"""
         try:
-            return self.inputs.read_value(iname)
-        except Exception as e:
-            raise CircuitComponentError(
+            return self.inputs.read_value(iname, bits)
+        except AttributeError as ae:
+            raise CircuitError(
                 component_id=self.js_id,
                 component_type=self.kind,
+                component_label=self.label,
                 error_code="inputNotConnected",
                 port_name=iname
-            ) from e
+            ) from ae
+        except BitWidthMismatch as bwm:
+            raise CircuitError(
+                component_id=self.js_id,
+                component_type=self.kind,
+                component_label=self.label,
+                error_code="bitWidthMismatch",
+                expectedBits=bwm.expected,
+                actualBits=bwm.actual,
+                port_name=iname
+            ) from bwm
+
+
 
     def append_output_edge(self, name, edge):
         self.outputs.append_edge(name, edge)
@@ -209,3 +230,12 @@ class BitsNode(Node):
         bits = self.bits if bits is None else bits
         value &= (1 << bits) - 1
         return super().propagate(output_name=output_name, value=value, bits=bits)
+
+    def safe_read_input(self, iname, bits=None):
+        """
+        Override safe_read_input() for nodes where multi-bit inputs are expected
+        The base class raises an exception if the input Edge.bits doesn't match
+        """
+        if bits is None:
+            bits = self.bits
+        return super().safe_read_input(iname, bits=bits)

@@ -19,7 +19,7 @@ circuit0.connect(a, nor1.input("0"))
 circuit0.connect(b, nor1.input("1"))
 circuit0.connect(c, nor1.input("2"))
 
-r = io.Output(bits=4, label="R")
+r = io.Output(bits=8, label="R")
 circuit0.connect(nor1, r)
 
 circuit0.run()                              # output should be 64/ 0b01000000

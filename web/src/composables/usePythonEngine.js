@@ -291,10 +291,25 @@ import builtins
 import js
 builtins.updateCallback = js.window.__vueUpdateCallback
 
-# Execute the GGL program
-exec(${JSON.stringify(gglProgram)})
+try:
+    # Execute the GGL program
+    exec(${JSON.stringify(gglProgram)})
+    result = "Simulation completed successfully"
+except Exception as e:
+    # Check if this is a CircuitError with structured data
+    if hasattr(e, 'to_dict'):
+        # It's a CircuitError - convert to dict and pass to JavaScript
+        import json
+        error_data = e.to_dict()
+        # Serialize to JSON to avoid proxy object issues
+        error_json = json.dumps(error_data)
+        js.window.__vueStructuredErrorCallback(error_json)
+        raise e  # Re-raise so JavaScript can handle it
+    else:
+        # Regular exception - let it propagate normally
+        raise e
 
-"Simulation completed successfully"
+result
 `
 
     return await pyodideInstance.value.runPythonAsync(pythonExecutionCode)

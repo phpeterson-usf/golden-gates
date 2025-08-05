@@ -4,7 +4,7 @@ sys.path.append('../')
 from ggl import io, circuit, plexers
 
 circuit0 = circuit.Circuit()
-decoder0 = plexers.PriorityEncoder(num_inputs=4, label='pri0')
+decoder0 = plexers.PriorityEncoder(selector_bits=2, label='pri0')
 
 in0 = io.Input(label='in0')
 circuit0.connect(in0, decoder0.input("0"))

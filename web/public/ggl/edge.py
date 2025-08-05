@@ -52,7 +52,9 @@ class Edge:
         self.srcpoint = EdgePoint(srcnode, srcname)
         self.destpoints = EdgePoints(dstnode, dstname)
         self.value = 0
-        self.prev_value = None                  # track previous value
+        self.prev_value = None   # track previous value
+        # start Edge bits as None to avoid raising BitWidthMismatch for unvisited Edges
+        self.bits = None
         self.js_id = js_id
 
     def get_dest_nodes(self):
@@ -78,4 +80,5 @@ class Edge:
             except Exception as e:
                 logger.error(f'Callback failed: {e}')
         self.value = value
+        self.bits = bits
         return self.get_dest_nodes()

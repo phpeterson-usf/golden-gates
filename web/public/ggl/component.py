@@ -165,11 +165,13 @@ class CircuitNode(Node):
                 for output_node in self.circuit.outputs:
                     if output_node.label == cloned_name and hasattr(output_node, 'value'):
                         output_value = output_node.value
+                        # Get the bit width from the output node
+                        output_bits = getattr(output_node, 'bits', 1)
                         logger.debug(
-                            f"{self.kind} {self.label}: Propagating output '{cloned_name}' -> '{original_name}' = 0x{output_value:02x}")
+                            f"{self.kind} {self.label}: Propagating output '{cloned_name}' -> '{original_name}' = 0x{output_value:02x} ({output_bits} bits)")
 
-                        # Use Node's propagate method with original name
-                        work = super().propagate(output_name=original_name, value=output_value)
+                        # Use Node's propagate method with original name and correct bit width
+                        work = super().propagate(output_name=original_name, value=output_value, bits=output_bits)
                         propagation_work.extend(work)
                         break
 

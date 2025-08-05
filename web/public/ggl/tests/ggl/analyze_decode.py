@@ -4,7 +4,7 @@ from ggl import arithmetic, circuit, component, io, logic, memory, plexers, wire
 
 circuit0 = circuit.Circuit(js_logging=True)
 
-input0 = io.Input(label="A", bits=8, js_id="input_1_1753735919910")
+input0 = io.Input(label="A", bits=7, js_id="input_1_1753735919910")
 input0.value = 0
 input1 = io.Input(label="B", bits=7, js_id="input_2_1753735922360")
 input1.value = 0
@@ -50,7 +50,7 @@ biteq7 = circuit.Component(circuit0)
 
 circuit0 = circuit.Circuit(js_logging=True)
 
-input0 = io.Input(label="A", bits=8, js_id="input_1_1753735919910")
+input0 = io.Input(label="A", bits=5, js_id="input_1_1753735919910")
 input0.value = 0
 input1 = io.Input(label="B", bits=5, js_id="input_2_1753735922360")
 input1.value = 0
@@ -99,7 +99,7 @@ biteq7_5 = biteq7()
 biteq7_6 = biteq7()
 biteq7_7 = biteq7()
 biteq5_1 = biteq5()
-priorityEncoder0 = plexers.PriorityEncoder(label="PE", num_inputs=8, js_id="priorityEncoder_1_1753739749670")
+priorityEncoder0 = plexers.PriorityEncoder(label="PE", selector_bits=3, js_id="priorityEncoder_1_1753739749670")
 and0 = logic.And(js_id="and-gate_1_1753739722442")
 output0 = io.Output(label="inum", bits=3, js_id="output_1_1753739923829")
 output1 = io.Output(label="any", bits=1)

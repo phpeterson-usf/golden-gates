@@ -136,35 +136,15 @@ export function useAppController(circuitManager) {
     } catch (err) {
       console.error('Hierarchical circuit simulation error:', err)
 
-      // Check if the error message contains our exception
-      const isCircuitComponentError = err.message && err.message.includes('CircuitComponentError')
-
-      if (isCircuitComponentError) {
-        // Try to extract component info from the error message
-        // Format: "ggl.errors.CircuitComponentError: And and-gate_1_1753544247799: inputNotConnected (port: 1)"
-        const match = err.message.match(
-          /CircuitComponentError: (\w+) ([^:]+): (\w+)(?:\s*\(port:\s*([^)]+)\))?/
-        )
-        if (match) {
-          const [, componentType, componentId, errorCode, portName] = match
-
-          const errorData = {
-            component_id: componentId,
-            component_type: componentType,
-            error_code: errorCode,
-            severity: 'error',
-            port_name: portName || null,
-            connected_component_id: null
-          }
-          handleCircuitComponentError(canvasRef, errorData)
-        } else {
-          // Could not parse CircuitComponentError, show generic error
-          if (canvasRef?.showErrorNotification) {
-            canvasRef.showErrorNotification(`Simulation error: ${err.message}`)
-          }
-        }
+      // Check if we have structured error data from Python
+      const structuredErrorData = window.__vueStructuredErrorData
+      if (structuredErrorData) {
+        // Handle circuit component error with structured data
+        handleCircuitComponentError(canvasRef, structuredErrorData)
+        // Clear the structured error data
+        window.__vueStructuredErrorData = null
       } else {
-        // Handle other types of errors
+        // Non-CircuitError exception - show generic error
         if (canvasRef?.showErrorNotification) {
           canvasRef.showErrorNotification(`Simulation error: ${err.message}`)
         }
@@ -195,6 +175,16 @@ export function useAppController(circuitManager) {
    * Set up the callback for Python to update Vue components
    */
   function setupPythonVueUpdateCallback(canvasRef) {
+    // Callback for structured error data from Python
+    window.__vueStructuredErrorCallback = (errorJson) => {
+      try {
+        // Parse JSON string to avoid Pyodide proxy issues
+        window.__vueStructuredErrorData = JSON.parse(errorJson)
+      } catch (e) {
+        console.error('Failed to parse structured error data:', e)
+        window.__vueStructuredErrorData = null
+      }
+    }
 
     window.__vueUpdateCallback = (eventType, componentId, value) => {
       if (!canvasRef) {
@@ -332,6 +322,18 @@ export function useAppController(circuitManager) {
       return
     }
 
+    // Create error details from all structured error data
+    const errorDetails = {
+      portName: errorData.port_name,
+      connectedComponentId: errorData.connected_component_id,
+      // Include any additional fields (expectedBits, actualBits, etc.)
+      ...Object.fromEntries(
+        Object.entries(errorData).filter(([key]) => 
+          !['component_id', 'component_type', 'error_code', 'severity', 'port_name', 'connected_component_id'].includes(key)
+        )
+      )
+    }
+
     // Update component to show error state
     const updatedComponent = {
       ...component,
@@ -340,10 +342,7 @@ export function useAppController(circuitManager) {
         hasError: errorData.severity === 'error',
         hasWarning: errorData.severity === 'warning',
         errorMessageId: errorData.error_code,
-        errorDetails: {
-          portName: errorData.port_name,
-          connectedComponentId: errorData.connected_component_id
-        }
+        errorDetails: errorDetails
       }
     }
     canvasRef.updateComponent(updatedComponent)
@@ -351,18 +350,18 @@ export function useAppController(circuitManager) {
     // Show global error notification
     if (canvasRef?.showErrorNotification) {
       const componentLabel = component.props?.label || component.label
-
-      // Get localized error message
-      const errorMessageKey = `simulation.errors.${errorData.error_code}`
-      const errorMessage = t(errorMessageKey, {
-        inputName: errorData.port_name || 'unknown'
-      })
-
-      // Format the error message with or without label
       const componentDescription = componentLabel
         ? `${errorData.component_type} "${componentLabel}"`
         : errorData.component_type
 
+      // Build template variables from error data
+      const templateVars = {
+        inputName: errorData.port_name || 'unknown',
+        outputName: errorData.port_name || 'unknown',
+        ...errorData // Include all additional fields (expectedBits, actualBits, etc.)
+      }
+
+      const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
       canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
     }
   }

@@ -7,7 +7,7 @@ from ggl import logic
 
 c = circuit.Circuit()
 
-output0 = io.Output(bits=1, label="R")
+output0 = io.Output(bits=32, label="R")
 constant0 = io.Constant(bits=32, label="unimp")
 constant0.value = 0xc0001073
 

@@ -11,7 +11,7 @@ a.value = 0b1111
 b = io.Input(bits=8, label="B")
 b.value = 0xf0
 
-c = io.Input(bits=1, label="C")
+c = io.Input(bits=8, label="C")
 c.value = 0
 
 or1 = logic.Or(bits=8, num_inputs=3)

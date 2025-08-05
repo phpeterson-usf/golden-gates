@@ -37,7 +37,7 @@ class Splitter(WireNode):
                          num_outputs=len(splits), label=label, bits=bits)
 
     def propagate(self, output_name='0', value=0):
-        input_value = self.safe_read_input('0')
+        input_value = self.safe_read_input('0', bits=self.bits)
 
         new_work = []
         for i, (start, end) in enumerate(self.splits):
@@ -50,7 +50,7 @@ class Splitter(WireNode):
 
             logger.info(
                 f'{self.kind} {self.label} output {i} ({start}-{end}): {bin(chunk)}')
-            new_work += super().propagate(output_name=str(i), value=chunk)
+            new_work += super().propagate(output_name=str(i), value=chunk, bits=width)
 
         return new_work
 
@@ -79,7 +79,7 @@ class Merger(WireNode):
             high = max(start, end)
             width = high - low + 1
 
-            v = self.safe_read_input(str(i))
+            v = self.safe_read_input(str(i), bits=width)
             # mask to width and shift into position
             # or all bits together to get an output value
             masked = v & ((1 << width) - 1)

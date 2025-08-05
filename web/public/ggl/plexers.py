@@ -27,11 +27,12 @@ class Multiplexer(Plexer):
     """
     kind = 'Multiplexer'
 
-    def __init__(self, js_id='', num_inputs=2, label='', bits=1):
+    def __init__(self, js_id='', selector_bits=1, label='', bits=1):
+        self.selector_bits = selector_bits
         super().__init__(
             Multiplexer.kind,
             js_id=js_id,
-            num_inputs=num_inputs,
+            num_inputs=2**selector_bits,
             num_outputs=1,
             label=label,
             bits=bits)
@@ -41,7 +42,7 @@ class Multiplexer(Plexer):
         Given a selector value, propagate the value of the input numbered
         with that value. So if sel == 2, propagate the value of the 2'th input
         """
-        sel_value = self.safe_read_input(Plexer.sel)
+        sel_value = self.safe_read_input(Plexer.sel, bits=self.selector_bits)
         input_name = str(sel_value)
         v = self.safe_read_input(input_name)
         return super().propagate(value=v)
@@ -54,13 +55,14 @@ class Decoder(Plexer):
     """
     kind = 'Decoder'
 
-    def __init__(self, js_id='', num_outputs=0, label='', bits=1):
+    def __init__(self, js_id='', label='', selector_bits=1):
+        self.selector_bits = selector_bits
         super().__init__(
             Decoder.kind,
             js_id=js_id,
-            num_outputs=num_outputs,
+            num_outputs=2**selector_bits,
             label=label,
-            bits=bits)
+            bits=1)  # Decoder outputs are 1-bit
 
     def propagate(self, output_name='0', value=0):
         """
@@ -71,7 +73,7 @@ class Decoder(Plexer):
         but with conditional value. Can this be cleanly generalized?
         """
         new_work = []
-        sel_value = self.safe_read_input(Plexer.sel)
+        sel_value = self.safe_read_input(Plexer.sel, bits=self.selector_bits)
         hi_output = str(sel_value)
         for oname in self.outputs.get_names():
             v = 1 if oname == hi_output else 0
@@ -82,8 +84,8 @@ class Decoder(Plexer):
 
 class PriorityEncoder(Node):
     """
-    PriorityEncoder derives from Node because we don't want the BitsNode
-    behavior of truncating propagated values to self.bits wide.
+    PriorityEncoder inherits from Node rather than Plexer/BitsNode to avoid the 
+    truncation of output values to self.bits wide
 
     Its function is to look at its 1-bit inputs and output the ordinal number
     for that input. Priority is bottom-up, so input '1' is higher priority than
@@ -95,13 +97,12 @@ class PriorityEncoder(Node):
     inum = 'inum'
     any = 'any'
 
-    def __init__(self, js_id='', num_inputs=0, label=''):
-        self.num_inputs = num_inputs
-        innames = [str(i) for i in range(num_inputs)]
+    def __init__(self, js_id='', selector_bits=1, label=''):
+        self.selector_bits = selector_bits
         super().__init__(
             PriorityEncoder.kind,
             js_id=js_id,
-            innames=innames,
+            innames=[str(i) for i in range(2**self.selector_bits)],
             outnames=[PriorityEncoder.inum, PriorityEncoder.any],
             label=label)
 
@@ -111,11 +112,11 @@ class PriorityEncoder(Node):
         # reverse=True gives us bottom-up traversal
         input_names = sorted(self.inputs.get_names(), reverse=True)
         for iname in input_names:
-            if self.safe_read_input(iname) == 1:
+            if self.safe_read_input(iname, bits=1) == 1:
                 inum = int(iname)
                 any = 1
                 break
-        new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum)
+        new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum, bits=self.selector_bits)
         new_work += self.propagate_1bit(output_name=PriorityEncoder.any, value=any)
         return new_work
 

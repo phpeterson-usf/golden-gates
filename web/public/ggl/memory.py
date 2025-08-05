@@ -22,8 +22,8 @@ class Register(BitsNode):
         self.value = 0
 
     def propagate(self, output_name='Q', value=0):
-        en = self.safe_read_input(Register.en)
-        clk = self.safe_read_input(Register.CLK)
+        en = self.safe_read_input(Register.en, bits=1)
+        clk = self.safe_read_input(Register.CLK, bits=1)
         if en and clk:
             self.value = self.safe_read_input(Register.D)
         return super().propagate(output_name=output_name, value=self.value)
@@ -57,8 +57,8 @@ class ROM(BitsNode):
 
     def propagate(self, output_name='D', value=0):
         # Get inputs
-        address = self.safe_read_input(ROM.A)
-        selected = self.safe_read_input(ROM.sel)
+        address = self.safe_read_input(ROM.A, bits=self.address_bits)
+        selected = self.safe_read_input(ROM.sel, bits=1)
 
         if address >= self.total_cells:
             # Wrap around

@@ -71,7 +71,7 @@ en1 = io.Input(label="EN", bits=1, js_id="input_2_1753687058028")
 en1.value = 1
 clr1 = io.Input(label="CLR", bits=1, js_id="input_3_1753687058247")
 clr1.value = 1
-mux0 = plexers.Multiplexer(num_inputs=2, js_id="multiplexer_1_1753687440528")
+mux0 = plexers.Multiplexer(selector_bits=1, js_id="multiplexer_1_1753687440528")
 d_latch_clr_1 = d_latch_clr()
 d_latch_clr_2 = d_latch_clr()
 output0 = io.Output(label="Q", bits=1, js_id="output_1_1753687420425")

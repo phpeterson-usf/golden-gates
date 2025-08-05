@@ -15,9 +15,9 @@ b.value = 6
 
 comp = arithmetic.Comparator(bits=4, label="multiply")
 
-greater = io.Output(bits=4, label="greater")
-equal = io.Output(bits=4, label="equal")
-less = io.Output(bits=4, label="less")
+greater = io.Output(bits=1, label="greater")
+equal = io.Output(bits=1, label="equal")
+less = io.Output(bits=1, label="less")
 
 
 c.connect(a, comp.input('a'))

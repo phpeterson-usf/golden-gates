@@ -50,7 +50,7 @@ class Adder(Arithmetic):
     def propagate(self, output_name='0', value=0):
         a = self.safe_read_input(Adder.a)
         b = self.safe_read_input(Adder.b)
-        carryIn = self.safe_read_input(Adder.carryIn)
+        carryIn = self.safe_read_input(Adder.carryIn, bits=1)
 
         sum, carryOut = self.operator(a, b, carryIn)
 
@@ -89,7 +89,7 @@ class Subtract(Arithmetic):
     def propagate(self, output_name='0', value=0):
         a = self.safe_read_input(Subtract.a)
         b = self.safe_read_input(Subtract.b)
-        carryIn = self.safe_read_input(Subtract.carryIn)
+        carryIn = self.safe_read_input(Subtract.carryIn, bits=1)
 
         difference, carryOut = self.operator(a, b, carryIn)
         new_work = super().propagate(output_name=Subtract.difference, value=difference)
@@ -272,14 +272,13 @@ class SignExtend(Arithmetic):
     inport = 'in'
     outport = 'out'
 
-    def __init__(self, js_id='', label='', bits=1, in_bits=1, out_bits=1):
+    def __init__(self, js_id='', label='', in_bits=1, out_bits=1):
         self.in_bits = in_bits
         self.out_bits = out_bits
         super().__init__(
             kind=SignExtend.kind,
             js_id=js_id,
             label=label,
-            bits=out_bits,
             named_inputs=[SignExtend.inport],
             named_outputs=[SignExtend.outport]
         )
@@ -295,9 +294,13 @@ class SignExtend(Arithmetic):
         return extended & ((1 << self.out_bits) - 1)
 
     def propagate(self, output_name='0', value=0):
-        v = self.safe_read_input(SignExtend.inport)
+        v = self.safe_read_input(SignExtend.inport, bits=self.in_bits)
         v = self.operator(v)
-        new_work = super().propagate(output_name=SignExtend.outport, value=v)
+        new_work = super().propagate(
+            output_name=SignExtend.outport, 
+            value=v, 
+            bits=self.out_bits
+        )
         return new_work
 
 

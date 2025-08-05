@@ -4,7 +4,7 @@ sys.path.append('../')
 from ggl import io, circuit, plexers
 
 circuit0 = circuit.Circuit()
-mux0 = plexers.Multiplexer(num_inputs=4, bits=2, label='mux0')
+mux0 = plexers.Multiplexer(selector_bits=2, bits=2, label='mux0')
 
 sel = io.Input(bits=2, label='SEL')
 sel.value = 0b11
