@@ -203,8 +203,14 @@ describe('Clipboard Integration Tests', () => {
           { x: 15, y: 10 },
           { x: 30, y: 10 }
         ],
-        startConnection: { componentId: 'test_input_1', port: '0' },
-        endConnection: { componentId: 'test_output_1', port: '0' }
+        startConnection: { 
+          pos: { x: 15, y: 10 }, 
+          portType: 'output'
+        },
+        endConnection: { 
+          pos: { x: 30, y: 10 }, 
+          portType: 'input'
+        }
       }
       circuitModel.addWire(wire)
 
@@ -223,10 +229,12 @@ describe('Clipboard Integration Tests', () => {
       expect(activeCircuit.value.components.length).toBe(4)
       expect(activeCircuit.value.wires.length).toBe(2)
 
-      // Verify the pasted wire connects the pasted components
+      // Verify the pasted wire has position-based connections
       const pastedWire = activeCircuit.value.wires[1]
-      expect(pastedWire.startConnection.componentId).not.toBe('test_input_1')
-      expect(pastedWire.endConnection.componentId).not.toBe('test_output_1')
+      expect(pastedWire.startConnection.pos).toBeDefined()
+      expect(pastedWire.endConnection.pos).toBeDefined()
+      expect(pastedWire.startConnection.portType).toBe('output')
+      expect(pastedWire.endConnection.portType).toBe('input')
     })
 
     it('should handle multiple paste operations', async () => {

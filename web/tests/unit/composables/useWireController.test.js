@@ -168,12 +168,10 @@ describe('useWireController', () => {
           { x: 10, y: 6 } // end point
         ],
         startConnection: {
-          portIndex: 0,
           portType: 'output',
           pos: { x: 7, y: 6 }
         },
         endConnection: {
-          portIndex: 0,
           portType: 'input',
           pos: { x: 10, y: 6 }
         }

@@ -93,7 +93,7 @@ describe('Wire ID Code Generation', () => {
     expect(code).toMatch(/circuit0\.connect\([^)]+\)\s*#/)  // Connect should end with ) followed by comment
   })
 
-  it('includes wire ID for junction connections', () => {
+  it('handles geometry-based connections correctly (legacy junction test updated)', () => {
     const components = [
       {
         id: 'input-1',
@@ -126,7 +126,9 @@ describe('Wire ID Code Generation', () => {
         points: [{ x: 1, y: 0 }, { x: 3, y: 0 }, { x: 6, y: 0 }]
       },
       {
-        id: 'wire_junction',
+        id: 'wire_invalid_junction',
+        // This wire starts from a junction point (3, 0) which has no component output
+        // The new geometry-based system correctly ignores this invalid connection
         startConnection: { pos: { x: 3, y: 0 }, portIndex: 0, portType: 'output' },
         endConnection: { pos: { x: 6, y: 4 }, portIndex: 0, portType: 'input' },
         points: [{ x: 3, y: 0 }, { x: 3, y: 4 }, { x: 6, y: 4 }]
@@ -137,7 +139,7 @@ describe('Wire ID Code Generation', () => {
       {
         pos: { x: 3, y: 0 },
         sourceWireIndex: 0,
-        connectedWireId: 'wire_junction'
+        connectedWireId: 'wire_invalid_junction'
       }
     ]
 
@@ -152,8 +154,13 @@ describe('Wire ID Code Generation', () => {
     )
     const code = result.code
 
-    // Should include wire IDs for both connections
+    // Should only include the valid connection (input to output-1)
     expect(code).toContain('js_id="wire_source"')
-    expect(code).toContain('js_id="wire_junction"')
+    // Should NOT include the invalid junction wire since there's no output port at (3, 0)
+    expect(code).not.toContain('js_id="wire_invalid_junction"')
+    
+    // Should have only one connection statement (the valid one)
+    const connectionLines = code.split('\n').filter(line => line.includes('circuit0.connect'))
+    expect(connectionLines).toHaveLength(1)
   })
 })

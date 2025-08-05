@@ -1,7 +1,7 @@
 from .node import Node, BitsNode
 from .ggl_logging import new_logger
-
-logger = new_logger(__name__)
+import logging
+logger = new_logger(__name__, logging.INFO)
 
 
 class Plexer(BitsNode):
@@ -116,6 +116,7 @@ class PriorityEncoder(Node):
                 inum = int(iname)
                 any = 1
                 break
+        logger.info(f'value: {inum}, bits: {self.selector_bits}')
         new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum, bits=self.selector_bits)
         new_work += super().propagate(output_name=PriorityEncoder.any, value=any, bits=1)
         return new_work

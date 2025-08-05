@@ -194,17 +194,16 @@ describe('useClipboard', () => {
       expect(result.components[0].y).toBe(27) // 7 + 20
     })
 
-    it('should update wire connection references', () => {
-      const oldComponentId = 'input_1_1234567890'
+    it('should preserve wire connection positions for geometry-based connections', () => {
       const clipboardData = {
         version: '1.0',
         elements: {
           components: [
             {
-              id: oldComponentId,
+              id: 'input_1_1234567890',
               type: 'input',
-              x: 0,
-              y: 0,
+              x: 5,
+              y: 10,
               props: { label: 'A' }
             }
           ],
@@ -216,22 +215,31 @@ describe('useClipboard', () => {
                 { x: 10, y: 0 }
               ],
               startConnection: {
-                componentId: oldComponentId,
-                portIndex: 0,
+                pos: { x: 7, y: 11 }, // Input component output position (5+2, 10+1)
                 portType: 'output'
               },
-              endConnection: null
+              endConnection: {
+                pos: { x: 15, y: 5 }, // Some destination position
+                portType: 'input'
+              }
             }
           ],
           junctions: []
         }
       }
 
-      const result = clipboard.deserializeElements(clipboardData)
+      const pastePosition = { x: 10, y: 20 }
+      const result = clipboard.deserializeElements(clipboardData, pastePosition)
 
-      const newComponentId = result.components[0].id
-      expect(result.wires[0].startConnection.componentId).toBe(newComponentId)
-      expect(result.wires[0].startConnection.componentId).not.toBe(oldComponentId)
+      // Check that positions are adjusted by paste offset
+      expect(result.wires[0].startConnection.pos.x).toBe(17) // 7 + 10
+      expect(result.wires[0].startConnection.pos.y).toBe(31) // 11 + 20
+      expect(result.wires[0].endConnection.pos.x).toBe(25) // 15 + 10
+      expect(result.wires[0].endConnection.pos.y).toBe(25) // 5 + 20
+      
+      // Check that port types are preserved
+      expect(result.wires[0].startConnection.portType).toBe('output')
+      expect(result.wires[0].endConnection.portType).toBe('input')
     })
 
     it('should handle invalid clipboard data gracefully', () => {

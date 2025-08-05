@@ -195,11 +195,18 @@ export function useWireController(components, gridSize, callbacks = {}, circuitM
     }
 
     // Create the wire with points in the correct logical direction
+    // Only store positions - connections will be derived from geometry
     const wire = {
       id: `wire_${Date.now()}`,
       points: finalPoints,
-      startConnection: outputConnection, // Always the output (source)
-      endConnection: inputConnection // Always the input (destination)
+      startConnection: {
+        pos: outputConnection.pos,
+        portType: 'output'
+      },
+      endConnection: {
+        pos: inputConnection.pos,
+        portType: 'input'
+      }
     }
 
     addWire(wire)

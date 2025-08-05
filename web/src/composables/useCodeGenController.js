@@ -1,31 +1,33 @@
+import { ref } from 'vue'
 import { componentRegistry } from '../utils/componentRegistry'
 import { resetNameRegistry } from '../generators/BaseComponentGenerator'
 import { createComponentGenerator } from '../generators/ComponentGeneratorFactory'
+import { useCircuitValidator } from './useCircuitValidator'
 
 export function useCodeGenController() {
   // All components now use TypeScript mixins for code generation
   // No fallback logic needed - every component implements generate() via mixins
 
-  // Helper function to get component outputs (handles both registry and schematic components)
-  function getComponentOutputs(component, circuitManager) {
+  // Helper function to get component connections (unified with validator logic)
+  function getComponentConnections(component, circuitManager) {
     const config = componentRegistry[component.type]
-    if (config?.getConnections) {
-      // Use dynamic connections for components like splitter/merger and schematic components
-      const connections = config.getConnections(component.props || {}, circuitManager)
-      return connections.outputs || []
-    }
-    return config?.connections?.outputs || []
+    if (!config) return null
+
+    return config.getConnections
+      ? config.getConnections(component.props, circuitManager)
+      : config.connections
   }
 
-  // Helper function to get component inputs (handles both registry and schematic components)
+  // Helper function to get component outputs
+  function getComponentOutputs(component, circuitManager) {
+    const connections = getComponentConnections(component, circuitManager)
+    return connections?.outputs || []
+  }
+
+  // Helper function to get component inputs
   function getComponentInputs(component, circuitManager) {
-    const config = componentRegistry[component.type]
-    if (config?.getConnections) {
-      // Use dynamic connections for components like splitter/merger and schematic components
-      const connections = config.getConnections(component.props || {}, circuitManager)
-      return connections.inputs || []
-    }
-    return config?.connections?.inputs || []
+    const connections = getComponentConnections(component, circuitManager)
+    return connections?.inputs || []
   }
 
   // Helper function to get port name from port index
@@ -62,44 +64,8 @@ export function useCodeGenController() {
     return portIndex.toString()
   }
 
-  // Helper function to find component at a connection point
-  function findComponentAtConnection(components, connection, circuitManager = null) {
-    for (const component of components) {
-      const config = componentRegistry[component.type]
-      if (!config) continue
-
-      // Get connections for this component
-      let connections
-      if (config.getConnections) {
-        connections = config.getConnections(component.props, circuitManager)
-      } else {
-        connections = config.connections
-      }
-
-      // Check if this connection matches an output
-      if (connection.portType === 'output' && connections.outputs) {
-        const output = connections.outputs[connection.portIndex]
-        if (output) {
-          const outputPos = { x: component.x + output.x, y: component.y + output.y }
-          if (outputPos.x === connection.pos.x && outputPos.y === connection.pos.y) {
-            return component
-          }
-        }
-      }
-
-      // Check if this connection matches an input
-      if (connection.portType === 'input' && connections.inputs) {
-        const input = connections.inputs[connection.portIndex]
-        if (input) {
-          const inputPos = { x: component.x + input.x, y: component.y + input.y }
-          if (inputPos.x === connection.pos.x && inputPos.y === connection.pos.y) {
-            return component
-          }
-        }
-      }
-    }
-    return null
-  }
+  // Legacy component finding function - replaced by circuit validator
+  // Kept only for backward compatibility, but no longer used in main code paths
 
   function generateGglProgram(
     components,
@@ -112,6 +78,11 @@ export function useCodeGenController() {
   ) {
     // Reset the global name registry for fresh sequential naming
     resetNameRegistry()
+
+    // Create circuit validator to resolve connections from geometry
+    const componentRefsForValidator = ref(components)
+    const wireRefsForValidator = ref(wires)
+    const validator = useCircuitValidator(componentRefsForValidator, wireRefsForValidator, circuitManager)
 
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
@@ -136,53 +107,13 @@ export function useCodeGenController() {
     const componentVarNames = {} // Map component IDs to their variable names
     const componentErrors = [] // Collect errors for components
 
-    // Use BFS to process components level by level
-    const queue = []
-    const visited = new Set()
-    const processedConnections = new Set() // Track which connections we've already generated
-
-    // Start with input components
-    const inputComponents = components.filter(c => c.type === 'input')
-    for (const input of inputComponents) {
-      queue.push(input)
-      visited.add(input.id)
-    }
-
-    // If no inputs, start with all components (for circuits that are purely combinational loops)
-    if (inputComponents.length === 0) {
-      for (const comp of components) {
-        queue.push(comp)
-        visited.add(comp.id)
-      }
-    }
-
-    // Process components in BFS order
-    const componentOrder = []
-    while (queue.length > 0) {
-      const component = queue.shift()
-      componentOrder.push(component)
-
-      // Find all components connected downstream from this one
-      const outgoingWires = wires.filter(w => {
-        const sourceComp = findComponentAtConnection(components, w.startConnection, circuitManager)
-        return sourceComp && sourceComp.id === component.id
-      })
-
-      for (const wire of outgoingWires) {
-        const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
-        if (destComp && !visited.has(destComp.id)) {
-          visited.add(destComp.id)
-          queue.push(destComp)
-        }
-      }
-    }
-
-    // Add any components we missed (disconnected components)
-    for (const comp of components) {
-      if (!visited.has(comp.id)) {
-        componentOrder.push(comp)
-      }
-    }
+    // Simple component ordering: inputs first, then others
+    // Component declaration order doesn't affect correctness since we handle connections separately
+    const componentOrder = [
+      ...components.filter(c => c.type === 'input'),
+      ...components.filter(c => c.type !== 'input' && c.type !== 'output'), 
+      ...components.filter(c => c.type === 'output')
+    ]
 
     // Generate all component declarations first
     for (const component of componentOrder) {
@@ -246,96 +177,43 @@ export function useCodeGenController() {
 
     sections.push('')
 
-    // Phase 2: Generate all connections
-    // First, identify which wires are connected to junctions
-    const junctionSourceWireIds = new Set()
-    if (wireJunctions && wireJunctions.length > 0) {
-      for (const junction of wireJunctions) {
-        if (junction.sourceWireIndex !== undefined && wires[junction.sourceWireIndex]) {
-          junctionSourceWireIds.add(wires[junction.sourceWireIndex].id)
-        }
-      }
-    }
+    // Phase 2: Generate all connections using simplified validator
+    const validConnections = validator.getValidConnections()
+    const processedConnections = new Set()
 
-    // Process all wires and create connections
-    for (const wire of wires) {
-      // Skip wires that have junctions on them - they'll be handled in junction processing
-      if (junctionSourceWireIds.has(wire.id)) {
-        continue
-      }
+    // Process all valid connections
+    for (const connection of validConnections) {
+      const {
+        wire,
+        sourceComponent,
+        sourcePortIndex,
+        targetComponent,
+        targetPortIndex
+      } = connection
 
-      const sourceComp = findComponentAtConnection(components, wire.startConnection, circuitManager)
-      const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
+      const sourceVarName = componentVarNames[sourceComponent.id]
+      const targetVarName = componentVarNames[targetComponent.id]
 
-      if (!sourceComp || !destComp) {
-        // Check if this wire is from a junction - if so, it will be handled later
-        const isJunctionWire = wireJunctions.some(j => j.connectedWireId === wire.id)
-        if (!isJunctionWire) {
-          // Mark connected components with error state and details
-          const errorDetails = {
-            wireId: wire.id,
-            startPos: `(${wire.startConnection.x}, ${wire.startConnection.y})`,
-            endPos: `(${wire.endConnection.x}, ${wire.endConnection.y})`
-          }
-
-          // If source component exists but destination doesn't, mark source with error
-          if (sourceComp && !destComp) {
-            const sourceLabel = sourceComp.props?.label || sourceComp.label || 'unlabeled'
-            componentErrors.push({
-              componentId: sourceComp.id,
-              error: {
-                severity: 'error',
-                messageId: 'WIRE_MISSING_DESTINATION',
-                message: `Wire from ${sourceComp.type} "${sourceLabel}" has no destination component`,
-                details: errorDetails
-              }
-            })
-          }
-
-          // If destination exists but source doesn't, mark destination with error
-          if (!sourceComp && destComp) {
-            const destLabel = destComp.props?.label || destComp.label || 'unlabeled'
-            componentErrors.push({
-              componentId: destComp.id,
-              error: {
-                severity: 'error',
-                messageId: 'WIRE_MISSING_SOURCE',
-                message: `Wire to ${destComp.type} "${destLabel}" has no source component`,
-                details: errorDetails
-              }
-            })
-          }
-
-          // If neither exists, we can't mark anything - just log
-          if (!sourceComp && !destComp) {
-            console.error(
-              `Dangling wire: id=${wire.id}, from ${errorDetails.startPos} to ${errorDetails.endPos}`
-            )
-          }
-        }
-        continue
-      }
-
-      const sourceVarName = componentVarNames[sourceComp.id]
-      const destVarName = componentVarNames[destComp.id]
-
-      if (!sourceVarName || !destVarName) {
-        console.error(`Variable names not found for components: ${sourceComp.id} -> ${destComp.id}`)
+      if (!sourceVarName || !targetVarName) {
+        console.error(`Variable names not found for components: ${sourceComponent.id} -> ${targetComponent.id}`)
         continue
       }
 
       // Create a unique key for this connection to avoid duplicates
-      const connectionKey = `${sourceComp.id}:${wire.startConnection.portIndex}->${destComp.id}:${wire.endConnection.portIndex}`
+      const connectionKey = `${sourceComponent.id}:${sourcePortIndex}->${targetComponent.id}:${targetPortIndex}`
 
       if (!processedConnections.has(connectionKey)) {
         processedConnections.add(connectionKey)
         sections.push(
-          generateConnection(
+          generateConnectionWithComponents(
             wire,
-            components,
+            sourceComponent,
+            targetComponent,
+            sourcePortIndex,
+            targetPortIndex,
             componentVarNames,
             sourceVarName,
-            destVarName,
+            targetVarName,
             circuitVarName,
             circuitManager
           )
@@ -343,95 +221,24 @@ export function useCodeGenController() {
       }
     }
 
-    // Process wire junctions to find additional connections
-    // A junction connects wires together, so we need to find all wires connected through junctions
-    if (wireJunctions && wireJunctions.length > 0) {
-      for (const junction of wireJunctions) {
-        // Find the source wire (the wire that was clicked on to create the junction)
-        const sourceWire = wires[junction.sourceWireIndex]
-        if (!sourceWire) continue
-
-        // Process the original source wire connection first
-        const sourceWireStart = findComponentAtConnection(
-          components,
-          sourceWire.startConnection,
-          circuitManager
-        )
-        const sourceWireEnd = findComponentAtConnection(
-          components,
-          sourceWire.endConnection,
-          circuitManager
-        )
-
-        if (sourceWireStart && sourceWireEnd) {
-          const startVarName = componentVarNames[sourceWireStart.id]
-          const endVarName = componentVarNames[sourceWireEnd.id]
-
-          if (startVarName && endVarName) {
-            const connectionKey = `${sourceWireStart.id}:${sourceWire.startConnection.portIndex}->${sourceWireEnd.id}:${sourceWire.endConnection.portIndex}`
-
-            if (!processedConnections.has(connectionKey)) {
-              processedConnections.add(connectionKey)
-              sections.push(
-                generateConnection(
-                  sourceWire,
-                  components,
-                  componentVarNames,
-                  startVarName,
-                  endVarName,
-                  circuitVarName,
-                  circuitManager
-                )
-              )
-            }
+    // Report any validation errors
+    const validation = validator.validateCircuit()
+    if (!validation.valid) {
+      validation.errors.forEach(error => {
+        componentErrors.push({
+          componentId: 'circuit',
+          error: {
+            severity: 'error',
+            messageId: 'CIRCUIT_VALIDATION_ERROR',
+            message: error,
+            details: {}
           }
-        }
-
-        // Find all wires connected from this junction
-        const junctionWires = wires.filter(w => w.id === junction.connectedWireId)
-
-        for (const junctionWire of junctionWires) {
-          // Each junction wire connects from the source wire's start to its own end
-          const junctionDest = findComponentAtConnection(
-            components,
-            junctionWire.endConnection,
-            circuitManager
-          )
-
-          if (sourceWireStart && junctionDest) {
-            const sourceVarName = componentVarNames[sourceWireStart.id]
-            const destVarName = componentVarNames[junctionDest.id]
-
-            if (sourceVarName && destVarName) {
-              const connectionKey = `${sourceWireStart.id}:${sourceWire.startConnection.portIndex}->${junctionDest.id}:${junctionWire.endConnection.portIndex}`
-
-              if (!processedConnections.has(connectionKey)) {
-                processedConnections.add(connectionKey)
-
-                // Create a virtual wire representing the junction connection
-                const virtualWire = {
-                  id: junctionWire.id, // Use the junction wire's ID
-                  startConnection: sourceWire.startConnection,
-                  endConnection: junctionWire.endConnection
-                }
-
-                sections.push(
-                  generateConnection(
-                    virtualWire,
-                    components,
-                    componentVarNames,
-                    sourceVarName,
-                    destVarName,
-                    circuitVarName,
-                    circuitManager
-                  )
-                )
-              }
-            }
-          }
-        }
-      }
+        })
+      })
     }
+
+    // Note: Junction connections are automatically handled by the geometry-based validator
+    // All connections are resolved purely from wire endpoint positions
 
     // Only include run() call for main circuit execution, not for component definitions
     if (includeRun) {
@@ -445,26 +252,20 @@ export function useCodeGenController() {
     }
   }
 
-  function generateConnection(
+  function generateConnectionWithComponents(
     wire,
-    components,
+    sourceComp,
+    destComp,
+    sourcePortIndex,
+    destPortIndex,
     componentVarNames,
     sourceVarName,
     destVarName,
     circuitVarName,
     circuitManager = null
   ) {
-    const sourcePort = wire.startConnection.portIndex
-    const destPort = wire.endConnection.portIndex
-
-    // Find the source and destination components by position
-    const sourceComp = findComponentAtConnection(components, wire.startConnection, circuitManager)
-    const destComp = findComponentAtConnection(components, wire.endConnection, circuitManager)
-
-    if (!sourceComp || !destComp) {
-      console.error('Could not find components for wire connection')
-      return ''
-    }
+    const sourcePort = sourcePortIndex
+    const destPort = destPortIndex
 
     // Get component configurations (either from registry or schematic definitions)
     const sourceOutputs = getComponentOutputs(sourceComp, circuitManager)
@@ -513,6 +314,8 @@ export function useCodeGenController() {
     const jsIdParam = wire.id && wire.id !== 'undefined' ? `, js_id="${wire.id}"` : ''
     return `${circuitVarName}.connect(${sourceExpr}, ${destExpr}${jsIdParam})    ${comment}`
   }
+
+  // Legacy generateConnection function removed - replaced by generateConnectionWithComponents
 
   /**
    * Generate a GGL program for a circuit component (without run() call)

@@ -53,11 +53,21 @@ export function useClipboard() {
         x: point.x - bounds.minX,
         y: point.y - bounds.minY
       })),
-      // Deep clone connection data
-      startConnection: wire.startConnection
-        ? JSON.parse(JSON.stringify(wire.startConnection))
-        : null,
-      endConnection: wire.endConnection ? JSON.parse(JSON.stringify(wire.endConnection)) : null
+      // Store only position and port type - connections will be resolved by geometry
+      startConnection: wire.startConnection && wire.startConnection.pos ? {
+        pos: {
+          x: wire.startConnection.pos.x - bounds.minX,
+          y: wire.startConnection.pos.y - bounds.minY
+        },
+        portType: wire.startConnection.portType
+      } : null,
+      endConnection: wire.endConnection && wire.endConnection.pos ? {
+        pos: {
+          x: wire.endConnection.pos.x - bounds.minX,
+          y: wire.endConnection.pos.y - bounds.minY
+        },
+        portType: wire.endConnection.portType
+      } : null
     }))
 
     // Serialize junctions with relative positioning
@@ -129,9 +139,21 @@ export function useClipboard() {
           x: point.x + pastePosition.x,
           y: point.y + pastePosition.y
         })),
-        // Update connection references to use new component IDs
-        startConnection: updateConnectionReferences(wire.startConnection, componentIdMap),
-        endConnection: updateConnectionReferences(wire.endConnection, componentIdMap)
+        // Preserve connection positions - connections will be resolved by geometry
+        startConnection: wire.startConnection ? {
+          pos: {
+            x: wire.startConnection.pos.x + pastePosition.x,
+            y: wire.startConnection.pos.y + pastePosition.y
+          },
+          portType: wire.startConnection.portType
+        } : null,
+        endConnection: wire.endConnection ? {
+          pos: {
+            x: wire.endConnection.pos.x + pastePosition.x,
+            y: wire.endConnection.pos.y + pastePosition.y
+          },
+          portType: wire.endConnection.portType
+        } : null
       }
     })
 
@@ -196,24 +218,7 @@ export function useClipboard() {
     return { minX, minY, maxX, maxY }
   }
 
-  /**
-   * Update connection references to use new component IDs
-   * @param {Object} connection - Connection object
-   * @param {Map} componentIdMap - Mapping of old IDs to new IDs
-   * @returns {Object} Updated connection object
-   */
-  function updateConnectionReferences(connection, componentIdMap) {
-    if (!connection) return null
-
-    const updatedConnection = { ...connection }
-
-    // Update component ID reference if it exists
-    if (connection.componentId && componentIdMap.has(connection.componentId)) {
-      updatedConnection.componentId = componentIdMap.get(connection.componentId)
-    }
-
-    return updatedConnection
-  }
+  // Legacy updateConnectionReferences function removed - connections now resolved by geometry
 
   /**
    * Generate unique component ID
