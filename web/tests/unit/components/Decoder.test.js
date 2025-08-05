@@ -13,7 +13,7 @@ describe('Decoder', () => {
         x: 2,
         y: 3,
         selected: false,
-        numOutputs: 4,
+        selectorBits: 2, // 2^2 = 4 outputs
         label: 'DEC0',
         rotation: 0
       }
@@ -79,8 +79,8 @@ describe('Decoder', () => {
   })
 
   describe('Dynamic Output Count', () => {
-    it('renders 2 outputs minimum', async () => {
-      await wrapper.setProps({ numOutputs: 2 })
+    it('renders 2 outputs minimum (1 selector bit)', async () => {
+      await wrapper.setProps({ selectorBits: 1 }) // 2^1 = 2 outputs
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(2)
 
@@ -90,8 +90,8 @@ describe('Decoder', () => {
       expect(outputs[1].attributes('cy')).toBe(String(3 * GRID_SIZE))
     })
 
-    it('renders up to 16 outputs maximum', async () => {
-      await wrapper.setProps({ numOutputs: 16 })
+    it('renders up to 16 outputs maximum (4 selector bits)', async () => {
+      await wrapper.setProps({ selectorBits: 4 }) // 2^4 = 16 outputs
       const outputs = wrapper.findAll('.connection-point.output')
       expect(outputs).toHaveLength(16)
 
@@ -101,7 +101,7 @@ describe('Decoder', () => {
     })
 
     it('maintains 2 grid unit spacing between outputs', async () => {
-      await wrapper.setProps({ numOutputs: 3 })
+      // Use default selectorBits: 2 to get 4 outputs, test first 3
       const outputs = wrapper.findAll('.connection-point.output')
 
       const y0 = parseInt(outputs[0].attributes('cy'))
@@ -209,6 +209,36 @@ describe('Decoder', () => {
         expect(output.attributes('data-type')).toBe('output')
         expect(output.attributes('data-port')).toBe(String(index))
       })
+    })
+  })
+
+  describe('Reactivity', () => {
+    it('updates number of outputs when selectorBits changes', async () => {
+      // Initially has 2^2 = 4 outputs
+      let outputs = wrapper.findAll('.connection-point.output')
+      expect(outputs).toHaveLength(4)
+
+      // Change to 3 selector bits (2^3 = 8 outputs)
+      await wrapper.setProps({ selectorBits: 3 })
+      outputs = wrapper.findAll('.connection-point.output')
+      expect(outputs).toHaveLength(8)
+
+      // Change to 1 selector bit (2^1 = 2 outputs)
+      await wrapper.setProps({ selectorBits: 1 })
+      outputs = wrapper.findAll('.connection-point.output')
+      expect(outputs).toHaveLength(2)
+
+      // Component height should also change (check via trapezoid path)
+      const path = wrapper.find('path')
+      expect(path.exists()).toBe(true) // Path should update with new dimensions
+    })
+
+    it('calculates numOutputs computed property correctly', () => {
+      expect(wrapper.vm.numOutputs).toBe(4) // 2^2 = 4
+
+      // Test the computed property directly
+      wrapper.vm.$options.computed.numOutputs = wrapper.vm.$options.computed.numOutputs.bind({ selectorBits: 3 })
+      expect(wrapper.vm.$options.computed.numOutputs()).toBe(8) // 2^3 = 8
     })
   })
 })

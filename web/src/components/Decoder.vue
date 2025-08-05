@@ -68,18 +68,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { useSelectorBits } from '../composables/useSelectorBits'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
+
+const { selectorBitsProp } = useSelectorBits()
 
 export default defineComponent({
   name: 'Decoder',
   props: {
     ...draggableProps,
     // Decoder props
-    numOutputs: {
-      type: Number,
-      default: 4,
-      validator: (value: number) => value >= 2 && value <= 16
-    },
+    ...selectorBitsProp,
     label: {
       type: String,
       default: 'DEC'
@@ -111,15 +110,16 @@ export default defineComponent({
     }
   },
   computed: {
+    // Use shared selector bits computation
+    ...useSelectorBits().createSelectorBitsComputed(),
+    
     // Decoder is 2 grid units wide to match multiplexer, height based on number of outputs
     width() {
       return 2
     },
     totalHeight() {
-      // Ensure outputs are spaced 2 grid units apart
-      const outputSpacing = 2 // 2 grid units between outputs
-      const baseHeight = (this.numOutputs - 1) * outputSpacing
-      return Math.max(baseHeight + 2, 4) // Ensure minimum height of 4 grid units
+      const { calculatePortBasedHeight } = useSelectorBits()
+      return calculatePortBasedHeight(this.numOutputs, 2, 4, 2) // outputSpacing=2, minHeight=4, margin=2
     },
     height() {
       return this.totalHeight
@@ -151,10 +151,9 @@ export default defineComponent({
   },
   methods: {
     getOutputY(index: number) {
-      // Place outputs on grid vertices with 2 grid unit spacing
-      const firstOutputY = GRID_SIZE // First output at 1 grid unit from top
-      const outputSpacing = GRID_SIZE * 2 // 2 grid units between outputs
-      return firstOutputY + index * outputSpacing
+      // Use shared port positioning utility
+      const { getPortY } = useSelectorBits()
+      return getPortY(index, 2, 1) * GRID_SIZE // 2 spacing, 1 margin, convert to pixels
     }
   }
 })

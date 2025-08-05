@@ -12,7 +12,7 @@ describe('PriorityEncoder', () => {
         id: 'test-priority-encoder',
         x: 2,
         y: 3,
-        numInputs: 4,
+        selectorBits: 2, // 2^2 = 4 inputs
         label: 'PE0'
       }
     })
@@ -85,7 +85,7 @@ describe('PriorityEncoder', () => {
 
   describe('Dynamic Input Count', () => {
     it('renders 2 inputs minimum', async () => {
-      await wrapper.setProps({ numInputs: 2 })
+      await wrapper.setProps({ selectorBits: 1 }) // 2^1 = 2 inputs
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(2)
 
@@ -95,7 +95,7 @@ describe('PriorityEncoder', () => {
     })
 
     it('renders up to 16 inputs maximum', async () => {
-      await wrapper.setProps({ numInputs: 16 })
+      await wrapper.setProps({ selectorBits: 4 }) // 2^4 = 16 inputs
       const inputs = wrapper.findAll('.connection-point.input')
       expect(inputs).toHaveLength(16)
 
@@ -105,7 +105,7 @@ describe('PriorityEncoder', () => {
     })
 
     it('maintains 2 grid unit spacing between inputs', async () => {
-      await wrapper.setProps({ numInputs: 3 })
+      // Use selectorBits: 2 to get 4 inputs, test first 3
       const inputs = wrapper.findAll('.connection-point.input')
 
       expect(inputs[0].attributes('cy')).toBe(String(GRID_SIZE))
@@ -208,6 +208,36 @@ describe('PriorityEncoder', () => {
         expect(output.attributes('data-port')).toBe(String(index))
         expect(output.attributes('data-type')).toBe('output')
       })
+    })
+  })
+
+  describe('Reactivity', () => {
+    it('updates number of inputs when selectorBits changes', async () => {
+      // Initially has 2^2 = 4 inputs
+      let inputs = wrapper.findAll('.connection-point.input')
+      expect(inputs).toHaveLength(4)
+
+      // Change to 3 selector bits (2^3 = 8 inputs)
+      await wrapper.setProps({ selectorBits: 3 })
+      inputs = wrapper.findAll('.connection-point.input')
+      expect(inputs).toHaveLength(8)
+
+      // Change to 1 selector bit (2^1 = 2 inputs)
+      await wrapper.setProps({ selectorBits: 1 })
+      inputs = wrapper.findAll('.connection-point.input')
+      expect(inputs).toHaveLength(2)
+
+      // Component height should also change
+      const rect = wrapper.find('rect')
+      expect(rect.attributes('height')).toBe(String(6 * GRID_SIZE)) // Min height for 2 inputs
+    })
+
+    it('calculates numInputs computed property correctly', () => {
+      expect(wrapper.vm.numInputs).toBe(4) // 2^2 = 4
+
+      // Test the computed property directly
+      wrapper.vm.$options.computed.numInputs = wrapper.vm.$options.computed.numInputs.bind({ selectorBits: 3 })
+      expect(wrapper.vm.$options.computed.numInputs()).toBe(8) // 2^3 = 8
     })
   })
 })

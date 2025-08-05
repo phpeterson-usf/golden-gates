@@ -90,18 +90,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { useSelectorBits } from '../composables/useSelectorBits'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
+
+const { selectorBitsProp } = useSelectorBits()
 
 export default defineComponent({
   name: 'PriorityEncoder',
   props: {
     ...draggableProps,
     // Priority Encoder props
-    numInputs: {
-      type: Number,
-      default: 4,
-      validator: (value: number) => value >= 2 && value <= 16
-    },
+    ...selectorBitsProp,
     label: {
       type: String,
       default: 'PE'
@@ -128,16 +127,16 @@ export default defineComponent({
     }
   },
   computed: {
+    // Use shared selector bits computation
+    ...useSelectorBits().createSelectorBitsComputed(),
+    
     // Priority Encoder is 3 grid units wide, height based on number of inputs
     width() {
       return 3
     },
     totalHeight() {
-      // Ensure inputs are spaced 2 grid units apart, with room for outputs
-      const inputSpacing = 2 // 2 grid units between inputs
-      const baseHeight = (this.numInputs - 1) * inputSpacing
-      const minHeight = 6 // Minimum height to accommodate two outputs plus margins
-      return Math.max(baseHeight + 2, minHeight) // Add 1 grid unit margin top/bottom
+      const { calculatePortBasedHeight } = useSelectorBits()
+      return calculatePortBasedHeight(this.numInputs, 2, 6, 2) // inputSpacing=2, minHeight=6, margin=2
     },
     height() {
       return this.totalHeight
@@ -145,10 +144,9 @@ export default defineComponent({
   },
   methods: {
     getInputY(index: number) {
-      // Place inputs on grid vertices with 2 grid unit spacing
-      const margin = GRID_SIZE // 1 grid unit margin from top
-      const inputSpacing = GRID_SIZE * 2 // 2 grid units between inputs
-      return margin + index * inputSpacing
+      // Use shared port positioning utility
+      const { getPortY } = useSelectorBits()
+      return getPortY(index, 2, 1) * GRID_SIZE // 2 spacing, 1 margin, convert to pixels
     },
     getInumOutputY() {
       // Place inum output at 1/3 height, rounded to grid

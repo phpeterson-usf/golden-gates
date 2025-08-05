@@ -73,18 +73,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useComponentView, draggableProps } from '../composables/useComponentView'
+import { useSelectorBits } from '../composables/useSelectorBits'
 import { COLORS, CONNECTION_DOT_RADIUS, GRID_SIZE } from '../utils/constants'
+
+const { selectorBitsProp } = useSelectorBits()
 
 export default defineComponent({
   name: 'MultiplexerNode',
   props: {
     ...draggableProps,
     // Multiplexer props
-    selectorBits: {
-      type: Number,
-      default: 2,
-      validator: (value: number) => value >= 1 && value <= 8
-    },
+    ...selectorBitsProp,
     bits: {
       type: Number,
       default: 1,
@@ -119,27 +118,22 @@ export default defineComponent({
     }
   },
   computed: {
-    // Calculate number of inputs from selector bits
-    numInputs() {
-      return Math.pow(2, this.selectorBits)
-    },
+    // Use shared selector bits computation
+    ...useSelectorBits().createSelectorBitsComputed(),
+    
     // Total height to accommodate all inputs on grid vertices
     totalHeight() {
-      // Ensure inputs are spaced 2 grid units apart (like logic gates)
-      // Height = (numInputs - 1) * 2 * GRID_SIZE + extra space for margins
-      const inputSpacing = 2 * GRID_SIZE // 2 grid units between inputs
-      const baseHeight = (this.numInputs - 1) * inputSpacing
-      const minHeight = 4 * GRID_SIZE // Minimum height
-      return Math.max(baseHeight + 2 * GRID_SIZE, minHeight) // Add 1 grid unit margin top/bottom
+      const { calculatePortBasedHeight } = useSelectorBits()
+      return calculatePortBasedHeight(this.numInputs, 2, 4, 2) // inputSpacing=2, minHeight=4, margin=2
     },
     // Multiplexer is 2 grid units wide
     width() {
-      return GRID_SIZE * 2
+      return 2
     },
     // SVG path for the multiplexer shape with slanted lines
     multiplexerPath() {
-      const w = this.width
-      const h = this.totalHeight
+      const w = this.width * GRID_SIZE
+      const h = this.totalHeight * GRID_SIZE
       const slant = GRID_SIZE / 2 // How much the top and bottom lines slant inward
 
       // Proper multiplexer shape: vertical sides, diagonal top and bottom edges
@@ -152,24 +146,23 @@ export default defineComponent({
       `
     },
     outputX() {
-      return this.width
+      return this.width * GRID_SIZE
     },
     outputY() {
-      return this.totalHeight / 2
+      return (this.totalHeight * GRID_SIZE) / 2
     },
     selectorX() {
-      return this.width / 2
+      return (this.width * GRID_SIZE) / 2
     },
     selectorY() {
-      return this.selectorPosition === 'top' ? 0 : this.totalHeight
+      return this.selectorPosition === 'top' ? 0 : this.totalHeight * GRID_SIZE
     }
   },
   methods: {
     getInputY(index) {
-      // Place inputs on grid vertices with 2 grid unit spacing
-      const margin = GRID_SIZE // 1 grid unit margin from top
-      const inputSpacing = 2 * GRID_SIZE // 2 grid units between inputs
-      return margin + index * inputSpacing
+      // Use shared port positioning utility
+      const { getPortY } = useSelectorBits()
+      return getPortY(index, 2, 1) * GRID_SIZE // 2 spacing, 1 margin, convert to pixels
     }
   }
 })
