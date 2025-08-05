@@ -14,7 +14,7 @@ comp4 = arithmetic.Comparator(label="=", bits=7, js_id="compare_5_1754161094116"
 comp5 = arithmetic.Comparator(label="=", bits=7, js_id="compare_6_1754161094510")
 comp6 = arithmetic.Comparator(label="=", bits=7, js_id="compare_7_1754161094943")
 comp7 = arithmetic.Comparator(label="=", bits=5, js_id="compare_9_1754161095898")
-priorityEncoder0 = plexers.PriorityEncoder(label="PE", num_inputs=8, js_id="priorityEncoder_1_1754161650546")
+priorityEncoder0 = plexers.PriorityEncoder(label="PE", selector_bits=3, js_id="priorityEncoder_1_1754161650546")
 and0 = logic.And(js_id="and-gate_1_1754161704314")
 output0 = io.Output(label="inum", bits=1, js_id="output_1_1754161794853")
 constant0 = io.Constant(label="itype", bits=7, js_id="constant_1_1754161224491")
