@@ -15,7 +15,7 @@ describe('ClockGenerator', () => {
 
       expect(result.varName).toMatch(/^clk\d+$/)
       expect(result.code).toBe(
-        `${result.varName} = io.Clock(frequency=1, mode="auto", js_id="clock-1")`
+        `${result.varName} = io.Clock(frequency=1, mode="manual", js_id="clock-1")`
       )
       expect(result.imports).toBeUndefined() // No imports needed for clock
     })
@@ -33,7 +33,7 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        `${result.varName} = io.Clock(frequency=100, mode="auto", js_id="clock-1")`
+        `${result.varName} = io.Clock(frequency=100, mode="manual", js_id="clock-1")`
       )
     })
 
@@ -51,7 +51,7 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       expect(result.code).toBe(
-        `${result.varName} = io.Clock(label="SYSCLK", frequency=50, mode="auto", js_id="clock-1")`
+        `${result.varName} = io.Clock(label="SYSCLK", frequency=50, mode="manual", js_id="clock-1")`
       )
     })
 
@@ -170,7 +170,7 @@ describe('ClockGenerator', () => {
 
       // Label should come first, then frequency, then js_id
       expect(result.code).toMatch(
-        /io\.Clock\(label="TEST", frequency=42, mode="auto", js_id="clock-1"\)/
+        /io\.Clock\(label="TEST", frequency=42, mode="manual", js_id="clock-1"\)/
       )
     })
 
