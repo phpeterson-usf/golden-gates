@@ -11,6 +11,7 @@ import { DecoderGenerator } from './DecoderGenerator'
 import { PriorityEncoderGenerator } from './PriorityEncoderGenerator'
 import { RegisterGenerator } from './RegisterGenerator'
 import { ROMGenerator } from './ROMGenerator'
+import { RAMGenerator } from './RAMGenerator'
 import { AdderGenerator } from './AdderGenerator'
 import { SubtractGenerator } from './SubtractGenerator'
 import { MultiplyGenerator } from './MultiplyGenerator'
@@ -75,6 +76,9 @@ export function createComponentGenerator(
 
     case 'rom':
       return new ROMGenerator(componentData)
+
+    case 'ram':
+      return new RAMGenerator(componentData)
 
     case 'adder':
       return new AdderGenerator(componentData)

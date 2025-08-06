@@ -91,3 +91,13 @@ export interface ROMComponentData extends ComponentData {
     rotation?: 0 | 90 | 180 | 270
   }
 }
+
+export interface RAMComponentData extends ComponentData {
+  props: {
+    label?: string
+    addressBits?: number
+    dataBits?: number
+    data?: number[]
+    rotation?: 0 | 90 | 180 | 270
+  }
+}

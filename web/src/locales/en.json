@@ -182,6 +182,7 @@
       "priorityEncoder": "Priority Encoder",
       "register": "Register",
       "rom": "ROM",
+      "ram": "RAM",
       "adder": "Adder",
       "subtract": "Subtract",
       "multiply": "Multiply",

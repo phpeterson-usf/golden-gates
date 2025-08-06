@@ -15,6 +15,7 @@ import Register from '../components/Register.vue'
 import PriorityEncoder from '../components/PriorityEncoder.vue'
 import SchematicComponent from '../components/SchematicComponent.vue'
 import ROM from '../components/ROM.vue'
+import RAM from '../components/RAM.vue'
 import Adder from '../components/Adder.vue'
 import Subtract from '../components/Subtract.vue'
 import Multiply from '../components/Multiply.vue'
@@ -531,6 +532,54 @@ export const componentRegistry = {
     },
     onCreate: (instance, index) => {
       instance.props.label = `ROM${index}`
+      // Initialize empty data array
+      const totalCells = Math.pow(2, instance.props.addressBits || 4)
+      instance.props.data = new Array(totalCells).fill(0)
+    }
+  },
+  ram: {
+    component: RAM,
+    label: 'RAM',
+    icon: 'pi pi-server',
+    category: 'memory',
+    requiresNamedPorts: true,
+    defaultProps: {
+      addressBits: 4,
+      dataBits: 8,
+      data: [],
+      label: 'RAM'
+    },
+    // Dynamic connections based on addressBits
+    getConnections: props => {
+      const addressBits = props.addressBits || 4
+      // Dynamic size based on address bits - larger than ROM to accommodate more inputs
+      const width = Math.max(5, Math.ceil(addressBits / 2) + 1)
+      const height = Math.max(7, Math.ceil(addressBits / 2) + 3)
+      return {
+        inputs: [
+          { name: 'A', x: 0, y: 1 },    // Address input
+          { name: 'Din', x: 0, y: 2 },  // Data input
+          { name: 'ld', x: 0, y: 3 },   // Load input
+          { name: 'st', x: 0, y: 4 },   // Store input
+          { name: 'CLK', x: 0, y: 5 }   // Clock input
+        ],
+        outputs: [
+          { name: 'D', x: width, y: Math.floor(height / 2) } // Data output (center right, grid-aligned)
+        ]
+      }
+    },
+    getDimensions: props => {
+      const addressBits = props.addressBits || 4
+      // Dynamic size based on address bits - larger than ROM
+      const width = Math.max(5, Math.ceil(addressBits / 2) + 1)
+      const height = Math.max(7, Math.ceil(addressBits / 2) + 3)
+      return {
+        width: width * GRID_SIZE,
+        height: height * GRID_SIZE
+      }
+    },
+    onCreate: (instance, index) => {
+      instance.props.label = `RAM${index}`
       // Initialize empty data array
       const totalCells = Math.pow(2, instance.props.addressBits || 4)
       instance.props.data = new Array(totalCells).fill(0)

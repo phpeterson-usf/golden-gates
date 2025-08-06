@@ -1,4 +1,4 @@
-from .node import BitsNode
+from .node import Node, BitsNode
 from .ggl_logging import new_logger
 
 logger = new_logger(__name__)
@@ -153,3 +153,35 @@ class Clock(IONode):
         if self.mode != 'manual':
             logger.warning("tick() is only for clocks in manual mode")
         return self.toggleCLK(output_name='0')
+
+
+# class Test(Node):
+#     """
+#     Test is a test case in which the circuit's output values are tested
+#     against the provided input values
+#     """
+#     kind = 'Test'
+
+#     def __init__(self, label='', js_id='', input_specs={}, output_specs={}):
+#         self.input_specs = input_specs
+#         self.output_specs = output_specs
+#         super().__init__(
+#             kind=Test.kind,
+#             js_id=js_id,
+#             label=label
+#         )
+
+#     def init_inputs(self, inputs):
+#         # When simulation starts, set each Input's value to be the test value
+#         for i in inputs:
+#             v = self.input_specs[i.label]
+#             i.value = v
+
+#     def test_outputs(self, outputs):
+#         # When simulation ends, check each Output's value against the expected
+#         failures = {}
+#         for o in outputs:
+#             v = self.output_specs[o.label]
+#             if o.value != v:
+#                 failures[o.name] = o.value
+#         return failures

@@ -8,13 +8,19 @@
           class="base-selector"
         />
         <button
+          v-if="editable"
           @click="triggerFileInput"
           v-tooltip.top="$t('memory.importData')"
           class="import-button"
         >
           <i class="pi pi-upload"></i>
         </button>
-        <button @click="clearData" v-tooltip.top="'Clear Data'" class="clear-button">
+        <button 
+          v-if="editable"
+          @click="clearData" 
+          v-tooltip.top="'Clear Data'" 
+          class="clear-button"
+        >
           <i class="pi pi-trash"></i>
         </button>
         <input
@@ -48,7 +54,8 @@
                 @focus="handleCellFocus((row - 1) * 8 + (col - 1))"
                 @blur="handleCellBlur"
                 class="cell-input"
-                :class="{ active: activeCellIndex === (row - 1) * 8 + (col - 1) }"
+                :class="{ active: activeCellIndex === (row - 1) * 8 + (col - 1), readonly: !editable }"
+                :readonly="!editable"
                 spellcheck="false"
               />
             </td>
@@ -88,6 +95,10 @@ const props = defineProps({
   highlightAddress: {
     type: Number,
     default: -1
+  },
+  editable: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -143,7 +154,7 @@ function getDataAt(index) {
 }
 
 function updateDataAt(index, valueStr) {
-  if (index >= totalCells.value) return
+  if (index >= totalCells.value || !props.editable) return
 
   // Parse value based on current base
   let value = 0
@@ -398,6 +409,12 @@ function parseJsonFile(text) {
 
 .cell-input.active {
   background: var(--primary-color-text);
+}
+
+.cell-input.readonly {
+  background: var(--surface-100);
+  color: var(--text-color-secondary);
+  cursor: default;
 }
 
 .drag-overlay {

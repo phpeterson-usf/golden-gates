@@ -254,6 +254,13 @@ export const commandGroups = {
         componentType: 'rom',
         action: 'addComponent',
         params: ['rom']
+      },
+      {
+        id: 'insert-ram',
+        labelKey: 'commands.insert.ram',
+        componentType: 'ram',
+        action: 'addComponent',
+        params: ['ram']
       }
     ]
   }

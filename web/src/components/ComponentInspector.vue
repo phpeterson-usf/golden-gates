@@ -151,6 +151,7 @@
             :modelValue="getPropValue(prop.name, [])"
             :addressBits="getPropValue('addressBits', 4)"
             :dataBits="getPropValue('dataBits', 8)"
+            :editable="prop.editable !== false"
             @update:modelValue="updateProp(prop.name, $event)"
           />
         </div>
