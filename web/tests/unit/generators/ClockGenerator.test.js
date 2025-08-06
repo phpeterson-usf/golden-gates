@@ -14,7 +14,9 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       expect(result.varName).toMatch(/^clk\d+$/)
-      expect(result.code).toBe(`${result.varName} = io.Clock(frequency=1, mode="auto", js_id="clock-1")`)
+      expect(result.code).toBe(
+        `${result.varName} = io.Clock(frequency=1, mode="auto", js_id="clock-1")`
+      )
       expect(result.imports).toBeUndefined() // No imports needed for clock
     })
 
@@ -30,7 +32,9 @@ describe('ClockGenerator', () => {
       const generator = new ClockGenerator(componentData)
       const result = generator.generate()
 
-      expect(result.code).toBe(`${result.varName} = io.Clock(frequency=100, mode="auto", js_id="clock-1")`)
+      expect(result.code).toBe(
+        `${result.varName} = io.Clock(frequency=100, mode="auto", js_id="clock-1")`
+      )
     })
 
     it('includes label when provided', () => {
@@ -165,7 +169,9 @@ describe('ClockGenerator', () => {
       const result = generator.generate()
 
       // Label should come first, then frequency, then js_id
-      expect(result.code).toMatch(/io\.Clock\(label="TEST", frequency=42, mode="auto", js_id="clock-1"\)/)
+      expect(result.code).toMatch(
+        /io\.Clock\(label="TEST", frequency=42, mode="auto", js_id="clock-1"\)/
+      )
     })
 
     it('handles special characters in component id', () => {

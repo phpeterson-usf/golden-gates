@@ -28,10 +28,7 @@
             :class="{ 'has-unsaved-changes': hasCircuitUnsavedWork(tab.id, circuitManager) }"
           >
             <!-- Show dot for unsaved changes, X shown via CSS pseudo-element -->
-            <i
-              v-if="hasCircuitUnsavedWork(tab.id, circuitManager)"
-              class="unsaved-dot"
-            ></i>
+            <i v-if="hasCircuitUnsavedWork(tab.id, circuitManager)" class="unsaved-dot"></i>
           </div>
         </template>
       </Button>

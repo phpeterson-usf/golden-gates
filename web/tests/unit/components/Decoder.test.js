@@ -237,7 +237,9 @@ describe('Decoder', () => {
       expect(wrapper.vm.numOutputs).toBe(4) // 2^2 = 4
 
       // Test the computed property directly
-      wrapper.vm.$options.computed.numOutputs = wrapper.vm.$options.computed.numOutputs.bind({ selectorBits: 3 })
+      wrapper.vm.$options.computed.numOutputs = wrapper.vm.$options.computed.numOutputs.bind({
+        selectorBits: 3
+      })
       expect(wrapper.vm.$options.computed.numOutputs()).toBe(8) // 2^3 = 8
     })
   })

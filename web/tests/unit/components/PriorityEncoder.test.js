@@ -236,7 +236,9 @@ describe('PriorityEncoder', () => {
       expect(wrapper.vm.numInputs).toBe(4) // 2^2 = 4
 
       // Test the computed property directly
-      wrapper.vm.$options.computed.numInputs = wrapper.vm.$options.computed.numInputs.bind({ selectorBits: 3 })
+      wrapper.vm.$options.computed.numInputs = wrapper.vm.$options.computed.numInputs.bind({
+        selectorBits: 3
+      })
       expect(wrapper.vm.$options.computed.numInputs()).toBe(8) // 2^3 = 8
     })
   })

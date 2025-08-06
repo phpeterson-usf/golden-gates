@@ -4,7 +4,7 @@ import { getAllCommands, getDynamicComponentCommands } from '../config/commands'
 
 export function useKeyboardShortcuts(commandActions, availableComponents = []) {
   const { t } = useI18n()
-  
+
   // Store command actions reference that can be updated later
   let currentCommandActions = commandActions
   // Detect platform
@@ -78,7 +78,9 @@ export function useKeyboardShortcuts(commandActions, availableComponents = []) {
         // Include both static and dynamic commands in search
         const staticCommands = getAllCommands()
         // Ensure availableComponents is an array (handle reactive computed values)
-        const componentsArray = Array.isArray(availableComponents) ? availableComponents : (availableComponents?.value || [])
+        const componentsArray = Array.isArray(availableComponents)
+          ? availableComponents
+          : availableComponents?.value || []
         const dynamicCommands = getDynamicComponentCommands(componentsArray)
         const allCommands = [...staticCommands, ...dynamicCommands]
         const topRecentCommand = allCommands.find(cmd => cmd.id === recentCommandIds[0])
@@ -92,7 +94,7 @@ export function useKeyboardShortcuts(commandActions, availableComponents = []) {
 
     // Get all commands with shortcut keys and check if any match
     const commands = getAllCommands().filter(cmd => cmd.shortcutKey)
-    
+
     for (const command of commands) {
       const shortcutKey = shortcuts[command.shortcutKey]
       if (shortcutKey && key === shortcutKey && currentCommandActions?.[command.action]) {

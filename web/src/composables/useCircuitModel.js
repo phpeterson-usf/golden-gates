@@ -74,7 +74,6 @@ export function useCircuitModel() {
     })
   })
 
-
   // Create a new circuit
   function createCircuit(name, options = {}) {
     const id = options.id || `circuit_${nextCircuitId.value++}`
@@ -88,7 +87,8 @@ export function useCircuitModel() {
       wires: [],
       wireJunctions: [],
       // Track if circuit has unsaved changes
-      hasUnsavedChanges: options.hasUnsavedChanges !== undefined ? options.hasUnsavedChanges : false,
+      hasUnsavedChanges:
+        options.hasUnsavedChanges !== undefined ? options.hasUnsavedChanges : false,
       // Circuit properties that appear in inspector
       properties: {
         name: name || `Circuit${nextCircuitId.value - 1}`,
@@ -470,11 +470,12 @@ export function useCircuitModel() {
       // Ensure imported circuits start as "saved" (not dirty)
       circuits.set(id, {
         ...circuit,
-        hasUnsavedChanges: circuit.hasUnsavedChanges !== undefined ? circuit.hasUnsavedChanges : false
+        hasUnsavedChanges:
+          circuit.hasUnsavedChanges !== undefined ? circuit.hasUnsavedChanges : false
       })
     }
     allCircuits.value = circuits
-    
+
     availableComponents.value = new Map(Object.entries(state.availableComponents || {}))
     activeTabId.value = state.activeTabId || null
     openTabs.value = state.openTabs || []

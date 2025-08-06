@@ -15,7 +15,7 @@ export class DecoderGenerator extends BaseComponentGenerator {
 
   generate(): GeneratedStatement {
     const varName = this.generateVarName('decoder')
-    
+
     const paramString = this.buildGglParams({ selector_bits: this.selectorBits })
 
     return {

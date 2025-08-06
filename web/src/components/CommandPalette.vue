@@ -211,7 +211,7 @@ export default {
     // Get localized shortcut for a command
     function getCommandShortcut(command) {
       if (!command.shortcutKey) return null
-      
+
       // Map shortcutKey to localized shortcut
       const shortcuts = {
         run: t('shortcuts.run'),
@@ -220,7 +220,7 @@ export default {
         stop: t('shortcuts.stop'),
         again: t('shortcuts.again')
       }
-      
+
       return shortcuts[command.shortcutKey]
     }
 

@@ -3,7 +3,6 @@
  * Used by components like PriorityEncoder, Decoder, and potentially Multiplexer
  */
 export function useSelectorBits() {
-  
   /**
    * Standard selectorBits prop definition
    * Can be used by components that need selectorBits functionality
@@ -12,7 +11,7 @@ export function useSelectorBits() {
     selectorBits: {
       type: Number,
       default: 2,
-      validator: (value) => value >= 1 && value <= 8 // 2^1=2 to 2^8=256 ports
+      validator: value => value >= 1 && value <= 8 // 2^1=2 to 2^8=256 ports
     }
   }
 
@@ -26,12 +25,12 @@ export function useSelectorBits() {
       numInputs() {
         return Math.pow(2, this.selectorBits)
       },
-      
-      // Number of outputs for Decoder  
+
+      // Number of outputs for Decoder
       numOutputs() {
         return Math.pow(2, this.selectorBits)
       },
-      
+
       // Generic number of ports calculation
       numPorts() {
         return Math.pow(2, this.selectorBits)

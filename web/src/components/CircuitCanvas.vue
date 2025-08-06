@@ -489,9 +489,9 @@ export default {
           console.log(`Mapped nested component ${nestedId} -> parent ${parentId}`)
         })
       } else {
-        console.log('No hierarchy mapping to store:', { 
-          hasMapping: !!result.hierarchyMapping, 
-          hasRegistry: !!window.ggComponentHierarchy 
+        console.log('No hierarchy mapping to store:', {
+          hasMapping: !!result.hierarchyMapping,
+          hasRegistry: !!window.ggComponentHierarchy
         })
       }
 

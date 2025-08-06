@@ -112,7 +112,7 @@ export default defineComponent({
   computed: {
     // Use shared selector bits computation
     ...useSelectorBits().createSelectorBitsComputed(),
-    
+
     // Decoder is 2 grid units wide to match multiplexer, height based on number of outputs
     width() {
       return 2

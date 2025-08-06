@@ -5,7 +5,6 @@ import { componentRegistry } from '../utils/componentRegistry'
  * Determines which components are connected by analyzing wire endpoint positions
  */
 export function useCircuitValidator(components, wires, circuitManager) {
-  
   /**
    * Get component connections (unified utility for registry/schematic components)
    */
@@ -44,7 +43,7 @@ export function useCircuitValidator(components, wires, circuitManager) {
       // Helper to check ports of a specific type
       const checkPorts = (ports, portType) => {
         if (!ports || (filterType && portType !== filterType)) return
-        
+
         ports.forEach((port, portIndex) => {
           const portPos = getPortPosition(component, port)
           if (portPos.x === position.x && portPos.y === position.y) {
@@ -73,7 +72,7 @@ export function useCircuitValidator(components, wires, circuitManager) {
   function resolveWireConnections(wire) {
     const startOutputs = findPortsAtPosition(wire.startConnection.pos, 'output')
     const endInputs = findPortsAtPosition(wire.endConnection.pos, 'input')
-    
+
     const errors = []
     const { x: startX, y: startY } = wire.startConnection.pos
     const { x: endX, y: endY } = wire.endConnection.pos
@@ -106,13 +105,13 @@ export function useCircuitValidator(components, wires, circuitManager) {
    */
   function getValidConnections() {
     const connections = []
-    
+
     wires.value.forEach(wire => {
       const resolution = resolveWireConnections(wire)
       if (resolution.valid) {
         const sourcePort = resolution.start[0]
         const targetPort = resolution.end[0]
-        
+
         connections.push({
           wire,
           sourceComponent: sourcePort.component,
@@ -155,27 +154,30 @@ export function useCircuitValidator(components, wires, circuitManager) {
    */
   function validateCircuit() {
     const { errors } = validateAllWires()
-    
+
     // Check for unconnected inputs
     const validConnections = getValidConnections()
-    
+
     components.value.forEach(component => {
       const connections = getComponentConnections(component)
       if (!connections?.inputs) return
 
       connections.inputs.forEach((port, portIndex) => {
         const portPos = getPortPosition(component, port)
-        
+
         // Check if any valid connection ends at this position
-        const hasConnection = validConnections.some(conn => 
-          conn.wire.endConnection.pos.x === portPos.x && 
-          conn.wire.endConnection.pos.y === portPos.y
+        const hasConnection = validConnections.some(
+          conn =>
+            conn.wire.endConnection.pos.x === portPos.x &&
+            conn.wire.endConnection.pos.y === portPos.y
         )
 
         if (!hasConnection) {
           const portName = port.name || portIndex.toString()
           const componentLabel = component.props?.label || component.id
-          errors.push(`Component ${component.type} "${componentLabel}" input "${portName}" is not connected`)
+          errors.push(
+            `Component ${component.type} "${componentLabel}" input "${portName}" is not connected`
+          )
         }
       })
     })
@@ -191,11 +193,11 @@ export function useCircuitValidator(components, wires, circuitManager) {
     findPortsAtPosition,
     resolveWireConnections,
     getValidConnections,
-    
+
     // Validation functions
     validateAllWires,
     validateCircuit,
-    
+
     // Utility functions
     getComponentConnections,
     getPortPosition

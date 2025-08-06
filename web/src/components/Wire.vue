@@ -20,8 +20,8 @@
       stroke-linejoin="round"
       stroke-linecap="round"
       class="wire wire-segment"
-      :class="{ 
-        preview: preview, 
+      :class="{
+        preview: preview,
         selected: selected,
         'wire-high': stepActive && stepStyle === 'processing',
         'wire-low': !stepActive && stepStyle === 'processing'
@@ -60,7 +60,6 @@ export default {
   },
   emits: ['click', 'mousedown'],
   setup(props, { emit }) {
-
     const pointsString = computed(() => {
       return props.points
         .map(p => {
@@ -109,7 +108,6 @@ export default {
   pointer-events: stroke;
   cursor: move;
 }
-
 
 .wire.preview {
   opacity: 0.6;

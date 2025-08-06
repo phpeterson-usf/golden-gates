@@ -55,7 +55,10 @@ export function useCodeGenController() {
 
     // Enhanced error reporting when port name cannot be resolved
     if (ports && Array.isArray(ports)) {
-      console.warn(`getPortName: Port index ${portIndex} out of bounds for ${portType} ports array of length ${ports.length}. Available ports:`, ports.map(p => p?.label || p?.name || p?.id || 'unnamed'))
+      console.warn(
+        `getPortName: Port index ${portIndex} out of bounds for ${portType} ports array of length ${ports.length}. Available ports:`,
+        ports.map(p => p?.label || p?.name || p?.id || 'unnamed')
+      )
     } else {
       console.warn(`getPortName: Invalid ports array for ${portType}:`, ports)
     }
@@ -83,11 +86,14 @@ export function useCodeGenController() {
     // Create circuit validator to resolve connections from geometry
     const componentRefsForValidator = ref(components)
     const wireRefsForValidator = ref(wires)
-    const validator = useCircuitValidator(componentRefsForValidator, wireRefsForValidator, circuitManager)
+    const validator = useCircuitValidator(
+      componentRefsForValidator,
+      wireRefsForValidator,
+      circuitManager
+    )
 
     const sections = []
     const circuitVarName = 'circuit0' // Dynamic circuit name to avoid conflicts
-    
 
     // Header - import all GGL modules (unused imports are not an error in Python)
     sections.push(
@@ -101,7 +107,9 @@ export function useCodeGenController() {
     }
 
     sections.push('')
-    sections.push(`${circuitVarName} = circuit.Circuit(js_logging=True, circuit_name=${JSON.stringify(circuitName)})`)
+    sections.push(
+      `${circuitVarName} = circuit.Circuit(js_logging=True, circuit_name=${JSON.stringify(circuitName)})`
+    )
     sections.push('')
 
     // Phase 1: Generate all components first
@@ -112,7 +120,7 @@ export function useCodeGenController() {
     // Component declaration order doesn't affect correctness since we handle connections separately
     const componentOrder = [
       ...components.filter(c => c.type === 'input'),
-      ...components.filter(c => c.type !== 'input' && c.type !== 'output'), 
+      ...components.filter(c => c.type !== 'input' && c.type !== 'output'),
       ...components.filter(c => c.type === 'output')
     ]
 
@@ -184,19 +192,16 @@ export function useCodeGenController() {
 
     // Process all valid connections
     for (const connection of validConnections) {
-      const {
-        wire,
-        sourceComponent,
-        sourcePortIndex,
-        targetComponent,
-        targetPortIndex
-      } = connection
+      const { wire, sourceComponent, sourcePortIndex, targetComponent, targetPortIndex } =
+        connection
 
       const sourceVarName = componentVarNames[sourceComponent.id]
       const targetVarName = componentVarNames[targetComponent.id]
 
       if (!sourceVarName || !targetVarName) {
-        console.error(`Variable names not found for components: ${sourceComponent.id} -> ${targetComponent.id}`)
+        console.error(
+          `Variable names not found for components: ${sourceComponent.id} -> ${targetComponent.id}`
+        )
         continue
       }
 
@@ -372,7 +377,6 @@ ${componentName} = circuit.Component(circuit0)
 
     return Array.from(imports).join('\n')
   }
-
 
   return {
     generateGglProgram,

@@ -120,7 +120,7 @@ export default defineComponent({
   computed: {
     // Use shared selector bits computation
     ...useSelectorBits().createSelectorBitsComputed(),
-    
+
     // Total height to accommodate all inputs on grid vertices
     totalHeight() {
       const { calculatePortBasedHeight } = useSelectorBits()

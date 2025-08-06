@@ -30,7 +30,7 @@ export interface ComponentGeneratorOptions {
  * This is the single place where we switch on component type
  */
 export function createComponentGenerator(
-  componentData: ComponentData, 
+  componentData: ComponentData,
   options: ComponentGeneratorOptions = {}
 ): ComponentGenerator {
   switch (componentData.type) {

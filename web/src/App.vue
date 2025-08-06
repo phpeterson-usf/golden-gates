@@ -569,10 +569,10 @@ export default {
 
     // Set up keyboard shortcuts with direct method calls
     const commandActions = {
-      addComponent: (type) => {
+      addComponent: type => {
         this.addComponent(type)
       },
-      addCircuitComponent: (circuitId) => {
+      addCircuitComponent: circuitId => {
         this.addCircuitComponent(circuitId)
       },
       createNewCircuit: () => {

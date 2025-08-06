@@ -203,12 +203,12 @@ describe('Clipboard Integration Tests', () => {
           { x: 15, y: 10 },
           { x: 30, y: 10 }
         ],
-        startConnection: { 
-          pos: { x: 15, y: 10 }, 
+        startConnection: {
+          pos: { x: 15, y: 10 },
           portType: 'output'
         },
-        endConnection: { 
-          pos: { x: 30, y: 10 }, 
+        endConnection: {
+          pos: { x: 30, y: 10 },
           portType: 'input'
         }
       }

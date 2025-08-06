@@ -12,7 +12,7 @@ export function useFileService() {
       const sanitizedComponents = (components || []).map(component => {
         // Remove js_id from all components (it's generated fresh each simulation)
         const { js_id, ...componentWithoutJsId } = component || {}
-        
+
         // Remove transient properties from input/output components
         if (component.type === 'input' || component.type === 'output') {
           const { value, lastUpdate, ...propsWithoutTransient } = component.props || {}
@@ -21,7 +21,7 @@ export function useFileService() {
             props: propsWithoutTransient
           }
         }
-        
+
         return componentWithoutJsId
       })
 
@@ -34,7 +34,7 @@ export function useFileService() {
           const sanitizedComponents = sanitizedCircuit.components.map(component => {
             // Remove js_id from all components
             const { js_id, ...componentWithoutJsId } = component || {}
-            
+
             // Remove transient properties from input/output components
             if (component.type === 'input' || component.type === 'output') {
               const { value, lastUpdate, ...propsWithoutTransient } = component.props || {}
@@ -43,16 +43,16 @@ export function useFileService() {
                 props: propsWithoutTransient
               }
             }
-            
+
             return componentWithoutJsId
           })
-          
+
           sanitizedCircuit = {
             ...sanitizedCircuit,
             components: sanitizedComponents
           }
         }
-        
+
         sanitizedSchematicComponents[circuitId] = {
           ...schematicData,
           circuit: sanitizedCircuit
@@ -259,8 +259,9 @@ export function useFileService() {
       if (!circuitData.nextCircuitId) {
         // For files without nextCircuitId, calculate a safe starting value
         const maxCircuitId = Math.max(
-          ...Object.keys(circuitData.schematicComponents || {})
-            .map(id => id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0),
+          ...Object.keys(circuitData.schematicComponents || {}).map(id =>
+            id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0
+          ),
           1
         )
         circuitData.nextCircuitId = maxCircuitId + 1
@@ -331,8 +332,9 @@ export function useFileService() {
     if (!migratedData.nextCircuitId) {
       // For migrated files, calculate a safe starting value
       const maxCircuitId = Math.max(
-        ...Object.keys(migratedData.schematicComponents || {})
-          .map(id => id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0),
+        ...Object.keys(migratedData.schematicComponents || {}).map(id =>
+          id.match(/^circuit_(\d+)$/) ? parseInt(id.split('_')[1]) : 0
+        ),
         1
       )
       migratedData.nextCircuitId = maxCircuitId + 1

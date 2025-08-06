@@ -50,19 +50,28 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
 
     // Reset saved data
     savedData = null
-    
+
     // Set up the mock save function to capture data
-    mockSaveCircuitFn.mockImplementation(async (components, wires, wireJunctions, circuitMetadata, schematicComponents, nextCircuitId) => {
-      savedData = {
+    mockSaveCircuitFn.mockImplementation(
+      async (
         components,
         wires,
         wireJunctions,
         circuitMetadata,
         schematicComponents,
         nextCircuitId
+      ) => {
+        savedData = {
+          components,
+          wires,
+          wireJunctions,
+          circuitMetadata,
+          schematicComponents,
+          nextCircuitId
+        }
+        return true
       }
-      return true
-    })
+    )
 
     // Create deep component tree structure for testing
     const circuit1 = {
@@ -82,17 +91,43 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
       name: '4-bit Adder',
       label: '4-bit Adder',
       components: [
-        { id: 'adder1', type: 'schematic-component', props: { circuitId: 'circuit_1' }, x: 100, y: 100 },
-        { id: 'adder2', type: 'schematic-component', props: { circuitId: 'circuit_1' }, x: 200, y: 100 },
-        { id: 'adder3', type: 'schematic-component', props: { circuitId: 'circuit_1' }, x: 300, y: 100 },
-        { id: 'adder4', type: 'schematic-component', props: { circuitId: 'circuit_1' }, x: 400, y: 100 }
+        {
+          id: 'adder1',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_1' },
+          x: 100,
+          y: 100
+        },
+        {
+          id: 'adder2',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_1' },
+          x: 200,
+          y: 100
+        },
+        {
+          id: 'adder3',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_1' },
+          x: 300,
+          y: 100
+        },
+        {
+          id: 'adder4',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_1' },
+          x: 400,
+          y: 100
+        }
       ],
       wires: [
         { id: 'wire2', from: 'adder1', to: 'adder2' },
         { id: 'wire3', from: 'adder2', to: 'adder3' },
         { id: 'wire4', from: 'adder3', to: 'adder4' }
       ],
-      properties: { interface: { inputs: ['A[3:0]', 'B[3:0]', 'Cin'], outputs: ['Sum[3:0]', 'Cout'] } }
+      properties: {
+        interface: { inputs: ['A[3:0]', 'B[3:0]', 'Cin'], outputs: ['Sum[3:0]', 'Cout'] }
+      }
     }
 
     const circuit3 = {
@@ -100,11 +135,25 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
       name: '8-bit Adder',
       label: '8-bit Adder',
       components: [
-        { id: 'adder4bit1', type: 'schematic-component', props: { circuitId: 'circuit_2' }, x: 100, y: 100 },
-        { id: 'adder4bit2', type: 'schematic-component', props: { circuitId: 'circuit_2' }, x: 300, y: 100 }
+        {
+          id: 'adder4bit1',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_2' },
+          x: 100,
+          y: 100
+        },
+        {
+          id: 'adder4bit2',
+          type: 'schematic-component',
+          props: { circuitId: 'circuit_2' },
+          x: 300,
+          y: 100
+        }
       ],
       wires: [{ id: 'wire5', from: 'adder4bit1', to: 'adder4bit2' }],
-      properties: { interface: { inputs: ['A[7:0]', 'B[7:0]', 'Cin'], outputs: ['Sum[7:0]', 'Cout'] } }
+      properties: {
+        interface: { inputs: ['A[7:0]', 'B[7:0]', 'Cin'], outputs: ['Sum[7:0]', 'Cout'] }
+      }
     }
 
     // Unused circuits that should still be saved
@@ -185,28 +234,28 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
 
     // Mock circuit manager
     mockCircuitManager = {
-      allCircuits: ref(new Map([
-        ['circuit_1', circuit1],
-        ['circuit_2', circuit2],
-        ['circuit_3', circuit3],
-        ['circuit_unused_1', unusedCircuit1],
-        ['circuit_unused_2', unusedCircuit2]
-      ])),
-      availableComponents: ref(new Map([
-        ['circuit_1', componentDef1],
-        ['circuit_2', componentDef2],
-        ['circuit_3', componentDef3],
-        ['circuit_unused_1', unusedComponentDef1],
-        ['circuit_unused_2', unusedComponentDef2]
-      ])),
+      allCircuits: ref(
+        new Map([
+          ['circuit_1', circuit1],
+          ['circuit_2', circuit2],
+          ['circuit_3', circuit3],
+          ['circuit_unused_1', unusedCircuit1],
+          ['circuit_unused_2', unusedCircuit2]
+        ])
+      ),
+      availableComponents: ref(
+        new Map([
+          ['circuit_1', componentDef1],
+          ['circuit_2', componentDef2],
+          ['circuit_3', componentDef3],
+          ['circuit_unused_1', unusedComponentDef1],
+          ['circuit_unused_2', unusedComponentDef2]
+        ])
+      ),
       activeTabId: ref('circuit_3'),
       activeCircuit: ref(circuit3),
-      openTabs: ref([
-        { id: 'circuit_1' },
-        { id: 'circuit_2' },
-        { id: 'circuit_3' }
-      ]),
-      getCircuit: vi.fn((id) => {
+      openTabs: ref([{ id: 'circuit_1' }, { id: 'circuit_2' }, { id: 'circuit_3' }]),
+      getCircuit: vi.fn(id => {
         const circuits = new Map([
           ['circuit_1', circuit1],
           ['circuit_2', circuit2],
@@ -233,11 +282,7 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
           circuit_unused_2: unusedComponentDef2
         },
         activeTabId: 'circuit_3',
-        openTabs: [
-          { id: 'circuit_1' },
-          { id: 'circuit_2' },
-          { id: 'circuit_3' }
-        ]
+        openTabs: [{ id: 'circuit_1' }, { id: 'circuit_2' }, { id: 'circuit_3' }]
       }))
     }
 
@@ -278,16 +323,20 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
       const circuit2Data = savedData.schematicComponents['circuit_2']
       expect(circuit2Data.definition.name).toBe('4-bit Adder')
       expect(circuit2Data.circuit.components).toHaveLength(4) // 4 x 1-bit adders
-      expect(circuit2Data.circuit.components.every(comp => 
-        comp.type === 'schematic-component' && comp.props?.circuitId === 'circuit_1'
-      )).toBe(true)
+      expect(
+        circuit2Data.circuit.components.every(
+          comp => comp.type === 'schematic-component' && comp.props?.circuitId === 'circuit_1'
+        )
+      ).toBe(true)
 
       const circuit3Data = savedData.schematicComponents['circuit_3']
       expect(circuit3Data.definition.name).toBe('8-bit Adder')
       expect(circuit3Data.circuit.components).toHaveLength(2) // 2 x 4-bit adders
-      expect(circuit3Data.circuit.components.every(comp => 
-        comp.type === 'schematic-component' && comp.props?.circuitId === 'circuit_2'
-      )).toBe(true)
+      expect(
+        circuit3Data.circuit.components.every(
+          comp => comp.type === 'schematic-component' && comp.props?.circuitId === 'circuit_2'
+        )
+      ).toBe(true)
     })
 
     it('should preserve component properties and interfaces in deep trees', async () => {
@@ -432,13 +481,17 @@ describe('useAppController - Hierarchical Circuit Saving', () => {
 
       // Verify that 4-bit adder references 1-bit adder
       const circuit2 = savedData.schematicComponents['circuit_2']
-      const schematicComponents = circuit2.circuit.components.filter(c => c.type === 'schematic-component')
+      const schematicComponents = circuit2.circuit.components.filter(
+        c => c.type === 'schematic-component'
+      )
       expect(schematicComponents).toHaveLength(4)
       expect(schematicComponents.every(c => c.props?.circuitId === 'circuit_1')).toBe(true)
 
       // Verify that 8-bit adder references 4-bit adder
       const circuit3 = savedData.schematicComponents['circuit_3']
-      const schematicComponents3 = circuit3.circuit.components.filter(c => c.type === 'schematic-component')
+      const schematicComponents3 = circuit3.circuit.components.filter(
+        c => c.type === 'schematic-component'
+      )
       expect(schematicComponents3).toHaveLength(2)
       expect(schematicComponents3.every(c => c.props?.circuitId === 'circuit_2')).toBe(true)
     })

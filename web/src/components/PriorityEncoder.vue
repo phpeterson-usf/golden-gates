@@ -129,7 +129,7 @@ export default defineComponent({
   computed: {
     // Use shared selector bits computation
     ...useSelectorBits().createSelectorBitsComputed(),
-    
+
     // Priority Encoder is 3 grid units wide, height based on number of inputs
     width() {
       return 3

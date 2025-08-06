@@ -176,7 +176,7 @@ export function useAppController(circuitManager) {
    */
   function setupPythonVueUpdateCallback(canvasRef) {
     // Callback for structured error data from Python
-    window.__vueStructuredErrorCallback = (errorJson) => {
+    window.__vueStructuredErrorCallback = errorJson => {
       try {
         // Parse JSON string to avoid Pyodide proxy issues
         window.__vueStructuredErrorData = JSON.parse(errorJson)
@@ -194,7 +194,7 @@ export function useAppController(circuitManager) {
 
       // First, try to find the component in the main circuit
       const component = canvasRef.components.find(c => c.id === componentId)
-      
+
       if (component) {
         // This is a top-level component - handle normally
         switch (eventType) {
@@ -227,7 +227,6 @@ export function useAppController(circuitManager) {
       window.__vueUpdateCallback('value', componentId, value)
     }
   }
-
 
   /**
    * Handle value update events
@@ -297,7 +296,7 @@ export function useAppController(circuitManager) {
 
     // Convert Pyodide Proxy and extract data
     const jsStepData = stepData.toJs?.() || stepData
-    
+
     // Update wire state directly
     activeCircuit.wires.splice(wireIndex, 1, {
       ...activeCircuit.wires[wireIndex],
@@ -318,7 +317,9 @@ export function useAppController(circuitManager) {
     // If we have circuit context, navigate to that circuit to show the error in context
     if (errorData.circuit_name) {
       // Find the circuit by name
-      const targetCircuit = circuitManager.circuitsArray.value.find(c => c.name === errorData.circuit_name)
+      const targetCircuit = circuitManager.circuitsArray.value.find(
+        c => c.name === errorData.circuit_name
+      )
       if (targetCircuit && targetCircuit.id !== circuitManager.activeTabId.value) {
         circuitManager.navigateToCircuit(targetCircuit.id)
         // Give the UI a moment to switch circuits, then handle error with the now-active circuit
@@ -333,50 +334,48 @@ export function useAppController(circuitManager) {
     handleErrorInTargetCircuit(canvasRef, errorData)
   }
 
-
   function handleErrorInTargetCircuit(canvasRef, errorData) {
     // Find the component that has the error - try canvasRef first, fall back to active circuit data
     let component = null
     let componentsSource = null
-    
+
     // First try canvasRef (normal case or if still valid after navigation)
     if (canvasRef?.components) {
       componentsSource = canvasRef.components
-      
+
       // Try to find by component ID
       if (errorData.component_id) {
         component = componentsSource.find(c => c.id === errorData.component_id)
       }
-      
     }
-    
+
     // If not found in canvasRef, try active circuit data (post-navigation case)
     if (!component && circuitManager?.activeCircuit?.value?.components) {
       componentsSource = circuitManager.activeCircuit.value.components
-      
+
       // Try to find by component ID
       if (errorData.component_id) {
         component = componentsSource.find(c => c.id === errorData.component_id)
       }
-      
     }
-    
+
     if (!component) {
       console.warn(`Component not found: ${errorData.component_id || 'no component_id'}`)
-      
-      
+
       // Show notification even if component not found (subcircuit error case)
       if (canvasRef?.showErrorNotification) {
-        const circuitContext = errorData.circuit_name ? ` in circuit "${errorData.circuit_name}"` : ''
+        const circuitContext = errorData.circuit_name
+          ? ` in circuit "${errorData.circuit_name}"`
+          : ''
         const componentDescription = `${errorData.component_type}${circuitContext}`
-        
+
         // Build template variables from error data for i18n
         const templateVars = {
           inputName: errorData.port_name || 'unknown',
           outputName: errorData.port_name || 'unknown',
           ...errorData // Include all additional fields (expectedBits, actualBits, etc.)
         }
-        
+
         const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
         canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
       }
@@ -389,8 +388,17 @@ export function useAppController(circuitManager) {
       connectedComponentId: errorData.connected_component_id,
       // Include any additional fields (expectedBits, actualBits, etc.)
       ...Object.fromEntries(
-        Object.entries(errorData).filter(([key]) => 
-          !['component_id', 'component_type', 'error_code', 'severity', 'port_name', 'connected_component_id', 'circuit_name'].includes(key)
+        Object.entries(errorData).filter(
+          ([key]) =>
+            ![
+              'component_id',
+              'component_type',
+              'error_code',
+              'severity',
+              'port_name',
+              'connected_component_id',
+              'circuit_name'
+            ].includes(key)
         )
       )
     }
@@ -406,7 +414,7 @@ export function useAppController(circuitManager) {
         errorDetails: errorDetails
       }
     }
-    
+
     // Use circuitManager.updateComponent if canvasRef is stale (post-navigation)
     if (canvasRef?.updateComponent) {
       canvasRef.updateComponent(updatedComponent)
@@ -429,7 +437,7 @@ export function useAppController(circuitManager) {
     }
 
     const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
-    
+
     if (canvasRef?.showErrorNotification) {
       canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
     } else {
@@ -512,7 +520,7 @@ export function useAppController(circuitManager) {
       // Collect ALL available schematic component definitions (not just used ones)
       // This ensures that components saved with "Save as Component" are preserved
       const allSchematicComponents = {}
-      
+
       // Include all components from availableComponents Map
       for (const [circuitId, componentDef] of circuitManager.availableComponents.value) {
         if (componentDef && componentDef.type === 'circuit-component') {
@@ -535,7 +543,7 @@ export function useAppController(circuitManager) {
         allSchematicComponents,
         circuitManager.exportState().nextCircuitId
       )
-      
+
       // Mark the active circuit as saved (no unsaved changes)
       if (activeCircuit) {
         circuitManager.markCircuitAsSaved(activeCircuit.id)
@@ -615,10 +623,7 @@ export function useAppController(circuitManager) {
     if (circuitData.nextCircuitId) {
       // Get current state, update nextCircuitId, and restore it
       const currentState = circuitManager.exportState()
-      currentState.nextCircuitId = Math.max(
-        currentState.nextCircuitId,
-        circuitData.nextCircuitId
-      )
+      currentState.nextCircuitId = Math.max(currentState.nextCircuitId, circuitData.nextCircuitId)
       circuitManager.importState(currentState)
     }
 
@@ -702,7 +707,7 @@ export function useAppController(circuitManager) {
           onAccept: () => {
             // Complete replacement: clear all schematic components to prevent ID conflicts
             circuitManager.availableComponents.value.clear()
-            
+
             // Also clear any other circuits that might have conflicting IDs
             // Keep only the currently active circuit, but clear its contents
             const activeCircuitId = circuitManager.activeTabId.value
@@ -717,14 +722,14 @@ export function useAppController(circuitManager) {
                 }
               }
             }
-            
+
             loadCircuitData(canvasRef, circuitData)
           }
         })
       } else {
         // Complete replacement even when no existing circuit
         circuitManager.availableComponents.value.clear()
-        
+
         const activeCircuitId = circuitManager.activeTabId.value
         if (activeCircuitId) {
           const activeCircuit = circuitManager.getCircuit(activeCircuitId)
@@ -736,7 +741,7 @@ export function useAppController(circuitManager) {
             }
           }
         }
-        
+
         loadCircuitData(canvasRef, circuitData)
       }
     } catch (error) {
@@ -785,7 +790,7 @@ export function useAppController(circuitManager) {
    */
   function handleInspectorAction(event) {
     const { action, circuit } = event
-    
+
     switch (action) {
       case 'saveAsComponent':
         if (circuit) {
@@ -795,14 +800,14 @@ export function useAppController(circuitManager) {
           }
         }
         break
-        
+
       case 'deleteComponent':
         if (circuit) {
           // Check if this circuit is saved as a component
           const isComponent = Array.from(circuitManager.availableComponents.value.values()).some(
             comp => comp.circuitId === circuit.id
           )
-          
+
           if (isComponent) {
             // Show confirmation dialog
             showConfirmation({
@@ -822,7 +827,7 @@ export function useAppController(circuitManager) {
           }
         }
         break
-        
+
       default:
         console.warn('Unknown inspector action:', action)
     }

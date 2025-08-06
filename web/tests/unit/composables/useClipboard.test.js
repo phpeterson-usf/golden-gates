@@ -236,7 +236,7 @@ describe('useClipboard', () => {
       expect(result.wires[0].startConnection.pos.y).toBe(31) // 11 + 20
       expect(result.wires[0].endConnection.pos.x).toBe(25) // 15 + 10
       expect(result.wires[0].endConnection.pos.y).toBe(25) // 5 + 20
-      
+
       // Check that port types are preserved
       expect(result.wires[0].startConnection.portType).toBe('output')
       expect(result.wires[0].endConnection.portType).toBe('input')

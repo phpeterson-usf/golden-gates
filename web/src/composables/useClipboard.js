@@ -54,20 +54,26 @@ export function useClipboard() {
         y: point.y - bounds.minY
       })),
       // Store only position and port type - connections will be resolved by geometry
-      startConnection: wire.startConnection && wire.startConnection.pos ? {
-        pos: {
-          x: wire.startConnection.pos.x - bounds.minX,
-          y: wire.startConnection.pos.y - bounds.minY
-        },
-        portType: wire.startConnection.portType
-      } : null,
-      endConnection: wire.endConnection && wire.endConnection.pos ? {
-        pos: {
-          x: wire.endConnection.pos.x - bounds.minX,
-          y: wire.endConnection.pos.y - bounds.minY
-        },
-        portType: wire.endConnection.portType
-      } : null
+      startConnection:
+        wire.startConnection && wire.startConnection.pos
+          ? {
+              pos: {
+                x: wire.startConnection.pos.x - bounds.minX,
+                y: wire.startConnection.pos.y - bounds.minY
+              },
+              portType: wire.startConnection.portType
+            }
+          : null,
+      endConnection:
+        wire.endConnection && wire.endConnection.pos
+          ? {
+              pos: {
+                x: wire.endConnection.pos.x - bounds.minX,
+                y: wire.endConnection.pos.y - bounds.minY
+              },
+              portType: wire.endConnection.portType
+            }
+          : null
     }))
 
     // Serialize junctions with relative positioning
@@ -140,20 +146,24 @@ export function useClipboard() {
           y: point.y + pastePosition.y
         })),
         // Preserve connection positions - connections will be resolved by geometry
-        startConnection: wire.startConnection ? {
-          pos: {
-            x: wire.startConnection.pos.x + pastePosition.x,
-            y: wire.startConnection.pos.y + pastePosition.y
-          },
-          portType: wire.startConnection.portType
-        } : null,
-        endConnection: wire.endConnection ? {
-          pos: {
-            x: wire.endConnection.pos.x + pastePosition.x,
-            y: wire.endConnection.pos.y + pastePosition.y
-          },
-          portType: wire.endConnection.portType
-        } : null
+        startConnection: wire.startConnection
+          ? {
+              pos: {
+                x: wire.startConnection.pos.x + pastePosition.x,
+                y: wire.startConnection.pos.y + pastePosition.y
+              },
+              portType: wire.startConnection.portType
+            }
+          : null,
+        endConnection: wire.endConnection
+          ? {
+              pos: {
+                x: wire.endConnection.pos.x + pastePosition.x,
+                y: wire.endConnection.pos.y + pastePosition.y
+              },
+              portType: wire.endConnection.portType
+            }
+          : null
       }
     })
 
