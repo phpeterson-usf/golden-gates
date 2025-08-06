@@ -47,7 +47,10 @@ class Addressable(BitsNode):
         self.data_bits = data_bits
         self.total_cells = 2 ** address_bits
         self.max_value = (2 ** data_bits) - 1
-        self.memory = [0] * self.total_cells
+        self.memory = [None] * self.total_cells
+        for c in range(self.total_cells):
+            self.write_address(c, 0)
+
 
     def calc_address(self):
         addr = self.safe_read_input(Addressable.A, bits=self.address_bits)
@@ -62,7 +65,6 @@ class Addressable(BitsNode):
         if addr is None:
             addr = self.calc_address()
         val = self.memory[addr]
-        logger.info(f'Addressable address: {addr}, value: {val}')
         return val
 
     def write_address(self, addr=None, val=0):
@@ -73,6 +75,17 @@ class Addressable(BitsNode):
                 f'Addressable value {val} overflows {self.data_bits} bits')
             val &= self.mask()
         self.memory[addr] = val
+        
+        # Send memory update callback for UI reactivity
+        try:
+            import builtins
+            if self.js_id and hasattr(builtins, 'updateCallback'):
+                updateCallback = builtins.updateCallback
+                # Send memory event with address and value as dict
+                memory_data = {'address': addr, 'value': val}
+                updateCallback('memory', self.js_id, memory_data)
+        except Exception as e:
+            logger.error(f'Memory callback failed: {e}')
 
 
 class ROM(Addressable):

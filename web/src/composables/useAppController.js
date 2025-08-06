@@ -207,6 +207,9 @@ export function useAppController(circuitManager) {
           case 'error':
             handleErrorUpdate(canvasRef, component, value)
             break
+          case 'memory':
+            handleMemoryUpdate(canvasRef, component, value)
+            break
           default:
             console.warn(`Unknown event type: ${eventType}`)
         }
@@ -487,6 +490,59 @@ export function useAppController(circuitManager) {
     }
 
     console.error(`Component ${component.id} error:`, errorData)
+  }
+
+  /**
+   * Handle memory update events for RAM components
+   */
+  function handleMemoryUpdate(canvasRef, component, memoryData) {
+    if (component.type !== 'ram') {
+      console.warn(`Memory update for non-RAM component: ${component.type}`)
+      return
+    }
+
+    // Convert Pyodide Proxy to JavaScript object if needed
+    let jsMemoryData = memoryData
+    if (memoryData && typeof memoryData.toJs === 'function') {
+      jsMemoryData = memoryData.toJs()
+    } else if (memoryData && memoryData.constructor && memoryData.constructor.name === 'PyProxy') {
+      // Fallback for older Pyodide versions
+      try {
+        jsMemoryData = {
+          address: memoryData.address,
+          value: memoryData.value
+        }
+      } catch (e) {
+        console.warn('Failed to extract data from Pyodide Proxy:', e)
+        return
+      }
+    }
+
+    // Extract address and value from the memory data
+    const address = jsMemoryData.address
+    const value = jsMemoryData.value
+
+    if (address === undefined || value === undefined) {
+      console.warn('Memory update missing address or value:', jsMemoryData)
+      return
+    }
+
+    // Update the component's data array
+    const updatedComponent = {
+      ...component,
+      props: {
+        ...component.props,
+        // Ensure data array exists and is large enough
+        data: component.props.data || new Array(2 ** (component.props.addressBits || 4)).fill(0),
+        lastMemoryUpdate: Date.now() // For potential animation triggers
+      }
+    }
+
+    // Update the specific memory location
+    updatedComponent.props.data[address] = value
+
+    // Update the component in the canvas
+    canvasRef.updateComponent(updatedComponent)
   }
 
   /**
@@ -813,9 +869,6 @@ export function useAppController(circuitManager) {
       case 'saveAsComponent':
         if (circuit) {
           const success = circuitManager.saveCircuitAsComponent(circuit.id)
-          if (success) {
-            console.log(`Circuit ${circuit.name} saved as component`)
-          }
         }
         break
 
@@ -837,7 +890,6 @@ export function useAppController(circuitManager) {
               onAccept: () => {
                 // Delete the component
                 circuitManager.removeCircuitComponent(circuit.id)
-                console.log(`Component ${circuit.name} deleted`)
               }
             })
           } else {
