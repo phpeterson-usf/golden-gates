@@ -226,7 +226,7 @@ export function useAppController(circuitManager) {
             // Keep error messages visible as they're important for debugging
             console.log(`Nested component error: ${componentId} = ${value} (no parent mapped)`)
           }
-          // Suppress value and step updates to reduce console clutter - the values are 
+          // Suppress value and step updates to reduce console clutter - the values are
           // still being calculated correctly, just no UI destination yet
         }
       }
@@ -651,7 +651,7 @@ export function useAppController(circuitManager) {
    */
   function loadCircuitData(canvasRef, circuitData) {
     if (!canvasRef) return
-    
+
     // Set loading state to prevent undo saves during loading
     if (canvasRef.setLoadingState) {
       canvasRef.setLoadingState(true)
@@ -754,12 +754,11 @@ export function useAppController(circuitManager) {
         canvasRef.addWireJunction(junction)
       })
     }
-    
+
     // Reset loading state
     if (canvasRef.setLoadingState) {
       canvasRef.setLoadingState(false)
     }
-    
   }
 
   /**

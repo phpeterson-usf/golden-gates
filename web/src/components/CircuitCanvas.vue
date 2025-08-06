@@ -257,29 +257,29 @@ export default {
       clearCurrentCircuit: clearCurrentCircuitBase,
       navigateToCircuit
     } = props.circuitManager
-    
+
     // Wrap circuit modification functions with autosaves
-    const addComponent = (component) => {
+    const addComponent = component => {
       if (props.autosave) {
         props.autosave.immediateAutosave()
       }
       return addComponentBase(component)
     }
-    
-    const removeComponent = (componentId) => {
+
+    const removeComponent = componentId => {
       if (props.autosave) {
         props.autosave.immediateAutosave()
       }
       return removeComponentBase(componentId)
     }
-    
+
     const updateComponent = (componentId, updates) => {
       if (props.autosave) {
         props.autosave.immediateAutosave()
       }
       return updateComponentBase(componentId, updates)
     }
-    
+
     const clearCurrentCircuit = () => {
       if (props.autosave) {
         props.autosave.immediateAutosave()
@@ -703,7 +703,7 @@ export default {
       clearCurrentCircuit()
       clearSelection()
     }
-    
+
     // Set loading state (for external control during circuit loading - prevents autosave)
     function setLoadingState(loading) {
       if (props.autosave) {

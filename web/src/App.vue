@@ -120,7 +120,7 @@ export default {
 
     // Initialize autosave system
     const autosave = useAutosave(circuitManager)
-    
+
     // Initialize circuit operations (controller layer)
     const circuitOperations = useAppController(circuitManager)
 

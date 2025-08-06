@@ -557,11 +557,11 @@ export const componentRegistry = {
       const height = Math.max(7, Math.ceil(addressBits / 2) + 3)
       return {
         inputs: [
-          { name: 'A', x: 0, y: 1 },    // Address input
-          { name: 'Din', x: 0, y: 2 },  // Data input
-          { name: 'ld', x: 0, y: 3 },   // Load input
-          { name: 'st', x: 0, y: 4 },   // Store input
-          { name: 'CLK', x: 0, y: 5 }   // Clock input
+          { name: 'A', x: 0, y: 1 }, // Address input
+          { name: 'Din', x: 0, y: 2 }, // Data input
+          { name: 'ld', x: 0, y: 3 }, // Load input
+          { name: 'st', x: 0, y: 4 }, // Store input
+          { name: 'CLK', x: 0, y: 5 } // Clock input
         ],
         outputs: [
           { name: 'D', x: width, y: Math.floor(height / 2) } // Data output (center right, grid-aligned)

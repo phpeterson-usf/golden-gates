@@ -15,10 +15,10 @@
         >
           <i class="pi pi-upload"></i>
         </button>
-        <button 
+        <button
           v-if="editable"
-          @click="clearData" 
-          v-tooltip.top="'Clear Data'" 
+          @click="clearData"
+          v-tooltip.top="'Clear Data'"
           class="clear-button"
         >
           <i class="pi pi-trash"></i>
@@ -54,7 +54,10 @@
                 @focus="handleCellFocus((row - 1) * 8 + (col - 1))"
                 @blur="handleCellBlur"
                 class="cell-input"
-                :class="{ active: activeCellIndex === (row - 1) * 8 + (col - 1), readonly: !editable }"
+                :class="{
+                  active: activeCellIndex === (row - 1) * 8 + (col - 1),
+                  readonly: !editable
+                }"
                 :readonly="!editable"
                 spellcheck="false"
               />

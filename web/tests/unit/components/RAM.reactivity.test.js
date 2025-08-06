@@ -34,7 +34,11 @@ describe('RAM Memory Reactivity', () => {
       let jsMemoryData = memoryData
       if (memoryData && typeof memoryData.toJs === 'function') {
         jsMemoryData = memoryData.toJs()
-      } else if (memoryData && memoryData.constructor && memoryData.constructor.name === 'PyProxy') {
+      } else if (
+        memoryData &&
+        memoryData.constructor &&
+        memoryData.constructor.name === 'PyProxy'
+      ) {
         // Fallback for older Pyodide versions
         try {
           jsMemoryData = {
@@ -93,7 +97,7 @@ describe('RAM Memory Reactivity', () => {
 
   it('should handle invalid memory updates gracefully', () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    
+
     const handleMemoryUpdate = (canvasRef, component, memoryData) => {
       if (component.type !== 'ram') {
         console.warn(`Memory update for non-RAM component: ${component.type}`)
@@ -113,15 +117,19 @@ describe('RAM Memory Reactivity', () => {
     const nonRamComponent = { ...mockComponent, type: 'logic-gate' }
     handleMemoryUpdate(mockCanvasRef, nonRamComponent, { address: 0, value: 1 })
     expect(consoleWarnSpy).toHaveBeenCalledWith('Memory update for non-RAM component: logic-gate')
-    
+
     // Test with missing data
     handleMemoryUpdate(mockCanvasRef, mockComponent, { address: 0 }) // missing value
-    expect(consoleWarnSpy).toHaveBeenCalledWith('Memory update missing address or value:', { address: 0 })
-    
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Memory update missing address or value:', {
+      address: 0
+    })
+
     // Test with missing address
     handleMemoryUpdate(mockCanvasRef, mockComponent, { value: 42 }) // missing address
-    expect(consoleWarnSpy).toHaveBeenCalledWith('Memory update missing address or value:', { value: 42 })
-    
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Memory update missing address or value:', {
+      value: 42
+    })
+
     consoleWarnSpy.mockRestore()
   })
 
@@ -204,7 +212,11 @@ describe('RAM Memory Reactivity', () => {
       let jsMemoryData = memoryData
       if (memoryData && typeof memoryData.toJs === 'function') {
         jsMemoryData = memoryData.toJs()
-      } else if (memoryData && memoryData.constructor && memoryData.constructor.name === 'PyProxy') {
+      } else if (
+        memoryData &&
+        memoryData.constructor &&
+        memoryData.constructor.name === 'PyProxy'
+      ) {
         // Fallback for older Pyodide versions
         try {
           jsMemoryData = {
@@ -254,7 +266,11 @@ describe('RAM Memory Reactivity', () => {
       let jsMemoryData = memoryData
       if (memoryData && typeof memoryData.toJs === 'function') {
         jsMemoryData = memoryData.toJs()
-      } else if (memoryData && memoryData.constructor && memoryData.constructor.name === 'PyProxy') {
+      } else if (
+        memoryData &&
+        memoryData.constructor &&
+        memoryData.constructor.name === 'PyProxy'
+      ) {
         // Fallback for older Pyodide versions
         try {
           jsMemoryData = {
