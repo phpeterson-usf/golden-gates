@@ -12,7 +12,7 @@ export class ClockGenerator extends IOComponentGenerator {
   constructor(componentData: IOComponentData) {
     super(componentData)
     this.frequency = this.props.frequency || 1
-    this.mode = (this.props.mode as 'auto' | 'manual') || 'auto'
+    this.mode = (this.props.mode as 'auto' | 'manual') || 'manual'
   }
 
   generate(): GeneratedStatement {

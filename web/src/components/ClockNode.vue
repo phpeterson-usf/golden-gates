@@ -64,7 +64,7 @@ export default defineComponent({
     label: { type: String, default: 'CLK' },
     frequency: { type: Number, default: 1 },
     rotation: { type: Number, default: 0 },
-    mode: { type: String as () => 'auto' | 'manual', default: 'auto' }
+    mode: { type: String as () => 'auto' | 'manual', default: 'manual' }
   },
   emits: ['startDrag'],
   computed: {
