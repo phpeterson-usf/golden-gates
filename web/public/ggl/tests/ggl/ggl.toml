@@ -373,6 +373,14 @@ expected = "0x46"
 rubric = 1
 
 [[tests]]
+name = "component.bit-width-error"
+input = ["python3", "$project_tests/component.bit-width-error.py"]
+expected = """
+Output output_1_1753899042632: bitWidthMismatch (port: 0)
+"""
+rubric = 1
+
+[[tests]]
 name = "8bit-counter"
 input = ["python3", "$project_tests/8bit-counter.py"]
 expected = """

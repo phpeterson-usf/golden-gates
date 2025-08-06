@@ -1,5 +1,6 @@
 from .node import Node, Connector
 from .ggl_logging import new_logger
+from .errors import CircuitError
 
 logger = new_logger(__name__)
 
@@ -47,7 +48,10 @@ class CircuitNode(Node):
         from .circuit import Circuit
 
         # Create new circuit instance
-        cloned_circuit = Circuit(label=f"{template.label}_{instance_id}")
+        cloned_circuit = Circuit(
+            label=f"{template.label}_{instance_id}",
+            circuit_name=template.circuit_name  # Preserve circuit name for error context
+        )
 
         # Maps from template nodes to cloned nodes
         node_map = {}
@@ -97,11 +101,7 @@ class CircuitNode(Node):
         Returns:
             List[Node]: Nodes that need further propagation
         """
-        logger.debug(f"{self.kind} {self.label} propagate() called")
-
         # Step 1: Update circuit input values from our input edges using name mapping
-        logger.debug(
-            f"{self.kind} {self.label}: Step 1 - Reading input values from edges")
         for original_name, cloned_name in self._input_mapping.items():
             if original_name in self.inputs.points:
                 edge = self.get_input_edge(original_name)
@@ -110,54 +110,17 @@ class CircuitNode(Node):
                     # Find the cloned input node and set its value
                     for input_node in self.circuit.inputs:
                         if input_node.label == cloned_name:
-                            logger.debug(
-                                f"{self.kind} {self.label}: Setting input '{original_name}' -> '{cloned_name}' = 0x{input_value:02x}")
                             input_node.value = input_value
                             break
-                else:
-                    logger.debug(
-                        f"{self.kind} {self.label}: Input '{original_name}' has no edge")
-
-        # Step 2: Show internal circuit state before running step
-        logger.debug(
-            f"{self.kind} {self.label}: Step 2 - Internal circuit state before step()")
-        internal_circuit_nodes = [
-            n for n in self.circuit.all_nodes if isinstance(n, CircuitNode)]
-        logger.debug(
-            f"{self.kind} {self.label}: Internal circuit has {len(internal_circuit_nodes)} nested CircuitNodes")
-        for i, cn in enumerate(internal_circuit_nodes):
-            logger.debug(
-                f"{self.kind} {self.label}: Nested CircuitNode {i}: {cn.label}")
-            # Show the input edges of nested CircuitNodes
-            for input_name in cn.inputs.points.keys():
-                nested_edge = cn.get_input_edge(input_name)
-                if nested_edge:
-                    logger.debug(
-                        f"{self.kind} {self.label}: Nested {cn.label} input '{input_name}' edge value = 0x{nested_edge.value:02x}")
-                else:
-                    logger.debug(
-                        f"{self.kind} {self.label}: Nested {cn.label} input '{input_name}' has no edge")
 
         # Step 2: Manually propagate input nodes to edges
-        logger.debug(
-            f"{self.kind} {self.label}: Manually propagating internal INPUT nodes first")
         for input_node in self.circuit.inputs:
             input_node.propagate()
 
         # Step 3: Run one simulation step on the wrapped circuit
-        logger.debug(
-            f"{self.kind} {self.label}: Running internal circuit.step()")
         self.circuit.step(rising_edge=False)
 
-        # Step 4: Show internal circuit state after running step
-        logger.debug(
-            f"{self.kind} {self.label}: Step 4 - Internal circuit state after step()")
-        for output_node in self.circuit.outputs:
-            logger.debug(
-                f"{self.kind} {self.label}: Internal output '{output_node.label}' = 0x{getattr(output_node, 'value', 0)}")
-
-        # Step 5: Propagate output values using original names
-        logger.debug(f"{self.kind} {self.label}: Step 5 - Propagating outputs")
+        # Step 4: Propagate output values using original names
         propagation_work = []
         for original_name, cloned_name in self._output_mapping.items():
             if original_name in self.outputs.points:
@@ -167,16 +130,11 @@ class CircuitNode(Node):
                         output_value = output_node.value
                         # Get the bit width from the output node
                         output_bits = getattr(output_node, 'bits', 1)
-                        logger.debug(
-                            f"{self.kind} {self.label}: Propagating output '{cloned_name}' -> '{original_name}' = 0x{output_value:02x} ({output_bits} bits)")
 
                         # Use Node's propagate method with original name and correct bit width
                         work = super().propagate(output_name=original_name, value=output_value, bits=output_bits)
                         propagation_work.extend(work)
                         break
-
-        logger.debug(
-            f"{self.kind} {self.label}: propagate() complete, returning {len(propagation_work)} nodes")
         return propagation_work
 
     def input(self, name):

@@ -34,6 +34,7 @@ class CircuitError(Exception):
                  severity: str = 'error',
                  port_name: str = None,
                  connected_component_id: str = None,
+                 circuit_name: str = None,
                  **kwargs):
         """
         Initialize a circuit component error.
@@ -45,6 +46,7 @@ class CircuitError(Exception):
             severity: 'error' or 'warning' (though errors terminate simulation)
             port_name: Name of the port involved in the error (e.g., "in0", "out")
             connected_component_id: ID of connected component if relevant
+            circuit_name: Unique name of the circuit where the error occurred (for navigation)
             **kwargs: Additional error-specific fields (e.g., expectedBits, actualBits)
         """
         self.component_id = component_id
@@ -54,6 +56,7 @@ class CircuitError(Exception):
         self.severity = severity
         self.port_name = port_name
         self.connected_component_id = connected_component_id
+        self.circuit_name = circuit_name
         
         # Store additional fields for structured error handling
         self.additional_fields = kwargs
@@ -72,7 +75,8 @@ class CircuitError(Exception):
             'error_code': self.error_code,
             'severity': self.severity,
             'port_name': self.port_name,
-            'connected_component_id': self.connected_component_id
+            'connected_component_id': self.connected_component_id,
+            'circuit_name': self.circuit_name
         }
         # Add any additional fields
         error_dict.update(self.additional_fields)

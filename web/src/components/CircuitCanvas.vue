@@ -475,7 +475,9 @@ export default {
         wireJunctions.value,
         componentRefs.value,
         componentInstances.value,
-        props.circuitManager
+        props.circuitManager,
+        true, // includeRun
+        props.circuitManager.activeCircuit.value?.name // Pass active circuit name for error context
       )
 
       // Store the hierarchy mapping for callback handling

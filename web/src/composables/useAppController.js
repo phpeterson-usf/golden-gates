@@ -315,10 +315,71 @@ export function useAppController(circuitManager) {
       return
     }
 
-    // Find the component that has the error
-    const component = canvasRef.components.find(c => c.id === errorData.component_id)
+    // If we have circuit context, navigate to that circuit to show the error in context
+    if (errorData.circuit_name) {
+      // Find the circuit by name
+      const targetCircuit = circuitManager.circuitsArray.value.find(c => c.name === errorData.circuit_name)
+      if (targetCircuit && targetCircuit.id !== circuitManager.activeTabId.value) {
+        circuitManager.navigateToCircuit(targetCircuit.id)
+        // Give the UI a moment to switch circuits, then handle error with the now-active circuit
+        setTimeout(() => {
+          handleErrorInTargetCircuit(canvasRef, errorData)
+        }, 200) // Single attempt with reasonable delay
+        return
+      }
+    }
+
+    // Handle error in current context (either no circuit name or already in target circuit)
+    handleErrorInTargetCircuit(canvasRef, errorData)
+  }
+
+
+  function handleErrorInTargetCircuit(canvasRef, errorData) {
+    // Find the component that has the error - try canvasRef first, fall back to active circuit data
+    let component = null
+    let componentsSource = null
+    
+    // First try canvasRef (normal case or if still valid after navigation)
+    if (canvasRef?.components) {
+      componentsSource = canvasRef.components
+      
+      // Try to find by component ID
+      if (errorData.component_id) {
+        component = componentsSource.find(c => c.id === errorData.component_id)
+      }
+      
+    }
+    
+    // If not found in canvasRef, try active circuit data (post-navigation case)
+    if (!component && circuitManager?.activeCircuit?.value?.components) {
+      componentsSource = circuitManager.activeCircuit.value.components
+      
+      // Try to find by component ID
+      if (errorData.component_id) {
+        component = componentsSource.find(c => c.id === errorData.component_id)
+      }
+      
+    }
+    
     if (!component) {
-      console.error(`Component not found: ${errorData.component_id}`)
+      console.warn(`Component not found: ${errorData.component_id || 'no component_id'}`)
+      
+      
+      // Show notification even if component not found (subcircuit error case)
+      if (canvasRef?.showErrorNotification) {
+        const circuitContext = errorData.circuit_name ? ` in circuit "${errorData.circuit_name}"` : ''
+        const componentDescription = `${errorData.component_type}${circuitContext}`
+        
+        // Build template variables from error data for i18n
+        const templateVars = {
+          inputName: errorData.port_name || 'unknown',
+          outputName: errorData.port_name || 'unknown',
+          ...errorData // Include all additional fields (expectedBits, actualBits, etc.)
+        }
+        
+        const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
+        canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
+      }
       return
     }
 
@@ -329,7 +390,7 @@ export function useAppController(circuitManager) {
       // Include any additional fields (expectedBits, actualBits, etc.)
       ...Object.fromEntries(
         Object.entries(errorData).filter(([key]) => 
-          !['component_id', 'component_type', 'error_code', 'severity', 'port_name', 'connected_component_id'].includes(key)
+          !['component_id', 'component_type', 'error_code', 'severity', 'port_name', 'connected_component_id', 'circuit_name'].includes(key)
         )
       )
     }
@@ -345,24 +406,35 @@ export function useAppController(circuitManager) {
         errorDetails: errorDetails
       }
     }
-    canvasRef.updateComponent(updatedComponent)
+    
+    // Use circuitManager.updateComponent if canvasRef is stale (post-navigation)
+    if (canvasRef?.updateComponent) {
+      canvasRef.updateComponent(updatedComponent)
+    } else if (circuitManager?.updateComponent) {
+      circuitManager.updateComponent(updatedComponent)
+    }
 
-    // Show global error notification
+    // Show global error notification - try canvasRef first, fall back to console if stale
+    const componentLabel = component.props?.label || component.label
+    const circuitContext = errorData.circuit_name ? ` in circuit "${errorData.circuit_name}"` : ''
+    const componentDescription = componentLabel
+      ? `${errorData.component_type} "${componentLabel}"${circuitContext}`
+      : `${errorData.component_type}${circuitContext}`
+
+    // Build template variables from error data
+    const templateVars = {
+      inputName: errorData.port_name || 'unknown',
+      outputName: errorData.port_name || 'unknown',
+      ...errorData // Include all additional fields (expectedBits, actualBits, etc.)
+    }
+
+    const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
+    
     if (canvasRef?.showErrorNotification) {
-      const componentLabel = component.props?.label || component.label
-      const componentDescription = componentLabel
-        ? `${errorData.component_type} "${componentLabel}"`
-        : errorData.component_type
-
-      // Build template variables from error data
-      const templateVars = {
-        inputName: errorData.port_name || 'unknown',
-        outputName: errorData.port_name || 'unknown',
-        ...errorData // Include all additional fields (expectedBits, actualBits, etc.)
-      }
-
-      const errorMessage = t(`simulation.errors.${errorData.error_code}`, templateVars)
       canvasRef.showErrorNotification(`Error in ${componentDescription}: ${errorMessage}`)
+    } else {
+      // Fallback when canvasRef is stale - at least log the error
+      console.error(`Error in ${componentDescription}: ${errorMessage}`)
     }
   }
 

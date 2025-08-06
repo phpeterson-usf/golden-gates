@@ -200,15 +200,12 @@ class Node:
         """
         
         # Create a deep copy to preserve all configuration and state
+        # Preserve js_id so Exceptions can reference the original UI component
         node = copy.deepcopy(self)
         
         # Update the label with instance_id suffix
         if hasattr(node, 'label') and node.label:
             node.label = f"{node.label}_{instance_id}"
-        
-        # Clear js_id as it's specific to the original instance
-        if hasattr(node, 'js_id'):
-            node.js_id = ""
         
         # Reinitialize connections - preserve structure but clear edge references
         for oname in node.outputs.points:

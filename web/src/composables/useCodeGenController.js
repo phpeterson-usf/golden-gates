@@ -74,7 +74,8 @@ export function useCodeGenController() {
     componentRefs,
     componentInstances,
     circuitManager = null,
-    includeRun = true
+    includeRun = true,
+    circuitName = null
   ) {
     // Reset the global name registry for fresh sequential naming
     resetNameRegistry()
@@ -100,7 +101,7 @@ export function useCodeGenController() {
     }
 
     sections.push('')
-    sections.push(`${circuitVarName} = circuit.Circuit(js_logging=True)`)
+    sections.push(`${circuitVarName} = circuit.Circuit(js_logging=True, circuit_name=${JSON.stringify(circuitName)})`)
     sections.push('')
 
     // Phase 1: Generate all components first
@@ -329,7 +330,8 @@ export function useCodeGenController() {
       {}, // componentRefs - not needed when using factory approach
       {}, // componentInstances - not needed when using factory approach
       circuitManager,
-      false // Don't include run() call for component modules
+      false, // Don't include run() call for component modules
+      circuit.name // Pass circuit name for error context
     )
     // For now, just return the code part for backward compatibility
     return result.code

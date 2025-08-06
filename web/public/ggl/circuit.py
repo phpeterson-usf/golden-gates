@@ -1,6 +1,7 @@
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
+from .errors import CircuitError
 from collections import deque
 import time
 
@@ -15,8 +16,9 @@ class Circuit:
     to produce a value in Output Nodes
     """
 
-    def __init__(self, label='', js_logging=None, auto_propagate=True):
+    def __init__(self, label='', js_logging=None, auto_propagate=True, circuit_name=None):
         self.label = label
+        self.circuit_name = circuit_name
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
@@ -52,11 +54,30 @@ class Circuit:
                 continue
             visited.add(node)
 
-            new_work = node.propagate()
-            if new_work:
-                for n in new_work:
-                    if n not in visited:
-                        work.append(n)
+            try:
+                new_work = node.propagate()
+                if new_work:
+                    for n in new_work:
+                        if n not in visited:
+                            work.append(n)
+            except CircuitError as e:
+                # Enhance the error with circuit context if not already present
+                if not e.circuit_name and self.circuit_name:
+                    # Create a new CircuitError with the circuit name added
+                    raise CircuitError(
+                        component_id=e.component_id,
+                        component_type=e.component_type,
+                        component_label=e.component_label,
+                        error_code=e.error_code,
+                        severity=e.severity,
+                        port_name=e.port_name,
+                        connected_component_id=e.connected_component_id,
+                        circuit_name=self.circuit_name,
+                        **e.additional_fields
+                    ) from e
+                else:
+                    # Re-raise the original error if circuit_name is already set
+                    raise
 
     def stop(self):
         """
