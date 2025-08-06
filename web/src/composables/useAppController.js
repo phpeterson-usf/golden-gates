@@ -588,6 +588,11 @@ export function useAppController(circuitManager) {
    */
   function loadCircuitData(canvasRef, circuitData) {
     if (!canvasRef) return
+    
+    // Set loading state to prevent undo saves during loading
+    if (canvasRef.setLoadingState) {
+      canvasRef.setLoadingState(true)
+    }
 
     // Clear existing circuit canvas
     canvasRef.clearCircuit()
@@ -686,6 +691,12 @@ export function useAppController(circuitManager) {
         canvasRef.addWireJunction(junction)
       })
     }
+    
+    // Reset loading state
+    if (canvasRef.setLoadingState) {
+      canvasRef.setLoadingState(false)
+    }
+    
   }
 
   /**

@@ -56,6 +56,15 @@ export function useKeyboardShortcuts(commandActions, availableComponents = []) {
     ) {
       return
     }
+    
+    // Handle Cmd/Ctrl+Z for undo
+    if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
+      event.preventDefault()
+      if (currentCommandActions?.restoreAutosave) {
+        currentCommandActions.restoreAutosave()
+      }
+      return
+    }
 
     // Handle single-key shortcuts
     const key = event.key.toLowerCase()

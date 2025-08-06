@@ -28,6 +28,7 @@ export function useAutosave(circuitManager) {
 
   // State
   const isAutosaveEnabled = ref(true)
+  const isLoading = ref(false)
   const lastSaveTime = ref(null)
   let debounceTimer = null
 
@@ -118,7 +119,7 @@ export function useAutosave(circuitManager) {
    * Save all circuits to localStorage with timestamp
    */
   function performAutosave() {
-    if (!isAutosaveEnabled.value) return false
+    if (!isAutosaveEnabled.value || isLoading.value) return false
 
     try {
       // Garbage collect before saving to make room
@@ -323,6 +324,13 @@ export function useAutosave(circuitManager) {
   }
 
   /**
+   * Set loading state to suppress autosaves
+   */
+  function setLoadingState(loading) {
+    isLoading.value = loading
+  }
+
+  /**
    * Initialize autosave system
    */
   function initializeAutosave() {
@@ -365,6 +373,7 @@ export function useAutosave(circuitManager) {
     performAutosave,
     debouncedAutosave,
     immediateAutosave,
+    setLoadingState,
     initializeAutosave,
 
     // Restoration

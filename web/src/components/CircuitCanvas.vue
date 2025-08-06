@@ -214,6 +214,11 @@ export default {
     circuitManager: {
       type: Object,
       required: true
+    },
+    autosave: {
+      type: Object,
+      required: false,
+      default: null
     }
   },
   emits: ['selectionChanged'],
@@ -246,12 +251,41 @@ export default {
     // Use the passed circuit manager instead of creating our own
     const {
       activeCircuit,
-      addComponent,
-      removeComponent,
-      updateComponent,
-      clearCurrentCircuit,
+      addComponent: addComponentBase,
+      removeComponent: removeComponentBase,
+      updateComponent: updateComponentBase,
+      clearCurrentCircuit: clearCurrentCircuitBase,
       navigateToCircuit
     } = props.circuitManager
+    
+    // Wrap circuit modification functions with autosaves
+    const addComponent = (component) => {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
+      return addComponentBase(component)
+    }
+    
+    const removeComponent = (componentId) => {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
+      return removeComponentBase(componentId)
+    }
+    
+    const updateComponent = (componentId, updates) => {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
+      return updateComponentBase(componentId, updates)
+    }
+    
+    const clearCurrentCircuit = () => {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
+      return clearCurrentCircuitBase()
+    }
 
     // Use current circuit components and wires directly
     const components = computed(() => activeCircuit.value?.components || [])
@@ -276,12 +310,18 @@ export default {
         wires: wires,
         wireJunctions: wireJunctions,
         addWire: wire => {
+          if (props.autosave) {
+            props.autosave.immediateAutosave()
+          }
           const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
           if (circuit?.wires) {
             circuit.wires.push(wire)
           }
         },
         removeWire: index => {
+          if (props.autosave) {
+            props.autosave.immediateAutosave()
+          }
           const circuit = props.circuitManager.getCircuit(props.circuitManager.activeTabId.value)
           if (circuit?.wires) {
             circuit.wires.splice(index, 1)
@@ -606,11 +646,17 @@ export default {
 
     // Add wire directly (for loading from file)
     function addWire(wireData) {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
       activeCircuit.value?.wires.push(wireData)
     }
 
     // Add wire junction directly (for loading from file)
     function addWireJunction(junctionData) {
+      if (props.autosave) {
+        props.autosave.immediateAutosave()
+      }
       activeCircuit.value?.wireJunctions.push(junctionData)
     }
 
@@ -656,6 +702,13 @@ export default {
     function clearCircuit() {
       clearCurrentCircuit()
       clearSelection()
+    }
+    
+    // Set loading state (for external control during circuit loading - prevents autosave)
+    function setLoadingState(loading) {
+      if (props.autosave) {
+        props.autosave.setLoadingState(loading)
+      }
     }
 
     return {
@@ -719,6 +772,7 @@ export default {
       handleWireMouseDown,
       addComponentAtSmartPosition,
       clearCircuit,
+      setLoadingState,
       getCircuitData,
       updateComponent,
       updateWireEndpointsForPropertyChange: wireManagement.updateWireEndpointsForPropertyChange,

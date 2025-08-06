@@ -46,6 +46,7 @@
           <CircuitCanvas
             ref="canvas"
             :circuitManager="circuitManager"
+            :autosave="autosave"
             @selectionChanged="handleSelectionChanged"
           />
         </div>
@@ -117,11 +118,11 @@ export default {
     // Initialize circuit manager (model layer)
     const circuitManager = useCircuitModel()
 
-    // Initialize circuit operations (controller layer)
-    const circuitOperations = useAppController(circuitManager)
-
     // Initialize autosave system
     const autosave = useAutosave(circuitManager)
+    
+    // Initialize circuit operations (controller layer)
+    const circuitOperations = useAppController(circuitManager)
 
     // Extract needed properties for template
     const {
