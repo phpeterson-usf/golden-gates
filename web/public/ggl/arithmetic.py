@@ -297,8 +297,8 @@ class SignExtend(Arithmetic):
         v = self.safe_read_input(SignExtend.inport, bits=self.in_bits)
         v = self.operator(v)
         new_work = super().propagate(
-            output_name=SignExtend.outport, 
-            value=v, 
+            output_name=SignExtend.outport,
+            value=v,
             bits=self.out_bits
         )
         return new_work

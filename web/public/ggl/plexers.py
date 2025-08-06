@@ -47,7 +47,6 @@ class Multiplexer(Plexer):
         return super().propagate(value=v)
 
 
-
 class Decoder(Plexer):
     """
     Decoder decodes an input value on sel
@@ -78,7 +77,6 @@ class Decoder(Plexer):
             v = 1 if oname == hi_output else 0
             new_work += super().propagate(output_name=oname, value=v, bits=1)
         return new_work
-
 
 
 class PriorityEncoder(Node):
@@ -116,7 +114,7 @@ class PriorityEncoder(Node):
                 any = 1
                 break
         logger.info(f'value: {inum}, bits: {self.selector_bits}')
-        new_work = super().propagate(output_name=PriorityEncoder.inum, value=inum, bits=self.selector_bits)
+        new_work = super().propagate(output_name=PriorityEncoder.inum,
+                                     value=inum, bits=self.selector_bits)
         new_work += super().propagate(output_name=PriorityEncoder.any, value=any, bits=1)
         return new_work
-

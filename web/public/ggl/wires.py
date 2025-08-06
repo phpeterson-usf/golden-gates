@@ -20,7 +20,6 @@ class WireNode(BitsNode):
         )
 
 
-
 class Splitter(WireNode):
     """
     Splits multi bit input into individual 1 bit outputs
@@ -55,7 +54,6 @@ class Splitter(WireNode):
         return new_work
 
 
-
 class Merger(WireNode):
     """
     Merges multiple 1 bit inputs into a single output
@@ -85,7 +83,6 @@ class Merger(WireNode):
             masked = v & ((1 << width) - 1)
             output_val |= (masked << low)
         return super().propagate(value=output_val)
-
 
 
 class Tunnel(WireNode):

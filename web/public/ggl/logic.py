@@ -19,7 +19,6 @@ class Gate(BitsNode):
             bits=bits)
         self.inverted_inputs = inverted_inputs or []
 
-
     def logic(self, v1, v2):
         logger.error(f'Gate logic() must be implemented for {self.kind}')
 

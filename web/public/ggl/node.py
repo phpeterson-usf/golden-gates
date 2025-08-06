@@ -5,11 +5,14 @@ from .errors import CircuitError
 
 logger = new_logger(__name__)
 
+
 class BitWidthMismatch(Exception):
     """Carry these details internally to GGL exception handler"""
+
     def __init__(self, expected, actual):
         self.expected = expected
         self.actual = actual
+
 
 class Connector:
     """Represents a specific input or output point on a node"""
@@ -144,8 +147,6 @@ class Node:
                 port_name=iname
             ) from bwm
 
-
-
     def append_output_edge(self, name, edge):
         self.outputs.append_edge(name, edge)
 
@@ -161,7 +162,7 @@ class Node:
         """
         Enable attribute-style access to inputs and outputs.
         Examples: mux.sel instead of mux.input("sel"), adder.sum instead of adder.output("sum")
-        
+
         Port names take priority over class attributes.
         """
         # Check if this is a port name first (prioritize ports over attributes)
@@ -170,7 +171,7 @@ class Node:
             # self.inputs calling self.__getattribute__()
             inputs = object.__getattribute__(self, 'inputs')
             outputs = object.__getattribute__(self, 'outputs')
-            
+
             if name in inputs.get_names():
                 return Connector(self, name)
             elif name in outputs.get_names():
@@ -178,7 +179,7 @@ class Node:
         except AttributeError:
             # During construction, inputs/outputs might not exist yet
             pass
-        
+
         # Not a port name, use normal attribute access
         return object.__getattribute__(self, name)
 
@@ -198,15 +199,15 @@ class Node:
         Create a deep copy of this node with a new instance ID.
         Uses deepcopy to preserve all state, then updates label and clears connections.
         """
-        
+
         # Create a deep copy to preserve all configuration and state
         # Preserve js_id so Exceptions can reference the original UI component
         node = copy.deepcopy(self)
-        
+
         # Update the label with instance_id suffix
         if hasattr(node, 'label') and node.label:
             node.label = f"{node.label}_{instance_id}"
-        
+
         # Reinitialize connections - preserve structure but clear edge references
         for oname in node.outputs.points:
             node.outputs.points[oname] = []
@@ -232,7 +233,6 @@ class BitsNode(Node):
 
         super().__init__(kind, js_id=js_id, innames=innames, outnames=outnames, label=label)
         self.bits = bits
-
 
     def mask(self, bits):
         # Builds the bit mask for the number of data bits for this gate

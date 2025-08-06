@@ -52,7 +52,6 @@ class Input(IONode):
         return super().propagate(value=self.value)
 
 
-
 class Output(IONode):
     """
     Output is an IONode for the output of a circuit, e.g. R
@@ -91,7 +90,6 @@ class Output(IONode):
                 updateCallback('value', self.js_id, self.value)
         except Exception as e:
             logger.error(f'Callback failed: {e}')
-
 
 
 class Constant(Input):
@@ -155,4 +153,3 @@ class Clock(IONode):
         if self.mode != 'manual':
             logger.warning("tick() is only for clocks in manual mode")
         return self.toggleCLK(output_name='0')
-

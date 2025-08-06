@@ -57,7 +57,7 @@ class CircuitError(Exception):
         self.port_name = port_name
         self.connected_component_id = connected_component_id
         self.circuit_name = circuit_name
-        
+
         # Store additional fields for structured error handling
         self.additional_fields = kwargs
 
@@ -65,7 +65,7 @@ class CircuitError(Exception):
         port_info = f" (port: {port_name})" if port_name else ""
         super().__init__(
             f"{component_type} {component_id}: {error_code}{port_info}")
-    
+
     def to_dict(self):
         """Convert error to dictionary for structured JavaScript communication."""
         error_dict = {

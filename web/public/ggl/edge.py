@@ -76,7 +76,8 @@ class Edge:
                 if self.js_id and hasattr(builtins, 'updateCallback'):
                     active = value == 1
                     updateCallback = builtins.updateCallback
-                    updateCallback('step', self.js_id, {'active': active, 'style': 'processing'})
+                    updateCallback('step', self.js_id, {
+                                   'active': active, 'style': 'processing'})
             except Exception as e:
                 logger.error(f'Callback failed: {e}')
         self.value = value

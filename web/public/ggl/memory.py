@@ -74,7 +74,6 @@ class ROM(BitsNode):
             f"{ROM} '{self.label}' address={address}, sel={selected}")
         return super().propagate(output_name=output_name, value=v)
 
-
     def load_data(self, data):
         """
         This is redundant with having the data in the constructor, but

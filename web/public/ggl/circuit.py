@@ -146,7 +146,8 @@ class Circuit:
                 if prev_outputs == now_outputs:
                     break
             else:
-                logger.warning("Post-clock combinational logic did not stabilize")
+                logger.warning(
+                    "Post-clock combinational logic did not stabilize")
 
             # track and check outputs for stability
             output_vals = {node.label: node.value for node in self.outputs}
@@ -154,7 +155,8 @@ class Circuit:
             output_history.append(output_vals)
 
             if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
-                logger.info("Circuit stabilized with constant outputs for 10 iterations.")
+                logger.info(
+                    "Circuit stabilized with constant outputs for 10 iterations.")
                 break
 
             time.sleep(0.001)
@@ -231,5 +233,3 @@ def Component(circuit):
 
     # Return a constructor that creates CircuitNode instances
     return create_component_instance
-
-

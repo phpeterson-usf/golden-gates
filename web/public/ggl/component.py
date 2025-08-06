@@ -132,7 +132,8 @@ class CircuitNode(Node):
                         output_bits = getattr(output_node, 'bits', 1)
 
                         # Use Node's propagate method with original name and correct bit width
-                        work = super().propagate(output_name=original_name, value=output_value, bits=output_bits)
+                        work = super().propagate(output_name=original_name,
+                                                 value=output_value, bits=output_bits)
                         propagation_work.extend(work)
                         break
         return propagation_work
