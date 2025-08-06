@@ -211,6 +211,13 @@ expected = "0x2b282b3"
 rubric = 1
 
 [[tests]]
+name = "memory.ram-2a-2d"
+input = ["python3", "$project_tests/memory.ram-2a-2d.py"]
+expected = "0b11"
+rubric = 1
+
+
+[[tests]]
 name = "adder-no-carryin"
 input = ["python3", "$project_tests/adder-no-carryin.py"]
 expected = "15"

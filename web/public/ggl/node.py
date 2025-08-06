@@ -234,12 +234,16 @@ class BitsNode(Node):
         super().__init__(kind, js_id=js_id, innames=innames, outnames=outnames, label=label)
         self.bits = bits
 
-    def mask(self, bits):
-        # Builds the bit mask for the number of data bits for this gate
+    def mask(self, bits=None):
+        """
+        Builds the bit mask for the number of data bits for this gate
+        Use provided bits if specified, otherwise default to self.bits
+        """
+        if bits is None:
+            bits = self.bits
         return (1 << bits) - 1
 
     def propagate(self, output_name='0', value=0, bits=None):
-        # Use provided bits if specified, otherwise default to self.bits
         if bits is None:
             bits = self.bits
         value &= self.mask(bits)
