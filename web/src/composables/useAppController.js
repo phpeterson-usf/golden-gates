@@ -216,8 +216,15 @@ export function useAppController(circuitManager) {
         if (wireIdPattern.test(componentId) && eventType === 'step') {
           handleWireStepUpdate(canvasRef, componentId, value)
         } else {
-          // Log the callback but don't error - this allows us to see nested component activity
-          console.log(`Nested component callback: ${componentId} = ${value} (no parent mapped)`)
+          // Handle nested component callbacks that don't have parent mapping yet
+          // TODO: When we implement per-instance subcircuit views, route these callbacks
+          // to the appropriate instance view instead of logging
+          if (eventType === 'error') {
+            // Keep error messages visible as they're important for debugging
+            console.log(`Nested component error: ${componentId} = ${value} (no parent mapped)`)
+          }
+          // Suppress value and step updates to reduce console clutter - the values are 
+          // still being calculated correctly, just no UI destination yet
         }
       }
     }
