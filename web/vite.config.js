@@ -38,5 +38,19 @@ export default defineConfig({
     alias: {
       '@': '/src'
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate large UI library into its own chunk
+          'primevue': ['primevue/config', 'primevue/button', 'primevue/dialog', 'primevue/message', 'primevue/toast'],
+          // Separate Vue core into its own chunk
+          'vue-vendor': ['vue'],
+          // Group utility libraries together
+          'utils': ['@/utils/componentRegistry', '@/utils/constants']
+        }
+      }
+    }
   }
 })

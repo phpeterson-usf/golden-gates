@@ -1,5 +1,6 @@
 import { ref, shallowRef } from 'vue'
 import { loadPyodide } from 'pyodide'
+import { useCodeGenController } from './useCodeGenController.js'
 
 /**
  * Python Engine - Unified Pyodide integration for circuit simulation
@@ -175,8 +176,7 @@ except ImportError as e:
     // Clean up any existing component files first
     await removeExistingComponentFilesFromMemfs()
 
-    // Import circuit generation functions
-    const { useCodeGenController } = await import('./useCodeGenController.js')
+    // Use circuit generation functions (now imported statically)
     const {
       generateGglProgramForCircuitComponent,
       wrapGglProgramAsComponentModule,
