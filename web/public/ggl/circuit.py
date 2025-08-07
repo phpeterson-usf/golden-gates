@@ -135,7 +135,6 @@ class Circuit:
                     if now - clock_timers[clock] >= interval:
                         clock_timers[clock] = now
                         edge_nodes = clock.toggleCLK('0')
-                        print(clock.value)
                         rising_edges.extend(edge_nodes)
 
             # propagate combinational logic until stable

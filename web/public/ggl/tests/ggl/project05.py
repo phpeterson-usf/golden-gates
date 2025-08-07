@@ -223,12 +223,10 @@ circuit0.connect(and0, reg1.input("CLK"), js_id="wire_1754198494659")    # and0 
 while True:
 
     iw = output0.value
-    input1.tick()
-    circuit0.step(rising_edge=True)
-    print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
-    circuit0.step(rising_edge=False)
-    print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
-    if output1.value == 1:
+    if input1.tick():
+        print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
+        circuit0.step(rising_edge=True)
+    if output0.value == 0xc0001073:
         break
 
 print("Program", input0.value)
