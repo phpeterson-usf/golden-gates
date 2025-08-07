@@ -92,21 +92,23 @@ class Tunnel(WireNode):
     kind = 'Tunnel'
     tunnel_history = {}
 
-    def __init__(self, js_id='', label='', bits=1):
+    def __init__(self, js_id='', label='', bits=1, direction='input', **kwargs):
         super().__init__(
             Tunnel.kind,
             js_id=js_id,
-            num_inputs=1,
-            num_outputs=1,
+            num_inputs=1 if direction == 'input' else 0,
+            num_outputs=1 if direction == 'output' else 0,
             label=label,
             bits=bits
         )
 
+        self.direction = direction
+        
         if self.label:
             Tunnel.tunnel_history.setdefault(self.label, []).append(self)
 
     def is_output_tunnel(self):
-        return '0' in self.outputs.points and bool(self.outputs.points['0'])
+        return self.direction == 'output'
     
     def propagate(self, output_name='0', value=0):
         if not self.label:
@@ -127,7 +129,7 @@ class Tunnel(WireNode):
         return work
 
     def receive(self, value):
-        if not self.outputs.points and bool(self.outputs.points['0']):
+        if self.direction != 'output':
             logger.warning(f'{self.kind} {self.label}: receive() called on non-output tunnel')
             return []
         return super().propagate(output_name='0', value=value)

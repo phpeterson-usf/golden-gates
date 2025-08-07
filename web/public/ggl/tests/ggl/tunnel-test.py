@@ -10,8 +10,8 @@ circuit0 = circuit.Circuit()
 a = io.Input(bits=4, label="a")
 a.value = 0b1011                                                    # input val 3
 
-tunnel1 = wires.Tunnel(label="tunnel", bits=4)
-tunnel2 = wires.Tunnel(label="tunnel", bits=4)
+tunnel1 = wires.Tunnel(label="tunnel", bits=4, direction='input')
+tunnel2 = wires.Tunnel(label="tunnel", bits=4, direction='output')
 
 r = io.Output(bits=4, label="R")
 s = io.Output(bits=4, label="S")
