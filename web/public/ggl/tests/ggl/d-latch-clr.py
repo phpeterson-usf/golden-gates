@@ -61,6 +61,7 @@ def make_d_latch_clr(d_val, clk_val, clr_val):
     d_latch_clr.connect(and1, srlatch_1.input("r"))    # and1 -> srlatch_1.in[0]
 
     d_latch_clr.run()
+    d_latch_clr.stop()
     return Q.value, notQ.value
 
 for i, (d_val, clk_val, clr_val) in enumerate([

@@ -24,3 +24,4 @@ circuit0.connect(and1, r)    # and1 -> r
 
 circuit0.run()
 print(r.value)  # expected: 1
+circuit0.stop()

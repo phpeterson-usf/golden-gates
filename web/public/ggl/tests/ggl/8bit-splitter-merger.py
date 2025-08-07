@@ -25,5 +25,6 @@ for i in range(len(split.splits)):
 
 circuit0.connect(merge, r.inputs[0])
 circuit0.run()
+circuit0.stop()
 
 print(r.value)

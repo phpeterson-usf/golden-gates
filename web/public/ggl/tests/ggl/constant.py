@@ -13,4 +13,5 @@ constant0.value = 0xc0001073
 
 c.connect(constant0, output0)    # and0 -> output0
 c.run()
+c.stop()
 print(hex(output0.value))

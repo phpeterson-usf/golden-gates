@@ -24,3 +24,4 @@ circuit0.connect(or1, r)    # or1 -> r
 
 circuit0.run()
 print(r.value)  # expected: 255
+circuit0.stop()

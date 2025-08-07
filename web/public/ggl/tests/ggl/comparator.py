@@ -47,3 +47,5 @@ c.run()
 print(greater.value)
 print(equal.value)
 print(less.value)
+
+c.stop()

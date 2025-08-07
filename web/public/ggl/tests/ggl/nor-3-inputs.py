@@ -24,3 +24,5 @@ circuit0.connect(nor1, r)
 
 circuit0.run()                              # output should be 64/ 0b01000000
 print(r.value) 
+
+circuit0.stop()

@@ -28,3 +28,4 @@ circuit0.connect(nor2, output2)    # nor2 -> output2
 circuit0.run()
 print(output1.value)
 print(output2.value)
+circuit0.stop()

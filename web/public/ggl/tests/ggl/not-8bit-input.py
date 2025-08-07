@@ -17,3 +17,5 @@ c.connect(g, r)
 
 c.run()                             # output should be 0b01100100 / 100
 print(r.value)
+
+c.stop()

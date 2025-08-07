@@ -24,3 +24,5 @@ circuit0.connect(nand1, r)
 
 circuit0.run()
 print(r.value)                  # output should be 10 or 0b1010
+
+circuit0.stop()

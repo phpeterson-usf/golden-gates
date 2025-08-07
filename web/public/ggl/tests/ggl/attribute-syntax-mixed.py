@@ -23,3 +23,4 @@ b.value = 50
 circuit0.run()
 
 print(sum_out.value)
+circuit0.stop()

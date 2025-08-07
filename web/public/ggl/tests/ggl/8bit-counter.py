@@ -22,7 +22,6 @@ circuit0.connect(reg.output("Q"), out)
 circuit0.connect(reg.output("Q"), adder.input("a"))
 
 # Simulate 12 clock cycles
-values = []
 for _ in range(12):
     clk.tick()
     circuit0.step(rising_edge=True)

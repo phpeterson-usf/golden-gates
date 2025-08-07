@@ -23,3 +23,5 @@ cir0.connect(reg0.output('Q'), q)
 
 cir0.run()
 print(hex(q.value))  # expect 0xAB
+
+cir0.stop()

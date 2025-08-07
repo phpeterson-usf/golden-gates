@@ -26,3 +26,4 @@ c.connect(sub.output('s'), difference)
 
 c.run()
 print(difference.value)
+c.stop()

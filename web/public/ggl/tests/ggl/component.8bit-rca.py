@@ -134,3 +134,5 @@ circuit2.connect(input1, splitter1)    # input1 -> splitter1
 circuit2.run()
 
 print(hex(output1.value))  # expected: 0x46
+
+circuit2.stop()

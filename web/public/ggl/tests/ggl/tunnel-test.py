@@ -21,6 +21,7 @@ circuit0.connect(tunnel2, r)
 circuit0.connect(tunnel2, s)
 
 circuit0.run()
+circuit0.stop()
 
 
 print(r.value)

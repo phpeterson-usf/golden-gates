@@ -25,6 +25,7 @@ print(r0.value)
 print(r1.value)
 print(r2.value)
 print(r3.value)
+circuit0.stop()
 
 """
 expected

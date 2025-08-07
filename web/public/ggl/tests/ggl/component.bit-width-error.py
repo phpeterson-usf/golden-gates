@@ -133,3 +133,5 @@ try:
     circuit0.run()
 except CircuitError as err:
     print(err)
+
+#circuit0.stop()

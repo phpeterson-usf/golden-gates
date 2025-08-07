@@ -24,3 +24,5 @@ print(r.value)
 a.value = 0b0
 b.value = 0b0
 print(r.value)
+
+c.stop()

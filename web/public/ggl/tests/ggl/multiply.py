@@ -25,3 +25,4 @@ c.connect(multiply.output('mul'), product)
 
 c.run()
 print(product.value)
+c.stop()

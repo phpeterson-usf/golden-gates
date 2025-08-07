@@ -25,3 +25,4 @@ clk.value = 1
 circuit0.run()
 
 print(hex(data_out.value))
+circuit0.stop()

@@ -30,3 +30,4 @@ for sel_val in [0, 2]:
     selector.value = sel_val
     circuit0.run()
     print(output.value)
+    circuit0.stop()

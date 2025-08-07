@@ -33,6 +33,8 @@ circuit0.run()
 print(inum.value)
 print(any.value)
 
+circuit0.stop()
+
 """
 Test the case where no inputs are high, so inum and any are both 0
 expected

@@ -31,3 +31,5 @@ c.connect(ram.D, d)
 c.run()
 
 print(bin(d.value))  # expect 0b11
+
+c.stop()

@@ -89,3 +89,4 @@ input0.value = 255
 input1.value = 255
 circuit0.run()
 print(output0.value)
+circuit0.stop()

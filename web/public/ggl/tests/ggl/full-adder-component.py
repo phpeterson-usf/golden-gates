@@ -75,3 +75,5 @@ test_circuit.run()
 
 print(test_sum.value)
 print(test_cout.value)
+
+test_circuit.stop()

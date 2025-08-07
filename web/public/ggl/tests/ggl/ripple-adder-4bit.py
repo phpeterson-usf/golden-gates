@@ -112,3 +112,5 @@ print(s1.value)
 print(s2.value)
 print(s3.value)
 print(cout.value)
+
+ripple.stop()

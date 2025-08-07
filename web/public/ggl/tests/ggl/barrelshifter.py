@@ -48,3 +48,4 @@ c.connect(sra.output('out'), outSRA)
 
 c.run()
 print(bin(outSRA.value))
+c.stop()

@@ -136,14 +136,16 @@ class Clock(IONode):
     def toggleCLK(self, output_name):
         new_val = 1 - self._value
         self.prev_value = self._value
-        self.value = new_val
+        self._value = new_val
 
-        logger.info(f"Clock '{self.label}' toggled to {self.value}")
+        #print("Clock toggled to", self._value)
+
+        #print(f"Clock '{self.label}' toggled to {self.value}")
 
         super().propagate(output_name=output_name, value=new_val)
 
         if self.prev_value == 0 and new_val == 1:
-            return [self]  # Rising edge
+            return [self]
         return []
 
     def tick(self):

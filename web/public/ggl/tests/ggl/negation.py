@@ -17,3 +17,5 @@ c.connect(g, r)
 
 c.run()                             # output should be 101
 print(r.value)
+
+c.stop()

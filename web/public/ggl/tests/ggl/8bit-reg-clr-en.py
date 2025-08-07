@@ -60,3 +60,5 @@ circuit0.connect(merger0, output0)    # merger0 -> output0
 circuit0.run()
 
 print(output0.value)  # expected: 1
+
+circuit0.stop()

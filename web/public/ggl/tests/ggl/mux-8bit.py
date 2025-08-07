@@ -31,3 +31,4 @@ circuit0.connect(mux0, r)
 
 circuit0.run()
 print(hex(r.value)) # expect 0xBB
+circuit0.stop()

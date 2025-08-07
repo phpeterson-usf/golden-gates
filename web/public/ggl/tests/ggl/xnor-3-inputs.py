@@ -23,4 +23,5 @@ r = io.Output(bits=4, label="R")
 circuit0.connect(xnor1, r)
 
 circuit0.run()                          # output should be 3 / 0b11
+circuit0.stop()
 print(r.value) 

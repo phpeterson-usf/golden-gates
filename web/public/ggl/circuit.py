@@ -23,7 +23,7 @@ class Circuit:
         self.inputs = []
         self.outputs = []
         self.all_nodes = set()
-        self.running = False
+        self.running = True
         self.auto_propagate = auto_propagate
 
         # Set up logging for this circuit and all its components
@@ -78,6 +78,18 @@ class Circuit:
                 else:
                     # Re-raise the original error if circuit_name is already set
                     raise
+   
+    def run(self, background=False):
+        """
+        Start the circuit simulation.
+        If `background=True`, runs in a separate thread.
+        """
+        if background:
+            import threading
+            self.thread = threading.Thread(target=self.longrun)
+            self.thread.start()
+        else:
+            self.longrun()
 
     def stop(self):
         """
@@ -85,8 +97,10 @@ class Circuit:
         """
         logger.info("Circuit stop() called: long running circuit will stop")
         self.running = False
+        if hasattr(self, 'thread'):
+            self.thread.join()
 
-    def run(self):
+    def longrun(self):
         """
         Circuit simulation supporting combinational, sequential, and cyclic logic
 
@@ -104,8 +118,6 @@ class Circuit:
                     seq...
         """
         self.running = True
-        output_history = deque(maxlen=10)
-        iteration = 0
 
         clock_timers = {}
         for clock in getattr(self, 'clocks', []):
@@ -113,42 +125,38 @@ class Circuit:
                 clock_timers[clock] = time.time()
 
         while self.running:
-            iteration += 1
-
             now = time.time()
             rising_edges = []
             for clock in getattr(self, 'clocks', []):
+                if not self.running:
+                    break
                 if clock.mode == 'auto' and clock.frequency > 0:
                     interval = 1.0 / (clock.frequency * 2)  # half-period
                     if now - clock_timers[clock] >= interval:
                         clock_timers[clock] = now
                         edge_nodes = clock.toggleCLK('0')
+                        print(clock.value)
                         rising_edges.extend(edge_nodes)
 
             # propagate combinational logic until stable
             for _ in range(MAX_ITERATIONS):
-                prev_outputs = {n.label: n.value for n in self.outputs}
+                if not self.running:
+                    break
+                prev = {n.label: n.value for n in self.outputs}
                 self.step(rising_edge=False)
-                now_outputs = {n.label: n.value for n in self.outputs}
-                if prev_outputs == now_outputs:
+                curr = {n.label: n.value for n in self.outputs}
+                if prev ==  curr:
                     break
             else:
                 logger.warning("Combinational logic did not stabilize")
 
-            # trigger rising edge of clocks (sequential propagation)
             self.step(rising_edge=True)
-
-            # track and check outputs for stability
-            output_vals = {node.label: node.value for node in self.outputs}
-            logger.info(f"Outputs after iteration {iteration}: {output_vals}")
-            output_history.append(output_vals)
-
-            if len(output_history) == 10 and all(v == output_history[0] for v in output_history):
-                logger.info(
-                    "Circuit stabilized with constant outputs for 10 iterations.")
+            
+            if not self.running:
                 break
 
-            time.sleep(0.001)
+            time.sleep(0.01)
+            break
 
     def connect(self, src, dest, js_id=None):
         """

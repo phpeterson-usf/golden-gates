@@ -70,3 +70,4 @@ for iw in ls:
     input0.value = iw
     circuit0.run()
     print(output0.value)
+    circuit0.stop()

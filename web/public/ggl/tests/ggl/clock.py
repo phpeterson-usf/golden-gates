@@ -23,3 +23,5 @@ c.connect(and_gate, out)
 c.run()
 
 print("Clocked Output:", out.value)
+
+c.stop()

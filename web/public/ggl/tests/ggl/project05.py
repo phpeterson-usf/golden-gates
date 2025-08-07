@@ -225,8 +225,10 @@ while True:
     iw = output0.value
     input1.tick()
     circuit0.step(rising_edge=True)
-    #print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
-    if iw == 0xC0001073:
+    print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
+    circuit0.step(rising_edge=False)
+    print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
+    if output1.value == 1:
         break
 
 print("Program", input0.value)

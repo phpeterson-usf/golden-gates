@@ -30,3 +30,4 @@ c.connect(adder.output('cout'), cout)
 
 c.run()
 print(sum.value)
+c.stop()

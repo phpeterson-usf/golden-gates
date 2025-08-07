@@ -15,5 +15,6 @@ c.connect(a, ext.input('in'))
 r = io.Output(bits=8, label='r')
 c.connect(ext, r)
 
-c.run()                             # should return 0b11111111 = 255
+c.run()  
+c.stop()                           # should return 0b11111111 = 255
 print(r.value)

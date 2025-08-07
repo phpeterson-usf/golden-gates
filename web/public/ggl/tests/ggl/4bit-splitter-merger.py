@@ -23,5 +23,5 @@ for i in range(a.bits):
 circuit0.connect(merge, r.inputs[0])
 
 circuit0.run()
-
+circuit0.stop()
 print(r.value)

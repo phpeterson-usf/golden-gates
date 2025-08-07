@@ -31,3 +31,4 @@ circuit0.connect(mux0, r)
 
 circuit0.run()
 print(r.value) # expect 3
+circuit0.stop()

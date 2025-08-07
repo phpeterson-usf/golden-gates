@@ -20,4 +20,5 @@ r = io.Output(bits=1, label='r')
 c.connect(g, r)
 
 c.run()
+c.stop()
 print(r.value)

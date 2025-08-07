@@ -33,6 +33,8 @@ circuit0.run()
 print(inum.value)
 print(any.value)
 
+circuit0.stop()
+
 """
 expected
 2

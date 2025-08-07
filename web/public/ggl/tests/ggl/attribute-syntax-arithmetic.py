@@ -34,3 +34,5 @@ circuit0.run()
 
 print(f"{sum_out.value}")
 print(f"{eq_out.value}")
+
+circuit0.stop()

@@ -27,3 +27,4 @@ circuit0.connect(merge, r.inputs[0])
 circuit0.run()
 
 print(r.value)
+circuit0.stop()

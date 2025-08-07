@@ -24,3 +24,5 @@ circuit0.connect(rom0.output("D"), output0)    # rom0 -> output0
 circuit0.run()
 
 print(hex(output0.value))  # expected: 0x2b282b3
+
+circuit0.stop()

@@ -22,5 +22,6 @@ circuit0.connect(c, xor1.input("2"))
 r = io.Output(bits=4, label="R")
 circuit0.connect(xor1, r)
 
-circuit0.run()                          # output should be 1 0b0001
+circuit0.run()   
+circuit0.stop()                       # output should be 1 0b0001
 print(r.value) 
