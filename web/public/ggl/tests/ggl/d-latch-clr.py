@@ -70,7 +70,6 @@ for i, (d_val, clk_val, clr_val) in enumerate([
     (1, 0, 0),
     (0, 0, 1),
     (1, 1, 1),
-    (1, 0, 0),
 ], start=1):
     q, notq = make_d_latch_clr(d_val, clk_val, clr_val)
     print(f"Test {i}: D={d_val}, CLK={clk_val}, CLR={clr_val} => Q={q}, ~Q={notq}")

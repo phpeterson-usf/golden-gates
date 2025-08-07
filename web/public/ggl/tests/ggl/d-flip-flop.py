@@ -93,10 +93,8 @@ circuit0.connect(dlatchclr_1.output("Q"), output0, js_id="wire_1753988271166")  
 circuit0.connect(dlatchclr_1.output("Q"), not0, js_id="wire_1753988227698")    # dlatchclr_1 -> not0
 circuit0.connect(dlatchclr_1.output("Q"), dlatchclr_2.input("CLR"), js_id="wire_1753988253883")    # dlatchclr_1 -> dlatchclr_2.in[2]
 
+
 circuit0.run()
-
-print(output0.value)
-
 tests = [
     (1, 1, 0),  # Test 1
     (0, 1, 0),  # Test 2

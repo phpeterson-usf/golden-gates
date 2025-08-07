@@ -123,7 +123,6 @@ circuit0 = circuit.Circuit(js_logging=True)
 input0 = io.Input(label="PN", bits=2, js_id="input_1_1754163895356")
 input0.value = 3
 input1 = io.Clock(label="CLK",mode="manual", frequency=1, js_id="input_2_1754199853071")
-input1.value = 1
 instruction_memory_1 = instruction_memory()
 and0 = logic.And(inverted_inputs=[1], js_id="and-gate_1_1754195063561")
 comp0 = arithmetic.Comparator(label="=", bits=32, js_id="compare_1_1754166982615")
@@ -221,13 +220,14 @@ circuit0.connect(and0, reg1.input("CLK"), js_id="wire_1754198494659")    # and0 
 
 
 while True:
-
     iw = output0.value
-    if input1.tick():
-        print(f"A: {a.value} iw: {hex(iw)} opcode: {hex(iw & 0x7F)} inum: {inum.value}")
-        circuit0.step(rising_edge=True)
-    if output0.value == 0xc0001073:
+
+    if iw == 0xc0001073:
         break
+
+    if input1.tick():
+        circuit0.step(rising_edge=True)
+        iw = output0.value
 
 print("Program", input0.value)
 print("Total:", output2.value)

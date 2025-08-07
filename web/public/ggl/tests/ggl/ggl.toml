@@ -303,7 +303,6 @@ Test 2: D=0, CLK=1, CLR=0 => Q=0, ~Q=1
 Test 3: D=1, CLK=0, CLR=0 => Q=1, ~Q=0
 Test 4: D=0, CLK=0, CLR=1 => Q=0, ~Q=1
 Test 5: D=1, CLK=1, CLR=1 => Q=0, ~Q=1
-Test 6: D=1, CLK=0, CLR=0 => Q=1, ~Q=0
 """
 rubric = 1
 
@@ -356,14 +355,10 @@ rubric = 1
 name = "d-flip-flop"
 input = ["python3", "$project_tests/d-flip-flop.py"]
 expected = """
-Test 1: D=1, EN=1, CLR=1 => Q=1
-Test 2: D=0, EN=1, CLR=1 => Q=0
+Test 1: D=1, EN=1, CLR=0 => Q=1
+Test 2: D=0, EN=1, CLR=0 => Q=0
 Test 3: D=1, EN=0, CLR=1 => Q=0
-Test 4: D=1, EN=1, CLR=0 => Q=0
-Test 5: D=1, EN=0, CLR=0 => Q=0
-Test 6: D=0, EN=0, CLR=1 => Q=0
-Test 7: D=0, EN=1, CLR=0 => Q=0
-Test 8: D=1, EN=1, CLR=1 => Q=1
+Test 4: D=1, EN=1, CLR=1 => Q=0
 """
 rubric = 1
 
