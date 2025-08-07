@@ -1,6 +1,6 @@
 // Grid and sizing constants
 export const GRID_SIZE = 15
-export const DOT_SIZE = 3
+export const DOT_SIZE = 2
 export const CONNECTION_DOT_RADIUS = 3
 
 // Coordinate conversion utilities

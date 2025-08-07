@@ -16,7 +16,7 @@ describe('Constants', () => {
     })
 
     it('should have correct DOT_SIZE', () => {
-      expect(DOT_SIZE).toBe(3)
+      expect(DOT_SIZE).toBe(2)
       expect(typeof DOT_SIZE).toBe('number')
     })
 

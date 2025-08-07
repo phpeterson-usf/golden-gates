@@ -37,10 +37,11 @@
             :height="gridSize * zoom"
             patternUnits="userSpaceOnUse"
           >
-            <circle
-              :cx="gridSize * zoom"
-              :cy="gridSize * zoom"
-              :r="dotSize * zoom"
+            <rect
+              :x="gridSize * zoom - dotSize * zoom / 2"
+              :y="gridSize * zoom - dotSize * zoom / 2"
+              :width="dotSize * zoom"
+              :height="dotSize * zoom"
               :fill="actualGridDotColor"
             />
           </pattern>
