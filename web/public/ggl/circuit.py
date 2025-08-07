@@ -138,17 +138,6 @@ class Circuit:
             # trigger rising edge of clocks (sequential propagation)
             self.step(rising_edge=True)
 
-            # run combinational logic again after flip-flop/latch outputs updated
-            for _ in range(MAX_ITERATIONS):
-                prev_outputs = {n.label: n.value for n in self.outputs}
-                self.step(rising_edge=False)
-                now_outputs = {n.label: n.value for n in self.outputs}
-                if prev_outputs == now_outputs:
-                    break
-            else:
-                logger.warning(
-                    "Post-clock combinational logic did not stabilize")
-
             # track and check outputs for stability
             output_vals = {node.label: node.value for node in self.outputs}
             logger.info(f"Outputs after iteration {iteration}: {output_vals}")
