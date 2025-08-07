@@ -9,6 +9,7 @@ import ConstantNode from '../components/ConstantNode.vue'
 import ClockNode from '../components/ClockNode.vue'
 import SplitterComponent from '../components/SplitterComponent.vue'
 import MergerComponent from '../components/MergerComponent.vue'
+import TunnelComponent from '../components/TunnelComponent.vue'
 import MultiplexerNode from '../components/MultiplexerNode.vue'
 import Decoder from '../components/Decoder.vue'
 import Register from '../components/Register.vue'
@@ -325,7 +326,32 @@ export const componentRegistry = {
       }
     }
   },
-
+  tunnel: {
+    component: TunnelComponent,
+    label: 'Tunnel',
+    icon: 'pi pi-exclamation-triangle',
+    category: 'wires',
+    defaultProps: {
+      bits: 1,
+      label: '',
+      rotation: 0
+    },
+    getConnections: props => {
+      // One input on the left center, one output on the right center
+      return {
+        inputs: [{ name: '0', x: 0, y: Math.round(GRID_SIZE / 2 / GRID_SIZE) }],
+        outputs: [{ name: '0', x: 2, y: Math.round(GRID_SIZE / 2 / GRID_SIZE) }]
+      }
+    },
+    getPythonProps: props => ({
+      label: props.label,
+      bits: props.bits
+    }),
+    getDimensions: () => ({
+      width: 2 * GRID_SIZE,
+      height: GRID_SIZE
+    })
+  },
   multiplexer: {
     component: MultiplexerNode,
     label: 'Multiplexer',

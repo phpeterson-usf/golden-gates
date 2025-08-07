@@ -49,7 +49,8 @@
     "addXor": "Add XOR",
     "addXnor": "Add XNOR",
     "addSplitter": "Add Splitter",
-    "addMerger": "Add Merger"
+    "addMerger": "Add Merger",
+    "addTunnel": "Add Tunnel"
   },
   "commonFields": {
     "label": "Label",
@@ -177,6 +178,7 @@
       "clock": "Clock",
       "splitter": "Splitter",
       "merger": "Merger",
+      "tunnel": "Tunnel",
       "multiplexer": "Multiplexer (Mux)",
       "decoder": "Decoder",
       "priorityEncoder": "Priority Encoder",

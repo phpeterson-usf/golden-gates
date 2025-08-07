@@ -271,6 +271,28 @@ export const componentPropertySchema = {
       commonProperties.rotation
     ]
   },
+  // Tunnel properties
+  tunnel: {
+    title: 'Tunnel Properties',
+    properties: [
+      { 
+        name: 'label', 
+        type: 'text', 
+        label: 'Label', 
+        default: '' 
+      },
+      {
+        name: 'bits',
+        type: 'number',
+        label: 'Bits',
+        default: 1,
+        min: 1,
+        max: 64,
+        showButtons: true
+      },
+      commonProperties.rotation
+    ]
+  },
 
   // Multiplexer properties
   multiplexer: {

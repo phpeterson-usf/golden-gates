@@ -90,6 +90,7 @@ class Tunnel(WireNode):
     Tunnels a value from input to output, used for readability and to reduce wiring
     """
     kind = 'Tunnel'
+    tunnel_history = {}
 
     def __init__(self, js_id='', label='', bits=1):
         super().__init__(
@@ -100,7 +101,22 @@ class Tunnel(WireNode):
             label=label,
             bits=bits
         )
+        if self.label:
+            Tunnel.tunnel_history.setdefault(self.label, []).append(self)
 
     def propagate(self, output_name='0', value=0):
-        input_value = self.safe_read_input('0')
-        return super().propagate(value=input_value)
+        if not self.label:
+            return []
+
+        input_value = self.safe_read_input('0', bits=self.bits)
+        logger.info(f'{self.kind} {self.label}: propagating {bin(input_value)} to linked tunnels')
+
+        work = []
+        for tunnel in Tunnel.tunnel_history.get(self.label, []):
+            if tunnel is not self:
+                work += tunnel.receive(input_value)
+        work += super().propagate(output_name='0', value=input_value)
+        return work
+    
+    def recieve(self, value):
+        return super().propagate(output_name='0', value=value)

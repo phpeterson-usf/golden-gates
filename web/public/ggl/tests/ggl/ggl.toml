@@ -452,3 +452,12 @@ name = "attribute-syntax-mixed"
 input = ["python3", "$project_tests/attribute-syntax-mixed.py"]
 expected = "151"
 rubric = 1
+
+[[tests]]
+name = "tunnel-test"
+input = ["python3", "$project_tests/tunnel-test.py"]
+expected = """
+11
+11
+"""
+rubric = 1

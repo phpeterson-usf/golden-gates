@@ -64,6 +64,13 @@ export interface MergerComponentData extends WireComponentData {
   }
 }
 
+export interface TunnelComponentData extends WireComponentData {
+  props: {
+    label?: string
+    bits?: number
+  }
+}
+
 export interface MultiplexerComponentData extends ComponentData {
   props: {
     label?: string

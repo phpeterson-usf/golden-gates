@@ -162,6 +162,13 @@ export const commandGroups = {
         componentType: 'merger',
         action: 'addComponent',
         params: ['merger']
+      },
+      {
+        id: 'insert-tunnel',
+        labelKey: 'commands.insert.tunnel',
+        componentType: 'tunnel',
+        action: 'addComponent',
+        params: ['tunnel']
       }
     ]
   },
