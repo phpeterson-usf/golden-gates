@@ -101,22 +101,33 @@ class Tunnel(WireNode):
             label=label,
             bits=bits
         )
+
         if self.label:
             Tunnel.tunnel_history.setdefault(self.label, []).append(self)
 
+    def is_output_tunnel(self):
+        return '0' in self.outputs.points and bool(self.outputs.points['0'])
+    
     def propagate(self, output_name='0', value=0):
         if not self.label:
             return []
 
-        input_value = self.safe_read_input('0', bits=self.bits)
-        logger.info(f'{self.kind} {self.label}: propagating {bin(input_value)} to linked tunnels')
-
         work = []
-        for tunnel in Tunnel.tunnel_history.get(self.label, []):
-            if tunnel is not self:
-                work += tunnel.receive(input_value)
-        work += super().propagate(output_name='0', value=input_value)
+
+        try:
+            input_value = self.safe_read_input('0', bits=self.bits)
+            logger.info(f'{self.kind} {self.label} (input): propagating {bin(input_value)} to linked output tunnels')
+
+            for tunnel in Tunnel.tunnel_history.get(self.label, []):
+                if tunnel is not self and tunnel.is_output_tunnel():
+                    work += tunnel.receive(input_value)
+        except Exception:
+            pass
+
         return work
-    
-    def recieve(self, value):
+
+    def receive(self, value):
+        if not self.outputs.points and bool(self.outputs.points['0']):
+            logger.warning(f'{self.kind} {self.label}: receive() called on non-output tunnel')
+            return []
         return super().propagate(output_name='0', value=value)
