@@ -50,7 +50,7 @@
 }
 
 .wire-low:not(.selected) {
-  stroke: #374151; /* Black/dark gray for low (0) */
+  stroke: var(--color-wire); /* Use theme color for low (0) */
 }
 
 /* Selected wires always show blue, regardless of state */
@@ -61,7 +61,7 @@
 /* Splitter/merger body styles */
 .splitter-body,
 .merger-body {
-  stroke: var(--text-color);
+  stroke: var(--color-text-primary);
   stroke-linecap: round;
   cursor: move;
 }
@@ -72,7 +72,7 @@
 }
 
 .component-body:hover {
-  fill: var(--hover-fill, #f0f0f0);
+  fill: var(--color-component-hover-fill, #f0f0f0);
 }
 
 /* Connection point styles - override inherited move cursor */
@@ -85,12 +85,12 @@
     fill 0.2s ease,
     stroke-width 0.2s ease;
   pointer-events: all;
-  fill: black;
+  fill: var(--color-connection-fill, #000);
 }
 
 .connection-point:hover {
-  fill: var(--connection-hover-fill, #0066cc);
-  stroke: var(--connection-hover-fill, #0066cc);
+  fill: var(--color-connection-hover-fill, #0066cc);
+  stroke: var(--color-connection-hover-fill, #0066cc);
   stroke-width: 2;
 }
 
@@ -153,7 +153,7 @@
   font-family: monospace;
   font-size: 12px;
   font-weight: normal;
-  fill: var(--component-text-color, #000);
+  fill: var(--color-component-text, #000);
   pointer-events: none;
   user-select: none;
 }
@@ -163,7 +163,7 @@
   font-family: monospace;
   font-size: 10px;
   font-weight: normal;
-  fill: var(--component-text-color, #000);
+  fill: var(--color-component-text, #000);
   pointer-events: none;
   user-select: none;
 }
@@ -172,7 +172,7 @@
 .range-label {
   font-size: 10px;
   font-weight: 500;
-  fill: var(--text-color);
+  fill: var(--color-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   pointer-events: none;
   user-select: none;
@@ -180,7 +180,7 @@
 
 /* Connector line styles for splitter/merger components */
 .connector-line {
-  stroke: var(--text-color);
+  stroke: var(--color-text-primary);
   stroke-width: 2;
   pointer-events: none;
 }
@@ -190,6 +190,7 @@
   font-family: monospace;
   font-size: 12px;
   font-weight: normal;
+  fill: var(--color-component-text, #000);
   pointer-events: none;
   user-select: none;
 }
@@ -209,6 +210,7 @@
   font-family: monospace;
   font-size: 12px;
   font-weight: normal;
+  fill: var(--color-component-text, #000);
   pointer-events: none;
   user-select: none;
 }
@@ -225,7 +227,7 @@
 /* Wire styles (for future use) */
 .wire {
   fill: none;
-  stroke: black;
+  stroke: var(--color-wire);
   stroke-width: 2;
   pointer-events: none;
 }
@@ -237,7 +239,7 @@
 
 /* Grid pattern styles */
 .grid-dot {
-  fill: #cccccc;
+  fill: var(--color-grid-dot, #cccccc);
 }
 
 /* Base selector dropdown styling - override p-component font-size */

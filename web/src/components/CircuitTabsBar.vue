@@ -171,14 +171,16 @@ export default {
   min-width: auto !important;
   height: auto !important;
   border-radius: 4px !important;
-  color: #6b7280 !important;
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
   flex-shrink: 0;
   margin: 0 0.125rem;
 }
 
 .tab-scroll-button:hover:not(:disabled) {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .tab-scroll-button:disabled {
@@ -192,7 +194,9 @@ export default {
   min-height: auto !important;
   height: auto !important;
   border-radius: 4px !important;
-  color: #6b7280 !important;
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
   font-weight: 400 !important;
   position: relative;
   max-width: 120px;
@@ -204,13 +208,13 @@ export default {
 }
 
 .circuit-tab:hover {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .circuit-tab.active {
-  background-color: #e5e7eb !important;
-  color: #1f2937 !important;
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
   font-weight: 500 !important;
 }
 
@@ -228,7 +232,7 @@ export default {
 }
 
 .tab-close-container:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--color-component-hover-fill);
 }
 
 /* Tab close icon (X) - use pseudo-element for consistent sizing */
@@ -236,7 +240,7 @@ export default {
   content: '×';
   font-size: 0.75rem;
   font-weight: bold;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   opacity: 0.6;
   display: flex;
   align-items: center;
@@ -256,13 +260,13 @@ export default {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #6b7280;
+  background-color: var(--color-text-secondary);
   opacity: 1 !important;
   transition: all 0.2s ease;
 }
 
 .circuit-tab.active .unsaved-dot {
-  background-color: #1f2937;
+  background-color: var(--color-text-primary);
 }
 
 /* Show X instead of dot on hover */
@@ -274,7 +278,7 @@ export default {
   content: '×';
   font-size: 0.75rem;
   font-weight: bold;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;

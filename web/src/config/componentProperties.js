@@ -275,11 +275,11 @@ export const componentPropertySchema = {
   tunnel: {
     title: 'Tunnel Properties',
     properties: [
-      { 
-        name: 'label', 
-        type: 'text', 
-        label: 'Label', 
-        default: '' 
+      {
+        name: 'label',
+        type: 'text',
+        label: 'Label',
+        default: ''
       },
       {
         name: 'bits',

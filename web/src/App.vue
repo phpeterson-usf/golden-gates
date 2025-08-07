@@ -101,6 +101,7 @@ import { useAppController } from './composables/useAppController'
 import { useAutosave } from './composables/useAutosave'
 import { useCommandPalette } from './composables/useCommandPalette'
 import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
+import './styles/themes.css'
 
 export default {
   name: 'App',
@@ -628,7 +629,6 @@ export default {
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #f5f5f5;
 }
 
 #app {
@@ -648,7 +648,7 @@ body {
   flex: 1;
   overflow: hidden;
   position: relative;
-  background-color: #f8fafc;
+  background-color: var(--color-app-bg);
   transition: all 0.2s ease;
 }
 
@@ -756,9 +756,9 @@ body {
 /* Inspector panel styles */
 .inspector-panel {
   flex-shrink: 0;
-  background-color: #ffffff;
-  border-left: 1px solid #e2e8f0;
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+  background-color: var(--color-panel-bg);
+  border-left: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-medium);
   overflow-y: auto;
   position: relative;
   transition: width 0.2s ease;
@@ -770,7 +770,7 @@ body {
   align-items: center;
   padding: 0.5rem;
   gap: 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .inspector-expand,
@@ -780,7 +780,7 @@ body {
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
   display: flex;
   align-items: center;
@@ -793,8 +793,8 @@ body {
 
 .inspector-expand:hover,
 .inspector-close:hover {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--color-component-hover-fill);
+  color: var(--color-text-primary);
 }
 
 /* Subtle simulation loading indicator */
@@ -805,19 +805,19 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e5e7eb;
+  background: var(--color-panel-bg);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-medium);
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--color-text-primary);
   z-index: 1000;
   backdrop-filter: blur(8px);
 }
 
 .simulation-loading i {
-  color: #3b82f6;
+  color: var(--color-button-primary);
   font-size: 1rem;
 }
 

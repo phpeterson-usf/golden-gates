@@ -16,7 +16,7 @@ describe('Constants', () => {
     })
 
     it('should have correct DOT_SIZE', () => {
-      expect(DOT_SIZE).toBe(2)
+      expect(DOT_SIZE).toBe(3)
       expect(typeof DOT_SIZE).toBe('number')
     })
 
@@ -68,30 +68,30 @@ describe('Constants', () => {
       expect(typeof COLORS.wirePreview).toBe('string')
     })
 
-    it('should have valid hex color values', () => {
-      const hexColorRegex = /^#[0-9a-fA-F]{6}$/
+    it('should have valid CSS variable color values', () => {
+      const cssVarRegex = /^var\(--color-[a-zA-Z-]+\)$/
 
-      // Test some key colors that should be hex values
-      expect(COLORS.componentStroke).toMatch(hexColorRegex)
-      expect(COLORS.componentSelectedFill).toMatch(hexColorRegex)
-      expect(COLORS.componentSelectedStroke).toMatch(hexColorRegex)
-      expect(COLORS.componentHoverFill).toMatch(hexColorRegex)
-      expect(COLORS.connectionHoverFill).toMatch(hexColorRegex)
-      expect(COLORS.gridDot).toMatch(hexColorRegex)
-      expect(COLORS.canvasBackground).toMatch(hexColorRegex)
-      expect(COLORS.wire).toMatch(hexColorRegex)
-      expect(COLORS.wireSelected).toMatch(hexColorRegex)
-      expect(COLORS.wirePreview).toMatch(hexColorRegex)
+      // Test that colors now use CSS variables for theming
+      expect(COLORS.componentStroke).toMatch(cssVarRegex)
+      expect(COLORS.componentSelectedFill).toMatch(cssVarRegex)
+      expect(COLORS.componentSelectedStroke).toMatch(cssVarRegex)
+      expect(COLORS.componentHoverFill).toMatch(cssVarRegex)
+      expect(COLORS.connectionHoverFill).toMatch(cssVarRegex)
+      expect(COLORS.gridDot).toMatch(cssVarRegex)
+      expect(COLORS.canvasBackground).toMatch(cssVarRegex)
+      expect(COLORS.wire).toMatch(cssVarRegex)
+      expect(COLORS.wireSelected).toMatch(cssVarRegex)
+      expect(COLORS.wirePreview).toMatch(cssVarRegex)
     })
 
-    it('should have specific expected color values', () => {
-      // Test specific values to catch regressions
-      expect(COLORS.componentFill).toBe('white')
-      expect(COLORS.componentStroke).toBe('#475569')
-      expect(COLORS.componentSelectedFill).toBe('#dbeafe')
-      expect(COLORS.componentSelectedStroke).toBe('#3b82f6')
-      expect(COLORS.connectionFill).toBe('black')
-      expect(COLORS.canvasBackground).toBe('#ffffff')
+    it('should have specific expected CSS variable names', () => {
+      // Test specific CSS variable names to catch regressions
+      expect(COLORS.componentFill).toBe('var(--color-component-fill)')
+      expect(COLORS.componentStroke).toBe('var(--color-component-stroke)')
+      expect(COLORS.componentSelectedFill).toBe('var(--color-component-selected-fill)')
+      expect(COLORS.componentSelectedStroke).toBe('var(--color-component-selected-stroke)')
+      expect(COLORS.connectionFill).toBe('var(--color-connection-fill)')
+      expect(COLORS.canvasBackground).toBe('var(--color-grid-background)')
     })
   })
 

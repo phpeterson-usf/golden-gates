@@ -157,7 +157,7 @@ function emitUpdate() {
 
 .section-label {
   font-weight: 600;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
 
@@ -194,7 +194,7 @@ function emitUpdate() {
 }
 
 .range-separator {
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 

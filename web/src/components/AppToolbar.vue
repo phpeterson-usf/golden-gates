@@ -71,10 +71,23 @@ export default {
 .app-toolbar {
   border-radius: 0;
   border: none;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-toolbar-bg);
+  box-shadow: var(--shadow-small);
   height: 48px;
+}
+
+/* Inspector toggle button styling */
+.p-button-text {
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.p-button-text:hover {
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-component-hover-fill) !important;
+  border-color: transparent !important;
 }
 
 /* Golden Gate button styling with USF colors */

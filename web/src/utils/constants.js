@@ -1,6 +1,6 @@
 // Grid and sizing constants
 export const GRID_SIZE = 15
-export const DOT_SIZE = 2
+export const DOT_SIZE = 3
 export const CONNECTION_DOT_RADIUS = 3
 
 // Coordinate conversion utilities
@@ -24,38 +24,41 @@ export function pixelToGrid(pixelCoord) {
   }
 }
 
-// Colors
+// Colors - using CSS custom properties for automatic light/dark theme switching
 export const COLORS = {
   // Component colors
-  componentFill: 'white',
-  componentStroke: '#475569',
-  componentSelectedFill: '#dbeafe',
-  componentSelectedStroke: '#3b82f6',
-  componentHoverFill: '#f1f5f9',
+  componentFill: 'var(--color-component-fill)',
+  componentStroke: 'var(--color-component-stroke)',
+  componentSelectedFill: 'var(--color-component-selected-fill)',
+  componentSelectedStroke: 'var(--color-component-selected-stroke)',
+  componentHoverFill: 'var(--color-component-hover-fill)',
 
   // Step highlighting colors
-  componentStepFill: '#fef3c7',
-  componentStepStroke: '#f59e0b',
+  componentStepFill: 'var(--color-component-step-fill)',
+  componentStepStroke: 'var(--color-component-step-stroke)',
 
   // Error state colors
-  componentErrorFill: '#fecaca',
-  componentErrorStroke: '#ef4444',
-  componentWarningFill: '#fed7aa',
-  componentWarningStroke: '#f97316',
+  componentErrorFill: 'var(--color-component-error-fill)',
+  componentErrorStroke: 'var(--color-component-error-stroke)',
+  componentWarningFill: 'var(--color-component-warning-fill)',
+  componentWarningStroke: 'var(--color-component-warning-stroke)',
 
   // Connection point colors
-  connectionFill: 'black',
-  connectionHoverFill: '#0066cc',
+  connectionFill: 'var(--color-connection-fill)',
+  connectionHoverFill: 'var(--color-connection-hover-fill)',
 
   // Grid colors
-  gridDot: '#cbd5e1',
-  canvasBackground: '#ffffff',
+  gridDot: 'var(--color-grid-dot)',
+  canvasBackground: 'var(--color-grid-background)',
 
   // Wire colors
-  wire: '#374151',
-  wireSelected: '#3b82f6',
-  wirePreview: '#6b7280',
-  wireProcessing: '#10b981'
+  wire: 'var(--color-wire)',
+  wireSelected: 'var(--color-wire-selected)',
+  wirePreview: 'var(--color-wire-preview)',
+  wireProcessing: 'var(--color-wire-processing)',
+
+  // Component text colors
+  componentText: 'var(--color-component-text)'
 }
 
 // Stroke widths

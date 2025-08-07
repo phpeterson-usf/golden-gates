@@ -437,7 +437,7 @@ export default {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
 
@@ -448,11 +448,11 @@ export default {
   outline: none;
   font-size: 0.875rem;
   background: transparent;
-  color: var(--text-color);
+  color: var(--color-text-primary);
 }
 
 .command-palette-input::placeholder {
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }
 
 .command-palette-results {
@@ -464,7 +464,7 @@ export default {
 .no-results {
   padding: 2rem;
   text-align: center;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
 
@@ -476,7 +476,7 @@ export default {
   padding: 0.25rem 1rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: flex;
@@ -511,19 +511,19 @@ export default {
   width: 1rem;
   height: 1rem;
   font-size: 0.875rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }
 
 .command-label {
   flex: 1;
   font-size: 0.875rem;
-  color: var(--text-color);
+  color: var(--color-text-primary);
 }
 
 .command-shortcut {
   flex-shrink: 0;
   font-size: 0.875rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   background-color: var(--surface-ground);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;

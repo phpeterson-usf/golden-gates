@@ -34,7 +34,7 @@ function toggleLanguage() {
 
 .current-locale {
   font-size: 0.75rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 </style>

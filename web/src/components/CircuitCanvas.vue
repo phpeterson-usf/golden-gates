@@ -41,7 +41,7 @@
               :cx="gridSize * zoom"
               :cy="gridSize * zoom"
               :r="dotSize * zoom"
-              :fill="COLORS.gridDot"
+              :fill="actualGridDotColor"
             />
           </pattern>
         </defs>
@@ -711,6 +711,16 @@ export default {
       }
     }
 
+    // Computed property to get the actual grid dot color
+    const actualGridDotColor = computed(() => {
+      if (typeof document !== 'undefined') {
+        const computedStyle = getComputedStyle(document.documentElement)
+        const color = computedStyle.getPropertyValue('--color-grid-dot').trim()
+        return color || '#94a3b8'
+      }
+      return '#94a3b8'
+    })
+
     return {
       // Template refs
       container,
@@ -756,6 +766,7 @@ export default {
       COLORS,
       CONNECTION_DOT_RADIUS,
       gridToPixel,
+      actualGridDotColor,
 
       // Methods
       getComponentType,
@@ -796,7 +807,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: #ffffff;
+  background-color: var(--color-canvas-bg);
   overflow: hidden;
 }
 
@@ -824,6 +835,7 @@ export default {
 .circuit-canvas {
   z-index: 2;
   cursor: default;
+  background-color: transparent;
 }
 
 .circuit-canvas.dragging {
@@ -863,22 +875,22 @@ body.dragging-mode {
 .zoom-button {
   width: 36px;
   height: 36px;
-  border: 1px solid #e5e7eb;
-  background-color: white;
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-component-fill);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   transition: all 0.2s;
 }
 
 .zoom-button:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+  background-color: var(--color-component-hover-fill);
+  border-color: var(--color-border-medium);
+  color: var(--color-text-primary);
 }
 
 .zoom-button:disabled {

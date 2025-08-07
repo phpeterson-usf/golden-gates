@@ -390,7 +390,7 @@ function parseJsonFile(text) {
   top: 0.125rem;
   left: 0.25rem;
   font-size: 0.625rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-family: monospace;
 }
 
@@ -416,7 +416,7 @@ function parseJsonFile(text) {
 
 .cell-input.readonly {
   background: var(--surface-100);
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   cursor: default;
 }
 

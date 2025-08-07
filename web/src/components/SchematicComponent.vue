@@ -27,7 +27,7 @@
         :y="inputLabelPositions[index]?.y"
         font-size="10"
         font-family="Arial, sans-serif"
-        fill="#374151"
+        :fill="COLORS.componentText"
         :text-anchor="inputLabelPositions[index]?.anchor"
         class="component-label"
       >
@@ -42,7 +42,7 @@
         :y="outputLabelPositions[index]?.y"
         font-size="10"
         font-family="Arial, sans-serif"
-        fill="#374151"
+        :fill="COLORS.componentText"
         :text-anchor="outputLabelPositions[index]?.anchor"
         class="component-label"
       >

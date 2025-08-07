@@ -1,0 +1,308 @@
+/* Golden Gates Theme System - Automatic Light/Dark Mode */
+
+/* Light theme (default) */
+:root {
+  /* Background colors */
+  --color-canvas-bg: #ffffff;
+  --color-app-bg: #f8fafc;
+  --color-toolbar-bg: #ffffff;
+  --color-panel-bg: #ffffff;
+  --color-dialog-bg: #ffffff;
+
+  /* Text colors */
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
+  --color-border-light: #e2e8f0;
+  --color-border-medium: #cbd5e1;
+  --color-border-dark: #94a3b8;
+
+  /* Grid and canvas */
+  --color-grid-dot: #94a3b8;
+  --color-grid-background: #ffffff;
+
+  /* Component colors */
+  --color-component-fill: #ffffff;
+  --color-component-stroke: #475569;
+  --color-component-selected-fill: #dbeafe;
+  --color-component-selected-stroke: #3b82f6;
+  --color-component-hover-fill: #f1f5f9;
+
+  /* Step highlighting colors */
+  --color-component-step-fill: #fef3c7;
+  --color-component-step-stroke: #f59e0b;
+
+  /* Error state colors */
+  --color-component-error-fill: #fecaca;
+  --color-component-error-stroke: #ef4444;
+  --color-component-warning-fill: #fed7aa;
+  --color-component-warning-stroke: #f97316;
+
+  /* Connection point colors */
+  --color-connection-fill: #1e293b;
+  --color-connection-hover-fill: #0066cc;
+
+  /* Wire colors */
+  --color-wire: #374151;
+  --color-wire-selected: #3b82f6;
+  --color-wire-preview: #6b7280;
+  --color-wire-processing: #10b981;
+
+  /* Component text colors */
+  --color-component-text: #374151;
+
+  /* Interactive states */
+  --color-button-primary: #3b82f6;
+  --color-button-primary-hover: #2563eb;
+  --color-button-secondary: #64748b;
+  --color-button-secondary-hover: #475569;
+
+  /* Shadows */
+  --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dark theme - applies when user has dark mode preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Background colors */
+    --color-canvas-bg: #0f172a;
+    --color-app-bg: #020617;
+    --color-toolbar-bg: #1e293b;
+    --color-panel-bg: #1e293b;
+    --color-dialog-bg: #1e293b;
+
+    /* Text colors */
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #64748b;
+    --color-text-inverse: #1e293b;
+
+    /* Border colors */
+    --color-border-light: #334155;
+    --color-border-medium: #475569;
+    --color-border-dark: #64748b;
+
+    /* Grid and canvas */
+    --color-grid-dot: #334155;
+    --color-grid-background: #0f172a;
+
+    /* Component colors */
+    --color-component-fill: #1e293b;
+    --color-component-stroke: #cbd5e1;
+    --color-component-selected-fill: #1e40af;
+    --color-component-selected-stroke: #60a5fa;
+    --color-component-hover-fill: #475569;
+
+    /* Step highlighting colors */
+    --color-component-step-fill: #92400e;
+    --color-component-step-stroke: #fbbf24;
+
+    /* Error state colors */
+    --color-component-error-fill: #7f1d1d;
+    --color-component-error-stroke: #f87171;
+    --color-component-warning-fill: #c2410c;
+    --color-component-warning-stroke: #fb923c;
+
+    /* Connection point colors */
+    --color-connection-fill: #94a3b8;
+    --color-connection-hover-fill: #60a5fa;
+
+    /* Wire colors */
+    --color-wire: #cbd5e1;
+    --color-wire-selected: #60a5fa;
+    --color-wire-preview: #94a3b8;
+    --color-wire-processing: #34d399;
+
+    /* Component text colors */
+    --color-component-text: #94a3b8;
+
+    /* Interactive states */
+    --color-button-primary: #3b82f6;
+    --color-button-primary-hover: #60a5fa;
+    --color-button-secondary: #64748b;
+    --color-button-secondary-hover: #94a3b8;
+
+    /* Shadows - darker shadows for dark mode */
+    --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  }
+}
+
+/* Base application styling using CSS variables */
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+#app {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+}
+
+/* Toolbar styling */
+.toolbar {
+  background-color: var(--color-toolbar-bg);
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-small);
+}
+
+/* Panel and dialog styling */
+.inspector-panel,
+.dialog-content,
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-light);
+}
+
+/* Canvas styling */
+.circuit-canvas {
+  background-color: transparent;
+}
+
+/* Memory data table styling for dark mode */
+.memory-table {
+  background-color: var(--color-panel-bg);
+  border-color: var(--color-border-light);
+}
+
+.memory-table th,
+.memory-table td {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-light);
+}
+
+.memory-table .active {
+  background-color: var(--color-component-selected-fill);
+  color: var(--color-text-primary);
+}
+
+.memory-table .readonly {
+  background-color: var(--color-component-hover-fill);
+  color: var(--color-text-muted);
+}
+
+/* Input and form elements */
+input,
+textarea,
+select {
+  background-color: var(--color-component-fill);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: var(--color-component-fill);
+  border-color: var(--color-component-selected-stroke);
+}
+
+/* Button styling */
+.p-button {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-button-primary);
+}
+
+.p-button:hover {
+  background-color: var(--color-button-primary-hover);
+  border-color: var(--color-button-primary-hover);
+}
+
+.p-button.p-button-secondary {
+  background-color: var(--color-button-secondary);
+  border-color: var(--color-button-secondary);
+}
+
+.p-button.p-button-secondary:hover {
+  background-color: var(--color-button-secondary-hover);
+  border-color: var(--color-button-secondary-hover);
+}
+
+/* Notification styling */
+.p-message {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+/* Tab styling */
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-light);
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background-color: var(--color-component-hover-fill);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+/* Dropdown and menu styling */
+.p-dropdown,
+.p-dropdown-panel {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+.p-dropdown-item {
+  color: var(--color-text-primary);
+}
+
+.p-dropdown-item:hover {
+  background-color: var(--color-component-hover-fill);
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+/* Special handling for SVG elements which don't inherit CSS transitions well */
+svg,
+svg * {
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* Utility classes for theme-aware styling */
+.theme-text-primary {
+  color: var(--color-text-primary);
+}
+.theme-text-secondary {
+  color: var(--color-text-secondary);
+}
+.theme-text-muted {
+  color: var(--color-text-muted);
+}
+.theme-bg-canvas {
+  background-color: var(--color-canvas-bg);
+}
+.theme-bg-panel {
+  background-color: var(--color-panel-bg);
+}
+.theme-border-light {
+  border-color: var(--color-border-light);
+}

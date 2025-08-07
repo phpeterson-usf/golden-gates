@@ -189,7 +189,7 @@ export default {
 }
 
 .component-body:hover {
-  fill: #f0f0f0;
+  fill: var(--color-component-hover-fill, #f0f0f0);
 }
 
 .component-label {

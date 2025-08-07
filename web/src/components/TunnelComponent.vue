@@ -52,18 +52,13 @@ export default defineComponent({
       const width = GRID_SIZE // horizontal length
       const height = GRID_SIZE * 2 // vertical height
       const tipX = 0
-      const tipY = height / 2  // GRID_SIZE, center vertically
+      const tipY = height / 2 // GRID_SIZE, center vertically
       return `${tipX},${tipY} ${width},${height} ${width},0`
     }
   },
   setup(props, { emit }) {
-    const {
-      handleMouseDown,
-      fillColor,
-      strokeColor,
-      strokeWidth,
-      componentClasses
-    } = useComponentView(props, emit)
+    const { handleMouseDown, fillColor, strokeColor, strokeWidth, componentClasses } =
+      useComponentView(props, emit)
 
     return {
       handleMouseDown,
