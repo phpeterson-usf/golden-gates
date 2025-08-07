@@ -54,11 +54,19 @@ export default defineComponent({
   emits: ['startDrag'],
   computed: {
     trianglePoints() {
-      const width = GRID_SIZE // horizontal length
-      const height = GRID_SIZE * 2 // vertical height
+      const width = GRID_SIZE
+      const height = GRID_SIZE
+
       const tipX = 0
-      const tipY = height / 2 // GRID_SIZE, center vertically
-      return `${tipX},${tipY} ${width},${height} ${width},0`
+      const tipY = GRID_SIZE // connection dot is at (0, GRID_SIZE)
+
+      const baseTopX = width
+      const baseTopY = GRID_SIZE - height / 2
+
+      const baseBottomX = width
+      const baseBottomY = GRID_SIZE + height / 2
+
+      return `${tipX},${tipY} ${baseBottomX},${baseBottomY} ${baseTopX},${baseTopY}`
     }
   },
   setup(props, { emit }) {
