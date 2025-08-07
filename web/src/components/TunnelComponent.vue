@@ -3,7 +3,7 @@
     <!-- Label above (always upright) -->
     <text
       :x="GRID_SIZE"
-      y="-15"
+      y="-5"
       text-anchor="middle"
       class="component-label"
     >
