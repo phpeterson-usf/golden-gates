@@ -68,6 +68,7 @@ export interface TunnelComponentData extends WireComponentData {
   props: {
     label?: string
     bits?: number
+    rotation?: 0 | 90 | 180 | 270
   }
 }
 

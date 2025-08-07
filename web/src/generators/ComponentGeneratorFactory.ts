@@ -6,6 +6,7 @@ import { ClockGenerator } from './ClockGenerator'
 import { LogicGateGenerator } from './LogicGateGenerator'
 import { SplitterGenerator } from './SplitterGenerator'
 import { MergerGenerator } from './MergerGenerator'
+import { TunnelGenerator } from './TunnelGenerator'
 import { MultiplexerGenerator } from './MultiplexerGenerator'
 import { DecoderGenerator } from './DecoderGenerator'
 import { PriorityEncoderGenerator } from './PriorityEncoderGenerator'
@@ -61,6 +62,9 @@ export function createComponentGenerator(
 
     case 'merger':
       return new MergerGenerator(componentData)
+
+    case 'tunnel':
+      return new TunnelGenerator(componentData)
 
     case 'multiplexer':
       return new MultiplexerGenerator(componentData)
