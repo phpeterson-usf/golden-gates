@@ -290,6 +290,16 @@ export const componentPropertySchema = {
         max: 64,
         showButtons: true
       },
+      {
+        name: 'direction',
+        type: 'dropdown',
+        label: 'Direction',
+        default: 'input',
+        options: [
+          { label: 'Input', value: 'input' },
+          { label: 'Output', value: 'output' }
+        ]
+      },
       commonProperties.rotation
     ]
   },

@@ -334,13 +334,20 @@ export const componentRegistry = {
     defaultProps: {
       bits: 1,
       label: '',
-      rotation: 0
+      rotation: 0,
+      direction: 'input'
     },
     getConnections: props => {
-      // One input on the left center, one output on the right center
-      return {
-        inputs: [{ name: '0', x: 0, y: Math.round(GRID_SIZE / 2 / GRID_SIZE) }],
-        outputs: [{ name: '0', x: 2, y: Math.round(GRID_SIZE / 2 / GRID_SIZE) }]
+      const centerY = Math.round(GRID_SIZE / 2 / GRID_SIZE)
+      if (props.direction === 'output') {
+        return {
+          outputs: [{ name: '0', x: 2, y: centerY }]
+        }
+      } else {
+        // Default to input
+        return {
+          inputs: [{ name: '0', x: 0, y: centerY }]
+        }
       }
     },
     getPythonProps: props => ({

@@ -1,13 +1,18 @@
 <template>
   <g :transform="`translate(${x * GRID_SIZE}, ${y * GRID_SIZE})`">
+    <!-- Label above (always upright) -->
+    <text
+      :x="GRID_SIZE"
+      y="-15"
+      text-anchor="middle"
+      class="component-label"
+    >
+      {{ label }}
+    </text>
+
     <!-- Rotation group centered roughly in the middle -->
     <g :transform="`rotate(${rotation}, ${GRID_SIZE}, ${GRID_SIZE})`">
-      <!-- Label above -->
-      <text :x="GRID_SIZE" y="-15" text-anchor="middle" class="component-label">
-        {{ label }}
-      </text>
-
-      <!-- Triangle shape pointing left -->
+      <!-- Triangle shape -->
       <polygon
         :points="trianglePoints"
         :fill="fillColor"
@@ -17,19 +22,18 @@
         @mousedown="handleMouseDown"
       />
 
-      <!-- Input connection (left tip of triangle) -->
+      <!-- Single connection dot -->
       <circle
         :cx="0"
         :cy="GRID_SIZE"
         :r="CONNECTION_DOT_RADIUS"
         :fill="COLORS.connectionFill"
-        class="connection-point input"
+        class="connection-point"
+        :class="direction"
         :data-component-id="id"
         data-port="0"
-        data-type="input"
+        :data-type="direction"
       />
-
-      <!-- No output connection circle -->
     </g>
   </g>
 </template>
@@ -44,7 +48,8 @@ export default defineComponent({
   props: {
     ...draggableProps,
     label: { type: String, default: 'TUN' },
-    rotation: { type: Number, default: 0 }
+    rotation: { type: Number, default: 0 },
+    direction: { type: String as PropType<'input' | 'output'>, default: 'input' }
   },
   emits: ['startDrag'],
   computed: {
