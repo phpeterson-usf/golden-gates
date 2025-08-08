@@ -342,7 +342,7 @@ function parseJsonFile(text) {
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 0.75rem;
   display: flex;
   align-items: center;
@@ -354,22 +354,22 @@ function parseJsonFile(text) {
 
 .import-button:hover,
 .clear-button:hover {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--color-component-hover-fill);
+  color: var(--color-text-primary);
 }
 
 .table-container {
   position: relative;
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--color-border-light);
   border-radius: 6px;
-  background: var(--surface-ground);
+  background: var(--color-panel-bg);
 }
 
 .table-container.drag-over {
   border-color: var(--primary-color);
-  background: var(--highlight-bg);
+  background: var(--color-component-hover-fill);
 }
 
 .memory-table {
@@ -380,9 +380,11 @@ function parseJsonFile(text) {
 
 .memory-cell {
   padding: 0.125rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--color-border-medium);
   position: relative;
   min-width: 5rem; /* Ensure space for 8 hex characters (FFFFFFFF) */
+  background: var(--color-component-fill);
+  min-height: 3rem;
 }
 
 .cell-address {
@@ -392,6 +394,8 @@ function parseJsonFile(text) {
   font-size: 0.625rem;
   color: var(--color-text-secondary);
   font-family: monospace;
+  font-weight: 600;
+  opacity: 0.8;
 }
 
 .cell-input {
@@ -401,23 +405,28 @@ function parseJsonFile(text) {
   border: none;
   background: transparent;
   font-family: monospace;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   text-align: center;
   outline: none;
+  color: var(--color-text-primary);
+  font-weight: 500;
 }
 
 .cell-input:focus {
-  background: var(--highlight-bg);
+  background: var(--color-component-hover-fill);
+  outline: 1px solid var(--color-component-selected-stroke);
 }
 
 .cell-input.active {
-  background: var(--primary-color-text);
+  background: var(--color-component-selected-fill);
+  color: var(--color-text-primary);
 }
 
 .cell-input.readonly {
-  background: var(--surface-100);
+  background: transparent;
   color: var(--color-text-secondary);
   cursor: default;
+  opacity: 0.9;
 }
 
 .drag-overlay {
@@ -454,15 +463,15 @@ function parseJsonFile(text) {
 }
 
 .table-container::-webkit-scrollbar-track {
-  background: var(--surface-100);
+  background: var(--color-border-light);
 }
 
 .table-container::-webkit-scrollbar-thumb {
-  background: var(--surface-400);
+  background: var(--color-border-medium);
   border-radius: 4px;
 }
 
 .table-container::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-500);
+  background: var(--color-border-dark);
 }
 </style>

@@ -503,7 +503,8 @@ export default {
 
 .command-item:hover,
 .command-item.selected {
-  background-color: var(--highlight-bg);
+  background-color: var(--color-component-selected-fill);
+  color: var(--color-text-primary);
 }
 
 .command-icon {
@@ -524,21 +525,18 @@ export default {
   flex-shrink: 0;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  background-color: var(--surface-ground);
+  background-color: var(--color-component-hover-fill);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-family:
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   letter-spacing: 0.05em;
   font-weight: 500;
+  border: 1px solid var(--color-border-light);
 }
 
 /* Dark mode support */
 .p-dark .command-palette-input {
   background: transparent;
-}
-
-.p-dark .command-shortcut {
-  background-color: var(--surface-100);
 }
 </style>

@@ -313,7 +313,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 150px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-align: center;
   padding: 1.5rem;
 }
@@ -321,7 +321,7 @@ export default {
 .empty-state i {
   font-size: 2rem;
   margin-bottom: 0.75rem;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .empty-state p {
@@ -334,7 +334,7 @@ export default {
 }
 
 .no-properties {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 0.75rem;
   text-align: center;
   margin: 1rem 0;
@@ -352,7 +352,7 @@ export default {
   margin: 0 0 0.75rem 0;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-component-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -364,7 +364,7 @@ export default {
 .actions-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .action-group {
@@ -381,14 +381,14 @@ export default {
   margin-bottom: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #4b5563;
+  color: var(--color-component-text);
 }
 
 .property-help {
   display: block;
   margin-top: 0.25rem;
   font-size: 0.625rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-style: normal;
 }
 

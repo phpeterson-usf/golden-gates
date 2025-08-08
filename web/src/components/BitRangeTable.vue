@@ -172,8 +172,27 @@ function emitUpdate() {
 }
 
 .add-button {
-  width: 2rem;
-  height: 2rem;
+  width: 2rem !important;
+  height: 2rem !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--color-text-secondary) !important;
+  padding: 0 !important;
+}
+
+.add-button:hover {
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Center the icon within PrimeVue button */
+.add-button :deep(.p-button-icon) {
+  margin: 0 !important;
+  font-size: 1rem !important;
+}
+
+.add-button :deep(.p-button-label) {
+  display: none !important;
 }
 
 .ranges-list {
@@ -199,7 +218,26 @@ function emitUpdate() {
 }
 
 .remove-button {
-  width: 2rem;
-  height: 2rem;
+  width: 2rem !important;
+  height: 2rem !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--color-text-secondary) !important;
+  padding: 0 !important;
+}
+
+.remove-button:hover {
+  background-color: var(--color-component-hover-fill) !important;
+  color: #ef4444 !important;
+}
+
+/* Center the icon within PrimeVue button */
+.remove-button :deep(.p-button-icon) {
+  margin: 0 !important;
+  font-size: 1rem !important;
+}
+
+.remove-button :deep(.p-button-label) {
+  display: none !important;
 }
 </style>
