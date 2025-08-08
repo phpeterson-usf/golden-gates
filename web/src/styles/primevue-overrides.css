@@ -1,0 +1,179 @@
+/* PrimeVue Component Theme Overrides */
+/* Consolidates all PrimeVue styling to support light/dark themes */
+
+/* ===== BUTTONS ===== */
+.p-button {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-button-primary);
+}
+
+.p-button:hover {
+  background-color: var(--color-button-primary-hover);
+  border-color: var(--color-button-primary-hover);
+}
+
+.p-button.p-button-secondary {
+  background-color: var(--color-button-secondary);
+  border-color: var(--color-button-secondary);
+}
+
+.p-button.p-button-secondary:hover {
+  background-color: var(--color-button-secondary-hover);
+  border-color: var(--color-button-secondary-hover);
+}
+
+/* Text buttons */
+.p-button.p-button-text {
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.p-button.p-button-text:hover {
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Icon-only buttons */
+.p-button.p-button-icon-only {
+  padding: 0.5rem !important;
+}
+
+.p-button.p-button-icon-only .p-button-icon {
+  margin: 0 !important;
+  font-size: 1rem;
+}
+
+/* ===== INPUT FIELDS ===== */
+input, textarea, select,
+.p-inputtext,
+.p-inputnumber-input,
+.p-inputtextarea {
+  background-color: var(--color-component-fill);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+input:focus, textarea:focus, select:focus,
+.p-inputtext:focus,
+.p-inputnumber-input:focus,
+.p-inputtextarea:focus {
+  background-color: var(--color-component-fill);
+  border-color: var(--color-component-selected-stroke);
+}
+
+/* ===== DROPDOWNS ===== */
+.p-dropdown {
+  background-color: var(--color-component-fill) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border-medium) !important;
+}
+
+.p-dropdown .p-dropdown-label {
+  color: var(--color-text-primary) !important;
+}
+
+.p-dropdown .p-dropdown-trigger {
+  background-color: transparent !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.p-dropdown-panel {
+  background-color: var(--color-panel-bg) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border-medium) !important;
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  background-color: var(--color-panel-bg) !important;
+}
+
+.p-dropdown-item {
+  color: var(--color-text-primary) !important;
+  background-color: transparent !important;
+}
+
+.p-dropdown-item:hover {
+  background-color: var(--color-component-hover-fill) !important;
+}
+
+.p-dropdown-item.p-highlight {
+  background-color: var(--color-component-selected-fill) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* ===== INPUT NUMBER (STEPPERS) ===== */
+.p-inputnumber {
+  display: inline-flex !important;
+  position: relative !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.p-inputnumber .p-inputnumber-input {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  min-height: 2.5rem !important;
+}
+
+.p-inputnumber-button-group {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 2px !important;
+  gap: 1px !important;
+}
+
+.p-inputnumber-button-group .p-button {
+  flex: 1 !important;
+  min-height: 0 !important;
+  padding: 0.1rem 0.3rem !important;
+  border: none !important;
+  border-radius: 3px !important;
+}
+
+.p-inputnumber-button,
+.p-inputnumber-button-up,
+.p-inputnumber-button-down {
+  border: none !important;
+  background-color: var(--color-component-fill) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.p-inputnumber-button:hover,
+.p-inputnumber-button-up:hover,
+.p-inputnumber-button-down:hover {
+  background-color: var(--color-component-hover-fill) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.p-inputnumber-button:active {
+  background-color: var(--color-border-light) !important;
+}
+
+/* ===== MESSAGES/NOTIFICATIONS ===== */
+.p-message {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+/* ===== TABS ===== */
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-light);
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background-color: var(--color-component-hover-fill);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+/* ===== DIALOGS ===== */
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content {
+  background-color: var(--color-panel-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-light);
+}

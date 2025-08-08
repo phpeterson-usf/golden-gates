@@ -158,23 +158,23 @@ export default {
 
 .modal-icon {
   font-size: 1.5rem;
-  color: #f59e0b;
+  color: var(--color-warning);
   flex-shrink: 0;
 }
 
 .modal-icon.pi-times-circle {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .modal-icon.pi-info-circle {
-  color: #3b82f6;
+  color: var(--color-info);
 }
 
 .modal-title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 /* Modal content */
@@ -186,7 +186,7 @@ export default {
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 /* Modal footer */
@@ -218,47 +218,47 @@ export default {
 
 /* Cancel button */
 .modal-button-cancel {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   background-color: transparent;
-  border-color: #d1d5db;
+  border-color: var(--color-border-medium);
 }
 
 .modal-button-cancel:hover {
-  color: #374151;
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  color: var(--color-text-primary);
+  background-color: var(--color-component-hover-fill);
+  border-color: var(--color-border-dark);
 }
 
 /* Confirm button - default warning style */
 .modal-button-confirm {
-  color: white;
-  background-color: #f59e0b;
-  border-color: #f59e0b;
+  color: var(--color-text-inverse);
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
 }
 
 .modal-button-confirm:hover {
-  background-color: #d97706;
-  border-color: #d97706;
+  background-color: var(--color-component-warning-stroke);
+  border-color: var(--color-component-warning-stroke);
 }
 
 /* Confirm button variants */
 .modal-button-danger {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 .modal-button-danger:hover {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
+  background-color: var(--color-component-error-stroke);
+  border-color: var(--color-component-error-stroke);
 }
 
 .modal-button-info {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--color-info);
+  border-color: var(--color-info);
 }
 
 .modal-button-info:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: var(--color-button-primary-hover);
+  border-color: var(--color-button-primary-hover);
 }
 </style>

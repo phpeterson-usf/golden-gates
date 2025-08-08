@@ -1,4 +1,5 @@
 /* Golden Gates Theme System - Automatic Light/Dark Mode */
+@import './primevue-overrides.css';
 
 /* Light theme (default) */
 :root {
@@ -59,6 +60,20 @@
   --color-button-primary-hover: #2563eb;
   --color-button-secondary: #64748b;
   --color-button-secondary-hover: #475569;
+
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Brand colors */
+  --color-brand-primary: #00543c; /* USF Green */
+  --color-brand-secondary: #ffcc02; /* USF Gold */
+
+  /* Overlay colors */
+  --color-overlay-bg: rgba(0, 0, 0, 0.5);
+  --color-modal-bg: #ffffff;
 
   /* Shadows */
   --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -126,6 +141,20 @@
     --color-button-primary-hover: #60a5fa;
     --color-button-secondary: #64748b;
     --color-button-secondary-hover: #94a3b8;
+
+    /* Semantic colors - adjusted for dark mode */
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
+    --color-error: #f87171;
+    --color-info: #60a5fa;
+
+    /* Brand colors - same in dark mode */
+    --color-brand-primary: #006b4d; /* Lighter USF Green for dark mode */
+    --color-brand-secondary: #ffd633; /* Brighter USF Gold for dark mode */
+
+    /* Overlay colors */
+    --color-overlay-bg: rgba(0, 0, 0, 0.7);
+    --color-modal-bg: #1e293b;
 
     /* Shadows - darker shadows for dark mode */
     --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.3);
@@ -195,173 +224,7 @@ body {
   color: var(--color-text-muted);
 }
 
-/* Input and form elements */
-input,
-textarea,
-select {
-  background-color: var(--color-component-fill);
-  color: var(--color-text-primary);
-  border-color: var(--color-border-medium);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  background-color: var(--color-component-fill);
-  border-color: var(--color-component-selected-stroke);
-}
-
-/* Button styling */
-.p-button {
-  background-color: var(--color-button-primary);
-  border-color: var(--color-button-primary);
-}
-
-.p-button:hover {
-  background-color: var(--color-button-primary-hover);
-  border-color: var(--color-button-primary-hover);
-}
-
-.p-button.p-button-secondary {
-  background-color: var(--color-button-secondary);
-  border-color: var(--color-button-secondary);
-}
-
-.p-button.p-button-secondary:hover {
-  background-color: var(--color-button-secondary-hover);
-  border-color: var(--color-button-secondary-hover);
-}
-
-/* Notification styling */
-.p-message {
-  background-color: var(--color-panel-bg);
-  color: var(--color-text-primary);
-  border-color: var(--color-border-medium);
-}
-
-/* Tab styling */
-.p-tabview .p-tabview-nav li .p-tabview-nav-link {
-  background-color: var(--color-panel-bg);
-  color: var(--color-text-secondary);
-  border-color: var(--color-border-light);
-}
-
-.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-  background-color: var(--color-component-hover-fill);
-  color: var(--color-text-primary);
-  border-color: var(--color-border-medium);
-}
-
-/* Dropdown and menu styling */
-.p-dropdown {
-  background-color: var(--color-component-fill) !important;
-  color: var(--color-text-primary) !important;
-  border-color: var(--color-border-medium) !important;
-}
-
-.p-dropdown .p-dropdown-label {
-  color: var(--color-text-primary) !important;
-}
-
-.p-dropdown .p-dropdown-trigger {
-  background-color: transparent !important;
-  color: var(--color-text-secondary) !important;
-}
-
-.p-dropdown-panel {
-  background-color: var(--color-panel-bg) !important;
-  color: var(--color-text-primary) !important;
-  border-color: var(--color-border-medium) !important;
-}
-
-.p-dropdown-panel .p-dropdown-items {
-  background-color: var(--color-panel-bg) !important;
-}
-
-.p-dropdown-item {
-  color: var(--color-text-primary) !important;
-  background-color: transparent !important;
-}
-
-.p-dropdown-item:hover {
-  background-color: var(--color-component-hover-fill) !important;
-}
-
-.p-dropdown-item.p-highlight {
-  background-color: var(--color-component-selected-fill) !important;
-  color: var(--color-text-primary) !important;
-}
-
-/* InputNumber component styling */
-.p-inputnumber {
-  display: inline-flex !important;
-  position: relative !important;
-  border-radius: 6px !important;
-  overflow: hidden !important;
-}
-
-.p-inputnumber .p-inputnumber-input {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
-  min-height: 2.5rem !important;
-}
-
-.p-inputnumber-button-group {
-  display: flex !important;
-  flex-direction: column !important;
-  padding: 2px !important;
-  gap: 1px !important;
-}
-
-.p-inputnumber-button-group .p-button {
-  flex: 1 !important;
-  min-height: 0 !important;
-  padding: 0.1rem 0.3rem !important;
-  border: none !important;
-  border-radius: 3px !important;
-}
-
-/* Stepper button styling */
-.p-inputnumber-button,
-.p-inputnumber-button-up,
-.p-inputnumber-button-down {
-  border: none !important;
-  background-color: var(--color-component-fill) !important;
-  color: var(--color-text-secondary) !important;
-}
-
-.p-inputnumber-button:hover,
-.p-inputnumber-button-up:hover,
-.p-inputnumber-button-down:hover {
-  background-color: var(--color-component-hover-fill) !important;
-  color: var(--color-text-primary) !important;
-}
-
-.p-inputnumber-button:active {
-  background-color: var(--color-border-light) !important;
-}
-
-/* PrimeVue text buttons styling */
-.p-button.p-button-text {
-  color: var(--color-text-secondary) !important;
-  background-color: transparent !important;
-  border-color: transparent !important;
-}
-
-.p-button.p-button-text:hover {
-  background-color: var(--color-component-hover-fill) !important;
-  color: var(--color-text-primary) !important;
-}
-
-/* Icon-only button centering */
-.p-button.p-button-icon-only {
-  padding: 0.5rem !important;
-}
-
-.p-button.p-button-icon-only .p-button-icon {
-  margin: 0 !important;
-  font-size: 1rem;
-}
+/* Note: PrimeVue component styling moved to primevue-overrides.css */
 
 /* Smooth transitions for theme switching */
 * {

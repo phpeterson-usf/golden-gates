@@ -653,8 +653,8 @@ body {
 }
 
 .circuit-container.drag-over {
-  background-color: #eff6ff;
-  border: 2px dashed #3b82f6;
+  background-color: var(--color-component-selected-fill);
+  border: 2px dashed var(--color-component-selected-stroke);
   box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
 }
 
@@ -664,8 +664,8 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(59, 130, 246, 0.9);
-  color: white;
+  background-color: var(--color-component-selected-stroke);
+  color: var(--color-text-inverse);
   padding: 1rem 2rem;
   border-radius: 8px;
   font-weight: 500;

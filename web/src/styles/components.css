@@ -46,7 +46,7 @@
 
 /* Wire state visualization */
 .wire-high:not(.selected) {
-  stroke: #10b981; /* Bright green for high (1) */
+  stroke: var(--color-success); /* Success green for high (1) */
 }
 
 .wire-low:not(.selected) {
@@ -55,7 +55,7 @@
 
 /* Selected wires always show blue, regardless of state */
 .wire.selected {
-  stroke: #3b82f6; /* Blue for selected */
+  stroke: var(--color-component-selected-stroke); /* Blue for selected */
 }
 
 /* Splitter/merger body styles */
@@ -68,7 +68,7 @@
 
 .splitter-body.selected,
 .merger-body.selected {
-  stroke: #3b82f6;
+  stroke: var(--color-component-selected-stroke);
 }
 
 .component-body:hover {
@@ -104,14 +104,14 @@
 
 /* Enhanced connection point colors during wire drawing */
 .wire-drawing .connection-point.input:hover {
-  fill: #3b82f6;
-  stroke: #3b82f6;
+  fill: var(--color-component-selected-stroke);
+  stroke: var(--color-component-selected-stroke);
   stroke-width: 3;
 }
 
 .wire-drawing .connection-point.output:hover {
-  fill: #3b82f6;
-  stroke: #3b82f6;
+  fill: var(--color-component-selected-stroke);
+  stroke: var(--color-component-selected-stroke);
   stroke-width: 3;
 }
 
@@ -127,7 +127,7 @@
 
 /* Wire highlighting during junction mode */
 .junction-mode .wire-segment:hover {
-  stroke: #3b82f6 !important;
+  stroke: var(--color-component-selected-stroke) !important;
   stroke-width: 4 !important;
   filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.8));
 }
@@ -219,7 +219,7 @@
 .value-updated {
   animation: valueUpdate 1s ease-out;
   font-weight: bold;
-  fill: #3b82f6 !important;
+  fill: var(--color-component-selected-stroke) !important;
   transform-origin: 50% 50%;
   transform-box: fill-box;
 }
@@ -233,7 +233,7 @@
 }
 
 .wire.selected {
-  stroke: #1976d2;
+  stroke: var(--color-component-selected-stroke);
   stroke-width: 3;
 }
 

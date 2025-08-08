@@ -228,7 +228,7 @@ function emitUpdate() {
 
 .remove-button:hover {
   background-color: var(--color-component-hover-fill) !important;
-  color: #ef4444 !important;
+  color: var(--color-error) !important;
 }
 
 /* Center the icon within PrimeVue button */

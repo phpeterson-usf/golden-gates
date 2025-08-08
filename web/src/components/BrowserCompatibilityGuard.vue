@@ -101,7 +101,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--color-app-bg) 0%, var(--color-panel-bg) 100%);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -113,9 +113,9 @@ export default {
 .compatibility-container {
   max-width: 600px;
   width: 100%;
-  background: white;
+  background: var(--color-panel-bg);
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-large);
   padding: 40px;
   animation: slideUp 0.3s ease-out;
 }
@@ -137,27 +137,27 @@ export default {
 
 .warning-icon {
   font-size: 48px;
-  color: #f59e0b;
+  color: var(--color-warning);
   margin-bottom: 20px;
 }
 
 .compatibility-title {
   font-size: 28px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-primary);
   margin-bottom: 16px;
 }
 
 .compatibility-message {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   line-height: 1.6;
   margin-bottom: 32px;
 }
 
 .missing-features {
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
+  background: var(--color-component-warning-fill);
+  border: 1px solid var(--color-warning);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 32px;
@@ -167,7 +167,7 @@ export default {
 .missing-features h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #92400e;
+  color: var(--color-component-warning-stroke);
   margin-bottom: 12px;
 }
 
@@ -181,7 +181,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #b45309;
+  color: var(--color-component-warning-stroke);
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -198,7 +198,7 @@ export default {
 .browser-recommendations h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-primary);
   margin-bottom: 20px;
 }
 
@@ -214,24 +214,24 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 20px 16px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-component-fill);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .browser-option:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: var(--color-component-hover-fill);
+  border-color: var(--color-border-medium);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-medium);
 }
 
 .browser-icon {
   font-size: 32px;
   margin-bottom: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .browser-info {
@@ -241,18 +241,18 @@ export default {
 .browser-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .browser-version {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .help-text {
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   margin-top: 24px;
 }
 
@@ -266,10 +266,10 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--color-overlay-bg);
   z-index: 9999;
   font-size: 16px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 /* Responsive design */
