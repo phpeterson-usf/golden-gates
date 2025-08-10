@@ -1,13 +1,15 @@
 <template>
-  <Dropdown
-    :modelValue="modelValue"
-    :options="options"
-    @update:modelValue="handleChange"
-    optionLabel="label"
-    optionValue="value"
-    placeholder="Select base"
-    class="base-selector"
-  />
+  <div class="inspector-dropdown">
+    <Dropdown
+      :modelValue="modelValue"
+      :options="options"
+      @update:modelValue="handleChange"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select base"
+      class="base-selector"
+    />
+  </div>
 </template>
 
 <script>
@@ -43,7 +45,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+@import '../styles/inspector-dropdown.css';
+
 .base-selector {
   width: 100%;
 }

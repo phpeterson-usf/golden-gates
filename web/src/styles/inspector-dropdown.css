@@ -3,6 +3,9 @@
 .inspector-dropdown {
   position: relative;
   width: 100%;
+  border: 1px solid var(--color-border-medium);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .inspector-dropdown .p-dropdown {
@@ -12,20 +15,20 @@
   justify-content: space-between;
   cursor: pointer;
   position: relative;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: var(--color-component-fill);
+  border: none !important;
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.75rem;
   padding: 0.375rem 0.625rem;
 }
 
-.inspector-dropdown .p-dropdown:hover {
-  border-color: #6b7280;
+.inspector-dropdown:hover {
+  border-color: var(--color-border-dark);
 }
 
 .inspector-dropdown .p-dropdown-label {

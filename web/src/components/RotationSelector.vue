@@ -1,13 +1,15 @@
 <template>
-  <Dropdown
-    :modelValue="modelValue"
-    :options="options"
-    @update:modelValue="handleChange"
-    optionLabel="label"
-    optionValue="value"
-    placeholder="Select rotation"
-    class="rotation-selector"
-  />
+  <div class="inspector-dropdown">
+    <Dropdown
+      :modelValue="modelValue"
+      :options="options"
+      @update:modelValue="handleChange"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select rotation"
+      class="rotation-selector"
+    />
+  </div>
 </template>
 
 <script>
@@ -44,7 +46,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+@import '../styles/inspector-dropdown.css';
+
 .rotation-selector {
   width: 100%;
 }
