@@ -95,6 +95,8 @@ import AutosaveSelectionDialog from './components/AutosaveSelectionDialog.vue'
 import AppToolbar from './components/AppToolbar.vue'
 import BrowserCompatibilityGuard from './components/BrowserCompatibilityGuard.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
+
+const { updateInput } = usePythonEngine()
 import { useFileService } from './composables/useFileService'
 import { useCircuitModel } from './composables/useCircuitModel'
 import { useAppController } from './composables/useAppController'
@@ -300,6 +302,16 @@ export default {
         }
 
         this.$refs.canvas.updateComponent(updatedComponent)
+
+        // If simulation is running and this is an input with a changed value, update Python
+        if (
+          this.isRunning &&
+          updatedComponent.type === 'input' &&
+          oldComponent?.props?.value !== updatedComponent.props?.value
+        ) {
+          updateInput(updatedComponent.id, updatedComponent.props.value)
+        }
+
         // Refresh the selected component reference to maintain sync
         if (this.selectedComponent && this.selectedComponent.id === updatedComponent.id) {
           this.selectedComponent = this.$refs.canvas.components.find(

@@ -359,6 +359,24 @@ result
     }
   }
 
+  /**
+   * Update an input node's value at runtime
+   */
+  async function updateInput(componentId, value) {
+    if (!pyodideInstance.value) {
+      console.warn('Pyodide not initialized, cannot update input')
+      return
+    }
+
+    try {
+      await pyodideInstance.value.runPythonAsync(
+        `circuit0.update_input("${componentId}", ${value})`
+      )
+    } catch (err) {
+      console.warn('Could not update input:', err.message)
+    }
+  }
+
   return {
     // State
     pyodide: pyodideInstance,
@@ -382,6 +400,7 @@ result
     executeHierarchicalCircuit,
 
     // Simulation control
-    stopSimulation
+    stopSimulation,
+    updateInput
   }
 }

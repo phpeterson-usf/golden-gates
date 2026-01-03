@@ -1,11 +1,12 @@
 import asyncio
+import logging
 
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
 from .io import Input, Output, Clock
 
-logger = new_logger(__name__)
+logger = new_logger(__name__, logging.INFO)
 
 class Circuit:
     """
@@ -22,6 +23,7 @@ class Circuit:
         self.all_nodes = set()
         self.clock: Clock = None
         self.running = False
+        self.input_q = None  # Queue for runtime input updates
 
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -49,10 +51,18 @@ class Circuit:
         for i in self.inputs:
             work.append(i)
         while self.running:
+            # Check for clock edges
             try:
                 _ = clock_q.get_nowait()
                 self.clock.toggle()
                 work.append(self.clock)
+            except asyncio.QueueEmpty:
+                pass
+            # Check for input updates from UI
+            try:
+                input_node = self.input_q.get_nowait()
+                if input_node not in work:
+                    work.append(input_node)
             except asyncio.QueueEmpty:
                 pass
             if len(work) == 0:
@@ -68,6 +78,7 @@ class Circuit:
     async def run(self):
         self.running = True
         clock_q = asyncio.Queue()
+        self.input_q = asyncio.Queue()
 
         if self.clock:
             await asyncio.gather(
@@ -76,6 +87,17 @@ class Circuit:
             )
         else:
             await self.run_circuit(clock_q)
+
+    def update_input(self, js_id, value):
+        """Update an input node's value at runtime and trigger re-propagation"""
+        for node in self.all_nodes:
+            if node.js_id == js_id:
+                node.value = value
+                if self.input_q:
+                    self.input_q.put_nowait(node)
+                logger.info(f"Updated input {js_id} to {value}")
+                return
+        logger.warning(f"Input node {js_id} not found")
 
     def stop(self):
         """Stop the running circuit simulation"""
