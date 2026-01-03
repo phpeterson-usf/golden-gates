@@ -1,14 +1,12 @@
+import asyncio
+import logging
+
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
-from .errors import CircuitError
-from collections import deque
-import time
+from .io import Input, Output, Clock
 
-logger = new_logger(__name__)
-
-MAX_ITERATIONS = 100  # Prevent infinite loops
-
+logger = new_logger(__name__, logging.DEBUG)
 
 class Circuit:
     """
@@ -16,15 +14,14 @@ class Circuit:
     to produce a value in Output Nodes
     """
 
-    def __init__(self, label='', js_logging=None, auto_propagate=True, circuit_name=None):
+    def __init__(self, label='', js_logging=None, name=None):
         self.label = label
-        self.circuit_name = circuit_name
+        self.name = name
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
         self.all_nodes = set()
-        self.running = True
-        self.auto_propagate = auto_propagate
+        self.clock: Clock = None
 
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -34,129 +31,47 @@ class Circuit:
         """
         Perform one propagation step in the circuit which handles both clocked and combinational propagation.
         """
-        work = deque()
-
-        # include all inputs and clock edges/rising edge propagation
-        for node in self.inputs:
-            work.append(node)
-
-        if rising_edge:
-            for clock in getattr(self, 'clocks', []):
-                new_work = clock.propagate()
-                if new_work:
-                    work.extend(new_work)
-
-        visited = set()
-
-        while work:
-            node = work.popleft()
-            if node in visited:
-                continue
-            visited.add(node)
-
-            try:
-                new_work = node.propagate()
-                if new_work:
-                    for n in new_work:
-                        if n not in visited:
-                            work.append(n)
-            except CircuitError as e:
-                # Enhance the error with circuit context if not already present
-                if not e.circuit_name and self.circuit_name:
-                    # Create a new CircuitError with the circuit name added
-                    raise CircuitError(
-                        component_id=e.component_id,
-                        component_type=e.component_type,
-                        component_label=e.component_label,
-                        error_code=e.error_code,
-                        severity=e.severity,
-                        port_name=e.port_name,
-                        connected_component_id=e.connected_component_id,
-                        circuit_name=self.circuit_name,
-                        **e.additional_fields
-                    ) from e
-                else:
-                    # Re-raise the original error if circuit_name is already set
-                    raise
    
-    def run(self, background=False):
+    async def run_clock(self, clock_q):
         """
-        Start the circuit simulation.
-        If `background=True`, runs in a separate thread.
+        Asynchronous function to notify a running circuit of clock edges
+        
+        :param self: Description
+        :param clock_q: Queue to notify on rising or falling edge
         """
-        if background:
-            import threading
-            self.thread = threading.Thread(target=self.longrun)
-            self.thread.start()
-        else:
-            self.longrun()
+        duty_cycle = 1 / self.clock.frequency / 2
+        # TODO: poll a JS variable for stop
+        while True:
+            await asyncio.sleep(duty_cycle)
+            await clock_q.put('unused')
 
-    def stop(self):
-        """
-        Stop the long running circuit loop using boolean self.running
-        """
-        logger.info("Circuit stop() called: long running circuit will stop")
-        self.running = False
-        if hasattr(self, 'thread'):
-            self.thread.join()
+    async def run_circuit(self, clock_q):
+        work = [self.clock]
+        for i in self.inputs:
+            work.append(i)
+        while True:
+            try:
+                _ = clock_q.get_nowait()
+                self.clock.toggle()
+                work.append(self.clock)
+            except asyncio.QueueEmpty:
+                pass
+            if len(work) == 0:
+                await asyncio.sleep(0.1)
+                continue
+            node = work[0]
+            new_work = node.propagate()
+            work.remove(node)
+            if new_work:
+                work += new_work
 
-    def longrun(self):
-        """
-        Circuit simulation supporting combinational, sequential, and cyclic logic
-
-        run()
-            comb_graph # input, constant...
-            seq_graph # clock...
-            loop:
-                loop:
-                    comb_graph.step until stabilized
-                loop: # CLK HI
-                    seq_graph.step until stabilized
-                loop:
-                    comb...
-                loop: # CLK LOW
-                    seq...
-        """
-        self.running = True
-
-        clock_timers = {}
-        for clock in getattr(self, 'clocks', []):
-            if clock.mode == 'auto':
-                clock_timers[clock] = time.time()
-
-        while self.running:
-            now = time.time()
-            rising_edges = []
-            for clock in getattr(self, 'clocks', []):
-                if not self.running:
-                    break
-                if clock.mode == 'auto' and clock.frequency > 0:
-                    interval = 1.0 / (clock.frequency * 2)  # half-period
-                    if now - clock_timers[clock] >= interval:
-                        clock_timers[clock] = now
-                        edge_nodes = clock.toggleCLK('0')
-                        rising_edges.extend(edge_nodes)
-
-            # propagate combinational logic until stable
-            for _ in range(MAX_ITERATIONS):
-                if not self.running:
-                    break
-                prev = {n.label: n.value for n in self.outputs}
-                self.step(rising_edge=False)
-                curr = {n.label: n.value for n in self.outputs}
-                if prev ==  curr:
-                    break
-            else:
-                logger.warning("Combinational logic did not stabilize")
-
-            self.step(rising_edge=True)
-            
-            if not self.running:
-                break
-
-            time.sleep(0.01)
-            break
-
+    async def run(self):
+        clock_q = asyncio.Queue()
+        await asyncio.gather(
+            self.run_circuit(clock_q),
+            self.run_clock(clock_q)
+        )
+    
     def connect(self, src, dest, js_id=None):
         """
         Connect nodes using connectors or nodes directly.
@@ -197,21 +112,18 @@ class Circuit:
         destnode.set_input_edge(destname, edge)
 
         # Keep a list of Input Nodes so we can start the simulation from there
-        if srcnode.kind == 'Input' and srcnode not in self.inputs:
+        if srcnode.kind == Input.kind and srcnode not in self.inputs:
             self.inputs.append(srcnode)
             srcnode.circuit = self
-        if destnode.kind == 'Output' and destnode not in self.outputs:
+        if destnode.kind == Output.kind and destnode not in self.outputs:
             self.outputs.append(destnode)
 
         self.all_nodes.update([srcnode, destnode])
 
-        # Keep a list of Clock Nodes for clock propagation in the circuit.run()
-        if not hasattr(self, 'clocks'):
-            self.clocks = []
-        if srcnode.kind == 'Clock' and srcnode not in self.clocks:
-            self.clocks.append(srcnode)
-        if destnode.kind == 'Clock' and destnode not in self.clocks:
-            self.clocks.append(destnode)
+        # Keep the Clock node for running the circuit
+        if srcnode.kind == Clock.kind:
+            # TODO error if multiple clocks
+            self.clock = srcnode
 
 
 def Component(circuit):

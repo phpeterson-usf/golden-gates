@@ -17,8 +17,7 @@ class IONode(BitsNode):
             num_outputs=num_outputs,
             label=label,
             bits=bits)
-        self._value = 0
-        self.circuit = None
+        self.value = 0
 
 
 class Input(IONode):
@@ -36,17 +35,6 @@ class Input(IONode):
             num_outputs=1,
             label=label,
             bits=bits)
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value):
-        if self._value != new_value:
-            self._value = new_value
-            if self.circuit and self.circuit.auto_propagate and self.circuit.running:
-                self.circuit.step()
 
     def propagate(self, output_name='0', value=0):
         return super().propagate(value=self.value)
@@ -67,14 +55,6 @@ class Output(IONode):
             num_outputs=0,
             label=label,
             bits=bits)
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value):
-        self._value = new_value
 
     def propagate(self, output_name='0', value=0):
         self.value = self.safe_read_input('0')
@@ -115,46 +95,14 @@ class Clock(IONode):
             label=label,
             bits=1
         )
-        # number of ticks per toggle
         self.frequency = frequency
-        # tick counter since last clock toggle
-        self.ticks = 0
-        self.prev_value = 0
         self.mode = mode
 
     def propagate(self, output_name='0', value=0):
-        if self.mode != 'auto':
-            # skip propagation in run() if clock is manual
-            return []
+        return super().propagate(value=self.value)
 
-        self.ticks += 1
-        if self.frequency > 0 and self.ticks >= self.frequency:
-            self.ticks = 0
-            return self.toggleCLK(output_name)
-        return []
-
-    def toggleCLK(self, output_name):
-        new_val = 1 - self._value
-        self.prev_value = self._value
-        self._value = new_val
-
-        #print("Clock toggled to", self._value)
-
-        #print(f"Clock '{self.label}' toggled to {self.value}")
-
-        super().propagate(output_name=output_name, value=new_val)
-
-        if self.prev_value == 0 and new_val == 1:
-            return [self]
-        return []
-
-    def tick(self):
-        """
-        Manually toggle the clock when it is assigned as mode = manual
-        """
-        if self.mode != 'manual':
-            logger.warning("tick() is only for clocks in manual mode")
-        return self.toggleCLK(output_name='0')
+    def toggle(self):
+        self.value = 1 - self.value
 
 
 # class Test(Node):

@@ -7,9 +7,7 @@ from ggl import logic
 
 c = circuit.Circuit()
 
-clk = io.Clock(frequency=1, label="clk")
-c.all_nodes.add(clk)
-
+clk = io.Clock(frequency=1e3, label="clk")
 d = io.Input(bits=1, label="d")
 d.value = 0b1
 

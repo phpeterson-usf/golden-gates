@@ -108,7 +108,7 @@ export function useCodeGenController() {
 
     sections.push('')
     sections.push(
-      `${circuitVarName} = circuit.Circuit(js_logging=True, circuit_name=${JSON.stringify(circuitName)})`
+      `${circuitVarName} = circuit.Circuit(js_logging=True, name=${JSON.stringify(circuitName)})`
     )
     sections.push('')
 
@@ -248,7 +248,7 @@ export function useCodeGenController() {
 
     // Only include run() call for main circuit execution, not for component definitions
     if (includeRun) {
-      sections.push(`${circuitVarName}.run()`)
+      sections.push(`await ${circuitVarName}.run()`)
     }
 
     // Return both the generated code and any errors

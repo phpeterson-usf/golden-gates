@@ -279,6 +279,7 @@ if '.' not in sys.path:
 
   /**
    * Execute a Python program in Pyodide with proper error handling
+   * Uses compile() with PyCF_ALLOW_TOP_LEVEL_AWAIT to support await in generated code
    */
   async function executePythonProgram(gglProgram) {
     if (!pyodideInstance.value) {
@@ -292,8 +293,12 @@ import js
 builtins.updateCallback = js.window.__vueUpdateCallback
 
 try:
-    # Execute the GGL program
-    exec(${JSON.stringify(gglProgram)})
+    # Compile and execute with async support
+    import ast
+    code = compile(${JSON.stringify(gglProgram)}, '<string>', 'exec', flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
+    coro = eval(code)
+    if coro is not None:
+        await coro
     result = "Simulation completed successfully"
 except Exception as e:
     # Check if this is a CircuitError with structured data
