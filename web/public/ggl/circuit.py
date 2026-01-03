@@ -22,6 +22,7 @@ class Circuit:
         self.outputs = []
         self.all_nodes = set()
         self.clock: Clock = None
+        self.running = False
 
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -35,13 +36,12 @@ class Circuit:
     async def run_clock(self, clock_q):
         """
         Asynchronous function to notify a running circuit of clock edges
-        
+
         :param self: Description
         :param clock_q: Queue to notify on rising or falling edge
         """
         duty_cycle = 1 / self.clock.frequency / 2
-        # TODO: poll a JS variable for stop
-        while True:
+        while self.running:
             await asyncio.sleep(duty_cycle)
             await clock_q.put('unused')
 
@@ -49,7 +49,7 @@ class Circuit:
         work = [self.clock]
         for i in self.inputs:
             work.append(i)
-        while True:
+        while self.running:
             try:
                 _ = clock_q.get_nowait()
                 self.clock.toggle()
@@ -66,11 +66,17 @@ class Circuit:
                 work += new_work
 
     async def run(self):
+        self.running = True
         clock_q = asyncio.Queue()
         await asyncio.gather(
             self.run_circuit(clock_q),
             self.run_clock(clock_q)
         )
+
+    def stop(self):
+        """Stop the running circuit simulation"""
+        logger.info("Circuit stop() called")
+        self.running = False
     
     def connect(self, src, dest, js_id=None):
         """

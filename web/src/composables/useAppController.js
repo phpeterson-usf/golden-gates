@@ -21,7 +21,8 @@ export function useAppController(circuitManager) {
     isReady: isPyodideReady,
     error: pyodideError,
     pyodide,
-    executeHierarchicalCircuit
+    executeHierarchicalCircuit,
+    stopSimulation
   } = usePythonEngine()
 
   // Simulation state
@@ -552,13 +553,6 @@ export function useAppController(circuitManager) {
     return await runCircuitSimulationWithHierarchy(canvasRef)
   }
 
-  /**
-   * Stop simulation
-   */
-  function stopSimulation() {
-    isRunning.value = false
-    // TODO: Implement actual stop logic if needed
-  }
 
   /**
    * Save current circuit to file

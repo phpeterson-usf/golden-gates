@@ -342,6 +342,23 @@ result
     return await executePythonProgram(gglProgram)
   }
 
+  /**
+   * Stop the running circuit simulation by calling circuit0.stop() in Python
+   */
+  async function stopSimulation() {
+    if (!pyodideInstance.value) {
+      console.warn('Pyodide not initialized, nothing to stop')
+      return
+    }
+
+    try {
+      await pyodideInstance.value.runPythonAsync('circuit0.stop()')
+    } catch (err) {
+      // circuit0 may not exist if simulation hasn't started or already finished
+      console.warn('Could not stop simulation:', err.message)
+    }
+  }
+
   return {
     // State
     pyodide: pyodideInstance,
@@ -362,6 +379,9 @@ result
 
     // Python execution
     executePythonProgram,
-    executeHierarchicalCircuit
+    executeHierarchicalCircuit,
+
+    // Simulation control
+    stopSimulation
   }
 }
