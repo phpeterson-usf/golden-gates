@@ -4,7 +4,7 @@ import logging
 from .ggl_logging import new_logger
 from .errors import CircuitError
 
-logger = new_logger(__name__, logging.DEBUG)
+logger = new_logger(__name__)
 
 
 class BitWidthMismatch(Exception):

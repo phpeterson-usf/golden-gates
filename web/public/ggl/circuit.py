@@ -1,12 +1,11 @@
 import asyncio
-import logging
 
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
 from .io import Input, Output, Clock
 
-logger = new_logger(__name__, logging.DEBUG)
+logger = new_logger(__name__)
 
 class Circuit:
     """
@@ -46,7 +45,7 @@ class Circuit:
             await clock_q.put('unused')
 
     async def run_circuit(self, clock_q):
-        work = [self.clock]
+        work = [self.clock] if self.clock else []
         for i in self.inputs:
             work.append(i)
         while self.running:
@@ -63,15 +62,20 @@ class Circuit:
             new_work = node.propagate()
             work.remove(node)
             if new_work:
+                await asyncio.sleep(0.1)
                 work += new_work
 
     async def run(self):
         self.running = True
         clock_q = asyncio.Queue()
-        await asyncio.gather(
-            self.run_circuit(clock_q),
-            self.run_clock(clock_q)
-        )
+
+        if self.clock:
+            await asyncio.gather(
+                self.run_circuit(clock_q),
+                self.run_clock(clock_q)
+            )
+        else:
+            await self.run_circuit(clock_q)
 
     def stop(self):
         """Stop the running circuit simulation"""
