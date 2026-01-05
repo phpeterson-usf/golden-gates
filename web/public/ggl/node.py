@@ -4,7 +4,7 @@ import logging
 from .ggl_logging import new_logger
 from .errors import CircuitError
 
-logger = new_logger(__name__)
+logger = new_logger(__name__, logging.INFO)
 
 
 class BitWidthMismatch(Exception):
@@ -191,7 +191,7 @@ class Node:
         invert, truncation) have been done by propagate() in derived classes
         """
         assert (output_name in self.outputs.points)
-        logger.debug(
+        logger.info(
             f"{self.kind} '{self.label}' output '{output_name}' propagates {hex(value)}")
         return self.outputs.write_value(output_name, value, bits)
 

@@ -143,6 +143,18 @@ class Circuit:
         srcnode.append_output_edge(srcname, edge)
         destnode.set_input_edge(destname, edge)
 
+        # Wire up embedded circuits (CircuitNodes)
+        # When connecting to a CircuitNode's input, replace its internal Input
+        # with a ChildInput that reads from this edge
+        from .component import CircuitNode
+        if isinstance(destnode, CircuitNode):
+            destnode._wire_child_input(destname, edge)
+
+        # When connecting from a CircuitNode's output, replace its internal Output
+        # with a ChildOutput that writes to this edge
+        if isinstance(srcnode, CircuitNode):
+            srcnode._wire_child_output(srcname, edge)
+
         # Keep a list of Input Nodes so we can start the simulation from there
         if srcnode.kind == Input.kind and srcnode not in self.inputs:
             self.inputs.append(srcnode)

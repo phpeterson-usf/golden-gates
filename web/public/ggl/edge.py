@@ -62,11 +62,15 @@ class Edge:
 
     def propagate(self, value=0, output_name='0', bits=0):
         """
-        Edges simply carry the value
-        The reason Edges don't propagate to their outpoints (as Nodes do)
-        is that would create a depth-first traversal, and the Circuit 
-        simulation runs a work queue which is populated breadth-first
+        Edges carry values between nodes and detect when values change.
+
+        Only returns destination nodes if the value actually changed.
+        This prevents infinite loops in cyclic circuits (like SR-latches)
+        by stopping propagation when the circuit reaches a stable state.
         """
+        # Check if value actually changed - if not, no need to propagate further
+        if self.value == value and self.prev_value is not None:
+            return []
 
         if self.js_id is not None:
             try:
@@ -80,6 +84,8 @@ class Edge:
                                    'active': active, 'style': 'processing'})
             except Exception as e:
                 logger.error(f'Callback failed: {e}')
+
+        self.prev_value = self.value
         self.value = value
         self.bits = bits
         return self.get_dest_nodes()

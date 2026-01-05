@@ -40,6 +40,29 @@ class Input(IONode):
         return super().propagate(value=self.value)
 
 
+class ChildInput(Input):
+    """
+    ChildInput is an Input node inside an embedded circuit (CircuitNode).
+    It reads its value from a parent circuit's edge rather than from a UI input.
+
+    When propagate() is called, it:
+    1. Copies the value from the parent edge into self.value
+    2. Propagates that value to the child circuit's internal edges
+    """
+
+    kind = 'ChildInput'
+
+    def __init__(self, parent_edge, js_id='', label='', bits=1):
+        super().__init__(js_id=js_id, label=label, bits=bits)
+        self.parent_edge = parent_edge
+
+    def propagate(self, output_name='0', value=0):
+        # Read value from parent circuit's edge
+        self.value = self.parent_edge.value
+        # Propagate to child circuit's internal nodes
+        return super().propagate()
+
+
 class Output(IONode):
     """
     Output is an IONode for the output of a circuit, e.g. R
@@ -70,6 +93,41 @@ class Output(IONode):
                 updateCallback('value', self.js_id, self.value)
         except Exception as e:
             logger.error(f'Callback failed: {e}')
+
+
+class ChildOutput(Output):
+    """
+    ChildOutput is an Output node inside an embedded circuit (CircuitNode).
+    It writes its value to parent circuit edges rather than to a UI output.
+
+    Unlike Output (which has num_outputs=0 as a terminal node), ChildOutput
+    has num_outputs=1 to leverage the existing NodeOutputs fan-out infrastructure.
+    Multiple parent edges can be added via append_output_edge('0', edge).
+
+    When propagate() is called, it:
+    1. Reads its value from the child circuit's internal edge
+    2. Propagates that value to ALL parent circuit's downstream nodes
+    """
+
+    kind = 'ChildOutput'
+
+    def __init__(self, js_id='', label='', bits=1):
+        # Override Output's num_outputs=0 with num_outputs=1
+        # This gives us an output point '0' with a list for fan-out
+        IONode.__init__(self,
+            kind=ChildOutput.kind,
+            js_id=js_id,
+            num_inputs=1,
+            num_outputs=1,
+            label=label,
+            bits=bits)
+
+    def propagate(self, output_name='0', value=0):
+        # Read value from child circuit's internal edge
+        self.value = self.safe_read_input('0')
+        logger.info(f"{self.kind} '{self.label}' gets value {self.value}")
+        # Use normal NodeOutputs fan-out to propagate to all parent edges
+        return self.outputs.write_value('0', self.value, self.bits)
 
 
 class Constant(Input):
