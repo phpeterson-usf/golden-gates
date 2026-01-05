@@ -108,7 +108,7 @@ export function useCodeGenController() {
 
     sections.push('')
     sections.push(
-      `${circuitVarName} = circuit.Circuit(js_logging=True, name=${JSON.stringify(circuitName)})`
+      `${circuitVarName} = circuit.Circuit(js_logging=True, circuit_name=${JSON.stringify(circuitName)})`
     )
     sections.push('')
 
