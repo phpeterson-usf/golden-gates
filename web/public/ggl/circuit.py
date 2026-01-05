@@ -14,9 +14,9 @@ class Circuit:
     to produce a value in Output Nodes
     """
 
-    def __init__(self, label='', js_logging=None, name=None):
+    def __init__(self, label='', js_logging=None, circuit_name=None):
         self.label = label
-        self.name = name
+        self.circuit_name = circuit_name
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
