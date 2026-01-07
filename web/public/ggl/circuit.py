@@ -72,7 +72,6 @@ class Circuit:
             new_work = node.propagate()
             work.remove(node)
             if new_work:
-                await asyncio.sleep(0.1)
                 work += new_work
 
     async def run(self):
