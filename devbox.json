@@ -1,0 +1,16 @@
+{
+  "packages": [
+    "nodejs@22",
+    "python@3.12",
+    "uv@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "echo \"Golden Gates dev environment\"",
+      "echo \"  Node.js: $(node --version)\"",
+      "echo \"  Python:  $(python --version)\"",
+      "echo \"  uv:      $(uv --version)\"",
+      "if [ -f web/package.json ] && [ ! -d web/node_modules ]; then echo \"Installing npm dependencies...\"; (cd web && npm install); fi"
+    ]
+  }
+}
