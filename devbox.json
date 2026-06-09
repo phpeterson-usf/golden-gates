@@ -2,7 +2,8 @@
   "packages": [
     "nodejs@22",
     "python@3.12",
-    "uv@latest"
+    "uv@latest",
+    "git@latest"
   ],
   "shell": {
     "init_hook": [
