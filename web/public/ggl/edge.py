@@ -2,6 +2,18 @@ from .ggl_logging import new_logger
 
 logger = new_logger(__name__)
 
+# Cycle-termination strategy selector.
+#
+# The asynchronous engine (Circuit.run_async) drains a single work queue with
+# no visited set, so it relies on change-gating: an Edge stops forwarding once
+# its value is stable, which is what halts propagation around a cycle.
+#
+# The synchronous engine (Circuit.step) instead uses a visited set to bound
+# each pass and re-runs passes until the outputs settle. That strategy needs
+# edges to ALWAYS forward their value (so each fresh pass re-propagates), so
+# Circuit.step() turns this flag off for the duration of a step.
+gate_on_change = True
+
 
 class EdgePoint:
     """
@@ -69,7 +81,8 @@ class Edge:
         by stopping propagation when the circuit reaches a stable state.
         """
         # Check if value actually changed - if not, no need to propagate further
-        if self.value == value and self.prev_value is not None:
+        # (only when the active engine relies on change-gating; see gate_on_change)
+        if gate_on_change and self.value == value and self.prev_value is not None:
             return []
 
         if self.js_id is not None:

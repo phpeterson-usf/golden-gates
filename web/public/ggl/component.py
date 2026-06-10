@@ -1,3 +1,4 @@
+import logging
 from .node import Node, Connector
 from .ggl_logging import new_logger
 from .errors import CircuitError
@@ -45,6 +46,7 @@ class CircuitNode(Node):
         """
         Create a deep copy of the template circuit with independent state.
         """
+        logger.debug(f"Cloning circuit '{template.label}' for instance '{instance_id}'")
         # Import here to avoid circular dependency
         from .circuit import Circuit
 
@@ -61,7 +63,7 @@ class CircuitNode(Node):
         for template_node in template.all_nodes:
             cloned_node = template_node.clone(instance_id)
             node_map[template_node] = cloned_node
-            cloned_circuit.all_nodes.add(cloned_node)
+            cloned_circuit.all_nodes.append(cloned_node)
 
             # Update circuit's input/output lists
             if template_node in template.inputs:
@@ -209,8 +211,9 @@ class CircuitNode(Node):
         # Replace in circuit's input list and all_nodes
         self.circuit.inputs.remove(old_input)
         self.circuit.inputs.append(child_input)
-        self.circuit.all_nodes.discard(old_input)
-        self.circuit.all_nodes.add(child_input)
+        if old_input in self.circuit.all_nodes:
+            self.circuit.all_nodes.remove(old_input)
+        self.circuit.all_nodes.append(child_input)
 
     def _wire_child_output(self, port_name, parent_edge):
         """
@@ -264,8 +267,9 @@ class CircuitNode(Node):
         # Replace in circuit's output list and all_nodes
         self.circuit.outputs.remove(existing_output)
         self.circuit.outputs.append(child_output)
-        self.circuit.all_nodes.discard(existing_output)
-        self.circuit.all_nodes.add(child_output)
+        if existing_output in self.circuit.all_nodes:
+            self.circuit.all_nodes.remove(existing_output)
+        self.circuit.all_nodes.append(child_output)
 
     def clone(self, instance_id):
         """

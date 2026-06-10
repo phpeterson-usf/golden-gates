@@ -1,12 +1,16 @@
 import asyncio
-import logging
+from collections import deque
 
 from .edge import Edge
 from .node import Node, Connector
 from .ggl_logging import new_logger, set_global_js_logging
 from .io import Input, Output, Clock
+from .errors import CircuitError
+from . import edge as edge_module
 
-logger = new_logger(__name__, logging.INFO)
+logger = new_logger(__name__)
+
+MAX_ITERATIONS = 100  # Prevent runaway settle loops on unstable circuits
 
 class Circuit:
     """
@@ -20,10 +24,17 @@ class Circuit:
         # These are Nodes, NOT in/outpoints, pending a design for subcircuits
         self.inputs = []
         self.outputs = []
-        self.all_nodes = set()
+        # Ordered (insertion = connect() order) so cloning/propagation are
+        # deterministic. A set here makes object iteration order vary per run,
+        # which non-deterministically changes how feedback (latches) settle.
+        self.all_nodes = []
         self.clock: Clock = None
-        self.running = False
+        self.running = True
         self.input_q = None  # Queue for runtime input updates
+        # When True, assigning to an Input's .value re-propagates the circuit.
+        self.auto_propagate = True
+        # Re-entrancy guard so propagation can't trigger nested step()s.
+        self._in_step = False
 
         # Set up logging for this circuit and all its components
         if js_logging is not None:
@@ -31,9 +42,75 @@ class Circuit:
 
     def step(self, rising_edge=False):
         """
-        Perform one propagation step in the circuit which handles both clocked and combinational propagation.
+        Perform one synchronous propagation pass: seed the work queue with the
+        circuit's inputs (and, on a rising edge, the clock) and propagate until
+        the circuit settles. Each node propagates at most once per pass.
         """
-   
+        self._in_step = True
+        # The synchronous engine bounds cycles with the visited set below, so
+        # edges must always forward their value during a step.
+        prev_gating = edge_module.gate_on_change
+        edge_module.gate_on_change = False
+        try:
+            work = deque(self.inputs)
+            if rising_edge and self.clock is not None:
+                work.append(self.clock)
+
+            visited = set()
+            while work:
+                node = work.popleft()
+                if node in visited:
+                    continue
+                visited.add(node)
+                try:
+                    new_work = node.propagate()
+                except CircuitError as e:
+                    # Add circuit context if the error doesn't already carry it
+                    if not e.circuit_name and self.circuit_name:
+                        raise CircuitError(
+                            component_id=e.component_id,
+                            component_type=e.component_type,
+                            component_label=e.component_label,
+                            error_code=e.error_code,
+                            severity=e.severity,
+                            port_name=e.port_name,
+                            connected_component_id=e.connected_component_id,
+                            circuit_name=self.circuit_name,
+                            **e.additional_fields
+                        ) from e
+                    raise
+                if new_work:
+                    for n in new_work:
+                        if n not in visited:
+                            work.append(n)
+        finally:
+            edge_module.gate_on_change = prev_gating
+            self._in_step = False
+
+    def run(self):
+        """
+        Settle the circuit's combinational logic synchronously and return.
+
+        This is the entry point used by the headless test suite. The
+        long-running, free-running-clock variant for the browser lives in
+        run_async().
+        """
+        self.running = True
+        # Settle combinational logic until the outputs stop changing.
+        for _ in range(MAX_ITERATIONS):
+            prev = {id(n): n.value for n in self.outputs}
+            self.step(rising_edge=False)
+            curr = {id(n): n.value for n in self.outputs}
+            if prev == curr:
+                break
+        else:
+            logger.warning("Combinational logic did not stabilize")
+        # One clocked pass so sequential elements (registers) latch the value
+        # of their now-settled inputs. The settle loop above only watches the
+        # outputs, so an internal register whose D arrived late in a pass needs
+        # this extra pass to re-read it.
+        self.step(rising_edge=True)
+
     async def run_clock(self, clock_q):
         """
         Asynchronous function to notify a running circuit of clock edges
@@ -74,7 +151,12 @@ class Circuit:
             if new_work:
                 work += new_work
 
-    async def run(self):
+    async def run_async(self):
+        """
+        Long-running asynchronous simulation for the browser/Pyodide:
+        free-running clock plus live input updates via update_input(), until
+        stop() is called. Driven with `await circuit0.run_async()`.
+        """
         self.running = True
         clock_q = asyncio.Queue()
         self.input_q = asyncio.Queue()
@@ -161,7 +243,9 @@ class Circuit:
         if destnode.kind == Output.kind and destnode not in self.outputs:
             self.outputs.append(destnode)
 
-        self.all_nodes.update([srcnode, destnode])
+        for node in (srcnode, destnode):
+            if node not in self.all_nodes:
+                self.all_nodes.append(node)
 
         # Keep the Clock node for running the circuit
         if srcnode.kind == Clock.kind:

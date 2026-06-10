@@ -246,9 +246,12 @@ export function useCodeGenController() {
     // Note: Junction connections are automatically handled by the geometry-based validator
     // All connections are resolved purely from wire endpoint positions
 
-    // Only include run() call for main circuit execution, not for component definitions
+    // Only include the run call for main circuit execution, not for component definitions.
+    // run_async() is the long-running browser entry point (free-running clock + live
+    // input updates via update_input(), until stop()); the bare run() is now the
+    // synchronous settle used by the headless test suite.
     if (includeRun) {
-      sections.push(`await ${circuitVarName}.run()`)
+      sections.push(`await ${circuitVarName}.run_async()`)
     }
 
     // Return both the generated code and any errors

@@ -4,7 +4,7 @@ import logging
 from .ggl_logging import new_logger
 from .errors import CircuitError
 
-logger = new_logger(__name__, logging.INFO)
+logger = new_logger(__name__)
 
 
 class BitWidthMismatch(Exception):
@@ -125,6 +125,13 @@ class Node:
     def set_input_edge(self, name, edge):
         self.inputs.set_edge(name, edge)
 
+    @property
+    def error_kind(self):
+        """The component type reported to the user in errors. Defaults to the
+        node's kind; internal specializations (e.g. ChildOutput) override this
+        to surface their user-facing type (Output) instead of the wrapper."""
+        return self.kind
+
     def safe_read_input(self, iname, bits=1):
         """If iname is not connected raise an exception through to the UI"""
         try:
@@ -132,7 +139,7 @@ class Node:
         except AttributeError as ae:
             raise CircuitError(
                 component_id=self.js_id,
-                component_type=self.kind,
+                component_type=self.error_kind,
                 component_label=self.label,
                 error_code="inputNotConnected",
                 port_name=iname
@@ -140,7 +147,7 @@ class Node:
         except BitWidthMismatch as bwm:
             raise CircuitError(
                 component_id=self.js_id,
-                component_type=self.kind,
+                component_type=self.error_kind,
                 component_label=self.label,
                 error_code="bitWidthMismatch",
                 expectedBits=bwm.expected,

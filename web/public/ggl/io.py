@@ -17,7 +17,18 @@ class IONode(BitsNode):
             num_outputs=num_outputs,
             label=label,
             bits=bits)
-        self.value = 0
+        self._value = 0
+        # Set by Circuit.connect() for top-level Input nodes so that assigning
+        # to .value can re-propagate the circuit (dynamic inputs at runtime).
+        self.circuit = None
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 
 class Input(IONode):
@@ -36,6 +47,25 @@ class Input(IONode):
             label=label,
             bits=bits)
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        """Assigning a new value re-propagates the circuit (dynamic inputs).
+
+        This is what lets a test set inputs after run() and read updated
+        outputs without an explicit step(). The _in_step guard prevents
+        re-entrancy when the value is changed during propagation itself.
+        """
+        if self._value != new_value:
+            self._value = new_value
+            c = self.circuit
+            if (c is not None and getattr(c, 'auto_propagate', False)
+                    and c.running and not c._in_step):
+                c.step()
+
     def propagate(self, output_name='0', value=0):
         return super().propagate(value=self.value)
 
@@ -52,9 +82,23 @@ class ChildInput(Input):
 
     kind = 'ChildInput'
 
+    # User-facing type in error messages: a ChildInput is an Input to the user.
+    error_kind = 'Input'
+
     def __init__(self, parent_edge, js_id='', label='', bits=1):
         super().__init__(js_id=js_id, label=label, bits=bits)
         self.parent_edge = parent_edge
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        # Plain assignment: a ChildInput is driven by its parent edge during
+        # propagation, so it must NOT trigger the dynamic-input re-propagation
+        # that top-level Input does.
+        self._value = new_value
 
     def propagate(self, output_name='0', value=0):
         # Read value from parent circuit's edge
@@ -111,6 +155,9 @@ class ChildOutput(Output):
 
     kind = 'ChildOutput'
 
+    # User-facing type in error messages: a ChildOutput is an Output to the user.
+    error_kind = 'Output'
+
     def __init__(self, js_id='', label='', bits=1):
         # Override Output's num_outputs=0 with num_outputs=1
         # This gives us an output point '0' with a list for fan-out
@@ -155,12 +202,25 @@ class Clock(IONode):
         )
         self.frequency = frequency
         self.mode = mode
+        self.prev_value = 0
 
     def propagate(self, output_name='0', value=0):
         return super().propagate(value=self.value)
 
     def toggle(self):
+        self.prev_value = self.value
         self.value = 1 - self.value
+
+    def tick(self):
+        """Manually advance a manual-mode clock by one half-period.
+
+        Returns True only on a rising edge (0 -> 1), so test harnesses can do
+        `if clk.tick(): circuit.step(rising_edge=True)`.
+        """
+        if self.mode != 'manual':
+            logger.warning("tick() is only for clocks in manual mode")
+        self.toggle()
+        return self.prev_value == 0 and self.value == 1
 
 
 # class Test(Node):
