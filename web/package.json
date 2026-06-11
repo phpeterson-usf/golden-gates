@@ -41,15 +41,25 @@
     "eslint-plugin-vue": "^10.3.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
+    "sharp": "^0.35.1",
     "typescript": "^5.8.3",
     "vite": "^7.0.4",
     "vite-plugin-static-copy": "^3.1.1",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.4"
-  }, 
+  },
   "build": {
     "productName": "Golden Gates",
-    "appId": "com.goldengates.app"
+    "appId": "com.goldengates.app",
+    "mac": {
+      "icon": "assets/icon.icns",
+      "target": "dir"
+    },
+    "files": [
+      "dist/**/*",
+      "main.cjs",
+      "preload.cjs",
+      "assets/**/*"
+    ]
   }
-
 }

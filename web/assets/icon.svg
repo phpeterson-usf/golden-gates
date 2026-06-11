@@ -1,0 +1,47 @@
+<!--logo extracted from the Vue component with hardcoded colors matching the app's gold theme -->
+
+
+<svg width="512" height="512" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="48" height="48" rx="10" fill="#1a2332"/>
+
+  <!-- Main suspension cables -->
+  <path d="M2 26 C2 16, 12 10, 12 10 C12 10, 24 20, 24 20 C24 20, 36 10, 36 10 C36 10, 46 16, 46 26"
+    stroke="#f0a500" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Bridge deck -->
+  <line x1="1" y1="26" x2="47" y2="26" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Left tower -->
+  <rect x="10" y="12" width="3" height="18" fill="#f0a500"/>
+
+  <!-- Right tower -->
+  <rect x="35" y="12" width="3" height="18" fill="#f0a500"/>
+
+  <!-- Left tower cross beams -->
+  <line x1="10" y1="16" x2="13" y2="16" stroke="#1a2332" stroke-width="0.5"/>
+  <line x1="10" y1="20" x2="13" y2="20" stroke="#1a2332" stroke-width="0.5"/>
+
+  <!-- Right tower cross beams -->
+  <line x1="35" y1="16" x2="38" y2="16" stroke="#1a2332" stroke-width="0.5"/>
+  <line x1="35" y1="20" x2="38" y2="20" stroke="#1a2332" stroke-width="0.5"/>
+
+  <!-- Vertical suspension cables -->
+  <line x1="4" y1="21" x2="4" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="6" y1="18" x2="6" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="8" y1="15" x2="8" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="16" y1="15" x2="16" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="19" y1="18" x2="19" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="22" y1="21" x2="22" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="24" y1="22" x2="24" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="26" y1="21" x2="26" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="29" y1="18" x2="29" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="32" y1="15" x2="32" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="40" y1="15" x2="40" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="42" y1="18" x2="42" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+  <line x1="44" y1="21" x2="44" y2="26" stroke="#f0a500" stroke-width="0.5"/>
+
+  <!-- Water -->
+  <path d="M1 32 Q4 31 7 32 T13 32 Q16 31 19 32 T25 32 Q28 31 31 32 T37 32 Q40 31 43 32 T47 32"
+    stroke="#f0a500" stroke-width="0.5" fill="none"/>
+</svg>

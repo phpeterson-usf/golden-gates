@@ -130,20 +130,34 @@ The application is designed to support both component testing and end-to-end tes
 
 ## Electron Desktop App
 
-Golden Gates can also run as a native desktop application using Electron, with native OS file dialogs and direct filesystem access instead of browser-based workarounds.
+Golden Gates can run as a native desktop application using Electron, with native OS file dialogs and direct filesystem access.
 
-### Running the Desktop App
+### Installing the Desktop App
 
-Build and launch the Electron app:
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Build the app:
+   ```bash
+   npm run electron:build
+   ```
+
+3. Open the output folder in Finder:
+   ```bash
+   open dist/mac-arm64/
+   ```
+
+4. Drag `Golden Gates.app` into your `/Applications` folder.
+
+That's it — open it like any other Mac app.
+
+### Running in Dev Mode
+
+To launch without packaging (useful during development):
 ```bash
 npm run electron:dev
-```
-
-### Packaging for Distribution
-
-To build a distributable `.app` (macOS) or `.exe` (Windows):
-```bash
-npm run electron:build
 ```
 
 ### How It Works
@@ -151,7 +165,6 @@ npm run electron:build
 Electron wraps the compiled Vue app in a Chromium window with a Node.js backend running alongside it. This enables:
 - **Native file dialogs**: Save and open circuits using the OS file picker instead of browser APIs
 - **Direct filesystem access**: Circuit files are written directly to disk via Node's `fs` module
-- **File association**: `.json` circuit files can be associated with the app (future work)
 
 The browser version continues to work unchanged. `useFileService.js` detects whether `window.electronAPI` is available and uses native file I/O if so, falling back to the existing browser behavior otherwise.
 
@@ -159,3 +172,4 @@ The browser version continues to work unchanged. `useFileService.js` detects whe
 
 - `main.cjs` — Electron main process: creates the app window and handles IPC requests for file save/open
 - `preload.cjs` — Security bridge that exposes `electronAPI` to the Vue app without giving it full Node.js access
+- `assets/icon.icns` — App icon for macOS

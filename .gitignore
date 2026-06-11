@@ -3,3 +3,4 @@ coverage/
 .direnv/
 .devbox/
 .tsc-out/
+web/assets/icon.png
