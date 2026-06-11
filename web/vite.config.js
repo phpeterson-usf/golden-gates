@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
+  base: './',  // Fix for Electron: don't use absolute paths
   plugins: [
     vue(),
     viteStaticCopy({

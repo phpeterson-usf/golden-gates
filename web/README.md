@@ -126,3 +126,36 @@ The application is designed to support both component testing and end-to-end tes
 - **Educational Features**: Interactive tutorials and circuit examples
 - **Performance Optimization**: WebGL rendering for large circuits
 - **Collaboration**: Real-time collaborative circuit editing
+
+
+## Electron Desktop App
+
+Golden Gates can also run as a native desktop application using Electron, with native OS file dialogs and direct filesystem access instead of browser-based workarounds.
+
+### Running the Desktop App
+
+Build and launch the Electron app:
+```bash
+npm run electron:dev
+```
+
+### Packaging for Distribution
+
+To build a distributable `.app` (macOS) or `.exe` (Windows):
+```bash
+npm run electron:build
+```
+
+### How It Works
+
+Electron wraps the compiled Vue app in a Chromium window with a Node.js backend running alongside it. This enables:
+- **Native file dialogs**: Save and open circuits using the OS file picker instead of browser APIs
+- **Direct filesystem access**: Circuit files are written directly to disk via Node's `fs` module
+- **File association**: `.json` circuit files can be associated with the app (future work)
+
+The browser version continues to work unchanged. `useFileService.js` detects whether `window.electronAPI` is available and uses native file I/O if so, falling back to the existing browser behavior otherwise.
+
+### Files Added
+
+- `main.cjs` — Electron main process: creates the app window and handles IPC requests for file save/open
+- `preload.cjs` — Security bridge that exposes `electronAPI` to the Vue app without giving it full Node.js access

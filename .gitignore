@@ -2,3 +2,4 @@ research.md
 coverage/
 .direnv/
 .devbox/
+.tsc-out/

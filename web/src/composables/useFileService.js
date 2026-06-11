@@ -81,7 +81,14 @@ export function useFileService() {
       const jsonString = JSON.stringify(circuitData, null, 2)
 
       // Check if File System Access API is supported
-      if ('showSaveFilePicker' in window) {
+      // if ('showSaveFilePicker' in window) { 
+      
+      // Check if running in Electron
+      if (window.electronAPI) {
+        const circuitName = circuitMetadata.name || 'circuit'
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+        await window.electronAPI.saveCircuit(jsonString, `${circuitName}_${timestamp}.json`)
+      } else if ('showSaveFilePicker' in window) {
         try {
           // Use the File System Access API for better UX
           const circuitName = circuitMetadata.name || 'circuit'
@@ -135,7 +142,13 @@ export function useFileService() {
       let fileContent = null
 
       // Check if File System Access API is supported
-      if ('showOpenFilePicker' in window) {
+      // if ('showOpenFilePicker' in window) {
+      
+      // Check if running in Electron
+      if (window.electronAPI) {
+        const content = await window.electronAPI.openCircuit()
+        return content
+      } else if ('showOpenFilePicker' in window) {
         try {
           // Use the File System Access API
           const [fileHandle] = await window.showOpenFilePicker({
