@@ -27,7 +27,7 @@ export function usePythonEngine() {
 
     try {
       pyodideInstance.value = await loadPyodide({
-        indexURL: '/pyodide/'
+        indexURL: new URL('pyodide/', document.baseURI).href
       })
 
       // Set up ggl module loading for Pyodide
