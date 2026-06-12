@@ -30,6 +30,8 @@ export function usePythonEngine() {
         indexURL: new URL('pyodide/', document.baseURI).href
       })
 
+      const gglBaseUrl = new URL('ggl/', document.baseURI).href  
+      
       // Set up ggl module loading for Pyodide
       await pyodideInstance.value.runPythonAsync(`
 import sys
@@ -91,7 +93,7 @@ async def fetch_python_files(base_url, target_dir):
         print(f"Error loading ggl module: {e}")
 
 # Fetch the ggl module files
-await fetch_python_files('/ggl/', '/home/pyodide/ggl')
+await fetch_python_files('${gglBaseUrl}', '/home/pyodide/ggl')
 
 # Add to Python path
 sys.path.insert(0, '/home/pyodide')
@@ -99,6 +101,8 @@ sys.path.insert(0, '/home/pyodide')
 # Test import
 try:
     import ggl
+    if not hasattr(ggl, 'circuit'):
+        raise ImportError("ggl loaded as empty namespace package — GGL files may not have been fetched")
     print("GGL module imported successfully")
 except ImportError as e:
     print(f"Warning: Could not import ggl: {e}")

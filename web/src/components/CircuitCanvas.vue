@@ -433,6 +433,17 @@ export default {
       addComponentAtSmartPosition
     } = canvasInteractions
 
+    const addComponentAtSmartPositionAndScroll = (type, customProps = {}) => {
+      const newComponent = addComponentAtSmartPosition(type, customProps)
+      if (newComponent && scrollContainer.value) {
+        const targetX = newComponent.x * gridSize.value - containerWidth.value / 2
+        const targetY = newComponent.y * gridSize.value - containerHeight.value / 2
+        scrollContainer.value.scrollLeft = Math.max(0, targetX)
+        scrollContainer.value.scrollTop = Math.max(0, targetY)
+      }
+      return newComponent
+    }
+
     // Global key handlers for when canvas doesn't have focus
     onMounted(() => {
       const handleGlobalKeyDown = event => {
@@ -782,7 +793,7 @@ export default {
       handleEditSubcircuit,
       handleWireClick,
       handleWireMouseDown,
-      addComponentAtSmartPosition,
+      addComponentAtSmartPosition: addComponentAtSmartPositionAndScroll,
       clearCircuit,
       setLoadingState,
       getCircuitData,
