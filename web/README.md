@@ -22,9 +22,10 @@ This is a single-page application built with Vue.js 3, Vite, and PrimeVue. The a
 - **No Backend Required**: Everything runs client-side in the browser
 
 ### File Management
-- **Save/Load Circuits**: Export and import circuit designs as JSON files
+- **Save/Load Circuits**: Export and import circuit designs as `.ggc` files (Golden Gates Circuit format)
 - **Component Library**: Save custom circuits as reusable components
 - **Browser Storage**: Persistent storage of circuit designs between sessions
+- **Desktop File Association**: On macOS, double-clicking a `.ggc` file launches the app and opens the circuit automatically
 
 ## Setup Instructions
 
@@ -165,6 +166,7 @@ npm run electron:dev
 Electron wraps the compiled Vue app in a Chromium window with a Node.js backend running alongside it. This enables:
 - **Native file dialogs**: Save and open circuits using the OS file picker instead of browser APIs
 - **Direct filesystem access**: Circuit files are written directly to disk via Node's `fs` module
+- **Custom file type**: Circuits are saved as `.ggc` (Golden Gates Circuit) files. On macOS, double-clicking a `.ggc` file launches the app and loads the circuit automatically — no need to open the app first and use File → Open
 
 The browser version continues to work unchanged. `useFileService.js` detects whether `window.electronAPI` is available and uses native file I/O if so, falling back to the existing browser behavior otherwise.
 

@@ -42,6 +42,7 @@ const mockCircuitOperations = {
   stopSimulation: vi.fn(),
   saveCircuit: vi.fn(),
   openCircuit: vi.fn(),
+  initFileAssociation: vi.fn(),
   loadCircuitData: vi.fn(),
   handleDroppedFile: vi.fn(),
   handleInspectorAction: vi.fn(),

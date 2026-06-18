@@ -21,7 +21,8 @@ vi.mock('@/composables/useFileService', () => ({
   useFileService: () => ({
     saveCircuit: mockSaveCircuitFn,
     openCircuit: vi.fn(),
-    parseAndValidateJSON: vi.fn()
+    parseAndValidateJSON: vi.fn(),
+    initFileAssociation: vi.fn()
   })
 }))
 

@@ -8,8 +8,21 @@ const fs = require('fs')
 const path = require('path')
 app.name = 'Golden Gates'
 
+let mainWindow = null
+let pendingFilePath = null  // file opened before window was ready
+
+// macOS: capture double-click open-file events
+app.on('open-file', (event, filePath) => {
+  event.preventDefault()
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('open-file', fs.readFileSync(filePath, 'utf8'))
+  } else {
+    pendingFilePath = filePath  // window not ready yet, queue it
+  }
+})
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
     icon: path.join(__dirname, 'assets/icon.icns'),
@@ -17,14 +30,29 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.cjs')
     }
   })
-  win.loadFile('dist/index.html')
+  mainWindow.loadFile('dist/index.html')
+
+  // Once renderer is ready, send any queued file
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (pendingFilePath) {
+      mainWindow.webContents.send('open-file', fs.readFileSync(pendingFilePath, 'utf8'))
+      pendingFilePath = null
+    }
+  })
+
+  // Clear the reference when the window is closed so open-file doesn't
+  // try to use a destroyed webContents
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
 }
+
 
 // Save circuit to disk
 ipcMain.handle('save-circuit', async (event, { content, defaultName }) => {
   const { filePath } = await dialog.showSaveDialog({
     defaultPath: defaultName,
-    filters: [{ name: 'Circuit', extensions: ['json'] }]
+    filters: [{ name: 'Golden Gates Circuit', extensions: ['ggc'] }]
   })
   if (filePath) {
     fs.writeFileSync(filePath, content)
@@ -49,4 +77,8 @@ app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('activate', () => {
+  if (mainWindow === null) createWindow()
 })

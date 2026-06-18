@@ -376,9 +376,24 @@ export function useFileService() {
     }
   }
 
+  const initFileAssociation = (onCircuitLoaded) => {
+    if (!window.electronAPI?.onOpenFile) return
+  
+    window.electronAPI.onOpenFile((fileContent) => {
+      try {
+        const circuitData = parseAndValidateJSON(fileContent)
+        onCircuitLoaded(circuitData)
+      } catch (error) {
+        console.error('Error loading circuit from file association:', error)
+      }
+    })
+  }
+
+
   return {
     saveCircuit,
     openCircuit,
-    parseAndValidateJSON
+    parseAndValidateJSON, 
+    initFileAssociation
   }
 }

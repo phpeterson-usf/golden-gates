@@ -51,7 +51,13 @@
   "build": {
     "productName": "Golden Gates",
     "appId": "com.goldengates.app",
-    "mac": {
+    "fileAssociations": {
+      "ext": "ggc",
+      "name": "Golden Gates Circuit",
+      "description": "Golden Gates Circuit file",
+      "role": "Editor"
+    },
+  "mac": {
       "icon": "assets/icon.icns",
       "target": "dir"
     },

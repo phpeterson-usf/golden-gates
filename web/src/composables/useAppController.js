@@ -12,7 +12,8 @@ export function useAppController(circuitManager) {
   const {
     saveCircuit: saveCircuitFile,
     openCircuit: openCircuitFile,
-    parseAndValidateJSON
+    parseAndValidateJSON,
+    initFileAssociation: registerFileAssociationHandler
   } = useFileService()
   const {
     initialize: initializePyodide,
@@ -612,6 +613,27 @@ export function useAppController(circuitManager) {
   }
 
   /**
+   * Register handler for OS file association (double-click .ggc etc.)
+   */
+  function initFileAssociation(canvasRef) {
+    registerFileAssociationHandler(circuitData => {
+      const hasExistingCircuit =
+        canvasRef?.components?.length > 0 || canvasRef?.wires?.length > 0
+
+      if (hasExistingCircuit) {
+        showConfirmation({
+          title: 'Replace Circuit?',
+          message: 'This will replace your current circuit. Are you sure you want to continue?',
+          type: 'warning',
+          onAccept: () => loadCircuitData(canvasRef, circuitData)
+        })
+      } else {
+        loadCircuitData(canvasRef, circuitData)
+      }
+    })
+  }
+
+  /**
    * Open circuit from file
    */
   async function openCircuit(canvasRef) {
@@ -915,6 +937,7 @@ export function useAppController(circuitManager) {
     stopSimulation,
     saveCircuit,
     openCircuit,
+    initFileAssociation,
     loadCircuitData,
     handleDroppedFile,
     handleInspectorAction,

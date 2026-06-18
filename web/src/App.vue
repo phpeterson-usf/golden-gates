@@ -145,6 +145,7 @@ export default {
       stopSimulation,
       saveCircuit,
       openCircuit,
+      initFileAssociation,
       loadCircuitData,
       handleDroppedFile,
       handleInspectorAction,
@@ -185,6 +186,7 @@ export default {
       stopSimulation,
       saveCircuit,
       openCircuit,
+      initFileAssociation,
       loadCircuitData,
       handleDroppedFile,
       handleInspectorAction,
@@ -614,6 +616,9 @@ export default {
 
     // Set up keyboard shortcuts with command actions
     this.setCommandActions(commandActions)
+
+    // Handle circuit files opened via OS file association (Electron)
+    this.initFileAssociation(this.$refs.canvas)
   },
 
   watch: {

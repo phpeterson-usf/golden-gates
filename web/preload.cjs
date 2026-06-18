@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveCircuit: (content, defaultName) =>
     ipcRenderer.invoke('save-circuit', { content, defaultName }),
   openCircuit: () =>
-    ipcRenderer.invoke('open-circuit')
+    ipcRenderer.invoke('open-circuit'), 
+  onOpenFile: (callback) => ipcRenderer.on('open-file', (_event, filePath) => callback(filePath))
 })
