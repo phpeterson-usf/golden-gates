@@ -98,13 +98,15 @@ If you want to develop for Golden Gates, the tool chain works like this:
 ### GGL
 
 1. The simulation engine, GGL (Golden Gates Language) is a subset of Python, where the implementation supports the logical (non-presentation) part of circuit simulation
+1. GGL lives in its own repository ([usfca-cs-tools/ggl](https://github.com/usfca-cs-tools/ggl)) and is included here as a git submodule at `web/ggl-engine` so the engine can be shared with other repos. The Vue app serves it to Pyodide at `/ggl/` via `vite-plugin-static-copy` (see `web/vite.config.js`).
+    1. After cloning, populate the submodule with `git submodule update --init`.
 1. GGL was derived by feeding the spec for [Digital](https://github.com/hneemann/digital) through OpenAI O3 to get a [Python spec](https://github.com/phpeterson-usf/golden-gates/blob/main/gglang/design/ggl-design-o3-deep-research-v2.md)
 1. Our GGL implementation can be unit-tested using our [autograder](https://github.com/phpeterson-usf/autograder) tool.
     ```text
-    cd golden-gates/web/public/ggl
+    cd golden-gates/web/ggl-engine
     grade test
     ```
-    1. Autograder searches up the directory tree for [config.toml](https://github.com/phpeterson-usf/golden-gates/blob/main/web/public/ggl/config.toml), and uses that to find the [test case files](https://github.com/phpeterson-usf/golden-gates/blob/main/web/public/ggl/tests/ggl/ggl.toml). 
+    1. Autograder searches up the directory tree for [config.toml](https://github.com/usfca-cs-tools/ggl/blob/main/config.toml), and uses that to find the [test case files](https://github.com/usfca-cs-tools/ggl/blob/main/tests/ggl/ggl.toml). 
 1. The execution environment for browser-side Python is [pyodide](https://pyodide.org/en/stable/), which is why we have no server-side software to deploy (or pay for).
 
 ### Deployment
