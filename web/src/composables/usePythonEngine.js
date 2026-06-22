@@ -30,7 +30,9 @@ export function usePythonEngine() {
         indexURL: new URL('pyodide/', document.baseURI).href
       })
 
-      const gglBaseUrl = new URL('ggl/', document.baseURI).href  
+      // GGL engine files are served at /ggl/ by vite-plugin-static-copy,
+      // sourced from the `ggl` submodule (web/ggl-engine/src/ggl) — see vite.config.js.
+      const gglBaseUrl = new URL('ggl/', document.baseURI).href
       
       // Set up ggl module loading for Pyodide
       await pyodideInstance.value.runPythonAsync(`

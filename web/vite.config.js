@@ -11,6 +11,13 @@ export default defineConfig({
         {
           src: 'node_modules/pyodide/*',
           dest: 'pyodide'
+        },
+        {
+          // GGL simulation engine, sourced from the `ggl` submodule
+          // (web/ggl-engine). Served/built at /ggl/ so Pyodide can fetch the
+          // package files at runtime exactly as before.
+          src: 'ggl-engine/src/ggl/*',
+          dest: 'ggl'
         }
       ]
     })
