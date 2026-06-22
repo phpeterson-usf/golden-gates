@@ -1,5 +1,7 @@
 # Golden Gates
 
+[![Frontend Tests](https://github.com/usfca-cs-tools/golden-gates/actions/workflows/test-frontend.yml/badge.svg)](https://github.com/usfca-cs-tools/golden-gates/actions/workflows/test-frontend.yml)
+
 ![1bit-full-adder](./fa-1bit.png)
 
 ## Background
