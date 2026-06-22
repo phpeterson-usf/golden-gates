@@ -18,10 +18,14 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v5
+      with:
+        # Pull in the ggl engine, which lives in the web/ggl-engine submodule
+        # and is needed by the build (vite copies ggl-engine/src/ggl -> /ggl).
+        submodules: recursive
+
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '20'
         cache: 'npm'
@@ -40,7 +44,7 @@ jobs:
       run: npm run build
       
     - name: Upload test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: test-results
