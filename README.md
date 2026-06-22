@@ -118,8 +118,8 @@ the [`Nightly Build`](.github/workflows/nightly-build.yml) workflow and
 published to the [`nightly`](https://github.com/usfca-cs-tools/golden-gates/releases/tag/nightly)
 prerelease:
 
-- **macOS** (Apple Silicon): `GoldenGates-<version>-arm64.dmg` / `.zip`
-- **Windows** (x64): `GoldenGates-<version>-x64.exe` (installer)
+- **macOS** (Apple Silicon): `GoldenGates-<version>-macos-arm64.dmg` / `.zip`
+- **Windows** (x64): `GoldenGates-<version>-windows-x64.exe` (installer)
 
 To trigger a build manually, run the workflow from the **Actions** tab
 (*Nightly Build → Run workflow*).

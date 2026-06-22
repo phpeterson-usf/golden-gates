@@ -1,6 +1,6 @@
 {
   "name": "golden-gates-frontend",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Golden Gates digital logic circuit designer and simulator",
   "author": "USF CS Tools <phpeterson@usfca.edu>",
   "type": "module",
@@ -57,7 +57,6 @@
     "directories": {
       "output": "release"
     },
-    "artifactName": "GoldenGates-${version}-${arch}.${ext}",
     "fileAssociations": {
       "ext": "ggc",
       "name": "Golden Gates Circuit",
@@ -66,6 +65,7 @@
     },
     "mac": {
       "icon": "assets/icon.icns",
+      "artifactName": "GoldenGates-${version}-macos-${arch}.${ext}",
       "target": [
         { "target": "dmg", "arch": "arm64" },
         { "target": "zip", "arch": "arm64" }
@@ -73,6 +73,7 @@
     },
     "win": {
       "icon": "assets/icon.png",
+      "artifactName": "GoldenGates-${version}-windows-${arch}.${ext}",
       "target": [
         { "target": "nsis", "arch": "x64" }
       ]
