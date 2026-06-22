@@ -52,7 +52,7 @@ Build the static files:
 npm run build
 ```
 
-The built files will be in the `dist` directory and can be deployed to any static hosting service (GitHub Pages, Netlify, Vercel, etc.).
+The built files will be in the `dist` directory. They are bundled into the Electron desktop app (see the root README's "Desktop app" section); the project is not deployed to a web host.
 
 ## Architecture
 

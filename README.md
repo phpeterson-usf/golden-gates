@@ -111,7 +111,37 @@ If you want to develop for Golden Gates, the tool chain works like this:
     1. Autograder searches up the directory tree for [config.toml](https://github.com/usfca-cs-tools/ggl/blob/main/config.toml), and uses that to find the [test case files](https://github.com/usfca-cs-tools/ggl/blob/main/tests/ggl/ggl.toml). 
 1. The execution environment for browser-side Python is [pyodide](https://pyodide.org/en/stable/), which is why we have no server-side software to deploy (or pay for).
 
-### Deployment
+### Desktop app (nightly builds)
 
-1. All pushes to the `main` branch trigger a build on our [production deployment](https://golden-gates-nine.vercel.app) at Vercel.
-1. Our project is configured to enforce CORS restrictions. See `vercel.json` for details.
+The Electron desktop app is built automatically every night (and on demand) by
+the [`Nightly Build`](.github/workflows/nightly-build.yml) workflow and
+published to the [`nightly`](https://github.com/usfca-cs-tools/golden-gates/releases/tag/nightly)
+prerelease:
+
+- **macOS** (Apple Silicon): `GoldenGates-<version>-arm64.dmg` / `.zip`
+- **Windows** (x64): `GoldenGates-<version>-x64.exe` (installer)
+
+To trigger a build manually, run the workflow from the **Actions** tab
+(*Nightly Build → Run workflow*).
+
+These builds are **unsigned**, so the OS will warn on first launch:
+
+- **macOS**: right-click the app → **Open**, then confirm (or
+  `xattr -dr com.apple.quarantine "/Applications/Golden Gates.app"`).
+- **Windows**: on the SmartScreen prompt, click **More info → Run anyway**.
+
+To build locally:
+
+```bash
+cd web
+npm run build            # vite build (needs the ggl-engine submodule)
+npm run icon             # generate the Windows icon from assets/icon.svg
+npx electron-builder --mac   # or --win
+```
+
+### Distribution
+
+Golden Gates ships as the Electron desktop app described above — end users
+download the nightly builds, and collaborators run the app locally with
+`npm run` (see [`web/README.md`](web/README.md)). There is no hosted web
+deployment.

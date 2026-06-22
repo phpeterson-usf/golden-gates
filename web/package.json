@@ -1,6 +1,8 @@
 {
   "name": "golden-gates-frontend",
   "version": "1.0.0",
+  "description": "Golden Gates digital logic circuit designer and simulator",
+  "author": "USF CS Tools <phpeterson@usfca.edu>",
   "type": "module",
   "main": "main.cjs",
   "scripts": {
@@ -10,6 +12,7 @@
     "preview": "vite preview",
     "electron:dev": "vite build && electron .",
     "electron:build": "vite build && electron-builder",
+    "icon": "node scripts/generate-icon.mjs",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
@@ -51,15 +54,28 @@
   "build": {
     "productName": "Golden Gates",
     "appId": "com.goldengates.app",
+    "directories": {
+      "output": "release"
+    },
+    "artifactName": "GoldenGates-${version}-${arch}.${ext}",
     "fileAssociations": {
       "ext": "ggc",
       "name": "Golden Gates Circuit",
       "description": "Golden Gates Circuit file",
       "role": "Editor"
     },
-  "mac": {
+    "mac": {
       "icon": "assets/icon.icns",
-      "target": "dir"
+      "target": [
+        { "target": "dmg", "arch": "arm64" },
+        { "target": "zip", "arch": "arm64" }
+      ]
+    },
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        { "target": "nsis", "arch": "x64" }
+      ]
     },
     "files": [
       "dist/**/*",
