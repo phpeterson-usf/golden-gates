@@ -52,9 +52,14 @@ jobs:
       - name: Package Electron app
         working-directory: web
         env:
-          # Don't attempt macOS code signing/notarization (no certs in CI);
-          # nightly builds ship unsigned.
+          # macOS: skip Developer ID discovery; the afterPack hook ad-hoc signs
+          # the app so it runs on Apple Silicon (not notarized — see README).
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # Windows: electron-builder signs automatically when these are set.
+          # Until the WIN_CSC_* repo secrets exist they resolve to empty and the
+          # Windows build stays unsigned. See README "Code signing".
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         run: npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: Upload build artifacts

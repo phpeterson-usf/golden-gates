@@ -134,9 +134,26 @@ first launch (after that, they open normally):
   `xattr -dr com.apple.quarantine "/Applications/Golden Gates.app"`.
 - **Windows**: on the SmartScreen prompt, click **More info → Run anyway**.
 
-> To remove the first-launch step entirely, the app would need Developer ID
-> signing + Apple notarization (macOS) and a code-signing certificate
-> (Windows) — both require paid certificates wired into the build as secrets.
+#### Code signing
+
+To remove the first-launch warnings entirely, the builds need real signing
+(both require paid certificates):
+
+- **Windows** signing is already wired into the workflow. Add two repository
+  secrets and the nightly build signs the `.exe` automatically — no code change:
+  - `WIN_CSC_LINK` — the base64-encoded `.pfx` certificate
+    (`base64 -i cert.pfx | pbcopy`)
+  - `WIN_CSC_KEY_PASSWORD` — the certificate password
+
+  Without these secrets the Windows build is unsigned and SmartScreen shows an
+  "Unknown publisher" warning. Note: publicly-trusted OV/EV certificates can no
+  longer be exported as a `.pfx` file (the key must live on hardware), so this
+  file-based path suits an existing/enterprise cert; for a new public cert use a
+  cloud signing service (e.g. Azure Trusted Signing), which would need a
+  different workflow step.
+- **macOS** builds are currently ad-hoc signed (they run, but aren't
+  notarized). Eliminating the macOS prompt needs Developer ID signing + Apple
+  notarization (Apple Developer Program), wired in as additional secrets.
 
 To build locally:
 
