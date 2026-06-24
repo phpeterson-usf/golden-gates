@@ -1,16 +1,19 @@
-name: Nightly Build
+name: Build Desktop App
 
 on:
-  schedule:
-    - cron: '0 8 * * *'   # 08:00 UTC daily (~midnight/1am US Pacific)
-  workflow_dispatch: {}     # allow manual runs from the Actions tab
+  push:
+    branches: [ main ]
+    paths:
+      - 'web/**'                              # app code, deps, or the ggl-engine submodule pointer
+      - '.github/workflows/build-desktop.yml'
+  workflow_dispatch: {}                       # allow manual runs from the Actions tab
 
 concurrency:
-  group: nightly-build
-  cancel-in-progress: true
+  group: build-desktop
+  cancel-in-progress: true                    # a newer push supersedes an in-flight build
 
 permissions:
-  contents: write           # the release job publishes to GitHub Releases
+  contents: write                             # the release job publishes to GitHub Releases
 
 jobs:
   build:
@@ -60,6 +63,10 @@ jobs:
           # Windows build stays unsigned. See README "Code signing".
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          # Build number -> 4th component of the Windows file version and the
+          # macOS CFBundleVersion (artifact filenames keep the package.json
+          # semver). Monotonic per workflow run.
+          BUILD_NUMBER: ${{ github.run_number }}
         run: npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: Upload build artifacts
@@ -81,7 +88,7 @@ jobs:
         with:
           path: artifacts
 
-      - name: Publish rolling 'nightly' prerelease
+      - name: Publish rolling 'latest' prerelease
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -94,12 +101,12 @@ jobs:
             exit 1
           fi
           printf 'Releasing asset: %s\n' "${files[@]}"
-          # Recreate the release so 'nightly' always points at the latest build
-          # while keeping stable download URLs (tag + artifactName are fixed).
-          gh release delete nightly --repo "$REPO" --cleanup-tag --yes || true
-          gh release create nightly "${files[@]}" \
+          # Recreate the release so 'latest' always points at the most recent
+          # build of main while keeping stable download URLs (tag + filenames).
+          gh release delete latest --repo "$REPO" --cleanup-tag --yes || true
+          gh release create latest "${files[@]}" \
             --repo "$REPO" \
             --target "$SHA" \
             --prerelease \
-            --title "Nightly Build" \
-            --notes "Automated nightly build from \`main\` (${SHA}). These builds are **unsigned** — see the README for how to open them on macOS and Windows."
+            --title "Latest build" \
+            --notes "Automated build from \`main\` (${SHA}). These builds are ad-hoc signed (macOS) / unsigned (Windows) — see the README for how to open them."

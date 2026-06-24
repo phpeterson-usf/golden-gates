@@ -111,18 +111,21 @@ If you want to develop for Golden Gates, the tool chain works like this:
     1. Autograder searches up the directory tree for [config.toml](https://github.com/usfca-cs-tools/ggl/blob/main/config.toml), and uses that to find the [test case files](https://github.com/usfca-cs-tools/ggl/blob/main/tests/ggl/ggl.toml). 
 1. The execution environment for browser-side Python is [pyodide](https://pyodide.org/en/stable/), which is why we have no server-side software to deploy (or pay for).
 
-### Desktop app (nightly builds)
+### Desktop app
 
-The Electron desktop app is built automatically every night (and on demand) by
-the [`Nightly Build`](.github/workflows/nightly-build.yml) workflow and
-published to the [`nightly`](https://github.com/usfca-cs-tools/golden-gates/releases/tag/nightly)
+The Electron desktop app is built automatically on every push to `main` (and on
+demand) by the [`Build Desktop App`](.github/workflows/build-desktop.yml)
+workflow and published to the
+[`latest`](https://github.com/usfca-cs-tools/golden-gates/releases/tag/latest)
 prerelease:
 
 - **macOS** (Apple Silicon): `GoldenGates-<version>-macos-arm64.dmg` / `.zip`
 - **Windows** (x64): `GoldenGates-<version>-windows-x64.exe` (installer)
 
-To trigger a build manually, run the workflow from the **Actions** tab
-(*Nightly Build → Run workflow*).
+Each build embeds the workflow run number as a build number in the app's version
+metadata (Windows file version / macOS `CFBundleVersion`); the download
+filenames keep the `package.json` version. To trigger a build manually, run the
+workflow from the **Actions** tab (*Build Desktop App → Run workflow*).
 
 These builds are **ad-hoc signed but not notarized**, so the OS blocks them on
 first launch (after that, they open normally):
@@ -140,7 +143,7 @@ To remove the first-launch warnings entirely, the builds need real signing
 (both require paid certificates):
 
 - **Windows** signing is already wired into the workflow. Add two repository
-  secrets and the nightly build signs the `.exe` automatically — no code change:
+  secrets and the build signs the `.exe` automatically — no code change:
   - `WIN_CSC_LINK` — the base64-encoded `.pfx` certificate
     (`base64 -i cert.pfx | pbcopy`)
   - `WIN_CSC_KEY_PASSWORD` — the certificate password
