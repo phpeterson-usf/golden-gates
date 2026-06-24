@@ -124,11 +124,19 @@ prerelease:
 To trigger a build manually, run the workflow from the **Actions** tab
 (*Nightly Build → Run workflow*).
 
-These builds are **unsigned**, so the OS will warn on first launch:
+These builds are **ad-hoc signed but not notarized**, so the OS blocks them on
+first launch (after that, they open normally):
 
-- **macOS**: right-click the app → **Open**, then confirm (or
-  `xattr -dr com.apple.quarantine "/Applications/Golden Gates.app"`).
+- **macOS**: open the `.dmg` and drag the app to Applications, then launch it.
+  When macOS blocks it, go to **System Settings → Privacy & Security**, scroll
+  to the bottom, and click **Open Anyway** (older macOS: right-click the app →
+  **Open**). Alternatively, in Terminal:
+  `xattr -dr com.apple.quarantine "/Applications/Golden Gates.app"`.
 - **Windows**: on the SmartScreen prompt, click **More info → Run anyway**.
+
+> To remove the first-launch step entirely, the app would need Developer ID
+> signing + Apple notarization (macOS) and a code-signing certificate
+> (Windows) — both require paid certificates wired into the build as secrets.
 
 To build locally:
 

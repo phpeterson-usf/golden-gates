@@ -57,6 +57,7 @@
     "directories": {
       "output": "release"
     },
+    "afterPack": "./scripts/afterpack-sign.cjs",
     "fileAssociations": {
       "ext": "ggc",
       "name": "Golden Gates Circuit",
