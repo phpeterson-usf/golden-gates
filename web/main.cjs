@@ -1,5 +1,5 @@
-// main.js acts as the "backend" of the desktop app. 
-// It does three things: creates the window, loads your Vue app into it, 
+// main.js acts as the "backend" of the desktop app.
+// It does three things: creates the window, loads your Vue app into it,
 // and listens for file save/open requests from the Vue side.
 
 
@@ -9,17 +9,74 @@ const path = require('path')
 app.name = 'Golden Gates'
 
 let mainWindow = null
-let pendingFilePath = null  // file opened before window was ready
+let pendingFilePath = null  // file opened before the renderer is ready
 
-// macOS: capture double-click open-file events
-app.on('open-file', (event, filePath) => {
-  event.preventDefault()
+// Windows/Linux pass the path of an associated file as a command-line argument
+// when the app is launched (or re-launched) by double-clicking it. Pick out the
+// .ggc path, ignoring the executable and any Chromium/Electron flags.
+function getFilePathFromArgv(argv) {
+  return (
+    argv.find(arg => !arg.startsWith('-') && arg.toLowerCase().endsWith('.ggc')) ||
+    null
+  )
+}
+
+// Read a circuit file and hand its contents to the renderer, or queue it if the
+// window isn't ready yet. Shared by macOS (open-file event) and Windows/Linux
+// (command-line argument).
+function openCircuitFile(filePath) {
+  if (!filePath) return
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('open-file', fs.readFileSync(filePath, 'utf8'))
+    try {
+      mainWindow.webContents.send('open-file', fs.readFileSync(filePath, 'utf8'))
+    } catch (err) {
+      console.error('Failed to read circuit file:', filePath, err)
+    }
   } else {
     pendingFilePath = filePath  // window not ready yet, queue it
   }
-})
+}
+
+// Keep a single running instance so a second double-click reuses this window
+// instead of spawning a new process (Windows/Linux). macOS is single-instance
+// by default and delivers files through the 'open-file' event instead.
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  // Fired in the primary instance when a second instance is launched — e.g. the
+  // user double-clicked a .ggc file while the app was already running. The new
+  // process's argv carries the file path.
+  app.on('second-instance', (_event, argv) => {
+    openCircuitFile(getFilePathFromArgv(argv))
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+
+  // macOS: capture double-click open-file events
+  app.on('open-file', (event, filePath) => {
+    event.preventDefault()
+    openCircuitFile(filePath)
+  })
+
+  app.whenReady().then(() => {
+    // Windows/Linux cold start: the double-clicked file is on our command line.
+    if (process.platform !== 'darwin' && !pendingFilePath) {
+      pendingFilePath = getFilePathFromArgv(process.argv)
+    }
+    createWindow()
+  })
+
+  app.on('activate', () => {
+    if (mainWindow === null) createWindow()
+  })
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
+  })
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -35,8 +92,9 @@ function createWindow() {
   // Once renderer is ready, send any queued file
   mainWindow.webContents.on('did-finish-load', () => {
     if (pendingFilePath) {
-      mainWindow.webContents.send('open-file', fs.readFileSync(pendingFilePath, 'utf8'))
+      const filePath = pendingFilePath
       pendingFilePath = null
+      openCircuitFile(filePath)
     }
   })
 
@@ -71,14 +129,4 @@ ipcMain.handle('open-circuit', async () => {
     return fs.readFileSync(filePaths[0], 'utf8')
   }
   return null
-})
-
-app.whenReady().then(createWindow)
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('activate', () => {
-  if (mainWindow === null) createWindow()
 })
