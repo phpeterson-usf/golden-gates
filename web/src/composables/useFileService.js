@@ -1,3 +1,9 @@
+// Golden Gates circuits are JSON saved with a `.ggc` extension — the file type
+// registered with the OS for double-click open. Older circuits were saved as
+// `.json`, so opening still accepts both.
+const CIRCUIT_EXT = 'ggc'
+const OPEN_EXTS = ['ggc', 'json']
+
 export function useFileService() {
   const saveCircuit = async (
     components,
@@ -87,18 +93,18 @@ export function useFileService() {
       if (window.electronAPI) {
         const circuitName = circuitMetadata.name || 'circuit'
         const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-        await window.electronAPI.saveCircuit(jsonString, `${circuitName}_${timestamp}.json`)
+        await window.electronAPI.saveCircuit(jsonString, `${circuitName}_${timestamp}.${CIRCUIT_EXT}`)
       } else if ('showSaveFilePicker' in window) {
         try {
           // Use the File System Access API for better UX
           const circuitName = circuitMetadata.name || 'circuit'
           const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
           const handle = await window.showSaveFilePicker({
-            suggestedName: `${circuitName}_${timestamp}.json`,
+            suggestedName: `${circuitName}_${timestamp}.${CIRCUIT_EXT}`,
             types: [
               {
-                description: 'JSON Circuit File',
-                accept: { 'application/json': ['.json'] }
+                description: 'Golden Gates Circuit',
+                accept: { 'application/json': [`.${CIRCUIT_EXT}`] }
               }
             ]
           })
@@ -123,7 +129,7 @@ export function useFileService() {
         const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
         const link = document.createElement('a')
         link.href = url
-        link.download = `${circuitName}_${timestamp}.json`
+        link.download = `${circuitName}_${timestamp}.${CIRCUIT_EXT}`
         document.body.appendChild(link)
         link.click()
 
@@ -154,8 +160,8 @@ export function useFileService() {
           const [fileHandle] = await window.showOpenFilePicker({
             types: [
               {
-                description: 'JSON Circuit File',
-                accept: { 'application/json': ['.json'] }
+                description: 'Golden Gates Circuit',
+                accept: { 'application/json': OPEN_EXTS.map(ext => `.${ext}`) }
               }
             ],
             multiple: false
@@ -174,7 +180,7 @@ export function useFileService() {
         // Fallback to input element
         const input = document.createElement('input')
         input.type = 'file'
-        input.accept = '.json,application/json'
+        input.accept = `${OPEN_EXTS.map(ext => `.${ext}`).join(',')},application/json`
 
         const filePromise = new Promise((resolve, reject) => {
           const handleChange = async e => {

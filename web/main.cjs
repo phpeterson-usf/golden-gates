@@ -122,7 +122,7 @@ ipcMain.handle('save-circuit', async (event, { content, defaultName }) => {
 // Open circuit from disk
 ipcMain.handle('open-circuit', async () => {
   const { filePaths } = await dialog.showOpenDialog({
-    filters: [{ name: 'Circuit', extensions: ['json'] }],
+    filters: [{ name: 'Golden Gates Circuit', extensions: ['ggc', 'json'] }],
     properties: ['openFile']
   })
   if (filePaths.length > 0) {
