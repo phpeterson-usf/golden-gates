@@ -147,7 +147,7 @@ Golden Gates can run as a native desktop application using Electron, with native
 
 3. Open the output folder in Finder:
    ```bash
-   open dist/mac-arm64/
+   open release/mac-arm64/
    ```
 
 4. Drag `Golden Gates.app` into your `/Applications` folder.
@@ -164,9 +164,10 @@ npm run electron:dev
 ### How It Works
 
 Electron wraps the compiled Vue app in a Chromium window with a Node.js backend running alongside it. This enables:
+- **Native menu bar**: A File menu (New Circuit, Open..., Save) appears in the OS menu bar with standard keyboard shortcuts (Cmd+N, Cmd+O, Cmd+S). Save and Open are not in the command palette. Now using the menu bar or shortcuts instead.
 - **Native file dialogs**: Save and open circuits using the OS file picker instead of browser APIs
 - **Direct filesystem access**: Circuit files are written directly to disk via Node's `fs` module
-- **Custom file type**: Circuits are saved as `.ggc` (Golden Gates Circuit) files. On macOS and Windows, double-clicking a `.ggc` file launches the app and loads the circuit automatically — no need to open the app first and use File → Open. Opening (via the dialog) also accepts legacy `.json` circuit files.
+- **Custom file type**: Circuits are saved as `.ggc` (Golden Gates Circuit) files. On macOS and Windows, double-clicking a `.ggc` file launches the app and loads the circuit automatically. Opening via File → Open also accepts legacy `.json` circuit files.
 
 The browser version continues to work unchanged. `useFileService.js` detects whether `window.electronAPI` is available and uses native file I/O if so, falling back to the existing browser behavior otherwise.
 

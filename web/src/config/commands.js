@@ -10,20 +10,6 @@ export const commandGroups = {
         action: 'createNewCircuit'
       },
       {
-        id: 'open-circuit',
-        labelKey: 'commands.file.openCircuit',
-        icon: 'pi pi-folder-open',
-        action: 'openCircuit',
-        shortcutKey: 'open'
-      },
-      {
-        id: 'save-circuit',
-        labelKey: 'commands.file.saveCircuit',
-        icon: 'pi pi-save',
-        action: 'saveCircuit',
-        shortcutKey: 'save'
-      },
-      {
         id: 'clear-circuit',
         labelKey: 'commands.file.clearCircuit',
         icon: 'pi pi-trash',
@@ -32,12 +18,6 @@ export const commandGroups = {
       {
         separator: true
       },
-      {
-        id: 'restore-autosave',
-        labelKey: 'commands.file.restoreAutosave',
-        icon: 'pi pi-history',
-        action: 'restoreAutosave'
-      }
     ]
   },
   simulation: {

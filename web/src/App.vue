@@ -16,12 +16,6 @@
         :availableComponents="availableComponentsArray"
         @command="handleCommand"
       />
-      <AutosaveSelectionDialog
-        v-model:visible="showAutosaveDialog"
-        :autosaves="availableAutosaves"
-        @restore="handleAutosaveRestore"
-        @cancel="showAutosaveDialog = false"
-      />
       <AppToolbar
         :circuitTabs="circuitTabs"
         :activeTabId="activeTabId"
@@ -91,7 +85,6 @@ import ComponentInspector from './components/ComponentInspector.vue'
 import ComponentIcon from './components/ComponentIcon.vue'
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CommandPalette from './components/CommandPalette.vue'
-import AutosaveSelectionDialog from './components/AutosaveSelectionDialog.vue'
 import AppToolbar from './components/AppToolbar.vue'
 import BrowserCompatibilityGuard from './components/BrowserCompatibilityGuard.vue'
 import { usePythonEngine } from './composables/usePythonEngine'
@@ -113,7 +106,6 @@ export default {
     ComponentInspector,
     ConfirmationDialog,
     CommandPalette,
-    AutosaveSelectionDialog,
     AppToolbar,
     BrowserCompatibilityGuard
   },
@@ -210,8 +202,6 @@ export default {
       selectedCircuit: null,
       isDraggingOver: false,
       dragCounter: 0,
-      showAutosaveDialog: false,
-      availableAutosaves: []
     }
   },
   computed: {
@@ -235,12 +225,6 @@ export default {
         case 'createNewCircuit':
           this.createNewCircuit()
           break
-        case 'openCircuit':
-          this.openCircuitFile()
-          break
-        case 'saveCircuit':
-          this.saveCircuitFile()
-          break
         case 'clearCircuit':
           this.clearCircuit()
           break
@@ -250,11 +234,6 @@ export default {
         case 'stopSimulation':
           this.stopSimulation()
           break
-        case 'restoreAutosave':
-          this.showManualRestoreDialog()
-          break
-        default:
-          console.warn(this.$t('ui.unknownCommand') + ':', action)
       }
     },
 
@@ -465,41 +444,6 @@ export default {
     },
 
     /**
-     * Show manual restore dialog with all available autosaves
-     */
-    showManualRestoreDialog() {
-      const availableRestores = this.autosave.getAvailableRestores()
-
-      if (availableRestores.length === 0) {
-        // No autosaves available - could show a message or do nothing
-        return
-      }
-
-      this.availableAutosaves = availableRestores
-      this.showAutosaveDialog = true
-    },
-
-    /**
-     * Handle autosave restoration from selection dialog
-     */
-    handleAutosaveRestore(selectedAutosave) {
-      this.showAutosaveDialog = false
-
-      if (this.autosave.restoreFromAutosave(selectedAutosave.key)) {
-        // Autosave restoration successful
-        // Force a re-render by updating reactive properties if needed
-        this.$nextTick(() => {
-          // Navigate to the restored active circuit if it exists
-          if (this.activeTabId && this.allCircuits.has(this.activeTabId)) {
-            this.switchToTab(this.activeTabId)
-          }
-        })
-      } else {
-        alert(this.$t('autosave.restoreError'))
-      }
-    },
-
-    /**
      * Clear the current circuit (all components, wires, and reset to empty state)
      */
     clearCircuit() {
@@ -594,12 +538,6 @@ export default {
       createNewCircuit: () => {
         this.createNewCircuit()
       },
-      openCircuit: () => {
-        this.openCircuitFile()
-      },
-      saveCircuit: () => {
-        this.saveCircuitFile()
-      },
       runSimulation: () => {
         this.runSimulation(this.$refs.canvas)
       },
@@ -609,9 +547,6 @@ export default {
       clearCircuit: () => {
         this.clearCircuit()
       },
-      restoreAutosave: () => {
-        this.showManualRestoreDialog()
-      }
     }
 
     // Set up keyboard shortcuts with command actions
@@ -619,6 +554,14 @@ export default {
 
     // Handle circuit files opened via OS file association (Electron)
     this.initFileAssociation(this.$refs.canvas)
+
+    // Handle native menu bar File actions (Electron)
+    if (window.electronAPI?.onMenuNewCircuit) {
+      window.electronAPI.onMenuNewCircuit(() => this.createNewCircuit())
+    }
+    if (window.electronAPI?.onMenuSaveCircuit) {
+      window.electronAPI.onMenuSaveCircuit(() => this.saveCircuitFile())
+    }
   },
 
   watch: {

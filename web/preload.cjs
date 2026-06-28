@@ -9,5 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('save-circuit', { content, defaultName }),
   openCircuit: () =>
     ipcRenderer.invoke('open-circuit'), 
-  onOpenFile: (callback) => ipcRenderer.on('open-file', (_event, filePath) => callback(filePath))
+  onOpenFile: (callback) => ipcRenderer.on('open-file', (_event, filePath) => callback(filePath)),
+  onMenuNewCircuit: (callback) => ipcRenderer.on('menu-new-circuit', () => callback()),
+  onMenuSaveCircuit: (callback) => ipcRenderer.on('menu-save-circuit', () => callback())
 })

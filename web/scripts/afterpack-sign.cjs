@@ -21,6 +21,9 @@ exports.default = async function afterPack(context) {
     `${context.packager.appInfo.productFilename}.app`
   )
 
+  // Strip extended attributes that codesign rejects ("resource fork or detritus")
+  execFileSync('xattr', ['-cr', appPath], { stdio: 'inherit' })
+
   console.log(`[afterPack] ad-hoc signing ${appPath}`)
   execFileSync('codesign', ['--deep', '--force', '--sign', '-', appPath], {
     stdio: 'inherit',

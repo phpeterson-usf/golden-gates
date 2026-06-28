@@ -3,7 +3,7 @@
 // and listens for file save/open requests from the Vue side.
 
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const fs = require('fs')
 const path = require('path')
 app.name = 'Golden Gates'
@@ -66,6 +66,48 @@ if (!gotTheLock) {
     if (process.platform !== 'darwin' && !pendingFilePath) {
       pendingFilePath = getFilePathFromArgv(process.argv)
     }
+
+    // Native menu bar with File menu for Open/Save
+    const menuTemplate = [
+      {
+        label: 'File',
+        submenu: [
+          {
+            label: 'New Circuit',
+            accelerator: 'CmdOrCtrl+N',
+            click: () => {
+              if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('menu-new-circuit')
+              }
+            }
+          },
+          {
+            label: 'Open...',
+            accelerator: 'CmdOrCtrl+O',
+            click: async () => {
+              const { filePaths } = await dialog.showOpenDialog({
+                filters: [{ name: 'Golden Gates Circuit', extensions: ['ggc', 'json'] }],
+                properties: ['openFile']
+              })
+              if (filePaths.length > 0) {
+                openCircuitFile(filePaths[0])
+              }
+            }
+          },
+          {
+            label: 'Save',
+            accelerator: 'CmdOrCtrl+S',
+            click: () => {
+              if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('menu-save-circuit')
+              }
+            }
+          }
+        ]
+      }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate))
+
     createWindow()
   })
 
