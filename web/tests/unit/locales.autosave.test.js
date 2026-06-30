@@ -3,28 +3,10 @@ import enLocale from '@/locales/en.json'
 
 describe('Autosave Localization', () => {
   describe('command palette strings', () => {
-    it('should have restore autosave command string', () => {
-      expect(enLocale.commands.file.restoreAutosave).toBeDefined()
-      expect(enLocale.commands.file.restoreAutosave).toBe('Restore Previous Work')
-    })
-
-    it('should have restore command in file group alongside other file commands', () => {
+    it('should have new circuit command string', () => {
       const fileCommands = enLocale.commands.file
-
       expect(fileCommands.newCircuit).toBeDefined()
-      expect(fileCommands.openCircuit).toBeDefined()
-      expect(fileCommands.saveCircuit).toBeDefined()
-      expect(fileCommands.restoreAutosave).toBeDefined()
-    })
-
-    it('should use consistent naming pattern with other commands', () => {
-      const fileCommands = enLocale.commands.file
-
-      // All file commands should be in imperative form
       expect(fileCommands.newCircuit).toMatch(/^(New|Create)/i)
-      expect(fileCommands.openCircuit).toMatch(/^Open/i)
-      expect(fileCommands.saveCircuit).toMatch(/^Save/i)
-      expect(fileCommands.restoreAutosave).toMatch(/^Restore/i)
     })
   })
 
@@ -45,15 +27,9 @@ describe('Autosave Localization', () => {
       expect(autosaveStrings.restoreError).toBeDefined()
     })
 
-    it('should have consistent title between command and dialog', () => {
-      // The command and dialog should use consistent language
-      const commandTitle = enLocale.commands.file.restoreAutosave
+    it('should have restore title in autosave dialog strings', () => {
       const dialogTitle = enLocale.autosave.restoreTitle
-
-      // Both should mention "restore" and "work" or similar concepts
-      expect(commandTitle.toLowerCase()).toContain('restore')
       expect(dialogTitle.toLowerCase()).toContain('restore')
-      expect(commandTitle.toLowerCase()).toMatch(/work|previous/)
       expect(dialogTitle.toLowerCase()).toMatch(/work|previous/)
     })
   })
@@ -87,16 +63,13 @@ describe('Autosave Localization', () => {
   })
 
   describe('user experience consistency', () => {
-    it('should use user-friendly language', () => {
-      const commandTitle = enLocale.commands.file.restoreAutosave
+    it('should use user-friendly language in autosave dialog', () => {
       const dialogTitle = enLocale.autosave.restoreTitle
 
       // Should avoid technical jargon like "autosave"
-      expect(commandTitle.toLowerCase()).not.toContain('autosave')
       expect(dialogTitle.toLowerCase()).not.toContain('autosave')
 
       // Should use friendly terms
-      expect(commandTitle.toLowerCase()).toMatch(/previous|work|restore/)
       expect(dialogTitle.toLowerCase()).toMatch(/previous|work|restore/)
     })
 

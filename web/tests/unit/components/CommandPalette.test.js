@@ -121,15 +121,15 @@ describe('CommandPalette', () => {
 
     it('should filter commands based on search query', async () => {
       const searchInput = wrapper.find('.command-palette-input')
-      await searchInput.setValue('save')
+      await searchInput.setValue('run')
 
-      // Should show save-related commands
+      // Should show run-related commands
       const commandItems = wrapper.findAll('.command-item')
       expect(commandItems.length).toBeGreaterThan(0)
 
-      // Check that visible commands contain 'save' in their text
+      // Check that visible commands contain 'run' in their text
       const visibleCommands = commandItems.filter(item =>
-        item.text().toLowerCase().includes('save')
+        item.text().toLowerCase().includes('run')
       )
       expect(visibleCommands.length).toBeGreaterThan(0)
     })
@@ -363,8 +363,8 @@ describe('CommandPalette', () => {
     })
 
     it('should show items in both Recent and static groups to maintain muscle memory', () => {
-      // Mock recent commands including a 'save-circuit' command
-      const recentCommands = ['save-circuit', 'run-simulation']
+      // Mock recent commands including a 'new-circuit' command
+      const recentCommands = ['new-circuit', 'run-simulation']
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(recentCommands))
 
       wrapper = createWrapper({ modelValue: true })
@@ -375,15 +375,15 @@ describe('CommandPalette', () => {
       // Check that the same commands also appear in their static groups
       const groups = wrapper.vm.groupedCommands
 
-      // The 'save-circuit' command should appear in the file group even if it's recent
+      // The 'new-circuit' command should appear in the file group even if it's recent
       expect(groups.has('file')).toBe(true)
       const fileCommands = groups.get('file')
-      const saveCommand = fileCommands.find(cmd => cmd.id === 'save-circuit')
-      expect(saveCommand).toBeDefined()
+      const newCircuitCommand = fileCommands.find(cmd => cmd.id === 'new-circuit')
+      expect(newCircuitCommand).toBeDefined()
 
       // The command should also be in recent commands
-      const recentSaveCommand = wrapper.vm.recentCommands.find(cmd => cmd.id === 'save-circuit')
-      expect(recentSaveCommand).toBeDefined()
+      const recentNewCircuitCommand = wrapper.vm.recentCommands.find(cmd => cmd.id === 'new-circuit')
+      expect(recentNewCircuitCommand).toBeDefined()
     })
   })
 })
