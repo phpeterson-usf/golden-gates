@@ -10,6 +10,7 @@ export const ERROR_CIRCUIT_LOOP = 'simulation.errors.circuitLoop'
 export const ERROR_COMPONENT_NOT_FOUND = 'simulation.errors.componentNotFound'
 export const ERROR_INVALID_PORT_CONNECTION = 'simulation.errors.invalidPortConnection'
 export const ERROR_MULTIPLE_OUTPUTS = 'simulation.errors.multipleOutputs'
+export const ERROR_INPUT_SHORT_CIRCUIT = 'simulation.errors.inputShortCircuit'
 export const ERROR_INVALID_COMPONENT_TYPE = 'simulation.errors.invalidComponentType'
 export const ERROR_SIMULATION_TIMEOUT = 'simulation.errors.simulationTimeout'
 

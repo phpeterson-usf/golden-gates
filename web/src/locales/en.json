@@ -227,6 +227,7 @@
       "componentNotFound": "Component '{componentId}' not found",
       "invalidPortConnection": "Invalid connection to port '{portName}' on component '{componentType}'",
       "multipleOutputs": "Multiple outputs connected to input '{inputName}'",
+      "inputShortCircuit": "Input '{inputName}' is driven by more than one wire (short circuit); an input can have only one connection",
       "invalidComponentType": "Invalid component type: '{componentType}'",
       "simulationTimeout": "Simulation timed out after {timeoutMs}ms"
     },
